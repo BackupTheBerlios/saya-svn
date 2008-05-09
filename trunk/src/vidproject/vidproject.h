@@ -7,6 +7,7 @@ class VidProject
     public:
         VidProject();
         virtual ~VidProject();
+        bool LoadFromXml(const wxString &data);
     protected:
     private:
 };

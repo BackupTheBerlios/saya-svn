@@ -9,3 +9,7 @@ VidProject::~VidProject()
 {
     //dtor
 }
+
+bool VidProject::LoadFromXml(const wxString &data) {
+    return true;
+}

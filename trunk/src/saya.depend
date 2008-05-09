@@ -1648,3 +1648,42 @@
 
 1209615806 /home/rick/projects/saya/trunk/vidproject/vidproject.h
 
+1210377010 source:/home/rick/projects/saya/trunk/src/wx_pch.h
+	<wx/wxprec.h>
+	<wx/wx.h>
+	<wx/xrc/xmlres.h>
+	<wx/config.h>
+
+1210377010 source:/home/rick/projects/saya/trunk/src/App.cpp
+	"wx_pch.h"
+	<wx/xrc/xmlres.h>
+	<wx/config.h>
+	"App.h"
+	"Main.h"
+	<wx/image.h>
+
+1210377010 /home/rick/projects/saya/trunk/src/wx_pch.h
+	<wx/wxprec.h>
+	<wx/wx.h>
+	<wx/xrc/xmlres.h>
+	<wx/config.h>
+
+1210377010 /home/rick/projects/saya/trunk/src/App.h
+	<wx/app.h>
+
+1210377010 /home/rick/projects/saya/trunk/src/Main.h
+	<wx/wx.h>
+	"App.h"
+
+1210377010 source:/home/rick/projects/saya/trunk/src/Main.cpp
+	"wx_pch.h"
+	<wx/xrc/xmlres.h>
+	<wx/config.h>
+	"App.h"
+	"Main.h"
+
+1210377696 source:/home/rick/projects/saya/trunk/src/vidproject/vidproject.cpp
+	"vidproject.h"
+
+1210377697 /home/rick/projects/saya/trunk/src/vidproject/vidproject.h
+
