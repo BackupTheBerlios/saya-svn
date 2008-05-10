@@ -54,7 +54,6 @@
             </object>
             <object class="wxMenu" name="idFileOpenRecentProject">
                 <label>Open Recent Project</label>
-                <enabled>0</enabled>
                 <help>Opens a Recently opened Project</help>
             </object>
             <object class="separator" />

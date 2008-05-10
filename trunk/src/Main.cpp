@@ -21,6 +21,9 @@
 #include "App.h"
 #include "Main.h"
 
+#include <deque>
+using namespace std;
+
 //helper functions
 enum wxbuildinfoformat {
     short_f, long_f };
@@ -61,6 +64,9 @@ int idFileExit = XRCID("idFileExit");
 int idMenuSaveFrameLayout = XRCID("idMenuSaveFrameLayout");
 int idFileOpen = XRCID("idFileOpen");
 
+int idFileOpenRecentProject = XRCID("idFileOpenRecentProject");
+int idFileClearRecentProjectList = XRCID("idFileClearRecentProjectList");
+
 wxString g_statustext;
 
 BEGIN_EVENT_TABLE(AppFrame, wxFrame)
@@ -69,6 +75,9 @@ BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_MENU(idMenuAbout, AppFrame::OnAbout)
     EVT_MENU(idMenuSaveFrameLayout, AppFrame::OnSaveFrameLayout)
     EVT_MENU(idFileOpen, AppFrame::OnFileOpen)
+    EVT_MENU(idFileClearRecentProjectList, AppFrame::OnClearRecentProjectList)
+
+    EVT_UPDATE_UI(idFileOpenRecentProject, AppFrame::OnRecentFilesMenuUpdateUI)
 END_EVENT_TABLE()
 
 AppFrame::AppFrame(wxFrame *frame, const wxString& title)
@@ -146,6 +155,12 @@ void AppFrame::OnFileOpen(wxCommandEvent& event) {
     }
 }
 
+void AppFrame::OnClearRecentProjectList(wxCommandEvent &event) {
+    if(IsAppShuttingDown())
+        return;
+    ProjectManager::Get()->ClearRecentFiles();
+}
+
 void AppFrame::OnClose(wxCloseEvent &event) {
     Destroy();
 }
@@ -181,6 +196,66 @@ void AppFrame::StoreFrameSize (wxRect rect) {
     // TODO: Save other windows' layout
     delete cfg;
 }
+
+void AppFrame::OnFileMenuUpdateUI(wxUpdateUIEvent& event) {
+}
+
+void AppFrame::OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event) {
+    // Update the Recent Projects list
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(pmgr == NULL)
+        return;
+    if(pmgr->m_recentfilesmodified) {
+        pmgr->m_recentfilesmodified = false;
+        wxMenuItem* myItem = GetMenuBar()-> FindItem(idFileOpenRecentProject);
+        if(myItem) {
+            wxMenu* mySubMenu = myItem->GetSubMenu();
+
+            if(mySubMenu) { // Clear all items in the submenu
+                while(mySubMenu->GetMenuItemCount()) {
+                    wxMenuItem* subitem = mySubMenu->FindItemByPosition(0);
+                    if(subitem == NULL)
+                        break;
+                    mySubMenu->Delete(subitem);
+                }
+            } else { // Add a new submenu
+                mySubMenu = new wxMenu();
+                myItem->SetSubMenu(mySubMenu);
+            }
+            // TODO (rick#1#): Add the recently opened projects to the menu in OnUpdateUI
+            size_t i = 0;
+            mySubMenu->Append(idFileClearRecentProjectList,_T("&Clear"),_("Clears Recent Projects List"));
+            mySubMenu->AppendSeparator();
+            for(i = 0; i < pmgr->m_recentfiles.size(); i++) {
+                wxString tmptext;
+                tmptext.Printf(_T("&%d ") + pmgr->m_recentfiles[i],i+1);
+                mySubMenu->Append(wxID_FILE1+i,tmptext,wxEmptyString);
+            }
+            // wxID_FILE1
+            myItem->Enable(pmgr->m_recentfiles.size() > 0);
+        }
+    }
+}
+
+void AppFrame::OnEditMenuUpdateUI(wxUpdateUIEvent& event) {
+}
+
+void AppFrame::OnProjectMenuUpdateUI(wxUpdateUIEvent& event) {
+}
+
+void AppFrame::OnClipMenuUpdateUI(wxUpdateUIEvent& event) {
+}
+
+void AppFrame::OnSequenceMenuUpdateUI(wxUpdateUIEvent& event) {
+}
+
+void AppFrame::OnMarkerMenuUpdateUI(wxUpdateUIEvent& event) {
+}
+
+void AppFrame::OnWindowMenuUpdateUI(wxUpdateUIEvent& event) {
+}
+
+
 
 void AppFrame::OnAbout(wxCommandEvent &event) {
     wxString msg = wxbuildinfo(long_f);

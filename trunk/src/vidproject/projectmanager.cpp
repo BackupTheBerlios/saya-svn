@@ -28,8 +28,14 @@ ProjectManager::ProjectManager() {
     //ctor
     m_project = 0;
     m_recentfiles.clear();
+    m_recentfilesmodified = true;
     m_project_xml = wxEmptyString;
     m_original_xml = wxEmptyString;
+    m_MainFrame = NULL;
+}
+
+void ProjectManager::SetMainFrame(wxFrame* frame) {
+    m_MainFrame = frame;
 }
 
 ProjectManager* ProjectManager::Get() {
@@ -68,15 +74,56 @@ bool ProjectManager::LoadProjectFromXml(const wxString &data) {
     return IsOk;
 }
 
+void ProjectManager::AddToRecentFiles(const wxString& s,bool fromthebeginning) {
+
+    if(!fromthebeginning && m_recentfiles.size() >= 9) {
+        return; // Queue full
+    }
+
+    // First, check if it's in the list
+    size_t i;
+    for(i = 0; i < m_recentfiles.size(); i++) {
+        if(s == m_recentfiles[i]) {
+            return; // Found
+        }
+    }
+
+    // Finally, add it
+    if(fromthebeginning) {
+        m_recentfiles.push_front(s); // Add to the beginning
+        if(m_recentfiles.size() > 9) {
+            m_recentfiles.pop_back();
+        }
+    } else {
+        m_recentfiles.push_back(s); // Add to the end
+    }
+    m_recentfilesmodified = true;
+}
+
+void ProjectManager::ClearRecentFiles() {
+    m_recentfiles.clear();
+    m_recentfilesmodified = true;
+}
+
 bool ProjectManager::LoadConfig() {
     // TODO (rick#1#): Load configuration for the project manager
     wxConfig* cfg = new wxConfig (APP_NAME);
     wxString key;
+    wxString tmpname;
 
     // Read last used directory
     key = _T("paths/LastProjectDir");
-    if (cfg->Exists (key))
+    if (cfg->Exists(key))
         m_LastProjectDir = cfg->Read(key,wxEmptyString);
+    key = _T("RecentProjects");
+    int i;
+    for(i = 1; i <= 10; i++) {
+        key.Printf(_T("RecentProjects/File%d"),i);
+        if(cfg->Exists(key)) {
+            tmpname = cfg->Read(key,wxEmptyString);
+            AddToRecentFiles(tmpname,false);
+        }
+    }
 
     delete cfg;
     return true;
@@ -118,6 +165,7 @@ bool ProjectManager::LoadProject(const wxString filename) {
             wxFileName fullname;
             fullname.Assign(filename);
             m_LastProjectDir = fullname.GetPath(); // Extract last project directory from opened file path
+            AddToRecentFiles(filename);
         }
     } while(false);
 

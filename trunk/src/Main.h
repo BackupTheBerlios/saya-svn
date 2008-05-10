@@ -16,6 +16,7 @@
 
 #include "App.h"
 #include "vidproject/projectmanager.h"
+class wxUpdateUIEvent;
 
 class AppFrame: public wxFrame
 {
@@ -32,6 +33,7 @@ class AppFrame: public wxFrame
             idMenuAbout,
         };
         void OnFileOpen(wxCommandEvent& event);
+        void OnClearRecentProjectList(wxCommandEvent &event);
 
         void OnClose(wxCloseEvent& event);
         void OnQuit(wxCommandEvent& event);
@@ -40,6 +42,17 @@ class AppFrame: public wxFrame
         void OnSaveFrameLayout(wxCommandEvent& event);
         void StoreFrameSize (wxRect rect);
         void StoreCurrentLayout();
+
+        // UpdateUI events
+
+        void OnFileMenuUpdateUI(wxUpdateUIEvent& event);
+        void OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event);
+        void OnEditMenuUpdateUI(wxUpdateUIEvent& event);
+        void OnProjectMenuUpdateUI(wxUpdateUIEvent& event);
+        void OnClipMenuUpdateUI(wxUpdateUIEvent& event);
+        void OnSequenceMenuUpdateUI(wxUpdateUIEvent& event);
+        void OnMarkerMenuUpdateUI(wxUpdateUIEvent& event);
+        void OnWindowMenuUpdateUI(wxUpdateUIEvent& event);
 
         DECLARE_EVENT_TABLE()
 };

@@ -64,8 +64,8 @@ bool App::OnInit()
         wxLogError(_("WARNING: Could not read configuration!"));
     }
 
-    AppFrame* frame = new AppFrame(0L, _("Saya - Swift audiovisual Authoring for You and Anyone"));
-
+    AppFrame* frame = new AppFrame(NULL, _("Saya - Swift audiovisual Authoring for You and Anyone"));
+    ProjectManager::Get()->SetMainFrame(frame);
     frame->Show();
     wxCommandEvent evt(cmd_SHOW_STARTUP_DIALOG);
     wxPostEvent(this, evt);

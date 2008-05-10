@@ -2,7 +2,7 @@
 #define PROJECTMANAGER_H
 
 #include "vidproject.h"
-#include <vector>
+#include <deque>
 #include <wx/wx.h>
 using namespace std;
 
@@ -23,17 +23,24 @@ class ProjectManager
         bool LoadProjectFromXml(const wxString &data);
         bool LoadConfig();
         bool SaveConfig();
+        void SetMainFrame(wxFrame* frame);
         const wxString GetLastProjectDir();
+        void AddToRecentFiles(const wxString& s,bool fromthebeginning = true);
+        void ClearRecentFiles();
         static ProjectManager* Get();
         static void Unload();
         VidProject* m_project;
-        vector<wxString> m_recentfiles;
+        deque<wxString> m_recentfiles;
         wxString m_project_xml;
         wxString m_original_xml;
         wxString m_lasterror;
+
+        bool m_recentfilesmodified;
+
     protected:
     private:
         wxString m_LastProjectDir;
+        wxFrame* m_MainFrame;
 };
 
 #endif // PROJECTMANAGER_H
