@@ -56,3 +56,5 @@ Things I've learned by testing the Adobe Premiere UI:
 
 * Perhaps we also need "metaclips". Can a sequence be treated as a clip?
   That'd be cool, it'd simplify the work a lot.
+
+* Testing kdesvn. I'm going to do a commit to make sure it works.
