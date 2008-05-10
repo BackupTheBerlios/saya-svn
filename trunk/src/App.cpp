@@ -20,7 +20,7 @@
 
 #include "App.h"
 #include "Main.h"
-
+#include "vidproject/projectmanager.h"
 
 //(*AppHeaders
 #include <wx/image.h>
@@ -36,13 +36,17 @@ END_EVENT_TABLE()
 
 bool App::LoadConfig()
 {
-// TODO (rick#1#): Load frame config (window position and size), layout, last open project, etc.
-
+    if(!ProjectManager::Get()->LoadConfig())
+        return false;
     return true;
 }
 
 void App::OnShowStartupDialog(wxCommandEvent& event) {
 //    wxMessageBox(_("Hola mundo! :) "),_("Hello world"));
+}
+
+void App::InitManagers() {
+    ProjectManager::Get();
 }
 
 bool App::OnInit()
@@ -52,6 +56,9 @@ bool App::OnInit()
 	bool wxsOK = true;
 	wxInitAllImageHandlers();
 	//*)
+
+    InitManagers();
+
 
     if(!LoadConfig()) {
         wxLogError(_("WARNING: Could not read configuration!"));

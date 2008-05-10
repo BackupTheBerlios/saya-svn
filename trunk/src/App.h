@@ -18,6 +18,7 @@ class App : public wxApp
         virtual bool OnInit();
         bool LoadConfig();
         void OnShowStartupDialog(wxCommandEvent& event);
+        void InitManagers();
         DECLARE_EVENT_TABLE()
     private:
 };

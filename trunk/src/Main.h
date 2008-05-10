@@ -15,6 +15,7 @@
 #endif
 
 #include "App.h"
+#include "vidproject/projectmanager.h"
 
 class AppFrame: public wxFrame
 {
@@ -23,18 +24,23 @@ class AppFrame: public wxFrame
         void OnFrameLayout (wxCommandEvent &event);
         void UpdateStatustext();
         ~AppFrame();
+        ProjectManager* m_prjMan;
     private:
         enum
         {
             idMenuQuit = 1000,
             idMenuAbout,
         };
+        void OnFileOpen(wxCommandEvent& event);
+
         void OnClose(wxCloseEvent& event);
         void OnQuit(wxCommandEvent& event);
         void OnAbout(wxCommandEvent& event);
         wxRect DetermineFrameSize();
         void OnSaveFrameLayout(wxCommandEvent& event);
         void StoreFrameSize (wxRect rect);
+        void StoreCurrentLayout();
+
         DECLARE_EVENT_TABLE()
 };
 

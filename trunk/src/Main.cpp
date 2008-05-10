@@ -17,6 +17,7 @@
 
 #include <wx/xrc/xmlres.h>
 #include <wx/config.h>
+#include <wx/filedlg.h>
 #include "App.h"
 #include "Main.h"
 
@@ -48,9 +49,6 @@ wxString wxbuildinfo(wxbuildinfoformat format)
     return wxbuild;
 }
 
-const wxString APP_NAME = _T("SayaVideoEditor");
-const wxString APP_VENDOR = _T("wyoGuide");
-const wxString APP_SHOWNAME = _T("Saya");
 
 const wxString LOCATION = _T("Location");
 const wxString LOCATION_X = _T("xpos");
@@ -61,6 +59,7 @@ const wxString LOCATION_H = _T("height");
 
 int idFileExit = XRCID("idFileExit");
 int idMenuSaveFrameLayout = XRCID("idMenuSaveFrameLayout");
+int idFileOpen = XRCID("idFileOpen");
 
 wxString g_statustext;
 
@@ -69,6 +68,7 @@ BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_MENU(idFileExit, AppFrame::OnQuit)
     EVT_MENU(idMenuAbout, AppFrame::OnAbout)
     EVT_MENU(idMenuSaveFrameLayout, AppFrame::OnSaveFrameLayout)
+    EVT_MENU(idFileOpen, AppFrame::OnFileOpen)
 END_EVENT_TABLE()
 
 AppFrame::AppFrame(wxFrame *frame, const wxString& title)
@@ -80,6 +80,7 @@ AppFrame::AppFrame(wxFrame *frame, const wxString& title)
         Destroy();
         return;
     }
+    m_prjMan = ProjectManager::Get();
     SetSize (DetermineFrameSize ());
     CenterOnScreen();
 
@@ -130,6 +131,19 @@ wxRect AppFrame::DetermineFrameSize () {
 }
 
 AppFrame::~AppFrame() {
+    ShutdDownApp();
+    ProjectManager::Unload();
+}
+
+void AppFrame::OnFileOpen(wxCommandEvent& event) {
+    if(IsAppShuttingDown())
+        return;
+    wxString lastdir = ProjectManager::Get()->GetLastProjectDir();
+    wxFileDialog myDialog(this, _("Choose a project"), lastdir, _T(""), _T("*.saya"), wxFD_DEFAULT_STYLE, wxDefaultPosition, wxDefaultSize, _T("opendlg"));
+    int dialogresult = myDialog.ShowModal();
+    if(dialogresult == wxID_OK) {
+        ProjectManager::Get()->LoadProject(myDialog.GetPath());
+    }
 }
 
 void AppFrame::OnClose(wxCloseEvent &event) {
@@ -141,15 +155,20 @@ void AppFrame::OnQuit(wxCommandEvent &event) {
 }
 
 void AppFrame::OnSaveFrameLayout(wxCommandEvent& event) {
-    StoreFrameSize (GetRect ());
-    wxMessageBox (_("Windows' Size and Position have been saved."),
-                  _("Save Window Position"), wxOK);
+    StoreCurrentLayout();
 }
 
 void AppFrame::UpdateStatustext() {
     SetStatusText (g_statustext, 0);
 }
 
+void AppFrame::StoreCurrentLayout() {
+    StoreFrameSize (GetRect ());
+
+    wxMessageBox (_("Current Layout has been saved."),
+                  _("Save Layout"), wxOK);
+
+}
 void AppFrame::StoreFrameSize (wxRect rect) {
 
     // store size

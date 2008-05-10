@@ -1,6 +1,5 @@
-// TODO (rick#1#): Cargar configuración del layout
-// TODO (rick#1#): Crear ventanas con wxAUI
-// TODO (rick#1#): crear menús
-// TODO (rick#1#): crear diálogos
-// TODO (rick#1#): usar archivos .xrc comprimidos en zip
-// TODO (rick#1#): definir xml para el proyecto
+// TODO (rick#1#): Load layout configuration
+// TODO (rick#1#): Create windows with wxAUI
+// TODO (rick#1#): Create dialogs
+// TODO (rick#1#): Zip the XRC files
+// TODO (rick#1#): Define the XML for the project
