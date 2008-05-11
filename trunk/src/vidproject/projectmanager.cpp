@@ -76,6 +76,9 @@ bool ProjectManager::LoadProjectFromXml(const wxString &data) {
 
 void ProjectManager::AddToRecentFiles(const wxString& s,bool fromthebeginning) {
 
+    if(s == wxEmptyString)
+        return;
+
     if(!fromthebeginning && m_recentfiles.size() >= 9) {
         return; // Queue full
     }
@@ -117,7 +120,7 @@ bool ProjectManager::LoadConfig() {
         m_LastProjectDir = cfg->Read(key,wxEmptyString);
     key = _T("RecentProjects");
     int i;
-    for(i = 1; i <= 10; i++) {
+    for(i = 1; i <= 9; i++) {
         key.Printf(_T("RecentProjects/File%d"),i);
         if(cfg->Exists(key)) {
             tmpname = cfg->Read(key,wxEmptyString);
@@ -132,9 +135,22 @@ bool ProjectManager::LoadConfig() {
 bool ProjectManager::SaveConfig() {
     // TODO (rick#1#): Save configuration for the project manager
     wxConfig* cfg = new wxConfig (APP_NAME);
+    wxString key;
 
     // Save last used directory
     cfg->Write (_T("paths/LastProjectDir"),m_LastProjectDir);
+
+    // Save Recent Projects list
+
+    size_t i;
+    for(i = 0; i < 9; i++) {
+        key.Printf(_T("RecentProjects/File%d"),i+1);
+        if(i>=m_recentfiles.size()) {
+            cfg->Write(key,wxEmptyString);
+        } else {
+            cfg->Write(key,m_recentfiles[i]);
+        }
+    }
 
     delete cfg;
     return true;
