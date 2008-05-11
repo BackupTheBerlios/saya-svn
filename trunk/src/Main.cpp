@@ -151,7 +151,11 @@ void AppFrame::OnFileOpen(wxCommandEvent& event) {
     wxFileDialog myDialog(this, _("Choose a project"), lastdir, _T(""), _T("*.saya"), wxFD_DEFAULT_STYLE, wxDefaultPosition, wxDefaultSize, _T("opendlg"));
     int dialogresult = myDialog.ShowModal();
     if(dialogresult == wxID_OK) {
-        ProjectManager::Get()->LoadProject(myDialog.GetPath());
+        bool result = ProjectManager::Get()->LoadProject(myDialog.GetPath());
+        if(result) {
+            // TODO (rick#1#): Remove setting of modified flag on project loading (was done for debug purposes)
+            ProjectManager::Get()->m_project->SetModified();
+        }
     }
 }
 

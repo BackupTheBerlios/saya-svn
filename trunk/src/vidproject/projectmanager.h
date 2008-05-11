@@ -20,7 +20,8 @@ class ProjectManager
         ProjectManager();
         virtual ~ProjectManager();
         bool LoadProject(const wxString filename);
-        bool LoadProjectFromXml(const wxString &data);
+        bool SaveProject();
+        bool CloseProject(bool force = false);
         bool LoadConfig();
         bool SaveConfig();
         void SetMainFrame(wxFrame* frame);
@@ -31,8 +32,6 @@ class ProjectManager
         static void Unload();
         VidProject* m_project;
         deque<wxString> m_recentfiles;
-        wxString m_project_xml;
-        wxString m_original_xml;
         wxString m_lasterror;
 
         bool m_recentfilesmodified;

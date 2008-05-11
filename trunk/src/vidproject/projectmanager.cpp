@@ -29,8 +29,6 @@ ProjectManager::ProjectManager() {
     m_project = 0;
     m_recentfiles.clear();
     m_recentfilesmodified = true;
-    m_project_xml = wxEmptyString;
-    m_original_xml = wxEmptyString;
     m_MainFrame = NULL;
 }
 
@@ -54,24 +52,6 @@ void ProjectManager::Unload() {
 
 const wxString ProjectManager::GetLastProjectDir() {
     return m_LastProjectDir;
-}
-
-bool ProjectManager::LoadProjectFromXml(const wxString &data) {
-    bool IsOk = false;
-    VidProject *prj = new VidProject;
-
-    IsOk = prj->LoadFromXml(data);
-    if(!IsOk) {
-        delete prj;
-    } else {
-        if(m_project) {
-            delete m_project;
-        }
-        m_project = prj;
-        m_project_xml = data;
-        m_original_xml = data;
-    }
-    return IsOk;
 }
 
 void ProjectManager::AddToRecentFiles(const wxString& s,bool fromthebeginning) {
@@ -159,40 +139,53 @@ bool ProjectManager::SaveConfig() {
 bool ProjectManager::LoadProject(const wxString filename) {
     wxString data = wxEmptyString;
     bool result = false;
-    wxFFile myfile;
-    do {
-        if(!wxFileExists(filename)) {
-            m_lasterror.Printf(_("Error: Could not find file '%s'!"),filename.c_str());
-            break;
-        }
-        if(!myfile.Open(filename)) {
-            m_lasterror.Printf(_("Error: Could not open file '%s'!"),filename.c_str());
-            break;
-        }
-        if(!myfile.ReadAll(&data)) {
-            m_lasterror.Printf(_("Error: Could not read file '%s'!"),filename.c_str());
-            break;
-        }
-        myfile.Close();
-        result = LoadProjectFromXml(data);
-        if(!result) {
-            m_lasterror.Printf(_("Error: File '%s' contains invalid data!"),filename.c_str());
-        } else {
-            wxFileName fullname;
-            fullname.Assign(filename);
-            m_LastProjectDir = fullname.GetPath(); // Extract last project directory from opened file path
-            AddToRecentFiles(filename);
-        }
-    } while(false);
-
-    if(myfile.IsOpened()) {
-        myfile.Close();
+    CloseProject(true); // Close any project we have in memory
+    VidProject* prj = VidProject::Load(filename,m_lasterror);
+    if(prj != NULL) {
+        wxFileName fullname;
+        fullname.Assign(filename);
+        m_LastProjectDir = fullname.GetPath(); // Extract last project directory from opened file path
+        AddToRecentFiles(filename);
+    } else {
+        m_project = prj;
+        result = true;
     }
+    return result;
+}
 
+bool ProjectManager::SaveProject() {
+    return false;
+}
+
+bool ProjectManager::CloseProject(bool force) {
+    if(!m_project)
+        return true;
+    bool result = (force || !(m_project->IsModified()));
+    // If not modified (or forced), return success.
+    if(!result) {
+        int answer = wxMessageBox(_("Project has been modified. Save?\nChoose 'Cancel' "
+        "to continue working on the project."),
+        _("Save project?"),wxYES_NO | wxCANCEL | wxICON_QUESTION,m_MainFrame);
+        if(answer == wxYES) {
+            result = SaveProject();
+            if(!result) {
+                wxMessageBox(_("Could not save project. Project will not be closed."),
+                _("Info"),wxOK | wxICON_INFORMATION,m_MainFrame);
+            }
+        } else {
+            result = (answer == wxNO); // if user chooses No (don't save), return success.
+            // else (user chooses Cancel) return failure.
+        }
+    }
+    if(result) {
+        delete m_project;
+        m_project = NULL;
+    }
     return result;
 }
 
 ProjectManager::~ProjectManager() {
     //dtor
     SaveConfig();
+    CloseProject(true);
 }
