@@ -24,6 +24,9 @@ class AppFrame: public wxFrame
         AppFrame(wxFrame *frame, const wxString& title);
         void OnFrameLayout (wxCommandEvent &event);
         void UpdateStatustext();
+        bool SaveProject();
+        bool SaveProjectAs();
+        bool SaveProjectCopy();
         ~AppFrame();
         ProjectManager* m_prjMan;
     private:
@@ -37,6 +40,9 @@ class AppFrame: public wxFrame
 
         void OnClearRecentProjectList(wxCommandEvent &event);
         void OnOpenRecentFile(wxCommandEvent &event);
+        void OnFileSave(wxCommandEvent &event);
+        void OnFileSaveAs(wxCommandEvent &event);
+        void OnFileSaveCopy(wxCommandEvent &event);
 
         void OnClose(wxCloseEvent& event);
         void OnQuit(wxCommandEvent& event);

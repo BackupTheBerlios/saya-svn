@@ -64,6 +64,9 @@ int idFileExit = XRCID("idFileExit");
 int idMenuSaveFrameLayout = XRCID("idMenuSaveFrameLayout");
 int idFileOpen = XRCID("idFileOpen");
 int idFileClose = XRCID("idFileClose");
+int idFileSave = XRCID("idFileSave");
+int idFileSaveAs = XRCID("idFileSaveAs");
+int idFileSaveCopy = XRCID("idFileSaveCopy");
 
 int idFileOpenRecentProject = XRCID("idFileOpenRecentProject");
 int idFileClearRecentProjectList = XRCID("idFileClearRecentProjectList");
@@ -80,6 +83,10 @@ BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_MENU_RANGE(wxID_FILE1, wxID_FILE9, AppFrame::OnOpenRecentFile)
     EVT_MENU(idFileClearRecentProjectList, AppFrame::OnClearRecentProjectList)
     EVT_MENU(idFileClose, AppFrame::OnFileClose)
+    EVT_MENU(idFileSave, AppFrame::OnFileSave)
+    EVT_MENU(idFileSaveAs, AppFrame::OnFileSaveAs)
+    EVT_MENU(idFileSaveCopy, AppFrame::OnFileSaveCopy)
+
     EVT_MENU(idFileExit, AppFrame::OnQuit)
 
     EVT_UPDATE_UI(idFileOpenRecentProject, AppFrame::OnRecentFilesMenuUpdateUI)
@@ -162,7 +169,7 @@ void AppFrame::OnFileOpen(wxCommandEvent& event) {
             if(result) {
                 wxMessageBox(_("DEBUG: Project will be modified."));
                 // TODO (rick#1#): Remove setting of modified flag on project loading (was done for debug purposes)
-                ProjectManager::Get()->m_project->SetModified();
+                ProjectManager::Get()->GetProject()->SetModified();
             }
             DoUpdateAppTitle();
         }
@@ -178,7 +185,7 @@ void AppFrame::OnOpenRecentFile(wxCommandEvent &event) {
         if(result) {
             wxMessageBox(_("DEBUG: Project will be modified."));
             // TODO (rick#1#): Remove setting of modified flag on recent project loading (was done for debug purposes)
-            ProjectManager::Get()->m_project->SetModified();
+            ProjectManager::Get()->GetProject()->SetModified();
         }
         DoUpdateAppTitle();
     }
@@ -217,6 +224,73 @@ void AppFrame::OnClose(wxCloseEvent &event) {
         Destroy();
     }
 }
+
+void AppFrame::OnFileSave(wxCommandEvent &event) {
+    SaveProject();
+}
+
+void AppFrame::OnFileSaveAs(wxCommandEvent &event) {
+    SaveProjectAs();
+}
+
+void AppFrame::OnFileSaveCopy(wxCommandEvent &event) {
+    SaveProjectCopy();
+}
+
+bool AppFrame::SaveProject() {
+    if(IsAppShuttingDown()) return false;
+    VidProject* prj = ProjectManager::Get()->GetProject();
+    if(prj == NULL) return true; // No error, since there's no file to save
+    bool result = false;
+    if(prj->IsNew()) {
+        result = SaveProjectAs();
+    } else {
+        result = ProjectManager::Get()->SaveProject();
+        if(!result) {
+            int answer = wxMessageBox(_("Couldn't save the file! Try with a different name?"),_("Error saving"),wxYES_NO | wxICON_EXCLAMATION,this);
+            if(answer == wxYES) {
+                result = SaveProjectAs();
+            }
+        }
+    }
+    return result;
+}
+
+bool AppFrame::SaveProjectAs() {
+    if(IsAppShuttingDown())
+        return false;
+    VidProject* prj = ProjectManager::Get()->GetProject();
+    if(prj == NULL)
+        return true;
+    // TODO (rick#1#): Use default project directory for saving
+    // Show file save-as dialog and get filename, with overwrite prompt.
+
+    wxFileDialog mydialog(this,_("Save file as..."),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
+    bool result = false;
+    if(mydialog.ShowModal() == wxID_OK) {
+        wxString filename = mydialog.GetPath(); // Gets full path including filename
+        result = ProjectManager::Get()->SaveProjectAs(filename);
+    }
+    return result;
+}
+
+bool AppFrame::SaveProjectCopy() {
+    if(IsAppShuttingDown())
+        return false;
+    VidProject* prj = ProjectManager::Get()->GetProject();
+    if(prj == NULL)
+        return true;
+    // TODO (rick#1#): Use default project directory for saving
+    // Show file save-as dialog and get filename, with overwrite prompt.
+    wxFileDialog mydialog(this,_("Save Copy As"),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
+    bool result = false;
+    if(mydialog.ShowModal() == wxID_OK) {
+        wxString filename = mydialog.GetPath(); // Gets full path including filename
+        result = ProjectManager::Get()->SaveProjectCopy(filename);
+    }
+    return result;
+}
+
 
 void AppFrame::OnQuit(wxCommandEvent &event) {
     Close();
@@ -319,7 +393,7 @@ void AppFrame::DoUpdateAppTitle() {
         return;
     wxString title;
     wxString modified_str = wxEmptyString;
-    VidProject* prj = ProjectManager::Get()->m_project;
+    VidProject* prj = ProjectManager::Get()->GetProject();
 
     if(prj != NULL) {
         if(prj->IsModified()) {

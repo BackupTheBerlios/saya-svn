@@ -24,6 +24,9 @@ class ProjectManager
         bool LoadProject(const wxString filename);
         bool LoadRecentProject(int fileno);
         bool SaveProject();
+        bool SaveProjectAs(const wxString filename);
+        bool SaveProjectCopy(const wxString filename);
+
         bool CloseProject(bool force = false);
         bool LoadConfig();
         bool SaveConfig();
@@ -33,7 +36,7 @@ class ProjectManager
         void ClearRecentFiles();
         static ProjectManager* Get();
         static void Unload();
-        VidProject* m_project;
+        VidProject* GetProject();
         deque<wxString> m_recentfiles;
         wxString m_lasterror;
 
@@ -43,6 +46,7 @@ class ProjectManager
 
     protected:
     private:
+        VidProject* m_project;
         wxString m_LastProjectDir;
         wxFrame* m_MainFrame;
 };

@@ -59,7 +59,7 @@ void VidProject::ResetModified() {
 }
 
 bool VidProject::IsNew() {
-    return (m_Filename == wxEmptyString);
+    return (m_Filename.IsEmpty());
 }
 
 bool VidProject::LoadFromXml(const wxString &data) {
@@ -123,7 +123,8 @@ bool VidProject::SaveAs(const wxString filename) {
     bool result = SaveToFile(filename);
     if(result) {
         m_Filename = filename;
-        ResetModified();
+        m_IsModified = false;
+        ProjectManager::Get()->OnProjectStatusModified(); // Update status and filename
     }
     return result;
 }

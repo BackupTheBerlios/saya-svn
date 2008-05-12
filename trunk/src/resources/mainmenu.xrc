@@ -74,7 +74,7 @@
             </object>
             <object class="wxMenuItem" name="idFileSaveCopy">
                 <label>Save a Cop&amp;y</label>
-                <help>Saves a copy of the current project</help>
+                <help>Saves a copy of the current project (original file will be unmodified)</help>
                 <accel>Ctrl+Alt+S</accel>
             </object>
             <object class="wxMenuItem" name="idFileRevert">

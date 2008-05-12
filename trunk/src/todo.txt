@@ -24,10 +24,16 @@ May 11, 2008 (rickg22):
     * Renamed class ExportSettings to VideoSettings for handling of clips' video settings
     * Implemented methods Save, SaveAs, SaveCopy in VidProject.
     * Implemented stub for SaveToFile (used by the three above).
-    * Completed implementation of SaveToFile (needs testing)
 
-// TODO (rick#3#): Test VidProject::SaveToFile functionality.
-// TODO (rick#3#): Implement project saving from the Main Menu
+May 12, 2008 (rickg22):
+
+    * Completed implementation of SaveToFile (needs testing)
+    * Implemented Saving project wrappers in ProjectManager
+    * Created Save, SaveAs, SaveCopy stubs in the Main Frame.
+    * Made ProjectManager::m_project private; added GetProject() function instead.
+    * Implemented project saving from the Main Menu
+    * Tested VidProject::SaveToFile functionality.
+
 // TODO (rick#2#): Refresh file menu depending on project's status
 
 

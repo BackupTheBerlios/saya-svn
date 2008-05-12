@@ -51,6 +51,9 @@ void ProjectManager::Unload() {
     }
 }
 
+VidProject* ProjectManager::GetProject() {
+    return m_project;
+}
 const wxString ProjectManager::GetLastProjectDir() {
     return m_LastProjectDir;
 }
@@ -171,9 +174,23 @@ bool ProjectManager::LoadRecentProject(int fileno) {
 }
 
 bool ProjectManager::SaveProject() {
-    OnProjectStatusModified();
-    return false;
+    if(!m_project)
+        return false;
+    return m_project->Save(); // Title update is invoked by the project saving method
 }
+
+bool ProjectManager::SaveProjectAs(const wxString filename) {
+    if(!m_project)
+        return false;
+    return m_project->SaveAs(filename); // Title update is invoked by the project saving method
+}
+
+bool ProjectManager::SaveProjectCopy(const wxString filename) {
+    if(!m_project)
+        return false;
+    return m_project->SaveCopy(filename); // Title update is invoked by the project saving method
+}
+
 
 bool ProjectManager::CloseProject(bool force) {
     if(!m_project)
@@ -187,7 +204,7 @@ bool ProjectManager::CloseProject(bool force) {
         if(answer == wxYES) {
             result = SaveProject();
             if(!result) {
-                wxMessageBox(_("Could not save project. Project will not be closed."),
+                wxMessageBox(_("Could not save file! Project will not be closed."),
                 _("Info"),wxOK | wxICON_INFORMATION,m_MainFrame);
             }
         } else {
