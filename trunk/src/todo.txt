@@ -21,8 +21,14 @@ May 11, 2008 (rickg22):
     * Now displays the current project's title and filename in the Title Bar
     * Title bar is refreshed depending on project's status
 
+    * Renamed class ExportSettings to VideoSettings for handling of clips' video settings
+    * Implemented methods Save, SaveAs, SaveCopy in VidProject.
+    * Implemented stub for SaveToFile (used by the three above).
+    * Completed implementation of SaveToFile (needs testing)
+
+// TODO (rick#3#): Test VidProject::SaveToFile functionality.
+// TODO (rick#3#): Implement project saving from the Main Menu
 // TODO (rick#2#): Refresh file menu depending on project's status
-// TODO (rick#3#): Implement Project Saving stub.
 
 
 // TODO (rick#1#): Load layout configuration

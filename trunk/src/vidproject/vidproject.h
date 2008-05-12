@@ -9,16 +9,16 @@ class ExportSettings;
 
 typedef std::map<wxString,wxString> propertymap;
 
-class ExportSettings {
+class VideoSettings {
     public:
-        ExportSettings();
-        virtual ~ExportSettings();
+        VideoSettings();
+        virtual ~VideoSettings();
         void ResetToDefaults();
         unsigned int width;
         unsigned int height;
         float aspectratio;
         float fps;
-        wxString exportformat;
+        wxString vidformat;
         wxString videocodec;
         wxString audiocodec;
         propertymap videocodecsettings;
@@ -34,6 +34,10 @@ class VidProject
         static VidProject* Load(const wxString filename,wxString &errortext);
         bool LoadFromXml(const wxString &data);
         bool SaveToXml(wxString &data);
+        bool Save();
+        bool SaveAs(const wxString filename);
+        bool SaveCopy(const wxString filename);
+
         bool IsModified();
         void SetModified();
         void ResetModified();
@@ -41,11 +45,13 @@ class VidProject
         wxString m_Title;
         wxString m_Filename;
         bool IsNew();
-        ExportSettings m_ExportSettings;
+        VideoSettings m_ExportSettings;
+
 
     protected:
     private:
         bool m_IsModified;
+        bool SaveToFile(const wxString &filename);
 };
 
 #endif // VIDPROJECT_H

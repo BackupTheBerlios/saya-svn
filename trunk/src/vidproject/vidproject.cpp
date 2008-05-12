@@ -2,19 +2,20 @@
 #include "projectmanager.h"
 #include <wx/ffile.h>
 
-ExportSettings::ExportSettings() {
+
+VideoSettings::VideoSettings() {
     ResetToDefaults();
 }
 
-ExportSettings::~ExportSettings() {
+VideoSettings::~VideoSettings() {
 }
 
-void ExportSettings::ResetToDefaults() {
+void VideoSettings::ResetToDefaults() {
     width = 720;
     height = 480;
     aspectratio = 16/9.0;
     fps = 29.997;
-    exportformat = _T("avi");
+    vidformat = _T("avi");
     videocodec = _T("");
     audiocodec = _T("");
     videocodecsettings.clear();
@@ -68,6 +69,7 @@ bool VidProject::LoadFromXml(const wxString &data) {
 
 bool VidProject::SaveToXml(wxString &data) {
 // TODO (rick#1#): Implement VidProject::SaveToXml
+    data = _T("<?xml version=\"1.0\"?>\n<xvidproject version=\"1.0\">\n</xvidproject>\n");
     return true;
 }
 
@@ -107,4 +109,45 @@ VidProject* VidProject::Load(const wxString filename, wxString &errortext) {
         nextproject = NULL;
     }
     return nextproject;
+}
+
+bool VidProject::Save() {
+    bool result = SaveToFile(m_Filename);
+    if(result) {
+        ResetModified();
+    }
+    return result;
+}
+
+bool VidProject::SaveAs(const wxString filename) {
+    bool result = SaveToFile(filename);
+    if(result) {
+        m_Filename = filename;
+        ResetModified();
+    }
+    return result;
+}
+
+bool VidProject::SaveCopy(const wxString filename) {
+    bool result = SaveToFile(filename);
+    return result;
+}
+
+bool VidProject::SaveToFile(const wxString &filename) {
+    if(filename.IsEmpty()) {
+        return false;
+    }
+    wxString data;
+    bool result = false;
+    do {
+        if(!SaveToXml(data)) break;
+        wxTempFile tmpfile(filename);
+        if(!tmpfile.IsOpened()) break;
+        if(!tmpfile.Write(data,wxConvUTF8)) {
+            tmpfile.Discard();
+            break;
+        }
+        result = tmpfile.Commit();
+    }while(false);
+    return result;
 }
