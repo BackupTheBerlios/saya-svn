@@ -35,7 +35,7 @@
                     <help>Creates a new Bars / Tone clip</help>
                 </object>
                 <object class="wxMenuItem" name="idNewBlackVideo">
-                    <label>Black &amp;Video</label>
+                    <label>Blac&amp;k Video</label>
                     <help>Creates a new clip with black background</help>
                 </object>
                 <object class="wxMenuItem" name="idNewColorMatte">
@@ -53,7 +53,7 @@
                 <accel>Ctrl+O</accel>wx
             </object>
             <object class="wxMenu" name="idFileOpenRecentProject">
-                <label>Open Recent Project</label>
+                <label>Open Recent &amp;Project</label>
                 <help>Opens a Recently opened Project</help>
             </object>
             <object class="separator" />
@@ -73,7 +73,7 @@
                 <accel>Ctrl+Shift+S</accel>
             </object>
             <object class="wxMenuItem" name="idFileSaveCopy">
-                <label>Save a Cop&amp;y</label>
+                <label>Sa&amp;ve a Copy</label>
                 <help>Saves a copy of the current project (original file will be unmodified)</help>
                 <accel>Ctrl+Alt+S</accel>
             </object>
@@ -84,7 +84,7 @@
             </object>
             <object class="separator" />
             <object class="wxMenuItem" name="idFileCapture">
-                <label>Cap&amp;ture...</label>
+                <label>Capt&amp;ure...</label>
                 <help>Captures video from an external source</help>
                 <accel>F5</accel>
             </object>
@@ -100,7 +100,7 @@
                 <accel>F5</accel>
             </object>
             <object class="wxMenu" name="idFileImportRecent">
-                <label>Import Recent &amp;File</label>
+                <label>I&amp;mport Recent File</label>
                 <help>Imports a recently imported file</help>
                 <enabled>0</enabled>
             </object>
@@ -144,23 +144,23 @@
                 <label>&amp;Get Properties for</label>
                 <help>Gets the properties of a file or selection</help>
                 <object class="wxMenuItem">
-                    <label>File...</label>
+                    <label>&amp;File...</label>
                     <help>Gets a file's properties</help>
                 </object>
                 <object class="wxMenuItem">
-                    <label>Selection</label>
+                    <label>&amp;Selection</label>
                     <help>Gets properties for current selection</help>
                     <accel>Ctrl+Shift+H</accel>
                 </object>
             </object>
             <object class="separator" />
             <object class="wxMenuItem" name="idFileInterpretFootage">
-                <label>Inter&amp;pret Footage...</label>
+                <label>Interpret &amp;Footage...</label>
                 <help>Change clip's framerate, aspect ratio or transparency</help>
                 <enabled>0</enabled>
             </object>
             <object class="wxMenuItem" name="idFileTimecode">
-                <label>Ti&amp;mecode...</label>
+                <label>Timeco&amp;de...</label>
                 <help>???</help>
                 <enabled>0</enabled>
             </object>
@@ -208,9 +208,9 @@
                 <accel>Ctrl+Shift+V</accel>
             </object>
             <object class="wxMenuItem" name="idEditPasteAttributes">
-                <label>Paste Attri&amp;butes</label>
+                <label>Paste &amp;Attributes</label>
                 <help>Pastes the clipboard's contents' attributes into the current selection</help>
-                <accel>Ctrl+Shift+V</accel>
+                <accel>Ctrl+Alt+V</accel>
             </object>
             <object class="wxMenuItem" name="idEditClear">
                 <label>Cl&amp;ear</label>
@@ -218,7 +218,7 @@
                 <accel>Del</accel>
             </object>
             <object class="wxMenuItem" name="idEditRippleDelete">
-                <label>Ripple Dele&amp;te</label>
+                <label>Ripple De&amp;lete</label>
                 <help>Deletes the current selection and drags the clips after it</help>
                 <accel>Shift+Del</accel>
             </object>
@@ -226,16 +226,17 @@
             <object class="wxMenuItem" name="idEditDuplicate">
                 <label>D&amp;uplicate</label>
                 <help>Duplicates the current selection</help>
+                <accel>Ctrl+Shift+C</accel>
             </object>
             <object class="wxMenuItem" name="idEditSelectAll">
-                <label>Select &amp;All</label>
+                <label>&amp;Select All</label>
                 <help>Selects everything</help>
                 <accel>Ctrl+A</accel>
             </object>
             <object class="wxMenuItem" name="idEditDeselectAll">
                 <label>&amp;Deselect All</label>
                 <help>Deselects everything</help>
-                <accel>Ctrl+A</accel>
+                <accel>Ctrl+Shift+A</accel>
             </object>
             <object class="separator" />
             <object class="wxMenuItem" name="idFind">
@@ -244,7 +245,7 @@
             </object>
             <object class="separator" />
             <object class="wxMenu" name="idEditLabel">
-                <label>&amp;Label</label>
+                <label>La&amp;bel</label>
                 <help>Change the current selection's label</help>
                 <object class="wxMenuItem">
                     <label>&amp;Select Label Group</label>
@@ -323,7 +324,7 @@
                     <label>&amp;Label Colors...</label>
                 </object>
                 <object class="wxMenuItem" name="idPrefsLabelDefaults">
-                    <label>&amp;Label Defaults...</label>
+                    <label>Label De&amp;faults...</label>
                 </object>
                 <object class="wxMenuItem" name="idPrefsScratchDisks">
                     <label>&amp;Scratch Disks...</label>
@@ -506,7 +507,7 @@
                 <help>Splits all clips at the cursor position</help>
             </object>
             <object class="wxMenuItem" name="idSequenceRazorSelectedTracks">
-                <label>Razor only sele&amp;cted track(s)</label>
+                <label>Razor o&amp;nly selected track(s)</label>
                 <accel>Ctrl+Shift+K</accel>
                 <help>Splits the selected tracks at the cursor position</help>
             </object>
@@ -556,7 +557,7 @@
                 <help>Adds tracks to the currently edited sequence</help>
             </object>
             <object class="wxMenuItem" name="idSequenceDelTracks">
-                <label>Delete Trac&amp;ks...</label>
+                <label>Delete Tra&amp;cks...</label>
                 <help>Deletes tracks from the currently edited sequence</help>
             </object>
         </object>
@@ -741,7 +742,7 @@
                 </object>
             </object>
             <object class="wxMenu" name="idClearSequenceMarkerMenu">
-                <label>Clea&amp;r Sequence Marker</label>
+                <label>Cle&amp;ar Sequence Marker</label>
                 <object class="wxMenuItem" name="idClearCurSequenceMarker">
                     <label>&amp;Current Marker</label>
                     <help>Clears current Sequence Marker</help>
