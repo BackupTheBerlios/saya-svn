@@ -8,11 +8,13 @@ using namespace std;
 
 bool IsAppShuttingDown();
 
-void ShutdDownApp();
+void ShutDownApp();
 
 extern const wxString APP_NAME;
 extern const wxString APP_VENDOR;
 extern const wxString APP_SHOWNAME;
+extern const wxString APP_SHOWOFFNAME;
+extern int idFrameUpdateTitleUI;
 
 class ProjectManager
 {
@@ -20,6 +22,7 @@ class ProjectManager
         ProjectManager();
         virtual ~ProjectManager();
         bool LoadProject(const wxString filename);
+        bool LoadRecentProject(int fileno);
         bool SaveProject();
         bool CloseProject(bool force = false);
         bool LoadConfig();
@@ -34,7 +37,9 @@ class ProjectManager
         deque<wxString> m_recentfiles;
         wxString m_lasterror;
 
-        bool m_recentfilesmodified;
+        bool m_recentfilesmodified; // Flag, resettable for refresh purposes
+
+        void OnProjectStatusModified(); // Called whenever project's status or name has changed
 
     protected:
     private:

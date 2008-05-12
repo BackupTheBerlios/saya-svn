@@ -33,7 +33,10 @@ class AppFrame: public wxFrame
             idMenuAbout,
         };
         void OnFileOpen(wxCommandEvent& event);
+        void OnFileClose(wxCommandEvent& event);
+
         void OnClearRecentProjectList(wxCommandEvent &event);
+        void OnOpenRecentFile(wxCommandEvent &event);
 
         void OnClose(wxCloseEvent& event);
         void OnQuit(wxCommandEvent& event);
@@ -43,7 +46,9 @@ class AppFrame: public wxFrame
         void StoreFrameSize (wxRect rect);
         void StoreCurrentLayout();
 
+        void DoUpdateAppTitle();
         // UpdateUI events
+        void OnUpdateTitleUI(wxUpdateUIEvent& event);
 
         void OnFileMenuUpdateUI(wxUpdateUIEvent& event);
         void OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event);

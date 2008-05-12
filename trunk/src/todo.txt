@@ -9,10 +9,20 @@ May 11, 2008 (rickg22):
     * Added m_NeedsExportSettings flag to VidProject (for creating new projects from scratch
       without needing a dialog)
 
-// TODO (rick#2#): Show current project's name in the Title bar
-// TODO (rick#2#): Implement Project Saving stub.
-// TODO (rick#2#): Before closing the window, ask to close the project.
-// TODO (rick#3#): Implement Closing of the project via Menu.
+
+    * Fixed bug in File Opening
+    * Implemented Closing of the project via Menu.
+    * Implemented Recent file Opening
+    * Closes project (with confirmation if necessary) before opening a new one
+    * App deletes objects and closes projects cleanly before closing the frame
+    * App asks to save modified project (yes/no/cancel) before closing, and
+      doesn't close if user chooses "cancel".
+    * Fixed typo: ShutdDownApp -> ShutDownApp
+    * Now displays the current project's title and filename in the Title Bar
+    * Title bar is refreshed depending on project's status
+
+// TODO (rick#2#): Refresh file menu depending on project's status
+// TODO (rick#3#): Implement Project Saving stub.
 
 
 // TODO (rick#1#): Load layout configuration

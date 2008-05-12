@@ -11,14 +11,15 @@ static bool s_IsAppShuttingDown = false;
 const wxString APP_NAME = _T("SayaVideoEditor");
 const wxString APP_VENDOR = _T("Rick Garcia");
 const wxString APP_SHOWNAME = _T("Saya");
+const wxString APP_SHOWOFFNAME = _T("Saya - Swift audiovisual Authoring for You and Anyone");
 
-
+int idFrameUpdateTitleUI = XRCID("idUpdateTitleUI");
 
 bool IsAppShuttingDown() {
     return s_IsAppShuttingDown;
 }
 
-void ShutdDownApp() {
+void ShutDownApp() {
     s_IsAppShuttingDown = true;
 }
 
@@ -146,14 +147,31 @@ bool ProjectManager::LoadProject(const wxString filename) {
         fullname.Assign(filename);
         m_LastProjectDir = fullname.GetPath(); // Extract last project directory from opened file path
         AddToRecentFiles(filename);
-    } else {
         m_project = prj;
         result = true;
+    } else {
+        wxMessageBox(m_lasterror,_("Error loading project"),wxOK | wxICON_ERROR, m_MainFrame);
     }
+    OnProjectStatusModified();
+    return result;
+}
+
+bool ProjectManager::LoadRecentProject(int fileno) {
+    int maxfileno = m_recentfiles.size();
+    if(fileno < 1)
+        fileno = 1;
+    if(fileno >= maxfileno)
+        fileno = maxfileno;
+    if(!fileno)
+        return false; //
+    fileno--; // Zero based now
+    bool result = LoadProject(m_recentfiles[fileno]);
+    OnProjectStatusModified();
     return result;
 }
 
 bool ProjectManager::SaveProject() {
+    OnProjectStatusModified();
     return false;
 }
 
@@ -181,7 +199,15 @@ bool ProjectManager::CloseProject(bool force) {
         delete m_project;
         m_project = NULL;
     }
+    OnProjectStatusModified();
     return result;
+}
+
+void ProjectManager::OnProjectStatusModified() {
+    wxUpdateUIEvent event(idFrameUpdateTitleUI);
+    if(m_MainFrame) {
+        wxPostEvent(m_MainFrame,event);
+    }
 }
 
 ProjectManager::~ProjectManager() {

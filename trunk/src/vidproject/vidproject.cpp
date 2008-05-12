@@ -1,5 +1,5 @@
 #include "vidproject.h"
-
+#include "projectmanager.h"
 #include <wx/ffile.h>
 
 ExportSettings::ExportSettings() {
@@ -42,11 +42,19 @@ bool VidProject::IsModified() {
 }
 
 void VidProject::SetModified() {
+    bool lastmodified = m_IsModified;
     m_IsModified = true;
+    if(m_IsModified != lastmodified) {
+        ProjectManager::Get()->OnProjectStatusModified();
+    }
 }
 
 void VidProject::ResetModified() {
+    bool lastmodified = m_IsModified;
     m_IsModified = false;
+    if(m_IsModified != lastmodified) {
+        ProjectManager::Get()->OnProjectStatusModified();
+    }
 }
 
 bool VidProject::IsNew() {
@@ -55,7 +63,6 @@ bool VidProject::IsNew() {
 
 bool VidProject::LoadFromXml(const wxString &data) {
 // TODO (rick#1#): Implement VidProject::LoadFromXml
-    m_IsModified = false;
     return true;
 }
 
@@ -88,6 +95,7 @@ VidProject* VidProject::Load(const wxString filename, wxString &errortext) {
             errortext.Printf(_("Error: File '%s' contains invalid data!"),filename.c_str());
         } else {
             nextproject->m_Filename = filename;
+            nextproject->ResetModified();
         }
     } while(false);
 
