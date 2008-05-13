@@ -6,6 +6,7 @@
 #include "vidproject.h"
 #include <wx/wx.h>
 #include <wx/ffile.h>
+#include <wx/filedlg.h>
 
 static bool s_IsAppShuttingDown = false;
 const wxString APP_NAME = _T("SayaVideoEditor");
@@ -31,8 +32,12 @@ ProjectManager::ProjectManager() {
     m_recentfiles.clear();
     m_recentfilesmodified = true;
     m_MainFrame = NULL;
+    m_clearundohistoryonsave = true;
 }
 
+bool ProjectManager::GetClearUndoHistoryOnSave() {
+    return m_clearundohistoryonsave;
+}
 void ProjectManager::SetMainFrame(wxFrame* frame) {
     m_MainFrame = frame;
 }
@@ -191,6 +196,53 @@ bool ProjectManager::SaveProjectCopy(const wxString filename) {
     return m_project->SaveCopy(filename); // Title update is invoked by the project saving method
 }
 
+bool ProjectManager::InteractiveSaveProject() {
+
+    if(m_project == NULL) return true; // No error, since there's no file to save
+    bool result = false;
+    if(m_project->IsNew()) {
+        result = InteractiveSaveProjectAs();
+    } else {
+        result = SaveProject();
+        if(!result) {
+            int answer = wxMessageBox(_("Couldn't save the file! Try with a different name?"),_("Error saving"),wxYES_NO | wxICON_EXCLAMATION,m_MainFrame);
+            if(answer == wxYES) {
+                result = InteractiveSaveProjectAs();
+            }
+        }
+    }
+    return result;
+}
+
+bool ProjectManager::InteractiveSaveProjectAs() {
+    if(m_project == NULL)
+        return true;
+    // TODO (rick#1#): Use default project directory for saving
+    // Show file save-as dialog and get filename, with overwrite prompt.
+
+    wxFileDialog mydialog(m_MainFrame,_("Save file as..."),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
+    bool result = false;
+    if(mydialog.ShowModal() == wxID_OK) {
+        wxString filename = mydialog.GetPath(); // Gets full path including filename
+        result = SaveProjectAs(filename);
+    }
+    return result;
+}
+
+bool ProjectManager::InteractiveSaveProjectCopy() {
+    VidProject* prj = ProjectManager::Get()->GetProject();
+    if(prj == NULL)
+        return true;
+    // TODO (rick#1#): Use default project directory for saving
+    // Show file save-as dialog and get filename, with overwrite prompt.
+    wxFileDialog mydialog(m_MainFrame,_("Save Copy As"),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
+    bool result = false;
+    if(mydialog.ShowModal() == wxID_OK) {
+        wxString filename = mydialog.GetPath(); // Gets full path including filename
+        result = ProjectManager::Get()->SaveProjectCopy(filename);
+    }
+    return result;
+}
 
 bool ProjectManager::CloseProject(bool force) {
     if(!m_project)
@@ -202,7 +254,7 @@ bool ProjectManager::CloseProject(bool force) {
         "to continue working on the project."),
         _("Save project?"),wxYES_NO | wxCANCEL | wxICON_QUESTION,m_MainFrame);
         if(answer == wxYES) {
-            result = SaveProject();
+            result = InteractiveSaveProject();
             if(!result) {
                 wxMessageBox(_("Could not save file! Project will not be closed."),
                 _("Info"),wxOK | wxICON_INFORMATION,m_MainFrame);

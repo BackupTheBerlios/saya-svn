@@ -34,11 +34,32 @@ May 12, 2008 (rickg22):
     * Implemented project saving from the Main Menu
     * Tested VidProject::SaveToFile functionality.
 
+May 13, 2008 (rickg22):
+
+    * Fixed some shortcuts and accelerator keys in the XRC file
+    * Moved the SaveProject,SaveProjectAs,SaveProjectCopy routines from Main.cpp to
+      ProjectManager::Interactive*().
+    * Made VidProject::SaveToXml void.
+    * Created VidProject::Clear() and VidProject::Revert();
+    * Implemented VidProject::ClearUndoHistory() stub.
+    + Figured out how to have "unlimited" undos: Let the project Keep a double-ended queue
+      (std::deque) with XML states; (use of zip compression for the states is an option).
+      Limit the number of available undo states based on free memory (use a undo-states
+      memory limit; when used memory exceeds that limit, delete the saved state at the
+      deque's front). After any undos, if any operation is performed, wipe the states in
+      front of it
+    * Implemented Undo history class (vidproject/undohistory.cpp)
+    * Implemented Undo / redo functions in VidProject
+
+
 // TODO (rick#2#): Refresh file menu depending on project's status
+// TODO (rick#2#): Implement Revert function in the menu
+// TODO (rick#2#): Link Undo/Redo to respective menu entries
+// TODO (rick#1#): Implement Undo History Window
 
 
-// TODO (rick#1#): Load layout configuration
-// TODO (rick#1#): Create windows with wxAUI
+
+// TODO (rick#1#): Create windows with wxAUI and manage to save/load the layout
 // TODO (rick#1#): Create dialogs
 // TODO (rick#1#): Zip the XRC files
 // TODO (rick#1#): Define the XML for the project

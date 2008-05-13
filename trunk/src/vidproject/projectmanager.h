@@ -26,10 +26,14 @@ class ProjectManager
         bool SaveProject();
         bool SaveProjectAs(const wxString filename);
         bool SaveProjectCopy(const wxString filename);
+        bool InteractiveSaveProject();
+        bool InteractiveSaveProjectAs();
+        bool InteractiveSaveProjectCopy();
 
         bool CloseProject(bool force = false);
         bool LoadConfig();
         bool SaveConfig();
+        bool GetClearUndoHistoryOnSave();
         void SetMainFrame(wxFrame* frame);
         const wxString GetLastProjectDir();
         void AddToRecentFiles(const wxString& s,bool fromthebeginning = true);
@@ -38,9 +42,11 @@ class ProjectManager
         static void Unload();
         VidProject* GetProject();
         deque<wxString> m_recentfiles;
+        deque<wxString> m_recentimports;
         wxString m_lasterror;
 
         bool m_recentfilesmodified; // Flag, resettable for refresh purposes
+        bool m_clearundohistoryonsave;
 
         void OnProjectStatusModified(); // Called whenever project's status or name has changed
 

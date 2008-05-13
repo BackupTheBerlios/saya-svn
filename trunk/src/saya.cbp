@@ -51,6 +51,8 @@
 		<Unit filename="todo.txt" />
 		<Unit filename="vidproject/projectmanager.cpp" />
 		<Unit filename="vidproject/projectmanager.h" />
+		<Unit filename="vidproject/undohistory.cpp" />
+		<Unit filename="vidproject/undohistory.h" />
 		<Unit filename="vidproject/vidproject.cpp" />
 		<Unit filename="vidproject/vidproject.h" />
 		<Unit filename="wx_pch.h">

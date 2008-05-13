@@ -226,69 +226,21 @@ void AppFrame::OnClose(wxCloseEvent &event) {
 }
 
 void AppFrame::OnFileSave(wxCommandEvent &event) {
-    SaveProject();
+    if(IsAppShuttingDown())
+        return;
+    ProjectManager::Get()->InteractiveSaveProject();
 }
 
 void AppFrame::OnFileSaveAs(wxCommandEvent &event) {
-    SaveProjectAs();
+    if(IsAppShuttingDown())
+        return;
+    ProjectManager::Get()->InteractiveSaveProjectAs();
 }
 
 void AppFrame::OnFileSaveCopy(wxCommandEvent &event) {
-    SaveProjectCopy();
-}
-
-bool AppFrame::SaveProject() {
-    if(IsAppShuttingDown()) return false;
-    VidProject* prj = ProjectManager::Get()->GetProject();
-    if(prj == NULL) return true; // No error, since there's no file to save
-    bool result = false;
-    if(prj->IsNew()) {
-        result = SaveProjectAs();
-    } else {
-        result = ProjectManager::Get()->SaveProject();
-        if(!result) {
-            int answer = wxMessageBox(_("Couldn't save the file! Try with a different name?"),_("Error saving"),wxYES_NO | wxICON_EXCLAMATION,this);
-            if(answer == wxYES) {
-                result = SaveProjectAs();
-            }
-        }
-    }
-    return result;
-}
-
-bool AppFrame::SaveProjectAs() {
     if(IsAppShuttingDown())
-        return false;
-    VidProject* prj = ProjectManager::Get()->GetProject();
-    if(prj == NULL)
-        return true;
-    // TODO (rick#1#): Use default project directory for saving
-    // Show file save-as dialog and get filename, with overwrite prompt.
-
-    wxFileDialog mydialog(this,_("Save file as..."),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
-    bool result = false;
-    if(mydialog.ShowModal() == wxID_OK) {
-        wxString filename = mydialog.GetPath(); // Gets full path including filename
-        result = ProjectManager::Get()->SaveProjectAs(filename);
-    }
-    return result;
-}
-
-bool AppFrame::SaveProjectCopy() {
-    if(IsAppShuttingDown())
-        return false;
-    VidProject* prj = ProjectManager::Get()->GetProject();
-    if(prj == NULL)
-        return true;
-    // TODO (rick#1#): Use default project directory for saving
-    // Show file save-as dialog and get filename, with overwrite prompt.
-    wxFileDialog mydialog(this,_("Save Copy As"),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
-    bool result = false;
-    if(mydialog.ShowModal() == wxID_OK) {
-        wxString filename = mydialog.GetPath(); // Gets full path including filename
-        result = ProjectManager::Get()->SaveProjectCopy(filename);
-    }
-    return result;
+        return;
+    ProjectManager::Get()->InteractiveSaveProjectCopy();
 }
 
 
