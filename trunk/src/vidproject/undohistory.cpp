@@ -16,8 +16,9 @@ unsigned int UndoHistoryClass::GetStateIdx() {
 
 const wxString UndoHistoryClass::GetOpname(unsigned int idx) {
     if(idx < m_queue.size()) {
-        return m_queue[idx]->prevOp;
+        return m_queue[idx].prevOp;
     }
+    return wxEmptyString;
 }
 
 bool UndoHistoryClass::Undo(wxString& data) {
@@ -28,7 +29,7 @@ bool UndoHistoryClass::Undo(wxString& data) {
         return false;
     }
     m_State--;
-    data = m_queue[m_State]->data;
+    data = m_queue[m_State].data;
     return true;
 }
 
@@ -36,7 +37,7 @@ bool UndoHistoryClass::Redo(wxString& data) {
     if(m_State >= m_queue.size()) {
         return false;
     }
-    data = m_queue[m_State]->data;
+    data = m_queue[m_State].data;
     m_State++;
     return true;
 }
@@ -47,7 +48,7 @@ void UndoHistoryClass::PushUndo(const wxString Opname,const wxString& data) {
     // 1. Wipe history entries with index >= current state #.
 
     while(m_queue.size() > m_State) {
-        cursize = (m_queue.back()->data.Len() + m_queue.back()->prevOp.Len() + 4096)* sizeof(wxChar);
+        cursize = (m_queue.back().data.Len() + m_queue.back().prevOp.Len() + 4096)* sizeof(wxChar);
         // We add 4Kbytes to take into account the wasted space after each string
         m_queue.pop_back();
         if(m_UsedSize < cursize) {
@@ -59,7 +60,7 @@ void UndoHistoryClass::PushUndo(const wxString Opname,const wxString& data) {
 
     // 2. Check memory usage, and wipe as many entries from the beginning as necessary.
     while(m_State && m_queue.size() && m_UsedSize >= m_MaxSize) {
-        cursize = (m_queue.front()->data.Len() + m_queue.front()->prevOp.Len() + 4096) * sizeof(wxChar);
+        cursize = (m_queue.front().data.Len() + m_queue.front().prevOp.Len() + 4096) * sizeof(wxChar);
         m_queue.pop_front();
         if(m_UsedSize < cursize) {
             m_UsedSize = 0;
@@ -75,7 +76,7 @@ void UndoHistoryClass::PushUndo(const wxString Opname,const wxString& data) {
     // 3. Push back the state, and increase the usage counter and the state index.
 
     cursize = (Opname.Len() + data.Len() + 4096) * sizeof(wxChar);
-    UndoState* tmpstate = new UndoState(Opname,data);
+    UndoState tmpstate(Opname,data);
     m_queue.push_back(tmpstate);
 
     m_UsedSize += cursize;
@@ -84,14 +85,14 @@ void UndoHistoryClass::PushUndo(const wxString Opname,const wxString& data) {
 
 const wxString UndoHistoryClass::GetUndoOpname() {
     if(m_State && m_queue.size() >= m_State) {
-        return m_queue[m_State - 1]->prevOp;
+        return m_queue[m_State - 1].prevOp;
     }
     return wxEmptyString;
 }
 
 const wxString UndoHistoryClass::GetRedoOpname() {
     if(m_queue.size() > m_State) {
-        return m_queue[m_State]->prevOp;
+        return m_queue[m_State].prevOp;
     }
     return wxEmptyString;
 }

@@ -6,16 +6,17 @@
 
 class UndoState {
     public:
-        UndoState(const wxString theOp,const wxString &undodata) {
+        UndoState() {};
+        UndoState(wxString theOp,wxString thedata) {
             prevOp = theOp;
-            data = undodata;
+            thedata = data;
         }
         wxString prevOp; // previous operation that led to come to this state
         wxString data; // project's serialized state (tracks,clip pieces, transitions and effects)
         ~UndoState() {};
 };
 
-typedef std::deque<UndoState*>  UndoHistoryQueue;
+typedef std::deque<UndoState>  UndoHistoryQueue;
 
 class UndoHistoryClass {
     public:

@@ -51,6 +51,7 @@ May 13, 2008 (rickg22):
     * Implemented Undo history class (vidproject/undohistory.cpp)
     * Implemented Undo / redo functions in VidProject
 
+    * Fixed stupid vector-of-pointers bug with the Undo history.
 
 // TODO (rick#2#): Refresh file menu depending on project's status
 // TODO (rick#2#): Implement Revert function in the menu
