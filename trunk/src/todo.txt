@@ -53,6 +53,12 @@ May 13, 2008 (rickg22):
 
     * Fixed stupid vector-of-pointers bug with the Undo history.
 
+May 15, 2008 (rickg22):
+
+    * Created directory "drafts" for use cases and rudimentary class diagrams.
+    * With the help of use cases, could organize the UndoHistoryClass and fix a lot of bugs.
+
+
 // TODO (rick#2#): Refresh file menu depending on project's status
 // TODO (rick#2#): Implement Revert function in the menu
 // TODO (rick#2#): Link Undo/Redo to respective menu entries

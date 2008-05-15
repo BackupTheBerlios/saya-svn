@@ -1,60 +1,22 @@
-Things I've learned by testing the Adobe Premiere UI:
+-------
+May 15, 2008:
 
-* Some options in the clip menu apply to original clips (let's call them clip files)
-* Some options apply only to clips as they're in the timeline (let's call them clip instances)
-* There are video clips, and audio clips
-* Audio clips can be linked to a video clip
-* There needs to be an array for (pointers to?) video clips, and another for audio clips so we can have
-  clip time synchronization without resorting to pointers. Those circular references are a pain in the arse.
-* There are some menu options that only apply to "offline file" types of clips (placeholders),
-  like capture options.
-* The entries in the label menu can be changed in the setup, so these have to be generated at
-  runtime
-* A clip instance can be enabled or disabled, this alters the "enable" menu item in the clip menu.
-* Same goes with "link / unlink" clip - which unlike in Premiere, we have separated in the menu
-  to avoid programming complications.
-* clips can be mono or stereo, and they can be separated
+* After browsing the web, i got some fears of infringing into trade secrets by having tested
+  the Adobe UI. But after purchasing a couple of books and downloading a couple of tutorials
+  from CreativeCow, my fears vanished. The little things I learned (the menu structures and basic
+  usage) are common knowledge by now, and couldn't be qualified as Trade Secret. A good thing
+  is that all use cases and data structures can be deduced from the books (they have screenshots -
+  specially the one I purchased for less than 30 bucks)  and from the Creative Cow videos.
 
-* Automate to sequence joins selected clips (storyboard) into a sequence. The sequence is appended
-  to the current sequence in the timeline.
-* import batch list prepares offline clips and sets their properties for batch recording.
+  The data structures mentioned in previous version of this file apply to software like Cinelerra,
+  so they're not exclusive of Premiere. This is important since my product isn't in direct competition with
+  Premiere, but with Cinelerra (which was the reason I started this project in the first place).
 
-* For the timeline, there needs to be two classes: One, a "readonly" timeline for modifying effects
-  (and transitions?) unless we do the modifications in-place.... and a "readwrite" timeline.
+  But just to be on the safe side, I've deleted Premiere from my Harddrive and gave away the CD's
+  and official docs - so no one can come out and tell me I've done reverse engineering
+  or something. All the concepts regarding data structures that I had written here based on my
+  own experiences with Premiere, have now been wiped, so I'll have to start from scratch using the
+  Book.
 
-  Perhaps the readonly timeline will have a pointer to the real timeline so clip timelines can be rendered
-  by the real tracks.
-
-* There needs to be a function in the frame called "updatemenu" that updates all the menu items. I remember
-  that there was something similar in the codeblocks IDE.
-
-* A clip instance needs at least the following properties:
-  - its own #id.
-  - audio clip #id, if in sync.
-  - time difference with the video, if it's audio, for resync.
-  - the clip instance's name
-  - an array for the effects stack
-  - a beginning transition pointer to a transition object (we need an array for transitions).
-  - an ending transition pointer.
-  - width, height
-  - aspect ratio
-  - the clip's starting video frame
-  - the clip's starting time (for audio - perhaps we should use samples?)
-  - the clip's length, in frames
-  - the clip's modified duration (recalculated after processing speed effects)
-  - the clip's original frames per sec
-  - the clip's frames (interlacing) info
-
-  - a flag telling if we're using time or frames for indicating starting/ending
-  - a label color id
-  - a flag telling if we're showing keyframes in the clip
-  -
-
-* Transitions need the ending clip and the beginning clip, they also need the info on
-  which version of the clips  we're transitioning (after which effects - Premiere doesn't include this
-  and therefore some transitions are messed up).
-
-* Perhaps we also need "metaclips". Can a sequence be treated as a clip?
-  That'd be cool, it'd simplify the work a lot.
-
-* Testing kdesvn. I'm going to do a commit to make sure it works.
+  Having said this, I'll begin to work on the clips data structure after I finishing incorporating
+  the undo/Redo implementation into the app's menus.

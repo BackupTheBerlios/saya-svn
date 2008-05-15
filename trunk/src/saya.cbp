@@ -44,7 +44,7 @@
 		<Unit filename="App.h" />
 		<Unit filename="Main.cpp" />
 		<Unit filename="Main.h" />
-		<Unit filename="programmers_log.txt">
+		<Unit filename="drafts/undoredo.txt">
 			<Option target="Debug" />
 		</Unit>
 		<Unit filename="resources/mainmenu.xrc" />

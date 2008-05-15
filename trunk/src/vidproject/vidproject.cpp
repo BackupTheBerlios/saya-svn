@@ -66,8 +66,13 @@ void VidProject::ClearUndoHistory() {
 }
 
 void VidProject::Undo() {
-    wxString data;
-    if(m_UndoHistory.Undo(data)) {
+    wxString data,curdata;
+    curdata = wxEmptyString;
+    if(m_UndoHistory.IsEof()) {
+        SaveState(curdata); // If there's no redo available, make one.
+    }
+
+    if(m_UndoHistory.Undo(data,curdata)) {
         LoadState(data);
     }
 }
@@ -101,7 +106,7 @@ const wxString VidProject::GetUndoHistoryOpName(unsigned int idx) {
 }
 
 unsigned int VidProject::GetUndoIdx() {
-    return m_UndoHistory.GetStateIdx();
+    return m_UndoHistory.CurState();
 }
 
 bool VidProject::IsModified() {

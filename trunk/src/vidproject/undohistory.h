@@ -8,10 +8,10 @@ class UndoState {
     public:
         UndoState() {};
         UndoState(wxString theOp,wxString thedata) {
-            prevOp = theOp;
-            thedata = data;
+            nextOp = theOp;
+            data = thedata;
         }
-        wxString prevOp; // previous operation that led to come to this state
+        wxString nextOp; // transition to the NEXT state
         wxString data; // project's serialized state (tracks,clip pieces, transitions and effects)
         ~UndoState() {};
 };
@@ -24,15 +24,23 @@ class UndoHistoryClass {
         UndoHistoryClass(unsigned long maxsize = 16*1048576);
         // 16 MBytes of undo info ought to be enough for anyone ;-)
         void Clear();
-        bool Undo(wxString& data);
+        bool Undo(wxString& data,const wxString& curstatedata);
         bool Redo(wxString& data);
         void PushUndo(const wxString Opname,const wxString& data);
+        bool IsEof();
+        bool IsNextEof();
+        bool RestoreFromCurrentSlot(wxString& data);
+        void SaveIntoCurrentSlot(const wxString Opname, const wxString& data);
+
         const wxString GetRedoOpname();
         const wxString GetUndoOpname();
-        unsigned int GetStateIdx();
+        unsigned int CurState();
         const wxString GetOpname(unsigned int idx);
         ~UndoHistoryClass() {};
     private:
+        void PopBack();
+        void PopFront();
+        void CheckMemUsage();
         unsigned int m_State;
         UndoHistoryQueue m_queue;
         unsigned long m_MaxSize;
