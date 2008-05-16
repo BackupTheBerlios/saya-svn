@@ -1,0 +1,170 @@
+Use case: Undo History
+======================
+
+1. Beginning
+============
+
+curstate ----> 0. EOF
+
+
+2. Do "something"
+=================
+BEFORE:
+
+    curstate ----> 0. EOF
+
+AFTER:
+                   0. RECENTLY SAVED STATE, transition: "something"
+    curstate ----> 1. EOF
+
+ACTIONS:
+    If current state is EOF, save state in current slot with the transition to be done;
+    increment state pointer.
+
+
+3. Do "somethingElse"
+=====================
+
+BEFORE:
+
+                   0. SAVED STATE, transition: "something"
+    curstate ----> 1. EOF
+
+AFTER:
+
+                   0. SAVED STATE, transition: "something"
+                   1. RECENTLY SAVED STATE, transition: "somethingelse"
+    curstate ----> 2. EOF
+
+ACTIONS:
+    If current state is EOF, save state in current slot with the transition to be done;
+    increment state pointer.
+
+
+3. Undo
+=======
+
+BEFORE:
+
+                   0. SAVED STATE, transition: "something"
+                   1. SAVED STATE, transition: "somethingelse"
+    curstate ----> 2. EOF
+
+AFTER:
+
+                   0. SAVED STATE, transition: "something"
+    curstate ----> 1. SAVED STATE, transition: "somethingelse"
+                   2. RECENTLY SAVED STATE, transition: ""
+
+ACTIONS:
+    If current state is EOF, Save state in current slot with an empty transition name;
+    decrement state pointer and restore state.
+
+
+4. Redo
+=======
+
+BEFORE:
+
+                   0. SAVED STATE, transition: "something"
+    curstate ----> 1. SAVED STATE, transition: "somethingelse"
+                   2. SAVED STATE, transition: ""
+
+AFTER:
+                   0. SAVED STATE, transition: "something"
+                   1. SAVED STATE, transition: "somethingelse"
+    curstate ----> 2. SAVED STATE, transition: ""
+
+ACTIONS:
+    If next state not EOF, Increment state pointer and restore state.
+
+5. Undo
+=======
+
+BEFORE:
+
+                   0. SAVED STATE, transition: "something"
+                   1. SAVED STATE, transition: "somethingelse"
+    curstate ----> 2. SAVED STATE, transition: ""
+
+AFTER:
+                   0. SAVED STATE, transition: "something"
+    curstate ----> 1. SAVED STATE, transition: "somethingelse"
+                   2. SAVED STATE, transition: ""
+
+ACTIONS:
+    If current state not EOF, just decrement state pointer and restore state.
+
+6. Do aNewThing
+===============
+
+BEFORE:
+
+                   0. SAVED STATE, transition: "something"
+    curstate ----> 1. SAVED STATE, transition: "somethingelse"
+                   2. SAVED STATE, transition: ""
+
+INTERMEDIATE STEP:
+
+                   0. SAVED STATE, transition: "something"
+    curstate ----> 1. SAVED STATE, transition: "somethingelse"
+                   2. EOF
+
+AFTER:
+
+                   0. SAVED STATE, transition: "something"
+                   1. SAVED STATE, transition: "anewthing" (transition was renamed)
+    curstate ----> 2. EOF
+
+ACTIONS:
+
+    If next state not EOF, delete all states until next state is EOF.
+    Rename current slot's transition; increment the pointer.
+
+--------- Alternative case: -----------
+
+BEFORE:
+                   0. SAVED STATE, transition: "something"
+                   1. SAVED STATE, transition: "somethingelse"
+    curstate ----> 2. SAVED STATE, transition: ""
+
+AFTER:
+
+                   0. SAVED STATE, transition: "something"
+                   1. SAVED STATE, transition: "somethingelse"
+                   2. SAVED STATE, transition: "aNewthing"
+    curstate ----> 3. EOF
+
+ACTIONS:
+    If next state is EOF, rename current slot's transition; increment the pointer.
+
+Pseudocode:
+============
+
+Function Do() {
+    1. while(!IsNextEof()) delete the topmost state.
+    2. if(IsEof()) Save state in current slot with the transition to be done;
+    else
+       just rename current slot's transition.
+    3. ++curpos;
+}
+
+function Undo() {
+    1. if(IsEof()) Save state in current slot with an empty transition name;
+    2. if(curpos) { curpos--; restore state; }
+}
+
+function Redo() {
+    1. if(!IsNextEof()) { curpos++; restore state; }
+}
+
+function IsNextEof() {
+    return (curpos+1 >= undostack.size(); )
+    // Note that we use a double-ended queue instead of just a stack to be able to delete
+    // old states in case memory usage exceeds a given limit.
+}
+
+function IsEof() {
+    return (curpos >= undostack.size());
+}
+
