@@ -52,6 +52,13 @@ wxString wxbuildinfo(wxbuildinfoformat format)
     return wxbuild;
 }
 
+int main_RegisterId(int id)
+{
+    wxRegisterId(id);
+    return id;
+}
+
+
 
 const wxString LOCATION = _T("Location");
 const wxString LOCATION_X = _T("xpos");
@@ -59,17 +66,46 @@ const wxString LOCATION_Y = _T("ypos");
 const wxString LOCATION_W = _T("width");
 const wxString LOCATION_H = _T("height");
 
-
-int idFileExit = XRCID("idFileExit");
-int idMenuSaveFrameLayout = XRCID("idMenuSaveFrameLayout");
+int idFileNew = XRCID("idFileNew");
 int idFileOpen = XRCID("idFileOpen");
+int idFileOpenRecentProject = XRCID("idFileOpenRecentProject");
+int idFileClearRecentProjectList = XRCID("idFileClearRecentProjectList");
+int idFileClearRecentImportList = XRCID("idFileClearRecentImportList");
 int idFileClose = XRCID("idFileClose");
 int idFileSave = XRCID("idFileSave");
 int idFileSaveAs = XRCID("idFileSaveAs");
 int idFileSaveCopy = XRCID("idFileSaveCopy");
+int idFileRevert = XRCID("idFileRevert");
+int idFileCapture = XRCID("idFileCapture");
+int idFileBatchCapture = XRCID("idFileBatchCapture");
+int idFileImport = XRCID("idFileImport");
+int idFileImportRecent = XRCID("idFileImportRecent");
+int idFileExport = XRCID("idFileExport");
+int idFileGetProperties = XRCID("idFileGetProperties");
+int idFileGetPropertiesFile = XRCID("idFileGetPropertiesFile");
+int idFileGetPropertiesSelection = XRCID("idFileGetPropertiesSelection");
+int idFileInterpretFootage = XRCID("idFileInterpretFootage");
+int idFileTimecode = XRCID("idFileTimecode");
+int idFileExit = XRCID("idFileExit");
 
-int idFileOpenRecentProject = XRCID("idFileOpenRecentProject");
-int idFileClearRecentProjectList = XRCID("idFileClearRecentProjectList");
+int wxID_IMPORT1 = wxNewId();
+int wxID_IMPORT2 = main_RegisterId(wxID_IMPORT1 + 1);
+int wxID_IMPORT3 = main_RegisterId(wxID_IMPORT1 + 2);
+int wxID_IMPORT4 = main_RegisterId(wxID_IMPORT1 + 3);
+int wxID_IMPORT5 = main_RegisterId(wxID_IMPORT1 + 4);
+int wxID_IMPORT6 = main_RegisterId(wxID_IMPORT1 + 5);
+int wxID_IMPORT7 = main_RegisterId(wxID_IMPORT1 + 6);
+int wxID_IMPORT8 = main_RegisterId(wxID_IMPORT1 + 7);
+int wxID_IMPORT9 = main_RegisterId(wxID_IMPORT1 + 8);
+
+int idMenuSaveFrameLayout = XRCID("idMenuSaveFrameLayout");
+
+
+
+
+
+
+
 
 wxString g_statustext;
 
@@ -86,10 +122,24 @@ BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_MENU(idFileSave, AppFrame::OnFileSave)
     EVT_MENU(idFileSaveAs, AppFrame::OnFileSaveAs)
     EVT_MENU(idFileSaveCopy, AppFrame::OnFileSaveCopy)
-
     EVT_MENU(idFileExit, AppFrame::OnQuit)
 
+    EVT_UPDATE_UI(idFileNew, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idFileOpen, AppFrame::OnFileMenuUpdateUI)
     EVT_UPDATE_UI(idFileOpenRecentProject, AppFrame::OnRecentFilesMenuUpdateUI)
+    EVT_UPDATE_UI(idFileClose, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idFileSave, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idFileSaveAs, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idFileSaveCopy, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idFileRevert, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idFileCapture, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idFileBatchCapture, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idFileImport, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idFileGetProperties, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idFileGetPropertiesFile, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idFileGetPropertiesSelection, AppFrame::OnFileMenuUpdateUI)
+
+    EVT_UPDATE_UI(idFileImportRecent, AppFrame::OnRecentImportsMenuUpdateUI)
     EVT_UPDATE_UI(idFrameUpdateTitleUI, AppFrame::OnUpdateTitleUI)
 END_EVENT_TABLE()
 
@@ -106,22 +156,34 @@ AppFrame::AppFrame(wxFrame *frame, const wxString& title)
     SetSize (DetermineFrameSize ());
     CenterOnScreen();
 
-#if wxUSE_MENUS
     // create a menu bar
     wxMenuBar* mbar = wxXmlResource::Get()->LoadMenuBar(wxT("main_menu_bar"));
     if(mbar) {
         SetMenuBar(mbar);
+    } else {
+        wxLogError(_("Could not find the XRC resource 'main_menu_bar'!\nAre you sure the program was installed correctly?"));
+        Destroy();
+        return;
     }
-#endif // wxUSE_MENUS
 
-#if wxUSE_STATUSBAR
     // create a status bar with some information about the used wxWidgets version
     CreateStatusBar(2);
     SetStatusText(wxbuildinfo(short_f), 1);
     g_statustext = _("Welcome to ") + APP_SHOWNAME + _T("! ^_^");
     UpdateStatustext();
-#endif // wxUSE_STATUSBAR
 
+}
+
+wxMenu* AppFrame::FindMenu(const wxString name) {
+    wxMenu* result = NULL;
+    wxMenuBar* bar = GetMenuBar();
+    do {
+        if(!bar) break;
+        int myMenu = bar->FindMenu(name);
+        if(myMenu == wxNOT_FOUND) break;
+        result = bar->GetMenu(myMenu);
+    }while(false);
+    return result;
 }
 
 wxRect AppFrame::DetermineFrameSize () {
@@ -157,6 +219,20 @@ AppFrame::~AppFrame() {
     ProjectManager::Unload();
 }
 
+bool AppFrame::IsClipSelected() { return false; }
+bool AppFrame::IsResourceClipSelected() {
+    return false;
+}
+bool AppFrame::IsTimelineActive() { return false; }
+bool AppFrame::IsResourceWindowActive() { return false; }
+bool AppFrame::IsMonitorActive() { return false; }
+bool AppFrame::IsRenderMonitorActive() { return false; }
+bool AppFrame::IsClipMonitorActive() { return false; }
+bool AppFrame::IsEffectsWindowActive() { return false; }
+bool AppFrame::IsTitleWindowActive() { return false; }
+bool AppFrame::CanUndo() { return false; }
+bool AppFrame::CanRedo() { return false; }
+
 void AppFrame::OnFileOpen(wxCommandEvent& event) {
     if(IsAppShuttingDown())
         return;
@@ -166,10 +242,10 @@ void AppFrame::OnFileOpen(wxCommandEvent& event) {
     if(dialogresult == wxID_OK) {
         if(ProjectManager::Get()->CloseProject(false)) { // First close current project, ask to save, etc.
             bool result = ProjectManager::Get()->LoadProject(myDialog.GetPath());
-            if(result) {
-                wxMessageBox(_("DEBUG: Project will be modified."));
-                // TODO (rick#1#): Remove setting of modified flag on project loading (was done for debug purposes)
-                ProjectManager::Get()->GetProject()->SetModified();
+            if(!result) {
+                wxString msg;
+                msg.Printf(_("Error opening file '%s'!"),myDialog.GetPath().c_str());
+                wxMessageBox(msg,_("Error"),wxCANCEL | wxICON_ERROR,this);
             }
             DoUpdateAppTitle();
         }
@@ -182,10 +258,10 @@ void AppFrame::OnOpenRecentFile(wxCommandEvent &event) {
     if(ProjectManager::Get()->CloseProject(false)) { // First close current project, ask to save, etc.
         int fileno = event.GetId() - wxID_FILE1;
         bool result = ProjectManager::Get()->LoadRecentProject(fileno);
-        if(result) {
-            wxMessageBox(_("DEBUG: Project will be modified."));
-            // TODO (rick#1#): Remove setting of modified flag on recent project loading (was done for debug purposes)
-            ProjectManager::Get()->GetProject()->SetModified();
+        if(!result) {
+            wxString msg;
+            msg.Printf(_("Error opening file '%s'!"),ProjectManager::Get()->GetRecentProjectName(fileno).c_str());
+            wxMessageBox(msg,_("Error"),wxCANCEL | wxICON_ERROR,this);
         }
         DoUpdateAppTitle();
     }
@@ -277,12 +353,32 @@ void AppFrame::StoreFrameSize (wxRect rect) {
 }
 
 void AppFrame::OnFileMenuUpdateUI(wxUpdateUIEvent& event) {
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr)
+        return;
+    VidProject* prj = pmgr->GetProject();
+
+    bool hasproject = (prj);
+    bool isModified = hasproject && prj->IsModified();
+    bool isNew = hasproject && prj->IsNew();
+
+    wxMenuBar* mbar = GetMenuBar();
+    mbar->Enable(idFileClose,hasproject);
+    mbar->Enable(idFileSave,hasproject && (isModified || isNew));
+    mbar->Enable(idFileSaveAs,hasproject);
+    mbar->Enable(idFileSaveCopy,hasproject);
+    mbar->Enable(idFileRevert,hasproject && isModified && !isNew);
+    mbar->Enable(idFileInterpretFootage,hasproject && (IsClipSelected() || IsResourceClipSelected()));
+    mbar->Enable(idFileTimecode,hasproject && IsClipSelected());
+    mbar->Enable(idFileImport,hasproject);
+    mbar->Enable(idFileExport,hasproject);
+    mbar->Enable(idFileGetPropertiesSelection, hasproject && (IsClipSelected() || IsResourceClipSelected()));
 }
 
 void AppFrame::OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event) {
     // Update the Recent Projects list
     ProjectManager* pmgr = ProjectManager::Get();
-    if(pmgr == NULL)
+    if(!pmgr)
         return;
     if(pmgr->m_recentfilesmodified) {
         pmgr->m_recentfilesmodified = false;
@@ -293,7 +389,7 @@ void AppFrame::OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event) {
             if(mySubMenu) { // Clear all items in the submenu
                 while(mySubMenu->GetMenuItemCount()) {
                     wxMenuItem* subitem = mySubMenu->FindItemByPosition(0);
-                    if(subitem == NULL)
+                    if(!subitem)
                         break;
                     mySubMenu->Delete(subitem);
                 }
@@ -301,7 +397,6 @@ void AppFrame::OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event) {
                 mySubMenu = new wxMenu();
                 myItem->SetSubMenu(mySubMenu);
             }
-            // TODO (rick#1#): Add the recently opened projects to the menu in OnUpdateUI
             size_t i = 0;
             mySubMenu->Append(idFileClearRecentProjectList,_T("&Clear"),_("Clears Recent Projects List"));
             mySubMenu->AppendSeparator();
@@ -314,6 +409,42 @@ void AppFrame::OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event) {
             myItem->Enable(pmgr->m_recentfiles.size() > 0);
         }
     }
+}
+
+void AppFrame::OnRecentImportsMenuUpdateUI(wxUpdateUIEvent& event) {
+    // Update the Recent Imported files list
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr)
+        return;
+    if(pmgr->m_recentimportsmodified) {
+        pmgr->m_recentimportsmodified = false;
+        wxMenuItem* myItem = GetMenuBar()-> FindItem(idFileImportRecent);
+        if(myItem) {
+            wxMenu* mySubMenu = myItem->GetSubMenu();
+
+            if(mySubMenu) { // Clear all items in the submenu
+                while(mySubMenu->GetMenuItemCount()) {
+                    wxMenuItem* subitem = mySubMenu->FindItemByPosition(0);
+                    if(!subitem)
+                        break;
+                    mySubMenu->Delete(subitem);
+                }
+            } else { // Add a new submenu
+                mySubMenu = new wxMenu();
+                myItem->SetSubMenu(mySubMenu);
+            }
+            size_t i = 0;
+            mySubMenu->Append(idFileClearRecentImportList,_T("&Clear"),_("Clears Recent Imported Files List"));
+            mySubMenu->AppendSeparator();
+            for(i = 0; i < pmgr->m_recentimports.size(); i++) {
+                wxString tmptext;
+                tmptext.Printf(_T("&%d ") + pmgr->m_recentimports[i],i+1);
+                mySubMenu->Append(wxID_IMPORT1+i,tmptext,wxEmptyString);
+            }
+        }
+    }
+    wxMenuBar* mbar = GetMenuBar();
+    mbar->Enable(idFileImportRecent,pmgr->m_recentimports.size() > 0 && (pmgr->HasProject()));
 }
 
 void AppFrame::OnEditMenuUpdateUI(wxUpdateUIEvent& event) {
@@ -347,7 +478,7 @@ void AppFrame::DoUpdateAppTitle() {
     wxString modified_str = wxEmptyString;
     VidProject* prj = ProjectManager::Get()->GetProject();
 
-    if(prj != NULL) {
+    if(prj) {
         if(prj->IsModified()) {
             modified_str = _T("* ");
         }

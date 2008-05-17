@@ -68,6 +68,11 @@ void ProjectManager::Unload() {
 VidProject* ProjectManager::GetProject() {
     return m_project;
 }
+
+bool ProjectManager::HasProject() {
+    return (m_project != NULL);
+}
+
 const wxString ProjectManager::GetLastProjectDir() {
     return m_LastProjectDir;
 }
@@ -101,10 +106,46 @@ void ProjectManager::AddToRecentFiles(const wxString& s,bool fromthebeginning) {
     m_recentfilesmodified = true;
 }
 
+void ProjectManager::AddToRecentImports(const wxString& s,bool fromthebeginning) {
+
+    if(s == wxEmptyString)
+        return;
+
+    if(!fromthebeginning && m_recentimports.size() >= 9) {
+        return; // Queue full
+    }
+
+    // First, check if it's in the list
+    size_t i;
+    for(i = 0; i < m_recentimports.size(); i++) {
+        if(s == m_recentimports[i]) {
+            return; // Found
+        }
+    }
+
+    // Finally, add it
+    if(fromthebeginning) {
+        m_recentimports.push_front(s); // Add to the beginning
+        if(m_recentimports.size() > 9) {
+            m_recentimports.pop_back();
+        }
+    } else {
+        m_recentimports.push_back(s); // Add to the end
+    }
+    m_recentimportsmodified = true;
+}
+
+
 void ProjectManager::ClearRecentFiles() {
     m_recentfiles.clear();
     m_recentfilesmodified = true;
 }
+
+void ProjectManager::ClearRecentImports() {
+    m_recentimports.clear();
+    m_recentimportsmodified = true;
+}
+
 
 bool ProjectManager::LoadConfig() {
     // TODO (rick#1#): Load configuration for the project manager
@@ -173,16 +214,35 @@ bool ProjectManager::LoadProject(const wxString filename) {
     return result;
 }
 
-bool ProjectManager::LoadRecentProject(int fileno) {
+wxString ProjectManager::GetRecentProjectName(int fileno) {
     int maxfileno = m_recentfiles.size();
     if(fileno < 1)
         fileno = 1;
     if(fileno >= maxfileno)
         fileno = maxfileno;
     if(!fileno)
-        return false; //
+        return wxEmptyString; //
     fileno--; // Zero based now
-    bool result = LoadProject(m_recentfiles[fileno]);
+    return m_recentfiles[fileno];
+}
+
+wxString ProjectManager::GetRecentImportName(int fileno) {
+    int maxfileno = m_recentimports.size();
+    if(fileno < 1)
+        fileno = 1;
+    if(fileno >= maxfileno)
+        fileno = maxfileno;
+    if(!fileno)
+        return wxEmptyString; //
+    fileno--; // Zero based now
+    return m_recentimports[fileno];
+}
+
+bool ProjectManager::LoadRecentProject(int fileno) {
+    wxString filename = GetRecentProjectName(fileno);
+    if(filename.IsEmpty())
+        return false;
+    bool result = LoadProject(filename);
     OnProjectStatusModified();
     return result;
 }

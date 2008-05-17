@@ -61,15 +61,19 @@ May 15, 2008 (rickg22):
 May 16, 2008 (rickg22):
 
     * Defined the classes for timeline handling.
-    * Added copyright notices to all the source codec
-    * Included the GPLv3 in the main source tree.
+    * Added copyright notices to all the source code
+    * Included the GPLv3 in the main source tree. See
+    http://fedoraproject.org/wiki/Licensing#head-19fc3ef10add085a28cb06784dc34ef8b05a9bd6
+      for libraries like FreeType v2.
 
-// TODO (rick#2#): Refresh file menu depending on project's status
-// TODO (rick#2#): Implement Revert function in the menu
+May 17, 2008 (rickg22):
+
+    * Enabled/disabled the File Menu items based on project's status
+    * Implemented the (not-usable yet) Recent File Imports menu
+    * Fixed more Menu shortcuts
+
 // TODO (rick#2#): Link Undo/Redo to respective menu entries
 // TODO (rick#1#): Implement Undo History Window
-
-
 
 // TODO (rick#1#): Create windows with wxAUI and manage to save/load the layout
 // TODO (rick#1#): Create dialogs

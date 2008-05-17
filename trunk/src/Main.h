@@ -27,6 +27,20 @@ class AppFrame: public wxFrame
         bool SaveProject();
         bool SaveProjectAs();
         bool SaveProjectCopy();
+
+        bool IsClipSelected();
+        bool IsResourceClipSelected();
+        bool IsTimelineActive();
+        bool IsResourceWindowActive();
+        bool IsMonitorActive();
+        bool IsRenderMonitorActive();
+        bool IsClipMonitorActive();
+        bool IsEffectsWindowActive();
+        bool IsTitleWindowActive();
+        bool CanUndo();
+        bool CanRedo();
+
+        wxMenu* FindMenu(const wxString name);
         ~AppFrame();
         ProjectManager* m_prjMan;
     private:
@@ -58,6 +72,7 @@ class AppFrame: public wxFrame
 
         void OnFileMenuUpdateUI(wxUpdateUIEvent& event);
         void OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event);
+        void OnRecentImportsMenuUpdateUI(wxUpdateUIEvent& event);
         void OnEditMenuUpdateUI(wxUpdateUIEvent& event);
         void OnProjectMenuUpdateUI(wxUpdateUIEvent& event);
         void OnClipMenuUpdateUI(wxUpdateUIEvent& event);

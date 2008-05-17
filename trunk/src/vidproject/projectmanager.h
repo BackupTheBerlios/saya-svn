@@ -45,16 +45,26 @@ class ProjectManager
         bool GetClearUndoHistoryOnSave();
         void SetMainFrame(wxFrame* frame);
         const wxString GetLastProjectDir();
+
+        // Recent Projects and Imported files
         void AddToRecentFiles(const wxString& s,bool fromthebeginning = true);
+        void AddToRecentImports(const wxString& s,bool fromthebeginning = true);
+        wxString GetRecentProjectName(int fileno);
+        wxString GetRecentImportName(int filenmo);
         void ClearRecentFiles();
+        void ClearRecentImports();
+        bool m_recentfilesmodified; // Flag, resettable for refresh purposes
+        bool m_recentimportsmodified; // Flag, resettable for refresh purposes
+        deque<wxString> m_recentfiles;
+        deque<wxString> m_recentimports;
+        //
+
         static ProjectManager* Get();
         static void Unload();
         VidProject* GetProject();
-        deque<wxString> m_recentfiles;
-        deque<wxString> m_recentimports;
+        bool HasProject();
         wxString m_lasterror;
 
-        bool m_recentfilesmodified; // Flag, resettable for refresh purposes
         bool m_clearundohistoryonsave;
 
         void OnProjectStatusModified(); // Called whenever project's status or name has changed

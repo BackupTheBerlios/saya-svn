@@ -97,7 +97,7 @@
             <object class="wxMenuItem" name="idFileImport">
                 <label>&amp;Import...</label>
                 <help>Imports a clip from a file</help>
-                <accel>F5</accel>
+                <accel>Ctrl+I</accel>
             </object>
             <object class="wxMenu" name="idFileImportRecent">
                 <label>I&amp;mport Recent File</label>
@@ -143,11 +143,11 @@
             <object class="wxMenu" name="idFileGetProperties">
                 <label>&amp;Get Properties for</label>
                 <help>Gets the properties of a file or selection</help>
-                <object class="wxMenuItem">
+                <object class="wxMenuItem" name="idFileGetPropertiesFile">
                     <label>&amp;File...</label>
                     <help>Gets a file's properties</help>
                 </object>
-                <object class="wxMenuItem">
+                <object class="wxMenuItem" name="idFileGetPropertiesSelection">
                     <label>&amp;Selection</label>
                     <help>Gets properties for current selection</help>
                     <accel>Ctrl+Shift+H</accel>
@@ -161,7 +161,7 @@
             </object>
             <object class="wxMenuItem" name="idFileTimecode">
                 <label>Timeco&amp;de...</label>
-                <help>???</help>
+                <help>Adds a timecode to an analog video clip.</help>
                 <enabled>0</enabled>
             </object>
             <object class="separator" />
