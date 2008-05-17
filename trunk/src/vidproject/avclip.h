@@ -4,6 +4,8 @@
 #include <wx/string.h>
 #include <vector>
 #include <map>
+#include "avcommon.h"
+#include "aveffect.h"
 
 
 enum ClipType {
@@ -12,72 +14,6 @@ enum ClipType {
     CTSubtitle
 };
 
-enum AVType {
-    AVTVideo = 0,
-    AVTAudio
-};
-
-typedef std::map<wxString,wxString> FXParameterList; // parameter list for Effect stack.
-// For simplicity, we'll use strings. At rendering, we'll find out a way to optimize this,
-// like precalculating the parameter values or keeping a cache, so we only have to parse the values ONCE.
-// Remember that all these data structures are only for information storage; rendering will use more advanced
-// data structures independent from these.
-
-
-class FXKeyFrame {
-    FXParameterList m_ParameterList;
-    signed char m_inSlope;
-    signed char m_outSlope;
-
-    // Slope of the curve before arriving to the inpoint (or after leaving the outpoint).
-    // -128 = 0 degrees. 127 = MAX (nearly 90 degrees). Default = 0.
-
-    // NOTE:
-    // If we have keyframes A and B, and A has parameter "x" 0, and B has parameter "x" 100, if the slope for both
-    // keyframes is 127, the curve to both points would be a straight line, meaning that between those two keyframes,
-    // parameter "x" would be 50.
-
-    //  outSlope(A) = 0; inSlope(B) = 0
-    //       B
-    //      /
-    //     /
-    //   A/
-
-    //  outSlope(A) = 127; inSlope(B) = -128
-    //      ____ B
-    //     /
-    //   A |
-
-
-    //  outSlope(A) = -128; inSlope(B) = 127
-    //           B
-    //           |
-    //   A ______/
-
-    //  outSlope(A) = 127; inSlope(B) = 127. Note that in the middle point, the curve becomes a straight line.
-    //        |B
-    //        |
-    //       /
-    //      /
-    //     /
-    //    |
-    //   A|
-
-    //  outSlope(A) = -128; inSlope(B) = -128. Note that in the middle point, the curve becomes a straight line.
-    //          ___B
-    //         /
-    //        /
-    //   A___/
-
-    // IMPORTANT NOTE!!! The algorithm for calculating the actual points has yet to be designed!!!
-
-};
-
-typedef std::map<unsigned int,FXKeyFrame> FXTimeline;
-// Parameters have a timeline.
-// The key is a frame index, where the first point is the clip's first frame.
-// IMPORTANT NOTE! If a clip is reversed, the reversal will be interpreted as the first "effect" (before transitions
-// are applied). If you want to reverse a final processed clip, you'd have to add a "reverse" effect at the end.
 
 enum SurroundType {
     STMono = 0, // Mono (1 channel)
@@ -100,23 +36,10 @@ class AVTransition {
 
 };
 
-class AVEffect {
-    public:
-        AVType m_EffectType;
-        wxString EffectName; // Standard effect name; all lowercase. Only numbers, letters and underscore allowed.
-        FXTimeline m_Timeline; // remember that this timeline is on THE CLIP, not on the track!
-                               // (And yet, it uses the track's fps)
-        bool m_Enabled;
-        unsigned int m_StartFrame; // Beginning frame for the effect (this is independent from the timeline)
-        unsigned int m_EndFrame; // Ending frame for the effect (independent from the timeline)
-        AVEffect();
-        virtual ~AVEffect();
-};
 
 class AVClip
 {
     public:
-
 
         /** Default constructor */
         AVClip();

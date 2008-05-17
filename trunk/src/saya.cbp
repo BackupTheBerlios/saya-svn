@@ -51,6 +51,9 @@
 		<Unit filename="todo.txt" />
 		<Unit filename="vidproject/avclip.cpp" />
 		<Unit filename="vidproject/avclip.h" />
+		<Unit filename="vidproject/avcommon.h" />
+		<Unit filename="vidproject/aveffect.cpp" />
+		<Unit filename="vidproject/aveffect.h" />
 		<Unit filename="vidproject/projectmanager.cpp" />
 		<Unit filename="vidproject/projectmanager.h" />
 		<Unit filename="vidproject/undohistory.cpp" />
