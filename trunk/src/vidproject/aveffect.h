@@ -1,6 +1,15 @@
 #ifndef AVEFFECT_H
 #define AVEFFECT_H
 
+/***************************************************************
+ * Name:      aveffect.h
+ * Purpose:   Definitions for Video/Audio effect classes
+ * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
+ * Created:   2008-05-16
+ * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
+ * License:   GPL version 3 or later
+ **************************************************************/
+
 #include "avcommon.h"
 #include <map>
 

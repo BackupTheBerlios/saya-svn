@@ -1,6 +1,15 @@
 #ifndef VIDPROJECT_H
 #define VIDPROJECT_H
 
+/***************************************************************
+ * Name:      vidproject.h
+ * Purpose:   Definition of the VidProject class
+ * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
+ * Created:   2008-04-30
+ * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
+ * License:   GPL version 3 or later
+ **************************************************************/
+
 #include <wx/string.h>
 #include <map>
 #include <deque>

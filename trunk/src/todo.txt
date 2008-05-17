@@ -58,6 +58,11 @@ May 15, 2008 (rickg22):
     * Created directory "drafts" for use cases and rudimentary class diagrams.
     * With the help of use cases, could organize the UndoHistoryClass and fix a lot of bugs.
 
+May 16, 2008 (rickg22):
+
+    * Defined the classes for timeline handling.
+    * Added copyright notices to all the source codec
+    * Included the GPLv3 in the main source tree.
 
 // TODO (rick#2#): Refresh file menu depending on project's status
 // TODO (rick#2#): Implement Revert function in the menu

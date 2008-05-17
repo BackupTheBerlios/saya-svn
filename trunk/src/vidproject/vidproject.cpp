@@ -1,3 +1,12 @@
+/***************************************************************
+ * Name:      vidproject.h
+ * Purpose:   Implementation of the VidProject class
+ * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
+ * Created:   2008-04-30
+ * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
+ * License:   GPL version 3 or later
+ **************************************************************/
+
 #include "vidproject.h"
 #include "projectmanager.h"
 #include <wx/ffile.h>

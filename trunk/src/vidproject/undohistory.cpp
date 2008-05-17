@@ -1,4 +1,15 @@
+/***************************************************************
+ * Name:      undohistory.cpp
+ * Purpose:   Implementation of a generic Undo History class
+ * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
+ * Created:   2008-04-30
+ * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
+ * License:   GPL version 3 or later
+ **************************************************************/
+
 #include "undohistory.h"
+
+
 
 UndoHistoryClass::UndoHistoryClass(unsigned long maxsize) {
     m_MaxSize = maxsize;
