@@ -33,6 +33,8 @@ class UndoHistoryClass {
         UndoHistoryClass(unsigned long maxsize = 16*1048576);
         // 16 MBytes of undo info ought to be enough for anyone ;-)
         void Clear();
+        bool CanUndo();
+        bool CanRedo();
         bool Undo(wxString& data,const wxString& curstatedata);
         bool Redo(wxString& data);
         void PushUndo(const wxString Opname,const wxString& data);

@@ -13,9 +13,16 @@
 #include <wx/string.h>
 #include <vector>
 #include <map>
+#include <deque>
 #include "avcommon.h"
 #include "aveffect.h"
 
+class AVSequence;
+class AVTrack;
+class AVTimeline;
+class AVClip;
+class AVClipboard;
+class AVResource;
 
 enum ClipType {
     CTVideo = 0, // The default
@@ -23,6 +30,18 @@ enum ClipType {
     CTSubtitle
 };
 
+enum ResourceType {
+    RTSequence = 0,
+    RTVideoFile,
+    RTAudioFile,
+    RTImageFile,
+    RTOfflineFile,
+    RTTitle,
+    RTBarsAndTone,
+    RTBlackVideo,
+    RTColorMatte,
+    RTUCLeader
+};
 
 enum SurroundType {
     STMono = 0, // Mono (1 channel)
@@ -87,7 +106,9 @@ class AVClip
                                    // Note that this duration will be used with the fps of the timeline,
                                    // Duration is applied also before any special effects.
 
+        unsigned short m_Label;    // Color label for the track
         std::vector<AVEffect> m_Effects; // The effects for the clip
+        std::map<unsigned int,wxString> m_Markers; // A map that goes frame => marker_id.
 
         // Video-specific information
 
@@ -120,36 +141,60 @@ class AVClip
 
 // TODO (rick#1#): Finish designing the AVSequence, AVTrack and AVTimeline classes.
 
-class AVSequence;
-class AVTrack;
-class AVTimeline;
 
 class AVSequence {
     public:
+        AVSequence() {}
         wxString m_SeqName;
         unsigned int m_ResourceId; // Sequences are their own resources, they can be inserted into clips!
-        std::vector<unsigned int> m_ChildrenTracks;
-        std::vector<AVTrack> m_Tracks; // the Actual track data
+        // Since tracks are only maps of integers, copying/moving them isn't time critical, and is seldom
+        // performed (i.e. when dragging a track, adding / removing tracks). Having pointers or indexes for
+        // tracks isn't just worth it.
+
+        std::vector<AVTrack> m_VideoTracks;
+        std::vector<AVTrack> m_AudioTracks;
+        unsigned int m_CursorPosition;
+        unsigned int m_BeginWorkArea;
+        unsigned int m_EndWorkArea;
+
+        virtual ~AVSequence() {}
+};
+
+class AVClipboard: public AVSequence {
+        AVClipboard() {}
+        unsigned int m_StartFrame; // Beginning timeline frame (zero-based)
+        unsigned int m_EndFrame;   // End timeline frame (inclusive)
+        bool m_Singleclip;
+        virtual ~AVClipboard() {}
 };
 
 class AVTrack {
     public:
-        unsigned int m_TrackId;
-        wxString m_TrackName;
-        bool m_Locked;
+        AVType m_AVType;
+        bool m_Readonly;
         bool m_Hidden;
-        unsigned int m_ParentTrack; // Tracks can be nested! Parent 0 means the parent is the sequence itself.
-        std::vector<unsigned int> m_ChildrenTracks;
-        // Tracks of different sequences can have the same ID#s. But tracks cannot be moved from a Sequence
-        // to another. This is by design so that links between Audio and Video clips cannot be broken.
-
-        // TODO (rick#2#): Add the data structures for containing the clips in the tracks.
-
+        std::map<unsigned int,unsigned int> m_Clips; // The map goes frame => clip_id
 };
 
 class AVTimeline {
     public:
         std::vector<AVSequence> m_Sequences;
+        std::map<unsigned int,unsigned int> m_ClipPool; // For handling deleted / added clips
+        // The index is the clip's id. The value is the clip's place in the
+        std::deque<unsigned int> m_FreePool; // list of available clips for re-use
+        std::vector<AVClip> m_Clips;
+
 };
+
+class AVResource {
+    unsigned int m_ResourceId;
+    ResourceType m_ResourceType;
+    wxString m_Filename;
+    wxString m_RelativeFilename;
+    wxString m_Icon; // 64x64 JPEG icon encoded with base64
+    VideoSettings m_VideoSettings;
+};
+
+typedef std::map<unsigned int, AVResource> AVResources;
 
 #endif // AVCLIP_H

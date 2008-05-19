@@ -187,6 +187,11 @@
                 <accel>Ctrl+Shift+Z</accel>
             </object>
             <object class="separator" />
+            <object class="wxMenuItem" name="idEditClearUndoHistory">
+                <label>Clear Undo History</label>
+                <help>Clears the Undo History</help>
+            </object>
+            <object class="separator" />
             <object class="wxMenuItem" name="idEditCut">
                 <label>Cu&amp;t</label>
                 <help>Cuts current selection and adds it to the clipboard</help>
@@ -239,7 +244,7 @@
                 <accel>Ctrl+Shift+A</accel>
             </object>
             <object class="separator" />
-            <object class="wxMenuItem" name="idFind">
+            <object class="wxMenuItem" name="idEditFind">
                 <label>&amp;Find...</label>
                 <accel>Ctrl+F</accel>
             </object>

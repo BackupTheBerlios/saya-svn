@@ -13,29 +13,11 @@
 #include <wx/string.h>
 #include <map>
 #include <deque>
+#include "avclip.h"
 #include "undohistory.h"
 
 class VidProject;
 class ExportSettings;
-
-typedef std::map<wxString,wxString> propertymap;
-
-class VideoSettings {
-    public:
-        VideoSettings();
-        virtual ~VideoSettings();
-        void ResetToDefaults();
-        unsigned int width;
-        unsigned int height;
-        float aspectratio;
-        float fps;
-        wxString vidformat;
-        wxString videocodec;
-        wxString audiocodec;
-        propertymap videocodecsettings;
-        propertymap audiocodecsettings;
-        propertymap formatsettings;
-};
 
 class VidProject
 {
@@ -53,6 +35,8 @@ class VidProject
 
         // Undo History management functions
         void ClearUndoHistory();
+        bool CanUndo();
+        bool CanRedo();
         void Undo();
         void Redo();
         void PushUndo(const wxString OpName);
@@ -79,6 +63,8 @@ class VidProject
         UndoHistoryClass m_UndoHistory;
         void SaveState(wxString& data);
         bool LoadState(const wxString& data);
+        AVTimeline m_Timeline; // the data for all clips
+        AVResources m_Resources;
 };
 
 #endif // VIDPROJECT_H

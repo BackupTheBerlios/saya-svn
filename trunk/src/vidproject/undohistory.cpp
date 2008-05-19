@@ -25,6 +25,14 @@ unsigned int UndoHistoryClass::CurState() {
     return m_State;
 }
 
+bool UndoHistoryClass::CanUndo() {
+    return m_State > 0;
+}
+
+bool UndoHistoryClass::CanRedo() {
+    return !IsNextEof();
+}
+
 bool UndoHistoryClass::IsEof() {
     if(m_State > m_queue.size()) {
         m_State = m_queue.size();

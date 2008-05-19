@@ -88,6 +88,7 @@ int idFileInterpretFootage = XRCID("idFileInterpretFootage");
 int idFileTimecode = XRCID("idFileTimecode");
 int idFileExit = XRCID("idFileExit");
 
+
 int wxID_IMPORT1 = wxNewId();
 int wxID_IMPORT2 = main_RegisterId(wxID_IMPORT1 + 1);
 int wxID_IMPORT3 = main_RegisterId(wxID_IMPORT1 + 2);
@@ -97,6 +98,32 @@ int wxID_IMPORT6 = main_RegisterId(wxID_IMPORT1 + 5);
 int wxID_IMPORT7 = main_RegisterId(wxID_IMPORT1 + 6);
 int wxID_IMPORT8 = main_RegisterId(wxID_IMPORT1 + 7);
 int wxID_IMPORT9 = main_RegisterId(wxID_IMPORT1 + 8);
+
+int idEditUndo = XRCID("idEditUndo");
+int idEditRedo = XRCID("idEditRedo");
+int idEditClearUndoHistory = XRCID("idEditClearUndoHistory");
+int idEditCut = XRCID("idEditCut");
+int idEditCopy = XRCID("idEditCopy");
+int idEditPaste = XRCID("idEditPaste");
+int idEditPasteInsert = XRCID("idEditPasteInsert");
+int idEditPasteAttributes = XRCID("idEditPasteAttributes");
+int idEditClear = XRCID("idEditClear");
+int idEditRippleDelete = XRCID("idEditRippleDelete");
+int idEditDuplicate = XRCID("idEditDuplicate");
+int idEditSelectAll = XRCID("idEditSelectAll");
+int idEditDeselectAll = XRCID("idEditDeselectAll");
+int idEditFind = XRCID("idEditFind");
+int idEditLabel = XRCID("idEditLabel");
+int idEditLabelBlue = XRCID("idEditLabelBlue");
+int idEditLabelCyan = XRCID("idEditLabelCyan");
+int idEditLabelGreen = XRCID("idEditLabelGreen");
+int idEditLabelViolet = XRCID("idEditLabelViolet");
+int idEditLabelPink = XRCID("idEditLabelPink");
+int idEditLabelGray = XRCID("idEditLabelGray");
+int idEditLabelRed = XRCID("idEditLabelRed");
+int idEditLabelOrange = XRCID("idEditLabelOrange");
+int idEditOriginal = XRCID("idEditOriginal");
+int idEditSequenceMarker = XRCID("idEditSequenceMarker");
 
 int idMenuSaveFrameLayout = XRCID("idMenuSaveFrameLayout");
 
@@ -140,6 +167,31 @@ BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_UPDATE_UI(idFileGetPropertiesSelection, AppFrame::OnFileMenuUpdateUI)
 
     EVT_UPDATE_UI(idFileImportRecent, AppFrame::OnRecentImportsMenuUpdateUI)
+
+    EVT_UPDATE_UI(idEditUndo, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditRedo, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditCut, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditCopy, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditPaste, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditPasteInsert, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditPasteAttributes, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditClear, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditRippleDelete, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditDuplicate, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditSelectAll, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditDeselectAll, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditLabel, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditLabelBlue, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditLabelCyan, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditLabelGreen, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditLabelViolet, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditLabelPink, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditLabelGray, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditLabelRed, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditLabelOrange, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditOriginal, AppFrame::OnEditMenuUpdateUI)
+    EVT_UPDATE_UI(idEditSequenceMarker, AppFrame::OnEditMenuUpdateUI)
+
     EVT_UPDATE_UI(idFrameUpdateTitleUI, AppFrame::OnUpdateTitleUI)
 END_EVENT_TABLE()
 
@@ -219,10 +271,17 @@ AppFrame::~AppFrame() {
     ProjectManager::Unload();
 }
 
-bool AppFrame::IsClipSelected() { return false; }
+bool AppFrame::IsClipSelected() {
+    return false;
+}
+bool AppFrame::IsSelectionMultiple() {
+    return false;
+}
+
 bool AppFrame::IsResourceClipSelected() {
     return false;
 }
+
 bool AppFrame::IsTimelineActive() { return false; }
 bool AppFrame::IsResourceWindowActive() { return false; }
 bool AppFrame::IsMonitorActive() { return false; }
@@ -230,8 +289,25 @@ bool AppFrame::IsRenderMonitorActive() { return false; }
 bool AppFrame::IsClipMonitorActive() { return false; }
 bool AppFrame::IsEffectsWindowActive() { return false; }
 bool AppFrame::IsTitleWindowActive() { return false; }
-bool AppFrame::CanUndo() { return false; }
-bool AppFrame::CanRedo() { return false; }
+bool AppFrame::IsClipboardSet() {
+    return false;
+}
+
+
+bool AppFrame::CanUndo() {
+    if(IsAppShuttingDown())
+        return false;
+    if(!ProjectManager::Get()->HasProject())
+        return false;
+    return ProjectManager::Get()->GetProject()->CanUndo();
+}
+bool AppFrame::CanRedo() {
+    if(IsAppShuttingDown())
+        return false;
+    if(!ProjectManager::Get()->HasProject())
+        return false;
+    return ProjectManager::Get()->GetProject()->CanUndo();
+}
 
 void AppFrame::OnFileOpen(wxCommandEvent& event) {
     if(IsAppShuttingDown())
@@ -448,6 +524,45 @@ void AppFrame::OnRecentImportsMenuUpdateUI(wxUpdateUIEvent& event) {
 }
 
 void AppFrame::OnEditMenuUpdateUI(wxUpdateUIEvent& event) {
+
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr)
+        return;
+    VidProject* prj = pmgr->GetProject();
+
+    bool hasproject = (prj);
+    bool canUndo = CanUndo();
+    bool canRedo = CanRedo();
+    bool canCutOrCopy = hasproject && (IsClipSelected() || IsResourceClipSelected());
+    bool canPaste = hasproject && (IsClipboardSet() && IsTimelineActive());
+
+    wxMenuBar* mbar = GetMenuBar();
+    mbar->Enable(idEditUndo,canUndo);
+    mbar->Enable(idEditRedo,canRedo);
+    mbar->Enable(idEditClearUndoHistory,canUndo || canRedo);
+    mbar->Enable(idEditCut, canCutOrCopy);
+    mbar->Enable(idEditCopy, canCutOrCopy);
+    mbar->Enable(idEditFind, hasproject);
+    mbar->Enable(idEditPaste, canPaste);
+    mbar->Enable(idEditPasteInsert, canPaste);
+    mbar->Enable(idEditPasteAttributes, canPaste);
+    mbar->Enable(idEditClear, hasproject && IsClipSelected());
+    mbar->Enable(idEditRippleDelete, hasproject && IsClipSelected());
+    mbar->Enable(idEditDuplicate, hasproject && IsClipSelected());
+    mbar->Enable(idEditSelectAll, hasproject);
+    mbar->Enable(idEditDeselectAll, hasproject);
+    mbar->Enable(idEditLabel, hasproject && IsClipSelected());
+    mbar->Enable(idEditOriginal, hasproject && IsClipSelected() && !IsSelectionMultiple());
+//    idEditLabel
+//    idEditLabelBlue
+//    idEditLabelCyan
+//    idEditLabelGreen
+//    idEditLabelViolet
+//    idEditLabelPink
+//    idEditLabelGray
+//    idEditLabelRed
+//    idEditLabelOrange
+//
 }
 
 void AppFrame::OnProjectMenuUpdateUI(wxUpdateUIEvent& event) {

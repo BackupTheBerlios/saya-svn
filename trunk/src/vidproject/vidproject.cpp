@@ -74,6 +74,15 @@ void VidProject::ClearUndoHistory() {
     m_UndoHistory.Clear();
 }
 
+bool VidProject::CanUndo() {
+    return m_UndoHistory.CanUndo();
+}
+
+bool VidProject::CanRedo() {
+    return m_UndoHistory.CanRedo();
+}
+
+
 void VidProject::Undo() {
     wxString data,curdata;
     curdata = wxEmptyString;
