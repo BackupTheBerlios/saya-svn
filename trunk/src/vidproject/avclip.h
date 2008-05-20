@@ -54,25 +54,19 @@ enum SurroundType {
     STReserved11,STReserved12,STReserved13,STReserved14,STReserved15
 };
 
-class AVTransition {
-    public:
-        AVType m_TransitionType;
-    // TODO (rick#1#): Design the transition class
-
-    // IMPORTANT!!! Transitions MUST be applied *AFTER* all the effects have been done! Failing to do so
-    // Would result in defective transitions, i.e. a resized/rotated clip would suddenly be of a wrong size.
-
-};
 
 
-class AVClip
-{
+class AVClip: public serializable {
     public:
 
         /** Default constructor */
         AVClip();
         /** Default destructor */
-        ~AVClip();
+        virtual ~AVClip();
+
+        virtual bool unserialize(const wxString& data);
+        virtual wxString serialize();
+
 
         ClipType m_ClipType;
 
@@ -80,16 +74,16 @@ class AVClip
         // Resource information
 
         unsigned int m_ResourceId; // Resource from which this clip takes the info.
-        unsigned int m_StartFrame; // Beginning source frame (zero-based; zero is first frame)
-        unsigned int m_EndFrame;   // End source frame (inclusive - if it's 7, frame #7 is included)
+        unsigned int m_StartTime;  // Beginning source time (zero-based; in milliseconds)
+        unsigned int m_EndTime;    // End source time (inclusive - if it's 7, millisecond #7 is included)
         unsigned int m_SourceTrack;// 0 for all; 1 for specific track in multi-track (multicam) sources.
                                    // Note that this has to be set up for the audio track, too!
 
         // Loop control
-        unsigned int m_LoopFrame;  // NOTE: In case of reversed clips, the beginning of the loop would be
-                                   // m_EndFrame, and the end of the loop would be m_LoopFrame.
+        unsigned int m_LoopTime;   // NOTE: In case of reversed clips, the beginning of the loop would be
+                                   // m_EndTime, and the end of the loop would be m_LoopTime.
                                    // To be consistent with loops in forward clips, the last loop would include
-                                   // frames from (m_LoopFrame-1) to 0.
+                                   // frames from and including (m_LoopTime-1) to 0.
 
         bool m_Loop;               // Does the clip loop?
         unsigned int m_LoopCount;  // Does the clip loop infinitely?
@@ -102,19 +96,22 @@ class AVClip
                                    // To reverse a clip after the effects have been done, you need to add
                                    // a reverse effect at the top of the effect stack.
 
-        unsigned int m_Duration;   // Duration in timeline frames (for stretching / compressing)
-                                   // Note that this duration will be used with the fps of the timeline,
-                                   // Duration is applied also before any special effects.
+        unsigned int m_Duration;   // Duration in milliseconds (for stretching / compressing)
 
-        unsigned short m_Label;    // Color label for the track
+        // Effects and transitions
         std::vector<AVEffect> m_Effects; // The effects for the clip
-        std::map<unsigned int,wxString> m_Markers; // A map that goes frame => marker_id.
+        AVTransition m_EndingTransition; // Ending transition
+
+
+        // Label and markers
+        unsigned short m_Label;    // Color label for the track
+
+        std::map<unsigned int,wxString> m_Markers; // A map that goes time => marker_id.
 
         // Video-specific information
 
         unsigned int m_AudioClip;  // Link to audio clip; 0 for none. Ignored if this is an audio clip.
-        unsigned int m_BeginningTransition; // id for the beginning transition; 0 for none.
-        unsigned int m_EndingTransition; // id for the ending transition; 0 for none.
+
                                    // NOTE: Video and audio transitions are separate!
         bool m_Hide;               // Hides the video
 
@@ -133,8 +130,6 @@ class AVClip
         bool m_Mute;                 // Mutes the audio
         double m_AudioGain;           // Generalized Gain in Decibels; default is 0.0.
 
-
-
     protected:
     private:
 };
@@ -142,9 +137,9 @@ class AVClip
 // TODO (rick#1#): Finish designing the AVSequence, AVTrack and AVTimeline classes.
 
 
-class AVSequence {
+class AVSequence: public serializable {
     public:
-        AVSequence() {}
+        AVSequence();
         wxString m_SeqName;
         unsigned int m_ResourceId; // Sequences are their own resources, they can be inserted into clips!
         // Since tracks are only maps of integers, copying/moving them isn't time critical, and is seldom
@@ -157,6 +152,9 @@ class AVSequence {
         unsigned int m_BeginWorkArea;
         unsigned int m_EndWorkArea;
 
+        virtual bool unserialize(const wxString& data);
+        virtual wxString serialize();
+
         virtual ~AVSequence() {}
 };
 
@@ -168,31 +166,39 @@ class AVClipboard: public AVSequence {
         virtual ~AVClipboard() {}
 };
 
-class AVTrack {
+class AVTrack:public serializable {
     public:
         AVType m_AVType;
         bool m_Readonly;
         bool m_Hidden;
-        std::map<unsigned int,unsigned int> m_Clips; // The map goes frame => clip_id
+        std::map<unsigned int,AVClip> m_Clips;
+        AVTrack();
+        virtual ~AVTrack();
+        virtual bool unserialize(const wxString& data);
+        virtual wxString serialize();
 };
 
-class AVTimeline {
+class AVTimeline:public serializable {
     public:
+        AVTimeline();
+        virtual ~AVTimeline();
         std::vector<AVSequence> m_Sequences;
-        std::map<unsigned int,unsigned int> m_ClipPool; // For handling deleted / added clips
-        // The index is the clip's id. The value is the clip's place in the
-        std::deque<unsigned int> m_FreePool; // list of available clips for re-use
-        std::vector<AVClip> m_Clips;
-
+        virtual bool unserialize(const wxString& data);
+        virtual wxString serialize();
 };
 
-class AVResource {
-    unsigned int m_ResourceId;
-    ResourceType m_ResourceType;
-    wxString m_Filename;
-    wxString m_RelativeFilename;
-    wxString m_Icon; // 64x64 JPEG icon encoded with base64
-    VideoSettings m_VideoSettings;
+class AVResource:public serializable {
+    public:
+        AVResource();
+        virtual ~AVResource();
+        unsigned int m_ResourceId;
+        ResourceType m_ResourceType;
+        wxString m_Filename;
+        wxString m_RelativeFilename;
+        wxString m_Icon; // 64x64 JPEG icon encoded with base64
+        VideoSettings m_VideoSettings;
+        virtual bool unserialize(const wxString& data);
+        virtual wxString serialize();
 };
 
 typedef std::map<unsigned int, AVResource> AVResources;

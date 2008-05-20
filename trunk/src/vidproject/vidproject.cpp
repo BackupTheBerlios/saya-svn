@@ -249,3 +249,4 @@ bool VidProject::SaveToFile(const wxString &filename) {
     }while(false);
     return result;
 }
+

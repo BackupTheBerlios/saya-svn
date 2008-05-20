@@ -15,3 +15,9 @@ AVEffect::AVEffect() {
 AVEffect::~AVEffect() {
 }
 
+AVTransition::AVTransition() {
+}
+
+AVTransition::~AVTransition() {
+}
+

@@ -19,7 +19,16 @@ enum AVType {
 
 typedef std::map<wxString,wxString> propertymap;
 
-class VideoSettings {
+class serializable {
+    public:
+        serializable() {}
+        virtual bool unserialize(const wxString& data);
+        virtual wxString serialize();
+        virtual ~serializable() {}
+};
+
+
+class VideoSettings: public serializable {
     public:
         VideoSettings();
         virtual ~VideoSettings();
@@ -34,6 +43,8 @@ class VideoSettings {
         propertymap videocodecsettings;
         propertymap audiocodecsettings;
         propertymap formatsettings;
+        virtual wxString serialize();
+        virtual bool unserialize(const wxString& data);
 };
 
 #endif

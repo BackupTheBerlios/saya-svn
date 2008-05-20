@@ -18,3 +18,40 @@ AVClip::~AVClip()
 {
     //dtor
 }
+
+bool AVClip::unserialize(const wxString& data) {
+    return false;
+}
+
+wxString AVClip::serialize() {
+    return wxEmptyString;
+}
+
+AVTimeline::AVTimeline() {
+}
+
+AVTimeline::~AVTimeline() {
+}
+
+bool AVTimeline::unserialize(const wxString& data) {
+    return false;
+}
+
+wxString AVTimeline::serialize() {
+    return wxEmptyString;
+}
+
+AVResource::AVResource() {
+}
+
+AVResource::~AVResource() {
+}
+
+bool AVResource::unserialize(const wxString& data) {
+    return false;
+}
+
+wxString AVResource::serialize() {
+    return wxEmptyString;
+}
+

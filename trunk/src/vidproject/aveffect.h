@@ -119,6 +119,22 @@ class AVEffect {
         virtual ~AVEffect();
 };
 
+typedef std::map<wxString,wxString> TransitionParameters;
+// An associative array of string parameters
+
+class AVTransition {
+    public:
+        AVType m_TransitionType;
+        wxString TransitionId; // Transition's ID
+        TransitionParameters m_Parameters;
+        bool m_Enabled;
+        AVTransition();
+        virtual ~AVTransition();
+
+    // IMPORTANT!!! Transitions MUST be applied *AFTER* all the effects have been done! Failing to do so
+    // Would result in defective transitions, i.e. a resized/rotated clip would suddenly be of a wrong size.
+};
+
 
 #endif
 
