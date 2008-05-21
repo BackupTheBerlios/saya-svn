@@ -86,6 +86,11 @@ class AVClip: public serializable {
 
         ClipType m_ClipType;       /// The type of clip we're storing in the timeline. @see ClipType
 
+        /** @brief The clip's unique identifier.
+          *
+          * Each time a Clip is created, it's given a new clip ID, which is used for linking between
+          * Video and audio.
+          */
 
         // Resource information
 
@@ -148,7 +153,7 @@ class AVClip: public serializable {
 
         // Speed control
 
-        /** @brief Clip's Post-loop start time
+        /** @brief Clip's Post-loop start time.
           *
           * After the clip loops have been processed, the clip's duration has changed.
           * To successfully split clips, we need to have a post-loop start time and end time.
@@ -188,42 +193,87 @@ class AVClip: public serializable {
 
         // Effects and transitions
 
-        /** @brief Contains the stack of video/audio effects for the clip
+        /** @brief Contains the stack of video/audio effects for the clip.
           *
           * All the special effects that are applied to the clip are contained in this variable.
           * It's an STL vector, so whenever you copy / paste into another clip, the original effects
           * are unmodified.
           */
         std::vector<AVEffect> m_Effects;
-        AVTransition m_EndingTransition; // Ending transition
 
+        /** @brief Sets the ending transition for the next clip.
+          *
+          * Transitions are handled differently than in other editors. Transitions are created by moving
+          * adjacent clips in a track, so that they overlap. Then you right-click and edit the transition's
+          * properties. For this reason, transitions are needed to be stored only in the ending track.
+          * When clips don't overlap, no transition is applied.
+          */
+        AVTransition m_EndingTransition;
+
+        /** @brief Hides the clip from the rendering.
+          *
+          * For video clips, they're made invisible. For audio clips, they're muted.
+          */
+        bool m_Hide;
 
         // Label and markers
-        unsigned short m_Label;    // Color label for the track
 
+        /** @brief Sets a color label for the track.
+          *
+          * Labels are simply a color index so that you can "paint" your tracks in the timeline.
+          */
+        unsigned short m_Label;
+
+        /** @brief The markers for time-sync'ing the video.
+          *
+          * Markers are stored as an STL map of strings. The index corresponds to a moment in time,
+          * while the string is the desired marker.
+          */
         std::map<unsigned int,wxString> m_Markers; // A map that goes time => marker_id.
+
+        /** @brief Links to the synchronized video/audio clip. Use 0 for no link.
+          *
+          * Synchronized video and audio clips share the same starting and ending points in the timeline.
+          * When split, the resulting clips are also split. To be able to handle this, each clip has a
+          * link to the other.
+          * @note Audio-to-video links are weak, while video-to-audio links are strong. This means that
+          * in the case of a coherency error, the audio link always follows the video link.
+          * @note Important care has to be given to the process of copying clips, since created clips have
+          * a new id. The link needs to be copied, too, by sinchronizing the new video clip with the new
+          * audio clip.
+          */
+        unsigned int m_Link;
 
         // Video-specific information
 
-        unsigned int m_AudioClip;  // Link to audio clip; 0 for none. Ignored if this is an audio clip.
-
-                                   // NOTE: Video and audio transitions are separate!
-        bool m_Hide;               // Hides the video
 
         // Audio-specific information
 
-        unsigned int m_VideoClip;  // Link to video clip; 0 for none. Ignored if this is a video clip.
-        // Unlinking is done first by the Video clip; therefore, the audio clip must always check if it's linked
-        // by the video. In other words, the m_VideoClip link is provided only for a faster access, but the
-        // video -> audio link is normative. Without the audio->video link, we'd have to search for all video clips
-        // to see which one would link to the audio clip.
+        /** @brief How many channels does this track have?
+          *
+          * @see SurroundType
+          */
+        unsigned short m_AudioChannelCount;
 
+        /** @brief What type of surround does this track have (Mono, Stereo, 5.1,...)?
+          *
+          * @see SurroundType
+          */
+        SurroundType m_SurroundType;
 
-        unsigned short m_AudioChannelCount; // How many channels does this track have?
-        SurroundType m_SurroundType; // What type of sound configuration does this channel have?
+        /** @brief Solo channel configuration
+          *
+          * Since an audio clip can have more than one channel, you can choose to
+          * mute all channels except one. Use 0 enable all channels.
+          * (More advanced audio effects like mixing will be done with the effect stack)
+          */
         unsigned int m_SoloChannel;  // 0 for no solo; otherwise the number of the source
-        bool m_Mute;                 // Mutes the audio
-        double m_AudioGain;           // Generalized Gain in Decibels; default is 0.0.
+
+        /** @brief Generalized Gain in Decibels; default is 0.0.
+          *
+          * Sets the default audio gain for the clip, before all the effects are processed.
+          */
+        double m_AudioGain;
 
     protected:
     private:
@@ -267,6 +317,12 @@ class AVTrack:public serializable {
         bool m_Readonly;
         bool m_Hidden;
         std::map<unsigned int,AVClip> m_Clips;
+        /** @brief An index for quick-searching the clips.
+          *
+          * The index is the clip's ID; the value is the clip's position in time.
+          * This value is updated on every clip operation.
+          */
+        std::map<unsigned int,unsigned int> m_ClipSearchIndex;
         AVTrack();
         virtual ~AVTrack();
         virtual bool unserialize(const wxString& data);
