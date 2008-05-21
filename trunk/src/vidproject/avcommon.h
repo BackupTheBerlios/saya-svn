@@ -22,8 +22,19 @@ typedef std::map<wxString,wxString> propertymap;
 class serializable {
     public:
         serializable() {}
+
+        /** Loads serialized data into the object.
+         *  @param data The data to unserialize into the object
+         *  @return the result. true if successful.
+         */
         virtual bool unserialize(const wxString& data);
+
+        /** Compresses the object data into a serialized string format.
+         *  @param data The data to unserialize into the object
+         *  @return The serialized data
+         */
         virtual wxString serialize();
+
         virtual ~serializable() {}
 };
 

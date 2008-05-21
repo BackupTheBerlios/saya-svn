@@ -38,7 +38,11 @@ wxString VideoSettings::serialize() {
         result += wxString(_T("<item name=\"")) + iter->first + _T("\">") + iter->second + _T("</item>");
     }
     result += _T("</audiocodec>");
+    result += closetag;
+    return result;
 }
 
 bool VideoSettings::unserialize(const wxString& data) {
+// TODO (rick#1#): Implemente me!
+    return false;
 }

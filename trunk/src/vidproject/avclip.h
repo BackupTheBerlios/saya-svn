@@ -24,37 +24,50 @@ class AVClip;
 class AVClipboard;
 class AVResource;
 
-enum ClipType {
-    CTVideo = 0, // The default
-    CTAudio,
-    CTSubtitle
+enum ClipType   /** Used for clips in the timeline
+                  *  For now I don't know how subtitle tracks work, so this may not be implemented */
+{
+    CTVideo = 0, /**<Enum value CTVideo. */
+    CTAudio,     /**<Enum value CTAudio. */
+    CTSubtitle   /**<Enum value CTSubtitle. */
 };
 
-enum ResourceType {
-    RTSequence = 0,
-    RTVideoFile,
-    RTAudioFile,
-    RTImageFile,
-    RTOfflineFile,
-    RTTitle,
-    RTBarsAndTone,
-    RTBlackVideo,
-    RTColorMatte,
-    RTUCLeader
+enum ResourceType   /** Used for the video resources. */
+{
+    RTSequence = 0, /**<Enum value RTSequence. */
+    RTVideoFile,    /**<Enum value RTVideoFile. */
+    RTAudioFile,    /**<Enum value RTAudioFile. */
+    RTImageFile,    /**<Enum value RTImageFile. */
+    RTOfflineFile,  /**<Enum value RTOfflineFile. */
+    RTTitle,        /**<Enum value RTTitle. */
+    RTBarsAndTone,  /**<Enum value RTBarsAndTone. */
+    RTBlackVideo,   /**<Enum value RTBlackVideo. */
+    RTColorMatte,   /**<Enum value RTColorMatte. */
+    RTUCLeader      /**<Enum value RTUCLeader. */
 };
 
-enum SurroundType {
-    STMono = 0, // Mono (1 channel)
-    STStereo,   // Stereo (Left, right)
-    STSurround51, // (5.1 surround)
-    STSurround71, // (7.1 surround)
-    STSurround102, // (10.2 surround)
-    STOther,
+enum SurroundType   /** Used for audio tracks */
+{
+    STMono = 0,     /**<Enum value STMono. Mono (1 channel) */
+    STStereo,       /**<Enum value STStereo. Stereo (Left, right) */
+    STSurround51,   /**<Enum value STSurround51. 5.1 surround */
+    STSurround71,   /**<Enum value STSurround71. 7.1 surround */
+    STSurround102,  /**<Enum value STSurround102. 10.2 surround */
+    STOther,        /**<Enum value STOther. Other. */
     STReserved6, STReserved7, STReserved8, STReserved9,STReserved10,
     STReserved11,STReserved12,STReserved13,STReserved14,STReserved15
 };
 
 
+/*! @class AVClip avclip.h
+ *  @brief Defines a clip in the timeline.
+ *
+ *  AVClip is the base of our whole video editing framework.
+ *  It contains a numeric link to the resource used,
+ *  which effects and transitions are applied,
+ *  whether it's video or audio, the loop count, start and ending frames (actually time),
+ *  etc.
+ */
 
 class AVClip: public serializable {
     public:
@@ -64,42 +77,124 @@ class AVClip: public serializable {
         /** Default destructor */
         virtual ~AVClip();
 
+        /** @brief Loads serialized data. @see serializable::unserialize() */
         virtual bool unserialize(const wxString& data);
+
+        /** @brief Saves serialized data. @see serializable::serialize() */
         virtual wxString serialize();
 
 
-        ClipType m_ClipType;
+        ClipType m_ClipType;       /// The type of clip we're storing in the timeline. @see ClipType
 
 
         // Resource information
 
-        unsigned int m_ResourceId; // Resource from which this clip takes the info.
-        unsigned int m_StartTime;  // Beginning source time (zero-based; in milliseconds)
-        unsigned int m_EndTime;    // End source time (inclusive - if it's 7, millisecond #7 is included)
-        unsigned int m_SourceTrack;// 0 for all; 1 for specific track in multi-track (multicam) sources.
-                                   // Note that this has to be set up for the audio track, too!
+        unsigned int m_ResourceId; /// Resource from which this clip takes the info.
+        unsigned int m_SourceStartTime;  /// Beginning source time (zero-based; in milliseconds)
+        unsigned int m_SourceEndTime;    /// End source time (inclusive - if it's 7, millisecond #7 is included)
 
-        // Loop control
-        unsigned int m_LoopTime;   // NOTE: In case of reversed clips, the beginning of the loop would be
-                                   // m_EndTime, and the end of the loop would be m_LoopTime.
-                                   // To be consistent with loops in forward clips, the last loop would include
-                                   // frames from and including (m_LoopTime-1) to 0.
+        /** @brief Resource's track used for the clip
+          *
+          * Resouces (sequences) with more than one track can be used for multicam clips.
+          * If you assign a number greater than 0 to m_SourceTrack, the clip's source is taken
+          * @b ONLY from the resource's specified track.
+          * @note Audio clips need to specify this, too!
+          */
+        unsigned int m_SourceTrack;
 
-        bool m_Loop;               // Does the clip loop?
-        unsigned int m_LoopCount;  // Does the clip loop infinitely?
-                                   // 0 for infinity, 1 for once (one playback only, no repeat),
-                                   // 2 for 2 repetitions (one normal, one loop), and so on.
+
+        /** @brief Specifies a moment to start loops in a clip
+          *
+          * Sometimes you wish to repeat certain part of a clip a certain number of times, or even
+          * infinite times. Instead of having to copy/paste the clip over and over, you only have to
+          * set the loop start/end, the loopcount, and enable looping. This way you can expand the clip using
+          * the ripple edit or the rolling edit tool.
+          * The clip's default duration will be recalculated to reflect this. @see AVClip::GetDefaultDuration()
+          * @note In reversed clips, m_LoopStart and m_LoopEnd are switched automatically.
+          */
+        unsigned int m_LoopStart;
+
+        unsigned int m_LoopEnd;
+
+        /** @brief Set to true to enable looping. */
+        bool m_Loop;
+
+        /** @brief  Determines the number of passes that a loop contains.
+         *
+         *  0 equals infinite passes,
+         *  1 sets one pass (same as no looping)
+         *  2 sets two passes (one repetition)
+         * Example: With looping disabled:
+         * - Vegeta: What is Kakaroto's power level?
+         * - It's more than 9000!!!
+         * - WHAT, nine thousand!?!?
+         * With looping enabled, and m_LoopCount set to 3:
+         * - Vegeta: What is Kakaroto's power level?
+         * - It's more than 9000!!! It's more than 9000!!! It's more than 9000!!!
+         * - WHAT, nine thousand!?!?
+         */
+        unsigned int m_LoopCount;
+
+        /**  @brief Set to true to make the loops go in a zig-zag sequence.
+         *
+         *   VJs will appreciate this feature. Instead of looping normally, even loops
+         *   do a reverse iteration. If you loop a person turning his head from left
+         *   to right, the loop will make the person turn his head right (first pass, no loop),
+         *   then left (second pass), and then right again (third pass).
+         *   @note If the number of loops is even, the clip will continue in reverse from
+         *   m_LoopStart down to 0.
+         */
+        bool m_LoopZigZag;
 
         // Speed control
-        bool m_reverse;            // The reverse flag states if we start by the last frame.
-                                   // IMPORTANT!!! Reverse is applied *BEFORE* the effects!
-                                   // To reverse a clip after the effects have been done, you need to add
-                                   // a reverse effect at the top of the effect stack.
 
-        unsigned int m_Duration;   // Duration in milliseconds (for stretching / compressing)
+        /** @brief Clip's Post-loop start time
+          *
+          * After the clip loops have been processed, the clip's duration has changed.
+          * To successfully split clips, we need to have a post-loop start time and end time.
+          * These are the variables that are modified when using the rolling / ripple edit tool.
+          */
+        unsigned int m_PostLoopStartTime;
+        unsigned int m_PostLoopEndTime;
+
+
+        /** @brief Obtains the clip's default duration.
+         *  The clip's default duration (in milliseconds) is obtained by first dividing the resource's
+         *  number of frames over the resource's fps, and then adding the number of loops in the clip.
+         *  For infinite loops, only one pass will be accounted.
+         *  @return The clip's default duration.
+         */
+        unsigned int GetDefaultDuration();
+
+        /** @brief Set to true to make the clip go from the last frame to the first frame.
+         *
+         *  The reverse flag is useful to make a clip go backwards.
+         *  The order of processing is the following:
+         *  First, the loop variables are processed.
+         *  After the loop count has been established, the m_reverse flag is analyzed.
+         *  Finally, the video effects and transitions are applied.
+         *  @note To make a clip go in reverse after some effects have been applied, apply
+         *  a reverse effect on the clip.
+         */
+        bool m_reverse;
+
+        /** @brief Sets the clip duration for speeding up / slowing down purposes.
+          *
+          * The m_Duration variable sets the clip duration in milliseconds, speeding it up
+          * or slowing it down in consequence.
+          * @note The duration is set after looping has been processed.
+          */
+        unsigned int m_Duration;
 
         // Effects and transitions
-        std::vector<AVEffect> m_Effects; // The effects for the clip
+
+        /** @brief Contains the stack of video/audio effects for the clip
+          *
+          * All the special effects that are applied to the clip are contained in this variable.
+          * It's an STL vector, so whenever you copy / paste into another clip, the original effects
+          * are unmodified.
+          */
+        std::vector<AVEffect> m_Effects;
         AVTransition m_EndingTransition; // Ending transition
 
 
