@@ -47,6 +47,12 @@ ProjectManager::ProjectManager() {
 bool ProjectManager::GetClearUndoHistoryOnSave() {
     return m_clearundohistoryonsave;
 }
+
+void ProjectManager::SetClearUndoHistoryOnSave(bool flag) {
+    m_clearundohistoryonsave = flag;
+}
+
+
 void ProjectManager::SetMainFrame(wxFrame* frame) {
     m_MainFrame = frame;
 }
