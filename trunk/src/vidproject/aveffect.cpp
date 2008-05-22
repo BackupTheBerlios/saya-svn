@@ -21,3 +21,27 @@ AVTransition::AVTransition() {
 AVTransition::~AVTransition() {
 }
 
+bool AVTransition::unserialize(const wxString& data) {
+// TODO (rick#1#): Implement me!
+    return false;
+}
+
+wxString AVTransition::serialize() {
+    return wxEmptyString;
+}
+
+bool AVEffect::unserialize(const wxString& data) {
+// TODO (rick#1#): Implement me!
+    return false;
+}
+
+wxString AVEffect::serialize() {
+    return wxEmptyString;
+}
+
+
+FXParamKeyFrame::FXParamKeyFrame() {
+}
+
+FXParamKeyFrame::~FXParamKeyFrame() {
+}

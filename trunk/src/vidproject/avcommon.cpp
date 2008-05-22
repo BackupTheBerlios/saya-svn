@@ -43,6 +43,6 @@ wxString VideoSettings::serialize() {
 }
 
 bool VideoSettings::unserialize(const wxString& data) {
-// TODO (rick#1#): Implemente me!
+// TODO (rick#1#): Implement me!
     return false;
 }
