@@ -31,6 +31,18 @@ void VideoSettings::ResetToDefaults() {
     formatsettings.clear();
 }
 
+bool VidProject::unserialize(const wxString& data) {
+    // TODO (rick#1#): Implement me!
+    Clear();
+    return true;
+}
+
+wxString VidProject::serialize() {
+    // TODO (rick#1#): Implement me!
+    wxString data;
+    data = _T("<?xml version=\"1.0\"?>\n<xvidproject version=\"1.0\">\n</xvidproject>\n");
+    return data;
+}
 
 VidProject::VidProject()
 {
@@ -51,12 +63,55 @@ void VidProject::Clear() {
 }
 
 void VidProject::Revert() {
-    LoadFromXml(m_OriginalXML);
+    if(IsNew()) {
+        return;
+    }
+    unserialize(m_OriginalXML);
     ResetModified();
     ClearUndoHistory();
     // At this point the relation between the Undo history
     // and the original is lost; plus, the clips in the resources area may have changed.
     // Therefore, the Undo history must be cleared.
+}
+
+bool VidProject::Reload() {
+    if(IsNew()) {
+        return false;
+    }
+    wxString data = wxEmptyString;
+    wxString currentdata = serialize();
+    wxString original_xml = m_OriginalXML;
+    bool result = false;
+    wxFFile myfile;
+
+    do {
+        if(!wxFileExists(m_Filename)) {
+            break;
+        }
+        if(!myfile.Open(m_Filename)) {
+            break;
+        }
+        if(!myfile.ReadAll(&data)) {
+            break;
+        }
+        myfile.Close();
+        result = unserialize(data);
+        if(result) {
+            m_OriginalXML = data;
+            ResetModified();
+        }
+    } while(false);
+
+    if(myfile.IsOpened()) {
+        myfile.Close();
+    }
+    if(!result) {
+        unserialize(currentdata);
+        m_OriginalXML = original_xml;
+        SetModified();
+    }
+    ClearUndoHistory();
+    return result;
 }
 
 void VidProject::SaveState(wxString& data) {
@@ -151,18 +206,6 @@ bool VidProject::IsNew() {
     return (m_Filename.IsEmpty());
 }
 
-bool VidProject::LoadFromXml(const wxString &data) {
-    Clear();
-// TODO (rick#1#): Implement VidProject::LoadFromXml
-    return true;
-}
-
-void VidProject::SaveToXml(wxString &data) {
-// TODO (rick#1#): Implement VidProject::SaveToXml
-    data = _T("<?xml version=\"1.0\"?>\n<xvidproject version=\"1.0\">\n</xvidproject>\n");
-    return;
-}
-
 VidProject* VidProject::Load(const wxString filename, wxString &errortext) {
     wxString data = wxEmptyString;
     VidProject* nextproject = new VidProject;
@@ -182,7 +225,7 @@ VidProject* VidProject::Load(const wxString filename, wxString &errortext) {
             break;
         }
         myfile.Close();
-        result = nextproject->LoadFromXml(data);
+        result = nextproject->unserialize(data);
         if(!result) {
             errortext.Printf(_("Error: File '%s' contains invalid data!"),filename.c_str());
         } else {
@@ -204,7 +247,7 @@ VidProject* VidProject::Load(const wxString filename, wxString &errortext) {
 bool VidProject::Save() {
     bool result = SaveToFile(m_Filename);
     if(result) {
-        SaveToXml(m_OriginalXML);
+        m_OriginalXML = serialize();
         ResetModified();
         if(ProjectManager::Get()->GetClearUndoHistoryOnSave()) {
             ClearUndoHistory();
@@ -238,7 +281,7 @@ bool VidProject::SaveToFile(const wxString &filename) {
     wxString data;
     bool result = false;
     do {
-        SaveToXml(data);
+        data = serialize();
         wxTempFile tmpfile(filename);
         if(!tmpfile.IsOpened()) break;
         if(!tmpfile.Write(data,wxConvUTF8)) {
