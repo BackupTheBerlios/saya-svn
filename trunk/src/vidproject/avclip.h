@@ -130,12 +130,12 @@ class AVClip: public serializable {
          *  1 sets one pass (same as no looping)
          *  2 sets two passes (one repetition)
          * Example: With looping disabled:
-         * - Vegeta: What is Kakaroto's power level?
-         * - It's more than 9000!!!
+         * - Vegeta: What does the scouter say about his power level?
+         * - It's over 9000!!!
          * - WHAT, nine thousand!?!?
          * With looping enabled, and m_LoopCount set to 3:
-         * - Vegeta: What is Kakaroto's power level?
-         * - It's more than 9000!!! It's more than 9000!!! It's more than 9000!!!
+         * - Vegeta: What does the scouter say about his power level?
+         * - It's over 9000!!! It's over 9000!!! It's over 9000!!!
          * - WHAT, nine thousand!?!?
          */
         unsigned int m_LoopCount;
