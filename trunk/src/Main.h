@@ -12,6 +12,7 @@
 
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
+    #include <wx/aui/aui.h>
 #endif
 
 #include "App.h"
@@ -45,10 +46,15 @@ class AppFrame: public wxFrame
         bool CanUndo();                 /// Does the project have an item in the "undo" list?
         bool CanRedo();                 /// Does the project have an item in the "redo" list?
 
+        void LoadFail(wxString resourcename); /// Shows an error about Loading an XML resource.
+
         wxMenu* FindMenu(const wxString name);
         ~AppFrame();
         ProjectManager* m_prjMan;
     private:
+
+        wxPanel* CreateProjectPane();
+
         enum
         {
             idMenuQuit = 1000,
@@ -85,6 +91,7 @@ class AppFrame: public wxFrame
         void OnMarkerMenuUpdateUI(wxUpdateUIEvent& event);
         void OnWindowMenuUpdateUI(wxUpdateUIEvent& event);
 
+        wxAuiManager m_mgr;
         DECLARE_EVENT_TABLE()
 };
 

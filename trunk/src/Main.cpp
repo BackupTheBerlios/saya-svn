@@ -15,9 +15,16 @@
 #pragma hdrstop
 #endif //__BORLANDC__
 
-#include <wx/xrc/xmlres.h>
-#include <wx/config.h>
-#include <wx/filedlg.h>
+
+#ifndef WX_PRECOMP
+    #include <wx/xrc/xmlres.h>
+    #include <wx/config.h>
+    #include <wx/filedlg.h>
+    #include <wx/aui/aui.h>
+    #include <wx/splitter.h>
+    #include <wx/treectrl.h>
+    #include <wx/sizer.h>
+#endif
 #include "App.h"
 #include "Main.h"
 
@@ -198,12 +205,15 @@ END_EVENT_TABLE()
 AppFrame::AppFrame(wxFrame *frame, const wxString& title)
     : wxFrame(frame, -1, title)
 {
-    bool bRet = wxXmlResource::Get()->Load(wxT("resources/mainmenu.xrc"));
+    bool bRet;
+    bRet = wxXmlResource::Get()->Load(wxT("resources/mainmenu.xrc"));
+    if(bRet) bRet = wxXmlResource::Get()->Load(wxT("resources/projectpane.xrc"));
 
     if(!bRet) {
         Destroy();
         return;
     }
+    m_mgr.SetManagedWindow(this);
     m_prjMan = ProjectManager::Get();
     SetSize (DetermineFrameSize ());
     CenterOnScreen();
@@ -213,17 +223,122 @@ AppFrame::AppFrame(wxFrame *frame, const wxString& title)
     if(mbar) {
         SetMenuBar(mbar);
     } else {
-        wxLogError(_("Could not find the XRC resource 'main_menu_bar'!\nAre you sure the program was installed correctly?"));
+        LoadFail(_T("main_menu_bar"));
         Destroy();
         return;
     }
 
+    wxPanel* projectpanel = CreateProjectPane(); // wxXmlResource::Get()->LoadPanel(this,wxT("project_panel"));
+//    if(!projectpanel) { LoadFail(_T("project_panel")); Destroy(); return; }
+    wxPanel* monitorpanel = wxXmlResource::Get()->LoadPanel(this,wxT("monitor_panel"));
+    if(!monitorpanel) { LoadFail(_T("project_panel")); Destroy(); return; }
+    wxPanel* effectspanel = wxXmlResource::Get()->LoadPanel(this,wxT("effects_panel"));
+    if(!effectspanel) { LoadFail(_T("effects_panel")); Destroy(); return; }
+
+    projectpanel->SetSize(200,300);
+    projectpanel->SetPosition(wxDefaultPosition);
+
     // create a status bar with some information about the used wxWidgets version
     CreateStatusBar(2);
+
+
+     // --- Begin wxAUI test ----
+     // create several controls
+
+     wxPanel* timelinepanel = new wxPanel(this, -1,
+                      wxDefaultPosition, wxSize(800,400));
+//      wxPanel* bgpanel = new wxPanel(this, -1, wxDefaultPosition, wxDefaultSize, wxNO_BORDER);
+
+     m_mgr.SetFlags(m_mgr.GetFlags() | wxAUI_MGR_ALLOW_ACTIVE_PANE);
+     // add the panes to the manager
+    m_mgr.SetDockSizeConstraint(0.3,0.45);
+     m_mgr.AddPane(projectpanel, wxLEFT,wxT("Project"));
+     m_mgr.AddPane(monitorpanel, wxBOTTOM,wxT("Monitor"));
+     m_mgr.AddPane(effectspanel, wxBOTTOM,wxT("Effects"));
+     m_mgr.AddPane(timelinepanel, wxCENTER, wxT("Timeline"));
+//     m_mgr.AddPane(bgpanel, wxCENTER);
+
+
+     // tell the manager to "commit" all the changes just made
+     m_mgr.Update();
+
+     // --- End wxAUI test ----
+
+
+    // Update Status bar
     SetStatusText(wxbuildinfo(short_f), 1);
     g_statustext = _("Welcome to ") + APP_SHOWNAME + _T("! ^_^");
     UpdateStatustext();
 
+}
+
+wxPanel* AppFrame::CreateProjectPane() {
+
+    long tabs_style = wxAUI_NB_DEFAULT_STYLE && ~ (wxAUI_NB_CLOSE_BUTTON | wxAUI_NB_CLOSE_ON_ACTIVE_TAB | wxAUI_NB_CLOSE_ON_ALL_TABS);
+    wxPanel* panel1;
+    wxAuiNotebook* auinotebook1;
+    wxPanel* resourcespage;
+    wxSplitterWindow* splitter1;
+    wxPanel* dir_panel;
+    wxTreeCtrl* ResourcesTree;
+    wxPanel* files_panel;
+    wxScrolledWindow* scrolledWindow2;
+    wxPanel* effectspage;
+
+
+    panel1 = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize(200,800), wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer2 = new wxBoxSizer( wxVERTICAL );
+
+	auinotebook1 = new wxAuiNotebook( panel1, wxID_ANY, wxDefaultPosition, wxDefaultSize, tabs_style );
+	resourcespage = new wxPanel( auinotebook1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer3 = new wxBoxSizer( wxVERTICAL );
+
+	splitter1 = new wxSplitterWindow( resourcespage, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D );
+	dir_panel = new wxPanel( splitter1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer4 = new wxBoxSizer( wxVERTICAL );
+
+	ResourcesTree = new wxTreeCtrl( dir_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTR_DEFAULT_STYLE );
+	bSizer4->Add( ResourcesTree, 1, wxEXPAND, 5 );
+
+	dir_panel->SetSizer( bSizer4 );
+	dir_panel->Layout();
+	bSizer4->Fit( dir_panel );
+	files_panel = new wxPanel( splitter1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer5;
+	bSizer5 = new wxBoxSizer( wxVERTICAL );
+
+	scrolledWindow2 = new wxScrolledWindow( files_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
+	scrolledWindow2->SetScrollRate( 5, 5 );
+	bSizer5->Add( scrolledWindow2, 1, wxEXPAND | wxALL, 5 );
+
+	files_panel->SetSizer( bSizer5 );
+	files_panel->Layout();
+	bSizer5->Fit( files_panel );
+	splitter1->SplitHorizontally( dir_panel, files_panel, 170 );
+	bSizer3->Add( splitter1, 1, wxEXPAND, 5 );
+
+	resourcespage->SetSizer( bSizer3 );
+	resourcespage->Layout();
+	bSizer3->Fit( resourcespage );
+	auinotebook1->AddPage( resourcespage, wxT("Resources"), false, wxNullBitmap );
+	effectspage = new wxPanel( auinotebook1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	auinotebook1->AddPage( effectspage, wxT("Effects"), true, wxNullBitmap );
+    auinotebook1->SetSelection(0); // Go to the first page
+
+	bSizer2->Add( auinotebook1, 1, wxEXPAND | wxALL, 5 );
+
+	panel1->SetSizer( bSizer2 );
+	panel1->Layout();
+	bSizer2->Fit( panel1 );
+	splitter1->SetSashPosition(170);
+
+	return panel1;
+}
+
+void AppFrame::LoadFail(wxString resourcename) {
+    wxString s;
+    s.Printf(_("Could not find the XRC resource '%s'!\nAre you sure the program was installed correctly?"),resourcename.c_str());
+    wxLogError(s);
 }
 
 wxMenu* AppFrame::FindMenu(const wxString name) {
@@ -269,6 +384,7 @@ wxRect AppFrame::DetermineFrameSize () {
 AppFrame::~AppFrame() {
     ShutDownApp();
     ProjectManager::Unload();
+    m_mgr.UnInit();
 }
 
 bool AppFrame::IsClipSelected() {

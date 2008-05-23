@@ -25,6 +25,11 @@
     // put here all your rarely-changing header files
     #include <wx/xrc/xmlres.h>
     #include <wx/config.h>
+    #include <wx/filedlg.h>
+    #include <wx/aui/aui.h>
+    #include <wx/splitter.h>
+    #include <wx/treectrl.h>
+    #include <wx/sizer.h>
 #endif // WX_PRECOMP
 
 #endif // WX_PCH_H_INCLUDED
