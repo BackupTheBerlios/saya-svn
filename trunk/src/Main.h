@@ -18,6 +18,7 @@
 #include "App.h"
 #include "vidproject/projectmanager.h"
 class wxUpdateUIEvent;
+class wxPanel;
 
 class AppFrame: public wxFrame
 {
@@ -54,6 +55,17 @@ class AppFrame: public wxFrame
     private:
 
         wxPanel* CreateProjectPane();
+        wxPanel* m_projectpanel;
+        wxPanel* m_monitorpanel;
+        wxPanel* m_effectspanel;
+        wxPanel* m_timelinepanel;
+
+        bool LoadResources();
+        void CreateDockAreas();
+        bool CreateMenuBar();
+        bool CreatePanels();
+
+
 
         enum
         {
@@ -62,6 +74,7 @@ class AppFrame: public wxFrame
         };
         void OnFileOpen(wxCommandEvent& event);
         void OnFileClose(wxCommandEvent& event);
+
 
         void OnClearRecentProjectList(wxCommandEvent &event);
         void OnOpenRecentFile(wxCommandEvent &event);
@@ -75,7 +88,9 @@ class AppFrame: public wxFrame
         wxRect DetermineFrameSize();
         void OnSaveFrameLayout(wxCommandEvent& event);
         void StoreFrameSize (wxRect rect);
-        void StoreCurrentLayout();
+        void StoreCurrentLayout(bool showmsg);
+        void OnLoadDefaultLayout(wxCommandEvent& event);
+        bool LoadDefaultLayout();
 
         void DoUpdateAppTitle();
         // UpdateUI events

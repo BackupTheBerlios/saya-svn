@@ -66,6 +66,7 @@ bool App::OnInit()
 
     AppFrame* frame = new AppFrame(NULL, _("Saya - Swift audiovisual Authoring for You and Anyone"));
     ProjectManager::Get()->SetMainFrame(frame);
+    SetTopWindow(frame);
     frame->Show();
     wxCommandEvent evt(cmd_SHOW_STARTUP_DIALOG);
     wxPostEvent(this, evt);

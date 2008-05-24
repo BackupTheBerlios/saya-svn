@@ -72,6 +72,8 @@ const wxString LOCATION_X = _T("xpos");
 const wxString LOCATION_Y = _T("ypos");
 const wxString LOCATION_W = _T("width");
 const wxString LOCATION_H = _T("height");
+const wxString KEY_LAYOUTS = _T("Layouts");
+const wxString PERSPECTIVE_DEFAULT = _T("defaultlayout");
 
 int idFileNew = XRCID("idFileNew");
 int idFileOpen = XRCID("idFileOpen");
@@ -133,13 +135,7 @@ int idEditOriginal = XRCID("idEditOriginal");
 int idEditSequenceMarker = XRCID("idEditSequenceMarker");
 
 int idMenuSaveFrameLayout = XRCID("idMenuSaveFrameLayout");
-
-
-
-
-
-
-
+int idMenuLoadDefaultLayout = XRCID("idMenuLoadDefaultLayout");
 
 wxString g_statustext;
 
@@ -147,6 +143,7 @@ BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_CLOSE(AppFrame::OnClose)
     EVT_MENU(idMenuAbout, AppFrame::OnAbout)
     EVT_MENU(idMenuSaveFrameLayout, AppFrame::OnSaveFrameLayout)
+    EVT_MENU(idMenuLoadDefaultLayout, AppFrame::OnLoadDefaultLayout)
 
 //  File menu
     EVT_MENU(idFileOpen, AppFrame::OnFileOpen)
@@ -205,71 +202,126 @@ END_EVENT_TABLE()
 AppFrame::AppFrame(wxFrame *frame, const wxString& title)
     : wxFrame(frame, -1, title)
 {
-    bool bRet;
-    bRet = wxXmlResource::Get()->Load(wxT("resources/mainmenu.xrc"));
-    if(bRet) bRet = wxXmlResource::Get()->Load(wxT("resources/projectpane.xrc"));
+    bool result = false;
+    do {
+        if(!LoadResources()) break;
+        if(!CreateMenuBar()) break;
+        CreateStatusBar(2);
 
-    if(!bRet) {
+        m_mgr.SetManagedWindow(this);
+        m_prjMan = ProjectManager::Get();
+        SetSize (DetermineFrameSize ());
+        // CenterOnScreen();
+
+        if(!CreatePanels()) break;
+        CreateDockAreas();
+
+        // Update Status bar
+        SetStatusText(wxbuildinfo(short_f), 1);
+        g_statustext = _("Welcome to ") + APP_SHOWNAME + _T("! ^_^");
+        UpdateStatustext();
+
+
+        LoadDefaultLayout();
+//        {
+//            wxCommandEvent tmpevent(wxEVT_COMMAND_MENU_SELECTED,idMenuLoadDefaultLayout);
+//           wxPostEvent(this, tmpevent);
+//        }
+
+        result = true;
+    }while(false);
+    if(!result) {
         Destroy();
-        return;
     }
-    m_mgr.SetManagedWindow(this);
-    m_prjMan = ProjectManager::Get();
-    SetSize (DetermineFrameSize ());
-    CenterOnScreen();
+}
 
-    // create a menu bar
+bool AppFrame::LoadResources() {
+    bool result = false;
+    wxXmlResource* rsc = wxXmlResource::Get();
+    do {
+        if(!rsc->Load(_T("resources/mainmenu.xrc"))) break;
+        if(!rsc->Load(_T("resources/projectpane.xrc"))) break;
+        result = true;
+    }while(false);
+    return result;
+}
+
+bool AppFrame::CreateMenuBar() {
+    bool result = false;
     wxMenuBar* mbar = wxXmlResource::Get()->LoadMenuBar(wxT("main_menu_bar"));
     if(mbar) {
         SetMenuBar(mbar);
+        result = true;
     } else {
         LoadFail(_T("main_menu_bar"));
-        Destroy();
-        return;
     }
+    return result;
+}
 
-    wxPanel* projectpanel = CreateProjectPane(); // wxXmlResource::Get()->LoadPanel(this,wxT("project_panel"));
-//    if(!projectpanel) { LoadFail(_T("project_panel")); Destroy(); return; }
-    wxPanel* monitorpanel = wxXmlResource::Get()->LoadPanel(this,wxT("monitor_panel"));
-    if(!monitorpanel) { LoadFail(_T("project_panel")); Destroy(); return; }
-    wxPanel* effectspanel = wxXmlResource::Get()->LoadPanel(this,wxT("effects_panel"));
-    if(!effectspanel) { LoadFail(_T("effects_panel")); Destroy(); return; }
+bool AppFrame::CreatePanels() {
+    bool result = false;
+    do {
+        m_projectpanel = CreateProjectPane(); // wxXmlResource::Get()->LoadPanel(this,wxT("project_panel"));
+        if(!m_projectpanel) { LoadFail(_T("project_panel")); break; }
+         m_monitorpanel = wxXmlResource::Get()->LoadPanel(this,wxT("monitor_panel"));
+         if(!m_monitorpanel) { LoadFail(_T("monitor_panel")); break; }
+         m_effectspanel = wxXmlResource::Get()->LoadPanel(this,wxT("effects_panel"));
+         if(!m_effectspanel) { LoadFail(_T("effects_panel")); break; }
 
-    projectpanel->SetSize(200,300);
-    projectpanel->SetPosition(wxDefaultPosition);
+        m_timelinepanel = new wxPanel(this, -1,wxDefaultPosition, wxSize(800,400));
+        result = true;
+    }while(false);
+    return result;
+}
 
-    // create a status bar with some information about the used wxWidgets version
-    CreateStatusBar(2);
-
-
-     // --- Begin wxAUI test ----
-     // create several controls
-
-     wxPanel* timelinepanel = new wxPanel(this, -1,
-                      wxDefaultPosition, wxSize(800,400));
-//      wxPanel* bgpanel = new wxPanel(this, -1, wxDefaultPosition, wxDefaultSize, wxNO_BORDER);
-
-     m_mgr.SetFlags(m_mgr.GetFlags() | wxAUI_MGR_ALLOW_ACTIVE_PANE);
+void AppFrame::CreateDockAreas() {
+    m_mgr.SetFlags(m_mgr.GetFlags() | wxAUI_MGR_ALLOW_ACTIVE_PANE);
      // add the panes to the manager
-    m_mgr.SetDockSizeConstraint(0.3,0.45);
-     m_mgr.AddPane(projectpanel, wxLEFT,wxT("Project"));
-     m_mgr.AddPane(monitorpanel, wxBOTTOM,wxT("Monitor"));
-     m_mgr.AddPane(effectspanel, wxBOTTOM,wxT("Effects"));
-     m_mgr.AddPane(timelinepanel, wxCENTER, wxT("Timeline"));
-//     m_mgr.AddPane(bgpanel, wxCENTER);
+//   m_mgr.SetDockSizeConstraint(0.3,0.45);
+    m_mgr.AddPane(m_projectpanel, wxAuiPaneInfo().
+                            Name(wxT("Project")).Caption(_("Project")).
+                              BestSize(wxSize(200, 300)).MinSize(wxSize(200,300)).
+                              Left().Layer(2));
+    m_mgr.AddPane(m_monitorpanel, wxAuiPaneInfo().
+                            Name(wxT("Monitor")).Caption(_("Monitor / Preview")).
+                              BestSize(wxSize(200, 300)).MinSize(wxSize(200,300)).
+                              Bottom().Layer(1));
+    m_mgr.AddPane(m_effectspanel, wxAuiPaneInfo().
+                            Name(wxT("Effects")).Caption(_("Effects Monitor")).
+                              BestSize(wxSize(200, 300)).MinSize(wxSize(200,300)).
+                              Bottom().Layer(1));
+    m_mgr.AddPane(m_timelinepanel, wxAuiPaneInfo().Name(wxT("MainPane")).CentrePane().Caption(_("Timeline")).CaptionVisible(true));
 
+//    m_mgr.AddPane(bgpanel, wxCENTER);
 
-     // tell the manager to "commit" all the changes just made
-     m_mgr.Update();
+//    m_mgr.Update();
+//    StoreCurrentLayout(false);
+
+//    m_mgr.Update();
 
      // --- End wxAUI test ----
 
+}
 
-    // Update Status bar
-    SetStatusText(wxbuildinfo(short_f), 1);
-    g_statustext = _("Welcome to ") + APP_SHOWNAME + _T("! ^_^");
-    UpdateStatustext();
+bool AppFrame::LoadDefaultLayout() {
+    bool result = false;
+    wxString strlayout;
+    wxConfig* cfg = new wxConfig (APP_NAME);
+    wxString key = KEY_LAYOUTS;
+    if (cfg->Exists (key)) {
+        if(cfg->Read(key + _T("/") + PERSPECTIVE_DEFAULT, &strlayout)) {
+            if(!strlayout.IsEmpty()) {
+                result = m_mgr.LoadPerspective(strlayout,false);
+            }
+        }
+    }
+    delete cfg;
+    m_mgr.Update();
+    return result;
+}
 
+void AppFrame::OnLoadDefaultLayout(wxCommandEvent& event) {
+    LoadDefaultLayout();
 }
 
 wxPanel* AppFrame::CreateProjectPane() {
@@ -517,20 +569,22 @@ void AppFrame::OnQuit(wxCommandEvent &event) {
 }
 
 void AppFrame::OnSaveFrameLayout(wxCommandEvent& event) {
-    StoreCurrentLayout();
+    StoreCurrentLayout(true);
+
 }
 
 void AppFrame::UpdateStatustext() {
     SetStatusText (g_statustext, 0);
 }
 
-void AppFrame::StoreCurrentLayout() {
+void AppFrame::StoreCurrentLayout(bool showmsg) {
     StoreFrameSize (GetRect ());
-
-    wxMessageBox (_("Current Layout has been saved."),
-                  _("Save Layout"), wxOK);
-
+    if(showmsg) {
+        wxMessageBox (_("Current Layout has been saved."),
+                      _("Save Layout"), wxOK);
+    }
 }
+
 void AppFrame::StoreFrameSize (wxRect rect) {
 
     // store size
@@ -541,6 +595,9 @@ void AppFrame::StoreFrameSize (wxRect rect) {
     cfg->Write (key + _T("/") + LOCATION_W, rect.width);
     cfg->Write (key + _T("/") + LOCATION_H, rect.height);
     // TODO: Save other windows' layout
+    key = KEY_LAYOUTS;
+    wxString strlayout = m_mgr.SavePerspective();
+    cfg->Write (key + _T("/") + PERSPECTIVE_DEFAULT, strlayout);
     delete cfg;
 }
 
