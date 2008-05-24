@@ -19,6 +19,7 @@
 #include "vidproject/projectmanager.h"
 class wxUpdateUIEvent;
 class wxPanel;
+class wxTreeCtrl;
 
 class AppFrame: public wxFrame
 {
@@ -54,16 +55,18 @@ class AppFrame: public wxFrame
         ProjectManager* m_prjMan;
     private:
 
-        wxPanel* CreateProjectPane();
-        wxPanel* m_projectpanel;
-        wxPanel* m_monitorpanel;
-        wxPanel* m_effectspanel;
-        wxPanel* m_timelinepanel;
+        wxPanel* CreateProjectPane(); /// Creates the project pane
+        wxPanel* m_projectpanel; /// Project Panel
+        wxPanel* m_monitorpanel; /// Monitor Panel
+        wxPanel* m_effectspanel; /// Effects Panel
+        wxPanel* m_timelinepanel; /// Timeline Panel
+        wxTreeCtrl* m_ResourcesTree; /// Resources Tree in the Project Panel
 
         bool LoadResources();
         void CreateDockAreas();
         bool CreateMenuBar();
         bool CreatePanels();
+        long GetProjectPanelSashPos();
 
 
 
@@ -85,10 +88,9 @@ class AppFrame: public wxFrame
         void OnClose(wxCloseEvent& event);
         void OnQuit(wxCommandEvent& event);
         void OnAbout(wxCommandEvent& event);
-        wxRect DetermineFrameSize();
+        void LoadAndSetFrameSize();
         void OnSaveFrameLayout(wxCommandEvent& event);
-        void StoreFrameSize (wxRect rect);
-        void StoreCurrentLayout(bool showmsg);
+        void SaveDefaultLayout(bool showmsg);
         void OnLoadDefaultLayout(wxCommandEvent& event);
         bool LoadDefaultLayout();
 
@@ -107,6 +109,7 @@ class AppFrame: public wxFrame
         void OnWindowMenuUpdateUI(wxUpdateUIEvent& event);
 
         wxAuiManager m_mgr;
+        wxConfig* m_cfg;
         DECLARE_EVENT_TABLE()
 };
 

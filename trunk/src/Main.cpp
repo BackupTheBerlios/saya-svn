@@ -67,13 +67,11 @@ int main_RegisterId(int id)
 
 
 
-const wxString LOCATION = _T("Location");
-const wxString LOCATION_X = _T("xpos");
-const wxString LOCATION_Y = _T("ypos");
-const wxString LOCATION_W = _T("width");
-const wxString LOCATION_H = _T("height");
-const wxString KEY_LAYOUTS = _T("Layouts");
-const wxString PERSPECTIVE_DEFAULT = _T("defaultlayout");
+const wxString CFG_LAYOUTS = _T("Layouts");
+const wxString CFG_LAYOUT_DEFAULT = CFG_LAYOUTS + _T("/Default");
+const wxString CFG_LOCATION = CFG_LAYOUT_DEFAULT + _T("/Location");
+const wxString CFG_PERSPECTIVE_DEFAULT = CFG_LAYOUT_DEFAULT + _T("/Perspective");
+const wxString CFG_DEFAULT_PRJ_SASHPOS = CFG_LAYOUT_DEFAULT + _T("/PrjSashPos");
 
 int idFileNew = XRCID("idFileNew");
 int idFileOpen = XRCID("idFileOpen");
@@ -137,6 +135,7 @@ int idEditSequenceMarker = XRCID("idEditSequenceMarker");
 int idMenuSaveFrameLayout = XRCID("idMenuSaveFrameLayout");
 int idMenuLoadDefaultLayout = XRCID("idMenuLoadDefaultLayout");
 
+int idPrjSplitter = XRCID("idPrjSplitter");
 wxString g_statustext;
 
 BEGIN_EVENT_TABLE(AppFrame, wxFrame)
@@ -204,14 +203,14 @@ AppFrame::AppFrame(wxFrame *frame, const wxString& title)
 {
     bool result = false;
     do {
+        m_cfg = new wxConfig(APP_NAME);
         if(!LoadResources()) break;
         if(!CreateMenuBar()) break;
         CreateStatusBar(2);
 
         m_mgr.SetManagedWindow(this);
         m_prjMan = ProjectManager::Get();
-        SetSize (DetermineFrameSize ());
-        // CenterOnScreen();
+        LoadAndSetFrameSize();
 
         if(!CreatePanels()) break;
         CreateDockAreas();
@@ -222,7 +221,11 @@ AppFrame::AppFrame(wxFrame *frame, const wxString& title)
         UpdateStatustext();
 
 
-        LoadDefaultLayout();
+        if(false) {
+            LoadDefaultLayout();
+        } else {
+            m_mgr.Update();
+        }
 //        {
 //            wxCommandEvent tmpevent(wxEVT_COMMAND_MENU_SELECTED,idMenuLoadDefaultLayout);
 //           wxPostEvent(this, tmpevent);
@@ -280,42 +283,34 @@ void AppFrame::CreateDockAreas() {
 //   m_mgr.SetDockSizeConstraint(0.3,0.45);
     m_mgr.AddPane(m_projectpanel, wxAuiPaneInfo().
                             Name(wxT("Project")).Caption(_("Project")).
-                              BestSize(wxSize(200, 300)).MinSize(wxSize(200,300)).
-                              Left().Layer(2));
+                              BestSize(wxSize(200, 300)).MaximizeButton().MinimizeButton().PinButton().
+                              Left().Layer(1));
     m_mgr.AddPane(m_monitorpanel, wxAuiPaneInfo().
                             Name(wxT("Monitor")).Caption(_("Monitor / Preview")).
-                              BestSize(wxSize(200, 300)).MinSize(wxSize(200,300)).
+                              BestSize(wxSize(250, 300)).MaximizeButton().MinimizeButton().PinButton().
                               Bottom().Layer(1));
     m_mgr.AddPane(m_effectspanel, wxAuiPaneInfo().
                             Name(wxT("Effects")).Caption(_("Effects Monitor")).
-                              BestSize(wxSize(200, 300)).MinSize(wxSize(200,300)).
+                              BestSize(wxSize(250, 300)).MaximizeButton().MinimizeButton().PinButton().
                               Bottom().Layer(1));
-    m_mgr.AddPane(m_timelinepanel, wxAuiPaneInfo().Name(wxT("MainPane")).CentrePane().Caption(_("Timeline")).CaptionVisible(true));
+    m_mgr.AddPane(m_timelinepanel, wxAuiPaneInfo().Name(wxT("MainPane")).CentrePane().MinSize(wxSize(500,200)).MaximizeButton().Caption(_("Timeline")).CaptionVisible(true));
 
 //    m_mgr.AddPane(bgpanel, wxCENTER);
 
 //    m_mgr.Update();
-//    StoreCurrentLayout(false);
+//    SaveDefaultLayout(false);
 
 //    m_mgr.Update();
-
-     // --- End wxAUI test ----
 
 }
 
 bool AppFrame::LoadDefaultLayout() {
     bool result = false;
     wxString strlayout;
-    wxConfig* cfg = new wxConfig (APP_NAME);
-    wxString key = KEY_LAYOUTS;
-    if (cfg->Exists (key)) {
-        if(cfg->Read(key + _T("/") + PERSPECTIVE_DEFAULT, &strlayout)) {
-            if(!strlayout.IsEmpty()) {
-                result = m_mgr.LoadPerspective(strlayout,false);
-            }
-        }
+    m_cfg->Read(CFG_PERSPECTIVE_DEFAULT, &strlayout, wxEmptyString);
+    if(!strlayout.IsEmpty()) {
+        result = m_mgr.LoadPerspective(strlayout,false);
     }
-    delete cfg;
     m_mgr.Update();
     return result;
 }
@@ -332,11 +327,10 @@ wxPanel* AppFrame::CreateProjectPane() {
     wxPanel* resourcespage;
     wxSplitterWindow* splitter1;
     wxPanel* dir_panel;
-    wxTreeCtrl* ResourcesTree;
     wxPanel* files_panel;
     wxScrolledWindow* scrolledWindow2;
     wxPanel* effectspage;
-
+    m_ResourcesTree = NULL;
 
     panel1 = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize(200,800), wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer2 = new wxBoxSizer( wxVERTICAL );
@@ -345,12 +339,19 @@ wxPanel* AppFrame::CreateProjectPane() {
 	resourcespage = new wxPanel( auinotebook1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer3 = new wxBoxSizer( wxVERTICAL );
 
-	splitter1 = new wxSplitterWindow( resourcespage, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D );
+	splitter1 = new wxSplitterWindow( resourcespage, idPrjSplitter, wxDefaultPosition, wxDefaultSize, wxSP_3D );
 	dir_panel = new wxPanel( splitter1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer4 = new wxBoxSizer( wxVERTICAL );
 
-	ResourcesTree = new wxTreeCtrl( dir_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTR_DEFAULT_STYLE );
-	bSizer4->Add( ResourcesTree, 1, wxEXPAND, 5 );
+	m_ResourcesTree = new wxTreeCtrl( dir_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTR_DEFAULT_STYLE );
+
+	wxTreeItemId daroot = m_ResourcesTree->AddRoot(_("Resources"), -1, -1, NULL);
+	m_ResourcesTree->AppendItem(daroot, _("Videos"),-1,-1,NULL);
+	m_ResourcesTree->AppendItem(daroot, _("Images"),-1,-1,NULL);
+	m_ResourcesTree->AppendItem(daroot, _("Sound"),-1,-1,NULL);
+	m_ResourcesTree->AppendItem(daroot, _("Other"),-1,-1,NULL);
+
+	bSizer4->Add( m_ResourcesTree, 1, wxEXPAND, 5 );
 
 	dir_panel->SetSizer( bSizer4 );
 	dir_panel->Layout();
@@ -382,9 +383,26 @@ wxPanel* AppFrame::CreateProjectPane() {
 	panel1->SetSizer( bSizer2 );
 	panel1->Layout();
 	bSizer2->Fit( panel1 );
-	splitter1->SetSashPosition(170);
+	{
+        long curheight = GetRect().GetHeight();
+        long defaultsashpos =  curheight / 2;
+        long sashpos = defaultsashpos;
+        m_cfg->Read(CFG_DEFAULT_PRJ_SASHPOS, &sashpos, defaultsashpos);
+        if(sashpos==0) sashpos = defaultsashpos;
+        sashpos = min(curheight,max((long)20,sashpos));
+        splitter1->SetSashPosition(sashpos);
+	}
 
 	return panel1;
+}
+
+long AppFrame::GetProjectPanelSashPos() {
+    wxSplitterWindow* splitter = (wxSplitterWindow*)FindWindow(idPrjSplitter);
+    if(splitter) {
+        return splitter->GetSashPosition();
+    } else {
+        return 0;
+    }
 }
 
 void AppFrame::LoadFail(wxString resourcename) {
@@ -405,21 +423,22 @@ wxMenu* AppFrame::FindMenu(const wxString name) {
     return result;
 }
 
-wxRect AppFrame::DetermineFrameSize () {
+void AppFrame::LoadAndSetFrameSize() {
     const int minFrameWidth = 980;
     const int minFrameHight = 680;
+    bool nocfg = false;
 
     // load stored size or defaults
     wxRect rect;
-    wxConfig* cfg = new wxConfig (APP_NAME);
-    wxString key = LOCATION;
-    if (cfg->Exists (key)) {
-        rect.x = cfg->Read (key + _T("/") + LOCATION_X, rect.x);
-        rect.y = cfg->Read (key + _T("/") + LOCATION_Y, rect.y);
-        rect.width = cfg->Read (key + _T("/") + LOCATION_W, rect.width);
-        rect.height = cfg->Read (key + _T("/") + LOCATION_H, rect.height);
+    wxString key = CFG_LOCATION;
+    if (m_cfg->Exists (key)) {
+        rect.x = m_cfg->Read (key + _T("/xpos"), rect.x);
+        rect.y = m_cfg->Read (key + _T("/ypos"), rect.y);
+        rect.width = m_cfg->Read (key + _T("/width"), rect.width);
+        rect.height = m_cfg->Read (key + _T("/height"), rect.height);
+    } else {
+        nocfg = true;
     }
-    delete cfg;
 
     // check for reasonable values (within screen)
     wxSize scr = wxGetDisplaySize();
@@ -429,14 +448,17 @@ wxRect AppFrame::DetermineFrameSize () {
     rect.width = wxMin (abs (rect.width), (scr.x - rect.x));
     rect.height = wxMax (abs (rect.height), (minFrameHight));
     rect.height = wxMin (abs (rect.height), (scr.y - rect.y));
-
-    return rect;
+    SetSize(rect);
+    if(nocfg) {
+        CenterOnScreen();
+    }
 }
 
 AppFrame::~AppFrame() {
     ShutDownApp();
     ProjectManager::Unload();
     m_mgr.UnInit();
+    delete m_cfg;
 }
 
 bool AppFrame::IsClipSelected() {
@@ -569,7 +591,7 @@ void AppFrame::OnQuit(wxCommandEvent &event) {
 }
 
 void AppFrame::OnSaveFrameLayout(wxCommandEvent& event) {
-    StoreCurrentLayout(true);
+    SaveDefaultLayout(true);
 
 }
 
@@ -577,29 +599,25 @@ void AppFrame::UpdateStatustext() {
     SetStatusText (g_statustext, 0);
 }
 
-void AppFrame::StoreCurrentLayout(bool showmsg) {
-    StoreFrameSize (GetRect ());
+void AppFrame::SaveDefaultLayout(bool showmsg) {
+    wxRect rect = GetRect();
+    wxString key = CFG_LOCATION;
+    m_cfg->Write(key + _T("/xpos"), rect.x);
+    m_cfg->Write(key + _T("/ypos"), rect.y);
+    m_cfg->Write(key + _T("/width"), rect.width);
+    m_cfg->Write(key + _T("/height"), rect.height);
+    // TODO: Save other windows' layout
+
+    wxString strlayout = m_mgr.SavePerspective();
+    m_cfg->Write(CFG_PERSPECTIVE_DEFAULT, strlayout);
+    m_cfg->Write(CFG_DEFAULT_PRJ_SASHPOS,GetProjectPanelSashPos());
+
     if(showmsg) {
         wxMessageBox (_("Current Layout has been saved."),
                       _("Save Layout"), wxOK);
     }
 }
 
-void AppFrame::StoreFrameSize (wxRect rect) {
-
-    // store size
-    wxConfig* cfg = new wxConfig (APP_NAME);
-    wxString key = LOCATION;
-    cfg->Write (key + _T("/") + LOCATION_X, rect.x);
-    cfg->Write (key + _T("/") + LOCATION_Y, rect.y);
-    cfg->Write (key + _T("/") + LOCATION_W, rect.width);
-    cfg->Write (key + _T("/") + LOCATION_H, rect.height);
-    // TODO: Save other windows' layout
-    key = KEY_LAYOUTS;
-    wxString strlayout = m_mgr.SavePerspective();
-    cfg->Write (key + _T("/") + PERSPECTIVE_DEFAULT, strlayout);
-    delete cfg;
-}
 
 void AppFrame::OnFileMenuUpdateUI(wxUpdateUIEvent& event) {
     ProjectManager* pmgr = ProjectManager::Get();
