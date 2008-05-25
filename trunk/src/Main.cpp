@@ -93,7 +93,6 @@ int idFileGetPropertiesFile = XRCID("idFileGetPropertiesFile");
 int idFileGetPropertiesSelection = XRCID("idFileGetPropertiesSelection");
 int idFileInterpretFootage = XRCID("idFileInterpretFootage");
 int idFileTimecode = XRCID("idFileTimecode");
-int idFileExit = XRCID("idFileExit");
 
 
 int wxID_IMPORT1 = wxNewId();
@@ -135,14 +134,18 @@ int idEditSequenceMarker = XRCID("idEditSequenceMarker");
 int idMenuSaveFrameLayout = XRCID("idMenuSaveFrameLayout");
 int idMenuLoadDefaultLayout = XRCID("idMenuLoadDefaultLayout");
 
+int idProjectPane = XRCID("idProjectPane");
 int idPrjSplitter = XRCID("idPrjSplitter");
+int idPrjResourcesTree = XRCID("idPrjResourcesTree");
 wxString g_statustext;
 
 BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_CLOSE(AppFrame::OnClose)
-    EVT_MENU(idMenuAbout, AppFrame::OnAbout)
+    EVT_MENU(wxID_ABOUT, AppFrame::OnAbout)
     EVT_MENU(idMenuSaveFrameLayout, AppFrame::OnSaveFrameLayout)
     EVT_MENU(idMenuLoadDefaultLayout, AppFrame::OnLoadDefaultLayout)
+
+    EVT_TREE_ITEM_MENU(idPrjResourcesTree, AppFrame::OnResourceTreeContextMenu)
 
 //  File menu
     EVT_MENU(idFileOpen, AppFrame::OnFileOpen)
@@ -152,7 +155,7 @@ BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_MENU(idFileSave, AppFrame::OnFileSave)
     EVT_MENU(idFileSaveAs, AppFrame::OnFileSaveAs)
     EVT_MENU(idFileSaveCopy, AppFrame::OnFileSaveCopy)
-    EVT_MENU(idFileExit, AppFrame::OnQuit)
+    EVT_MENU(wxID_EXIT, AppFrame::OnQuit)
 
     EVT_UPDATE_UI(idFileNew, AppFrame::OnFileMenuUpdateUI)
     EVT_UPDATE_UI(idFileOpen, AppFrame::OnFileMenuUpdateUI)
@@ -195,11 +198,20 @@ BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_UPDATE_UI(idEditOriginal, AppFrame::OnEditMenuUpdateUI)
     EVT_UPDATE_UI(idEditSequenceMarker, AppFrame::OnEditMenuUpdateUI)
 
-    EVT_UPDATE_UI(idFrameUpdateTitleUI, AppFrame::OnUpdateTitleUI)
+    EVT_UPDATE_UI(idProjectStatusChanged, AppFrame::OnProjectStatusChanged)
+
+//  Project pane events
+
+    EVT_UPDATE_UI(idProjectPane, AppFrame:: OnUpdateProjectPaneUI)
+
+
 END_EVENT_TABLE()
 
-AppFrame::AppFrame(wxFrame *frame, const wxString& title)
-    : wxFrame(frame, -1, title)
+AppFrame::AppFrame(wxFrame *frame, const wxString& title) :
+wxFrame(frame, -1, title),
+m_hadproject(false),
+m_panes_status_checked(false),
+m_layouthidden(false)
 {
     bool result = false;
     do {
@@ -221,11 +233,7 @@ AppFrame::AppFrame(wxFrame *frame, const wxString& title)
         UpdateStatustext();
 
 
-        if(false) {
-            LoadDefaultLayout();
-        } else {
-            m_mgr.Update();
-        }
+        LoadDefaultLayout(true);
 //        {
 //            wxCommandEvent tmpevent(wxEVT_COMMAND_MENU_SELECTED,idMenuLoadDefaultLayout);
 //           wxPostEvent(this, tmpevent);
@@ -295,21 +303,19 @@ void AppFrame::CreateDockAreas() {
                               Bottom().Layer(1));
     m_mgr.AddPane(m_timelinepanel, wxAuiPaneInfo().Name(wxT("MainPane")).CentrePane().MinSize(wxSize(500,200)).MaximizeButton().Caption(_("Timeline")).CaptionVisible(true));
 
-//    m_mgr.AddPane(bgpanel, wxCENTER);
-
-//    m_mgr.Update();
-//    SaveDefaultLayout(false);
-
-//    m_mgr.Update();
-
 }
 
-bool AppFrame::LoadDefaultLayout() {
+bool AppFrame::LoadDefaultLayout(bool firsttime) {
     bool result = false;
     wxString strlayout;
     m_cfg->Read(CFG_PERSPECTIVE_DEFAULT, &strlayout, wxEmptyString);
     if(!strlayout.IsEmpty()) {
         result = m_mgr.LoadPerspective(strlayout,false);
+    }
+    if(firsttime)
+    {
+        wxUpdateUIEvent tmpevent(idProjectStatusChanged);
+        OnProjectStatusChanged(tmpevent);
     }
     m_mgr.Update();
     return result;
@@ -340,12 +346,15 @@ wxPanel* AppFrame::CreateProjectPane() {
 	wxBoxSizer* bSizer3 = new wxBoxSizer( wxVERTICAL );
 
 	splitter1 = new wxSplitterWindow( resourcespage, idPrjSplitter, wxDefaultPosition, wxDefaultSize, wxSP_3D );
+	splitter1->SetMinimumPaneSize(10); // No unsplitting!
 	dir_panel = new wxPanel( splitter1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxTAB_TRAVERSAL );
+
 	wxBoxSizer* bSizer4 = new wxBoxSizer( wxVERTICAL );
 
-	m_ResourcesTree = new wxTreeCtrl( dir_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTR_DEFAULT_STYLE );
+	m_ResourcesTree = new wxTreeCtrl( dir_panel, idPrjResourcesTree, wxDefaultPosition, wxDefaultSize, wxTR_DEFAULT_STYLE );
 
 	wxTreeItemId daroot = m_ResourcesTree->AddRoot(_("Resources"), -1, -1, NULL);
+	m_ResourcesTree->AppendItem(daroot, _("Sequences"),-1,-1,NULL);
 	m_ResourcesTree->AppendItem(daroot, _("Videos"),-1,-1,NULL);
 	m_ResourcesTree->AppendItem(daroot, _("Images"),-1,-1,NULL);
 	m_ResourcesTree->AppendItem(daroot, _("Sound"),-1,-1,NULL);
@@ -543,7 +552,8 @@ void AppFrame::OnFileClose(wxCommandEvent& event) {
     if(IsAppShuttingDown())
         return;
     ProjectManager::Get()->CloseProject(false);
-    DoUpdateAppTitle();
+    wxUpdateUIEvent tmpevent(idProjectStatusChanged);
+    wxPostEvent(this,tmpevent);
 }
 
 
@@ -592,7 +602,6 @@ void AppFrame::OnQuit(wxCommandEvent &event) {
 
 void AppFrame::OnSaveFrameLayout(wxCommandEvent& event) {
     SaveDefaultLayout(true);
-
 }
 
 void AppFrame::UpdateStatustext() {
@@ -600,13 +609,15 @@ void AppFrame::UpdateStatustext() {
 }
 
 void AppFrame::SaveDefaultLayout(bool showmsg) {
+    if(m_layouthidden) {
+        return;
+    }
     wxRect rect = GetRect();
     wxString key = CFG_LOCATION;
     m_cfg->Write(key + _T("/xpos"), rect.x);
     m_cfg->Write(key + _T("/ypos"), rect.y);
     m_cfg->Write(key + _T("/width"), rect.width);
     m_cfg->Write(key + _T("/height"), rect.height);
-    // TODO: Save other windows' layout
 
     wxString strlayout = m_mgr.SavePerspective();
     m_cfg->Write(CFG_PERSPECTIVE_DEFAULT, strlayout);
@@ -771,10 +782,39 @@ void AppFrame::OnMarkerMenuUpdateUI(wxUpdateUIEvent& event) {
 void AppFrame::OnWindowMenuUpdateUI(wxUpdateUIEvent& event) {
 }
 
-void AppFrame::OnUpdateTitleUI(wxUpdateUIEvent& event) {
+void AppFrame::OnProjectStatusChanged(wxUpdateUIEvent& event) {
     if(IsAppShuttingDown())
         return;
+    if(m_hadproject != ProjectManager::Get()->HasProject() || !m_panes_status_checked) {
+        // Closed or opened a project
+        if(!m_panes_status_checked) m_panes_status_checked = true;
+        ShowLayout(ProjectManager::Get()->HasProject());
+        m_hadproject = ProjectManager::Get()->HasProject();
+    }
     DoUpdateAppTitle();
+}
+
+void AppFrame::ShowLayout(bool show) {
+    if(IsAppShuttingDown())
+        return;
+    if(show) {
+        if(m_layouthidden) {
+            m_mgr.LoadPerspective(m_CurrentPerspective,true);
+            m_layouthidden = false;
+        }
+    } else {
+        if(!m_layouthidden) {
+            // Hide All panes
+            m_CurrentPerspective = m_mgr.SavePerspective();
+            wxAuiPaneInfoArray& myarr = m_mgr.GetAllPanes();
+            size_t i;
+            for(i = 0;i < myarr.size(); i++) {
+                myarr[i].Hide();
+            }
+            m_layouthidden = true;
+        }
+    }
+    m_mgr.Update();
 }
 
 void AppFrame::DoUpdateAppTitle() {
@@ -808,4 +848,22 @@ void AppFrame::DoUpdateAppTitle() {
 void AppFrame::OnAbout(wxCommandEvent &event) {
     wxString msg = wxbuildinfo(long_f);
     wxMessageBox(msg, _("Welcome to..."));
+}
+
+void AppFrame::OnResourceTreeContextMenu(wxTreeEvent& event) {
+    wxMenu *menu = wxXmlResource::Get()->LoadMenu(_T("resources_tree_menu"));
+    if(menu) {
+        PopupMenu(menu);
+        delete menu;
+    }
+}
+
+void AppFrame::OnUpdateProjectPaneUI(wxUpdateUIEvent& event) {
+    if(IsAppShuttingDown())
+        return;
+    bool enablePane = ProjectManager::Get()->HasProject();
+    wxWindow* thepane = FindWindow(idProjectPane);
+    if(thepane) {
+        thepane->Enable(enablePane);
+    }
 }

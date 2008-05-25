@@ -23,7 +23,7 @@ const wxString APP_VENDOR = _T("Rick Garcia");
 const wxString APP_SHOWNAME = _T("Saya");
 const wxString APP_SHOWOFFNAME = _T("Saya - Swift audiovisual Authoring for You and Anyone");
 
-int idFrameUpdateTitleUI = XRCID("idUpdateTitleUI");
+int idProjectStatusChanged = XRCID("idProjectStatusChanged");
 
 bool IsAppShuttingDown() {
     return s_IsAppShuttingDown;
@@ -348,7 +348,7 @@ bool ProjectManager::CloseProject(bool force) {
 }
 
 void ProjectManager::OnProjectStatusModified() {
-    wxUpdateUIEvent event(idFrameUpdateTitleUI);
+    wxUpdateUIEvent event(idProjectStatusChanged);
     if(m_MainFrame) {
         wxPostEvent(m_MainFrame,event);
     }

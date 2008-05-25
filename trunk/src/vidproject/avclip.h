@@ -279,9 +279,6 @@ class AVClip: public serializable {
     private:
 };
 
-// TODO (rick#1#): Finish designing the AVSequence, AVTrack and AVTimeline classes.
-
-
 class AVSequence: public serializable {
     public:
         /** Standard constructor. */

@@ -165,7 +165,7 @@
                 <enabled>0</enabled>
             </object>
             <object class="separator" />
-            <object class="wxMenuItem" name="idFileExit">
+            <object class="wxMenuItem" name="wxID_EXIT">
                 <label>E&amp;xit</label>
                 <help>Exits the program</help>
                 <accel>Ctrl+Q</accel>
@@ -881,7 +881,7 @@
             <label>&amp;Help</label>
             <help>Help menu</help>
             <style>wxMENU_TEAROFF</style>
-            <object class="wxMenuItem" name="idHelp">
+            <object class="wxMenuItem" name="wxID_HELP">
                 <label>&amp;Contents</label>
                 <accel>F1</accel>
                 <help>Help Contents</help>
@@ -900,10 +900,21 @@
                 <help>Visit our website and forums</help>
             </object>
             <object class="separator" />
-            <object class="wxMenuItem" name="idHelpAbout">
+            <object class="wxMenuItem" name="wxID_ABOUT">
                 <label>&amp;About...</label>
                 <help>Launches the famous "about" dialog</help>
             </object>
+        </object>
+    </object>
+    <object class="wxMenu" name="resources_tree_menu">
+        <object class="wxMenuItem" name="idFileImport">
+            <label>&amp;Import...</label>
+            <help>Imports a clip from a file</help>
+            <accel>Ctrl+I</accel>
+        </object>
+        <object class="wxMenuItem" name="idResourcesScan">
+            <label>&amp;Re-scan project directory</label>
+            <help>Scans the project directory for resources</help>
         </object>
     </object>
 </resource>

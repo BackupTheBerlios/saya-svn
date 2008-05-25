@@ -26,7 +26,8 @@ extern const wxString APP_VENDOR; /** The application vendor's name (me) */
 extern const wxString APP_SHOWNAME; /** The application's official name */
 extern const wxString APP_SHOWOFFNAME; /** The application's name and tagline for showing off */
 
-extern int idFrameUpdateTitleUI; /** Used to send an UpdateUI event to the mainframe, to change the frame's title. */
+extern int idProjectStatusChanged; /** Used to send an UpdateUI event to the mainframe, to change the frame's title. */
+
 
 /** @class ProjectManager
   * @brief The main class that handles project loading and saving.

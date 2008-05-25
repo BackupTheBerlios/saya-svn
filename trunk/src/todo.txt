@@ -75,7 +75,6 @@ May 17, 2008 (rickg22):
 // TODO (rick#2#): Link Undo/Redo to respective menu entries
 // TODO (rick#1#): Implement Undo History Window
 
-// TODO (rick#1#): Create windows with wxAUI and manage to save/load the layout
 // TODO (rick#1#): Create dialogs
 // TODO (rick#1#): Zip the XRC files
 // TODO (rick#1#): Define the XML for the project

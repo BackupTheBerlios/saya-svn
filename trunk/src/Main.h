@@ -67,14 +67,10 @@ class AppFrame: public wxFrame
         bool CreateMenuBar();
         bool CreatePanels();
         long GetProjectPanelSashPos();
+        void ShowLayout(bool show);
 
+        void OnResourceTreeContextMenu(wxTreeEvent& event);
 
-
-        enum
-        {
-            idMenuQuit = 1000,
-            idMenuAbout,
-        };
         void OnFileOpen(wxCommandEvent& event);
         void OnFileClose(wxCommandEvent& event);
 
@@ -92,11 +88,11 @@ class AppFrame: public wxFrame
         void OnSaveFrameLayout(wxCommandEvent& event);
         void SaveDefaultLayout(bool showmsg);
         void OnLoadDefaultLayout(wxCommandEvent& event);
-        bool LoadDefaultLayout();
+        bool LoadDefaultLayout(bool firsttime = false);
 
         void DoUpdateAppTitle();
         // UpdateUI events
-        void OnUpdateTitleUI(wxUpdateUIEvent& event);
+        void OnProjectStatusChanged(wxUpdateUIEvent& event);
 
         void OnFileMenuUpdateUI(wxUpdateUIEvent& event);
         void OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event);
@@ -108,8 +104,14 @@ class AppFrame: public wxFrame
         void OnMarkerMenuUpdateUI(wxUpdateUIEvent& event);
         void OnWindowMenuUpdateUI(wxUpdateUIEvent& event);
 
+        void OnUpdateProjectPaneUI(wxUpdateUIEvent& event);
+
         wxAuiManager m_mgr;
         wxConfig* m_cfg;
+        bool m_hadproject;
+        bool m_panes_status_checked;
+        bool m_layouthidden;
+        wxString m_CurrentPerspective;
         DECLARE_EVENT_TABLE()
 };
 
