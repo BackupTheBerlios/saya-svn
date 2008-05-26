@@ -769,6 +769,11 @@
                     <label>Defaul&amp;t</label>
                     <help>Switches to the default Workspace</help>
                 </object>
+                <object class="separator" />
+                <object class="wxMenuItem" name="idWorkspaceFactoryDefault">
+                    <label>&amp;Factory Default</label>
+                    <help>Switches to the Factory Default</help>
+                </object>
 
                 <object class="separator" />
                 <object class="wxMenuItem" name="idWorkspaceSaveAs">

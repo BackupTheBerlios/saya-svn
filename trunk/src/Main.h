@@ -88,6 +88,7 @@ class AppFrame: public wxFrame
         void OnSaveFrameLayout(wxCommandEvent& event);
         void SaveDefaultLayout(bool showmsg);
         void OnLoadDefaultLayout(wxCommandEvent& event);
+        void OnWorkspaceFactoryDefault(wxCommandEvent& event);
         bool LoadDefaultLayout(bool firsttime = false);
 
         void DoUpdateAppTitle();
@@ -112,6 +113,7 @@ class AppFrame: public wxFrame
         bool m_panes_status_checked;
         bool m_layouthidden;
         wxString m_CurrentPerspective;
+        wxString m_FactoryDefaultLayout;
         DECLARE_EVENT_TABLE()
 };
 

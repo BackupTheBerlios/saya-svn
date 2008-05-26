@@ -223,6 +223,7 @@ int idWorkspaceEffects = XRCID("idWorkspaceEffects");
 int idWorkspaceAudio = XRCID("idWorkspaceAudio");
 int idWorkspaceColorCorrection = XRCID("idWorkspaceColorCorrection");
 int idWorkspaceDefault = XRCID("idWorkspaceDefault");
+int idWorkspaceFactoryDefault = XRCID("idWorkspaceFactoryDefault");
 int idWorkspaceSaveAs = XRCID("idWorkspaceSaveAs");
 int idWorkspaceDelete = XRCID("idWorkspaceDelete");
 int idWorkspaceCustom = XRCID("idWorkspaceCustom");
@@ -259,6 +260,8 @@ BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_MENU(idFileSaveAs, AppFrame::OnFileSaveAs)
     EVT_MENU(idFileSaveCopy, AppFrame::OnFileSaveCopy)
     EVT_MENU(wxID_EXIT, AppFrame::OnQuit)
+
+    EVT_MENU(idWorkspaceFactoryDefault, AppFrame::OnWorkspaceFactoryDefault)
 
     EVT_UPDATE_UI(idFileNew, AppFrame::OnFileMenuUpdateUI)
     EVT_UPDATE_UI(idFileOpen, AppFrame::OnFileMenuUpdateUI)
@@ -394,6 +397,7 @@ BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_UPDATE_UI(idWorkspaceAudio, AppFrame::OnWindowMenuUpdateUI)
     EVT_UPDATE_UI(idWorkspaceColorCorrection, AppFrame::OnWindowMenuUpdateUI)
     EVT_UPDATE_UI(idWorkspaceDefault, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWorkspaceFactoryDefault, AppFrame::OnWindowMenuUpdateUI)
     EVT_UPDATE_UI(idWorkspaceSaveAs, AppFrame::OnWindowMenuUpdateUI)
     EVT_UPDATE_UI(idWorkspaceDelete, AppFrame::OnWindowMenuUpdateUI)
     EVT_UPDATE_UI(idWorkspaceCustom, AppFrame::OnWindowMenuUpdateUI)
@@ -443,6 +447,7 @@ m_layouthidden(false)
         UpdateStatustext();
 
 
+        m_FactoryDefaultLayout = m_mgr.SavePerspective();
         LoadDefaultLayout(true);
 //        {
 //            wxCommandEvent tmpevent(wxEVT_COMMAND_MENU_SELECTED,idWorkspaceDefault);
@@ -533,6 +538,14 @@ bool AppFrame::LoadDefaultLayout(bool firsttime) {
 
 void AppFrame::OnLoadDefaultLayout(wxCommandEvent& event) {
     LoadDefaultLayout();
+}
+
+void AppFrame::OnWorkspaceFactoryDefault(wxCommandEvent& event) {
+    bool result = false;
+    if(!m_FactoryDefaultLayout.IsEmpty()) {
+        result = m_mgr.LoadPerspective(m_FactoryDefaultLayout,false);
+    }
+    m_mgr.Update();
 }
 
 wxPanel* AppFrame::CreateProjectPane() {
