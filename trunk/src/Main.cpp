@@ -74,6 +74,16 @@ const wxString CFG_PERSPECTIVE_DEFAULT = CFG_LAYOUT_DEFAULT + _T("/Perspective")
 const wxString CFG_DEFAULT_PRJ_SASHPOS = CFG_LAYOUT_DEFAULT + _T("/PrjSashPos");
 
 int idFileNew = XRCID("idFileNew");
+int idNewProject = XRCID("idNewProject");
+int idNewSequence = XRCID("idNewSequence");
+int idNewBin = XRCID("idNewBin");
+int idNewOfflineFile = XRCID("idNewOfflineFile");
+int idNewTitle = XRCID("idNewTitle");
+int idNewBarsandTone = XRCID("idNewBarsandTone");
+int idNewBlackVideo = XRCID("idNewBlackVideo");
+int idNewColorMatte = XRCID("idNewColorMatte");
+int idNewUniversalCountingLeader = XRCID("idNewUniversalCountingLeader");
+
 int idFileOpen = XRCID("idFileOpen");
 int idFileOpenRecentProject = XRCID("idFileOpenRecentProject");
 int idFileClearRecentProjectList = XRCID("idFileClearRecentProjectList");
@@ -264,6 +274,14 @@ BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_MENU(idWorkspaceFactoryDefault, AppFrame::OnWorkspaceFactoryDefault)
 
     EVT_UPDATE_UI(idFileNew, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idNewSequence, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idNewBin, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idNewOfflineFile, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idNewTitle, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idNewBarsandTone, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idNewBlackVideo, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idNewColorMatte, AppFrame::OnFileMenuUpdateUI)
+    EVT_UPDATE_UI(idNewUniversalCountingLeader, AppFrame::OnFileMenuUpdateUI)
     EVT_UPDATE_UI(idFileOpen, AppFrame::OnFileMenuUpdateUI)
     EVT_UPDATE_UI(idFileOpenRecentProject, AppFrame::OnRecentFilesMenuUpdateUI)
     EVT_UPDATE_UI(idFileClose, AppFrame::OnFileMenuUpdateUI)
@@ -864,6 +882,14 @@ void AppFrame::OnFileMenuUpdateUI(wxUpdateUIEvent& event) {
     bool isNew = hasproject && prj->IsNew();
 
     wxMenuBar* mbar = GetMenuBar();
+    mbar->Enable(idNewSequence, hasproject);
+    mbar->Enable(idNewBin, hasproject);
+    mbar->Enable(idNewOfflineFile, hasproject);
+    mbar->Enable(idNewTitle, hasproject);
+    mbar->Enable(idNewBarsandTone, hasproject);
+    mbar->Enable(idNewBlackVideo, hasproject);
+    mbar->Enable(idNewColorMatte, hasproject);
+    mbar->Enable(idNewUniversalCountingLeader, hasproject);
     mbar->Enable(idFileClose,hasproject);
     mbar->Enable(idFileSave,hasproject && (isModified || isNew));
     mbar->Enable(idFileSaveAs,hasproject);
