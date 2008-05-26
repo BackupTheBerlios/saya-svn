@@ -290,59 +290,12 @@
                     <label>Orange</label>
                     <radio>1</radio>
                 </object>
-
             </object>
-
             <object class="separator" />
             <object class="wxMenuItem" name="idEditOriginal">
                 <label>Edit &amp;Original</label>
                 <accel>Ctrl+E</accel>
                 <help>Edits a clip in its original application</help>
-            </object>
-            <object class="separator" />
-            <object class="wxMenuItem" name="idKeyboardCustomization">
-                <label>&amp;Keyboard Customization...</label>
-                <help>Customizes the keyboard shortcuts</help>
-            </object>
-            <object class="wxMenu" name="idPreferences">
-                <label>Prefere&amp;nces</label>
-                <help>Preferences Menu</help>
-                <object class="wxMenuItem" name="idPrefsGeneral">
-                    <label>&amp;General...</label>
-                </object>
-                <object class="wxMenuItem" name="idPrefsAudio">
-                    <label>&amp;Audio...</label>
-                </object>
-                <object class="wxMenuItem" name="idPrefsAudioHardware">
-                    <label>Audio &amp;Hardware...</label>
-                </object>
-                <object class="wxMenuItem" name="idPrefsAutoSave">
-                    <label>A&amp;uto Save...</label>
-                </object>
-                <object class="wxMenuItem" name="idPrefsCapture">
-                    <label>&amp;Capture...</label>
-                </object>
-                <object class="wxMenuItem" name="idPrefsDeviceControl">
-                    <label>&amp;Device Control...</label>
-                </object>
-                <object class="wxMenuItem" name="idPrefsLabelColors">
-                    <label>&amp;Label Colors...</label>
-                </object>
-                <object class="wxMenuItem" name="idPrefsLabelDefaults">
-                    <label>Label De&amp;faults...</label>
-                </object>
-                <object class="wxMenuItem" name="idPrefsScratchDisks">
-                    <label>&amp;Scratch Disks...</label>
-                </object>
-                <object class="wxMenuItem" name="idPrefsStillImage">
-                    <label>Still &amp;Image...</label>
-                </object>
-                <object class="wxMenuItem" name="idPrefsTitler">
-                    <label>&amp;Titler...</label>
-                </object>
-                <object class="wxMenuItem" name="idPrefsTrim">
-                    <label>T&amp;rim...</label>
-                </object>
             </object>
         </object>
 
@@ -807,7 +760,7 @@
                     <accel>Shift+F11</accel>
                     <help>Switches to the Audio Workspace</help>
                 </object>
-                <object class="wxMenuItem" name="idWorkspaceAudio">
+                <object class="wxMenuItem" name="idWorkspaceColorCorrection">
                     <label>&amp;Color Correction</label>
                     <accel>Shift+F12</accel>
                     <help>Switches to the Color Correction Workspace</help>
@@ -874,6 +827,52 @@
             <object class="wxMenu" name="idWindowTimelinesMenu">
                 <label>Time&amp;lines</label>
                 <help>Timelines Menu</help>
+            </object>
+        </object>
+
+        <object class="wxMenu" name="options_menu">
+            <label>&amp;Options</label>
+            <help>Options Menu</help>
+            <object class="wxMenuItem" name="idPrefsGeneral">
+                <label>&amp;General...</label>
+            </object>
+            <object class="wxMenuItem" name="idPrefsAudio">
+                <label>&amp;Audio...</label>
+            </object>
+            <object class="wxMenuItem" name="idPrefsAudioHardware">
+                <label>Audio &amp;Hardware...</label>
+            </object>
+            <object class="wxMenuItem" name="idPrefsAutoSave">
+                <label>A&amp;uto Save...</label>
+            </object>
+            <object class="wxMenuItem" name="idPrefsCapture">
+                <label>&amp;Capture...</label>
+            </object>
+            <object class="wxMenuItem" name="idPrefsDeviceControl">
+                <label>&amp;Device Control...</label>
+            </object>
+            <object class="wxMenuItem" name="idPrefsLabelColors">
+                <label>&amp;Label Colors...</label>
+            </object>
+            <object class="wxMenuItem" name="idPrefsLabelDefaults">
+                <label>Label De&amp;faults...</label>
+            </object>
+            <object class="wxMenuItem" name="idPrefsScratchDisks">
+                <label>&amp;Scratch Disks...</label>
+            </object>
+            <object class="wxMenuItem" name="idPrefsStillImage">
+                <label>Still &amp;Image...</label>
+            </object>
+            <object class="wxMenuItem" name="idPrefsTitler">
+                <label>&amp;Titler...</label>
+            </object>
+            <object class="wxMenuItem" name="idPrefsTrim">
+                <label>T&amp;rim...</label>
+            </object>
+            <object class="separator" />
+            <object class="wxMenuItem" name="idKeyboardCustomization">
+                <label>&amp;Keyboard Customization...</label>
+                <help>Customizes the keyboard shortcuts</help>
             </object>
         </object>
 

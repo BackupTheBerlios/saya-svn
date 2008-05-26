@@ -129,10 +129,113 @@ int idEditLabelGray = XRCID("idEditLabelGray");
 int idEditLabelRed = XRCID("idEditLabelRed");
 int idEditLabelOrange = XRCID("idEditLabelOrange");
 int idEditOriginal = XRCID("idEditOriginal");
+
+int idProjectSettings = XRCID("idProjectSettings");
+int idProjectSettingsGeneral = XRCID("idProjectSettingsGeneral");
+int idProjectSettingsCapture = XRCID("idProjectSettingsCapture");
+int idProjectSettingsVideoRendering = XRCID("idProjectSettingsVideoRendering");
+int idProjectSettingsDefaultSequence = XRCID("idProjectSettingsDefaultSequence");
+int idProjectLinkMedia = XRCID("idProjectLinkMedia");
+int idProjectUnlinkMedia = XRCID("idProjectUnlinkMedia");
+int idProjectAutomateToSequence = XRCID("idProjectAutomateToSequence");
+int idProjectImportBatchList = XRCID("idProjectImportBatchList");
+int idProjectExportBatchList = XRCID("idProjectExportBatchList");
+int idProjectExportAsAAF = XRCID("idProjectExportAsAAF");
+
+int idClipRename = XRCID("idClipRename");
+int idClipCaptureSettings = XRCID("idClipCaptureSettings");
+int idClipSetCaptureSettings = XRCID("idClipSetCaptureSettings");
+int idClipClearCaptureSettings = XRCID("idClipClearCaptureSettings");
+int idClipInsert = XRCID("idClipInsert");
+int idClipOverlay = XRCID("idClipOverlay");
+int idClipToggleEnable = XRCID("idClipToggleEnable");
+int idClipUnlinkAV = XRCID("idClipUnlinkAV");
+int idClipLinkAV = XRCID("idClipLinkAV");
+int idClipGroup = XRCID("idClipGroup");
+int idClipUngroup = XRCID("idClipUngroup");
+int idClipVideoOptions = XRCID("idClipVideoOptions");
+int idClipVOptFrameHold = XRCID("idClipVOptFrameHold");
+int idClipVOptFieldOptions = XRCID("idClipVOptFieldOptions");
+int idClipAudioOptions = XRCID("idClipAudioOptions");
+int idClipAOptGain = XRCID("idClipAOptGain");
+int idClipAOptBreakoutToMono = XRCID("idClipAOptBreakoutToMono");
+int idClipOptTreatAsStereo = XRCID("idClipOptTreatAsStereo");
+int idClipOptRenderAndReplace = XRCID("idClipOptRenderAndReplace");
+int idClipSpeedDuration = XRCID("idClipSpeedDuration");
+
+int idSequenceRender = XRCID("idSequenceRender");
+int idSequenceDeleteRenderFiles = XRCID("idSequenceDeleteRenderFiles");
+int idSequenceRazor = XRCID("idSequenceRazor");
+int idSequenceRazorSelectedTracks = XRCID("idSequenceRazorSelectedTracks");
+int idSequenceLift = XRCID("idSequenceLift");
+int idSequenceExtract = XRCID("idSequenceExtract");
+int idSequenceApplyVideoTransition = XRCID("idSequenceApplyVideoTransition");
+int idSequenceApplyAudioTransition = XRCID("idSequenceApplyAudioTransition");
+int idSequenceZoomIn = XRCID("idSequenceZoomIn");
+int idSequenceZoomOut = XRCID("idSequenceZoomOut");
+int idSequenceSnap = XRCID("idSequenceSnap");
+int idSequenceAddTracks = XRCID("idSequenceAddTracks");
+int idSequenceDelTracks = XRCID("idSequenceDelTracks");
+
+int idSetClipMarkerMenu = XRCID("idSetClipMarkerMenu");
+int idGotoClipMarkerMenu = XRCID("idGotoClipMarkerMenu");
+int idGotoNextClipMarker = XRCID("idGotoNextClipMarker");
+int idGotoPrevClipMarker = XRCID("idGotoPrevClipMarker");
+int idGotoInClipMarker = XRCID("idGotoInClipMarker");
+int idGotoOutClipMarker = XRCID("idGotoOutClipMarker");
+int idGotoVideoInClipMarker = XRCID("idGotoVideoInClipMarker");
+int idGotoVideoOutClipMarker = XRCID("idGotoVideoOutClipMarker");
+int idGotoAudioInClipMarker = XRCID("idGotoAudioInClipMarker");
+int idGotoAudioOutClipMarker = XRCID("idGotoAudioOutClipMarker");
+int idGotoNumberedClipMarker = XRCID("idGotoNumberedClipMarker");
+int idClearClipMarkerMenu = XRCID("idClearClipMarkerMenu");
+int idClearCurrentClipMarker = XRCID("idClearCurrentClipMarker");
+int idClearAllClipMarkers = XRCID("idClearAllClipMarkers");
+int idClearInOutClipMarkers = XRCID("idClearInOutClipMarkers");
+int idClearInClipMarker = XRCID("idClearInClipMarker");
+int idClearOutClipMarker = XRCID("idClearOutClipMarker");
+int idClearNumberedClipMarker = XRCID("idClearNumberedClipMarker");
+int idSetSequenceMarkerMenu = XRCID("idSetSequenceMarkerMenu");
+int idSetInSequenceMarker = XRCID("idSetInSequenceMarker");
+int idSetOutSequenceMarker = XRCID("idSetOutSequenceMarker");
+int idSetInOutAroundSelSeqMarker = XRCID("idSetInOutAroundSelSeqMarker");
+int idSetUnnumberedSequenceMarker = XRCID("idSetUnnumberedSequenceMarker");
+int idSetNextAvailNumberedSeqMarker = XRCID("idSetNextAvailNumberedSeqMarker");
+int idSetOtherNumberedSequenceMarker = XRCID("idSetOtherNumberedSequenceMarker");
+int idGotoSequenceMarkerMenu = XRCID("idGotoSequenceMarkerMenu");
+int idGotoNextSequenceMarker = XRCID("idGotoNextSequenceMarker");
+int idGotoPrevSequenceMarker = XRCID("idGotoPrevSequenceMarker");
+int idGotoInSequenceMarker = XRCID("idGotoInSequenceMarker");
+int idGotoOutSequenceMarker = XRCID("idGotoOutSequenceMarker");
+int idGotoNumberedSeqMarker = XRCID("idGotoNumberedSeqMarker");
+int idClearSequenceMarkerMenu = XRCID("idClearSequenceMarkerMenu");
+int idClearCurSequenceMarker = XRCID("idClearCurSequenceMarker");
+int idClearAllSequenceMarkers = XRCID("idClearAllSequenceMarkers");
+int idClearInOutSeqMarkers = XRCID("idClearInOutSeqMarkers");
+int idClearInSeqMarker = XRCID("idClearInSeqMarker");
+int idClearOutSeqMarker = XRCID("idClearOutSeqMarker");
+int idClearNumberedSeqMarker = XRCID("idClearNumberedSeqMarker");
 int idEditSequenceMarker = XRCID("idEditSequenceMarker");
 
+int idWindowWorkspaceMenu = XRCID("idWindowWorkspaceMenu");
+int idWorkspaceEditing = XRCID("idWorkspaceEditing");
+int idWorkspaceEffects = XRCID("idWorkspaceEffects");
+int idWorkspaceAudio = XRCID("idWorkspaceAudio");
+int idWorkspaceColorCorrection = XRCID("idWorkspaceColorCorrection");
+int idWorkspaceDefault = XRCID("idWorkspaceDefault");
+int idWorkspaceSaveAs = XRCID("idWorkspaceSaveAs");
+int idWorkspaceDelete = XRCID("idWorkspaceDelete");
+int idWorkspaceCustom = XRCID("idWorkspaceCustom");
 int idMenuSaveFrameLayout = XRCID("idMenuSaveFrameLayout");
-int idMenuLoadDefaultLayout = XRCID("idMenuLoadDefaultLayout");
+int idWindowEffects = XRCID("idWindowEffects");
+int idWindowEffectControls = XRCID("idWindowEffectControls");
+int idWindowHistory = XRCID("idWindowHistory");
+int idWindowInfo = XRCID("idWindowInfo");
+int idWindowTools = XRCID("idWindowTools");
+int idWindowAudioMixer = XRCID("idWindowAudioMixer");
+int idWindowMonitor = XRCID("idWindowMonitor");
+int idWindowProject = XRCID("idWindowProject");
+int idWindowTimelinesMenu = XRCID("idWindowTimelinesMenu");
 
 int idProjectPane = XRCID("idProjectPane");
 int idPrjSplitter = XRCID("idPrjSplitter");
@@ -143,7 +246,7 @@ BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_CLOSE(AppFrame::OnClose)
     EVT_MENU(wxID_ABOUT, AppFrame::OnAbout)
     EVT_MENU(idMenuSaveFrameLayout, AppFrame::OnSaveFrameLayout)
-    EVT_MENU(idMenuLoadDefaultLayout, AppFrame::OnLoadDefaultLayout)
+    EVT_MENU(idWorkspaceDefault, AppFrame::OnLoadDefaultLayout)
 
     EVT_TREE_ITEM_MENU(idPrjResourcesTree, AppFrame::OnResourceTreeContextMenu)
 
@@ -198,6 +301,113 @@ BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_UPDATE_UI(idEditOriginal, AppFrame::OnEditMenuUpdateUI)
     EVT_UPDATE_UI(idEditSequenceMarker, AppFrame::OnEditMenuUpdateUI)
 
+    EVT_UPDATE_UI(idProjectSettings, AppFrame::OnProjectMenuUpdateUI)
+    EVT_UPDATE_UI(idProjectSettingsGeneral, AppFrame::OnProjectMenuUpdateUI)
+    EVT_UPDATE_UI(idProjectSettingsCapture, AppFrame::OnProjectMenuUpdateUI)
+    EVT_UPDATE_UI(idProjectSettingsVideoRendering, AppFrame::OnProjectMenuUpdateUI)
+    EVT_UPDATE_UI(idProjectSettingsDefaultSequence, AppFrame::OnProjectMenuUpdateUI)
+    EVT_UPDATE_UI(idProjectLinkMedia, AppFrame::OnProjectMenuUpdateUI)
+    EVT_UPDATE_UI(idProjectUnlinkMedia, AppFrame::OnProjectMenuUpdateUI)
+    EVT_UPDATE_UI(idProjectAutomateToSequence, AppFrame::OnProjectMenuUpdateUI)
+    EVT_UPDATE_UI(idProjectImportBatchList, AppFrame::OnProjectMenuUpdateUI)
+    EVT_UPDATE_UI(idProjectExportBatchList, AppFrame::OnProjectMenuUpdateUI)
+    EVT_UPDATE_UI(idProjectExportAsAAF, AppFrame::OnProjectMenuUpdateUI)
+
+    EVT_UPDATE_UI(idClipRename, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipCaptureSettings, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipSetCaptureSettings, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipClearCaptureSettings, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipInsert, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipOverlay, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipToggleEnable, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipUnlinkAV, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipLinkAV, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipGroup, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipUngroup, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipVideoOptions, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipVOptFrameHold, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipVOptFieldOptions, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipAudioOptions, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipAOptGain, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipAOptBreakoutToMono, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipOptTreatAsStereo, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipOptRenderAndReplace, AppFrame::OnClipMenuUpdateUI)
+    EVT_UPDATE_UI(idClipSpeedDuration, AppFrame::OnClipMenuUpdateUI)
+
+    EVT_UPDATE_UI(idSequenceRender, AppFrame::OnSequenceMenuUpdateUI)
+    EVT_UPDATE_UI(idSequenceDeleteRenderFiles, AppFrame::OnSequenceMenuUpdateUI)
+    EVT_UPDATE_UI(idSequenceRazor, AppFrame::OnSequenceMenuUpdateUI)
+    EVT_UPDATE_UI(idSequenceRazorSelectedTracks, AppFrame::OnSequenceMenuUpdateUI)
+    EVT_UPDATE_UI(idSequenceLift, AppFrame::OnSequenceMenuUpdateUI)
+    EVT_UPDATE_UI(idSequenceExtract, AppFrame::OnSequenceMenuUpdateUI)
+    EVT_UPDATE_UI(idSequenceApplyVideoTransition, AppFrame::OnSequenceMenuUpdateUI)
+    EVT_UPDATE_UI(idSequenceApplyAudioTransition, AppFrame::OnSequenceMenuUpdateUI)
+    EVT_UPDATE_UI(idSequenceZoomIn, AppFrame::OnSequenceMenuUpdateUI)
+    EVT_UPDATE_UI(idSequenceZoomOut, AppFrame::OnSequenceMenuUpdateUI)
+    EVT_UPDATE_UI(idSequenceSnap, AppFrame::OnSequenceMenuUpdateUI)
+    EVT_UPDATE_UI(idSequenceAddTracks, AppFrame::OnSequenceMenuUpdateUI)
+    EVT_UPDATE_UI(idSequenceDelTracks, AppFrame::OnSequenceMenuUpdateUI)
+
+    EVT_UPDATE_UI(idSetClipMarkerMenu, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idGotoClipMarkerMenu, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idGotoNextClipMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idGotoPrevClipMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idGotoInClipMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idGotoOutClipMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idGotoVideoInClipMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idGotoVideoOutClipMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idGotoAudioInClipMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idGotoAudioOutClipMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idGotoNumberedClipMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idClearClipMarkerMenu, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idClearCurrentClipMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idClearAllClipMarkers, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idClearInOutClipMarkers, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idClearInClipMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idClearOutClipMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idClearNumberedClipMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idSetSequenceMarkerMenu, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idSetInSequenceMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idSetOutSequenceMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idSetInOutAroundSelSeqMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idSetUnnumberedSequenceMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idSetNextAvailNumberedSeqMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idSetOtherNumberedSequenceMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idGotoSequenceMarkerMenu, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idGotoNextSequenceMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idGotoPrevSequenceMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idGotoInSequenceMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idGotoOutSequenceMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idGotoNumberedSeqMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idClearSequenceMarkerMenu, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idClearCurSequenceMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idClearAllSequenceMarkers, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idClearInOutSeqMarkers, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idClearInSeqMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idClearOutSeqMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idClearNumberedSeqMarker, AppFrame::OnMarkerMenuUpdateUI)
+    EVT_UPDATE_UI(idEditSequenceMarker, AppFrame::OnMarkerMenuUpdateUI)
+
+    EVT_UPDATE_UI(idWindowWorkspaceMenu, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWorkspaceEditing, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWorkspaceEffects, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWorkspaceAudio, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWorkspaceColorCorrection, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWorkspaceDefault, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWorkspaceSaveAs, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWorkspaceDelete, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWorkspaceCustom, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idMenuSaveFrameLayout, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWindowEffects, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWindowEffectControls, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWindowHistory, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWindowInfo, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWindowTools, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWindowAudioMixer, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWindowMonitor, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWindowProject, AppFrame::OnWindowMenuUpdateUI)
+    EVT_UPDATE_UI(idWindowTimelinesMenu, AppFrame::OnWindowMenuUpdateUI)
+
     EVT_UPDATE_UI(idProjectStatusChanged, AppFrame::OnProjectStatusChanged)
 
 //  Project pane events
@@ -235,7 +445,7 @@ m_layouthidden(false)
 
         LoadDefaultLayout(true);
 //        {
-//            wxCommandEvent tmpevent(wxEVT_COMMAND_MENU_SELECTED,idMenuLoadDefaultLayout);
+//            wxCommandEvent tmpevent(wxEVT_COMMAND_MENU_SELECTED,idWorkspaceDefault);
 //           wxPostEvent(this, tmpevent);
 //        }
 
@@ -651,6 +861,11 @@ void AppFrame::OnFileMenuUpdateUI(wxUpdateUIEvent& event) {
     mbar->Enable(idFileImport,hasproject);
     mbar->Enable(idFileExport,hasproject);
     mbar->Enable(idFileGetPropertiesSelection, hasproject && (IsClipSelected() || IsResourceClipSelected()));
+    mbar->Enable(idFileCapture, hasproject);
+    mbar->Enable(idFileBatchCapture, hasproject);
+    mbar->Enable(idFileGetProperties, hasproject);
+    mbar->Enable(idFileGetPropertiesFile, hasproject);
+    mbar->Enable(idFileGetPropertiesSelection, hasproject);
 }
 
 void AppFrame::OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event) {
@@ -768,18 +983,158 @@ void AppFrame::OnEditMenuUpdateUI(wxUpdateUIEvent& event) {
 }
 
 void AppFrame::OnProjectMenuUpdateUI(wxUpdateUIEvent& event) {
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr)
+        return;
+    bool hasproject = pmgr->HasProject();
+
+    wxMenuBar* mbar = GetMenuBar();
+
+    mbar->Enable(idProjectSettings,hasproject);
+    mbar->Enable(idProjectSettingsGeneral,hasproject);
+    mbar->Enable(idProjectSettingsCapture,hasproject);
+    mbar->Enable(idProjectSettingsVideoRendering,hasproject);
+    mbar->Enable(idProjectSettingsDefaultSequence,hasproject);
+    mbar->Enable(idProjectLinkMedia,hasproject);
+    mbar->Enable(idProjectUnlinkMedia,hasproject);
+    mbar->Enable(idProjectAutomateToSequence,hasproject);
+    mbar->Enable(idProjectImportBatchList,hasproject);
+    mbar->Enable(idProjectExportBatchList,hasproject);
+    mbar->Enable(idProjectExportAsAAF,hasproject);
 }
 
 void AppFrame::OnClipMenuUpdateUI(wxUpdateUIEvent& event) {
+
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr)
+        return;
+    bool hasproject = pmgr->HasProject();
+
+    wxMenuBar* mbar = GetMenuBar();
+
+    mbar->Enable(idClipRename, hasproject);
+    mbar->Enable(idClipCaptureSettings, hasproject);
+    mbar->Enable(idClipSetCaptureSettings, hasproject);
+    mbar->Enable(idClipClearCaptureSettings, hasproject);
+    mbar->Enable(idClipInsert, hasproject);
+    mbar->Enable(idClipOverlay, hasproject);
+    mbar->Enable(idClipToggleEnable, hasproject);
+    mbar->Enable(idClipUnlinkAV, hasproject);
+    mbar->Enable(idClipLinkAV, hasproject);
+    mbar->Enable(idClipGroup, hasproject);
+    mbar->Enable(idClipUngroup, hasproject);
+    mbar->Enable(idClipVideoOptions, hasproject);
+    mbar->Enable(idClipVOptFrameHold, hasproject);
+    mbar->Enable(idClipVOptFieldOptions, hasproject);
+    mbar->Enable(idClipAudioOptions, hasproject);
+    mbar->Enable(idClipAOptGain, hasproject);
+    mbar->Enable(idClipAOptBreakoutToMono, hasproject);
+    mbar->Enable(idClipOptTreatAsStereo, hasproject);
+    mbar->Enable(idClipOptRenderAndReplace, hasproject);
+    mbar->Enable(idClipSpeedDuration, hasproject);
 }
 
 void AppFrame::OnSequenceMenuUpdateUI(wxUpdateUIEvent& event) {
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr)
+        return;
+    bool hasproject = pmgr->HasProject();
+
+    wxMenuBar* mbar = GetMenuBar();
+
+    mbar->Enable(idSequenceRender, hasproject);
+    mbar->Enable(idSequenceDeleteRenderFiles, hasproject);
+    mbar->Enable(idSequenceRazor, hasproject);
+    mbar->Enable(idSequenceRazorSelectedTracks, hasproject);
+    mbar->Enable(idSequenceLift, hasproject);
+    mbar->Enable(idSequenceExtract, hasproject);
+    mbar->Enable(idSequenceApplyVideoTransition, hasproject);
+    mbar->Enable(idSequenceApplyAudioTransition, hasproject);
+    mbar->Enable(idSequenceZoomIn, hasproject);
+    mbar->Enable(idSequenceZoomOut, hasproject);
+    mbar->Enable(idSequenceSnap, hasproject);
+    mbar->Enable(idSequenceAddTracks, hasproject);
+    mbar->Enable(idSequenceDelTracks, hasproject);
+
 }
 
 void AppFrame::OnMarkerMenuUpdateUI(wxUpdateUIEvent& event) {
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr)
+        return;
+    bool hasproject = pmgr->HasProject();
+
+    wxMenuBar* mbar = GetMenuBar();
+
+    mbar->Enable(idSetClipMarkerMenu, hasproject);
+    mbar->Enable(idGotoClipMarkerMenu, hasproject);
+    mbar->Enable(idGotoNextClipMarker, hasproject);
+    mbar->Enable(idGotoPrevClipMarker, hasproject);
+    mbar->Enable(idGotoInClipMarker, hasproject);
+    mbar->Enable(idGotoOutClipMarker, hasproject);
+    mbar->Enable(idGotoVideoInClipMarker, hasproject);
+    mbar->Enable(idGotoVideoOutClipMarker, hasproject);
+    mbar->Enable(idGotoAudioInClipMarker, hasproject);
+    mbar->Enable(idGotoAudioOutClipMarker, hasproject);
+    mbar->Enable(idGotoNumberedClipMarker, hasproject);
+    mbar->Enable(idClearClipMarkerMenu, hasproject);
+    mbar->Enable(idClearCurrentClipMarker, hasproject);
+    mbar->Enable(idClearAllClipMarkers, hasproject);
+    mbar->Enable(idClearInOutClipMarkers, hasproject);
+    mbar->Enable(idClearInClipMarker, hasproject);
+    mbar->Enable(idClearOutClipMarker, hasproject);
+    mbar->Enable(idClearNumberedClipMarker, hasproject);
+    mbar->Enable(idSetSequenceMarkerMenu, hasproject);
+    mbar->Enable(idSetInSequenceMarker, hasproject);
+    mbar->Enable(idSetOutSequenceMarker, hasproject);
+    mbar->Enable(idSetInOutAroundSelSeqMarker, hasproject);
+    mbar->Enable(idSetUnnumberedSequenceMarker, hasproject);
+    mbar->Enable(idSetNextAvailNumberedSeqMarker, hasproject);
+    mbar->Enable(idSetOtherNumberedSequenceMarker, hasproject);
+    mbar->Enable(idGotoSequenceMarkerMenu, hasproject);
+    mbar->Enable(idGotoNextSequenceMarker, hasproject);
+    mbar->Enable(idGotoPrevSequenceMarker, hasproject);
+    mbar->Enable(idGotoInSequenceMarker, hasproject);
+    mbar->Enable(idGotoOutSequenceMarker, hasproject);
+    mbar->Enable(idGotoNumberedSeqMarker, hasproject);
+    mbar->Enable(idClearSequenceMarkerMenu, hasproject);
+    mbar->Enable(idClearCurSequenceMarker, hasproject);
+    mbar->Enable(idClearAllSequenceMarkers, hasproject);
+    mbar->Enable(idClearInOutSeqMarkers, hasproject);
+    mbar->Enable(idClearInSeqMarker, hasproject);
+    mbar->Enable(idClearOutSeqMarker, hasproject);
+    mbar->Enable(idClearNumberedSeqMarker, hasproject);
+    mbar->Enable(idEditSequenceMarker, hasproject);
 }
 
 void AppFrame::OnWindowMenuUpdateUI(wxUpdateUIEvent& event) {
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr)
+        return;
+    bool hasproject = pmgr->HasProject();
+
+    wxMenuBar* mbar = GetMenuBar();
+
+    mbar->Enable(idWindowWorkspaceMenu, hasproject);
+    mbar->Enable(idWorkspaceEditing, hasproject);
+    mbar->Enable(idWorkspaceEffects, hasproject);
+    mbar->Enable(idWorkspaceAudio, hasproject);
+    mbar->Enable(idWorkspaceColorCorrection, hasproject);
+    mbar->Enable(idWorkspaceDefault, hasproject);
+    mbar->Enable(idWorkspaceSaveAs, hasproject);
+    mbar->Enable(idWorkspaceDelete, hasproject);
+    mbar->Enable(idWorkspaceCustom, hasproject);
+    mbar->Enable(idMenuSaveFrameLayout, hasproject);
+    mbar->Enable(idWindowEffects, hasproject);
+    mbar->Enable(idWindowEffectControls, hasproject);
+    mbar->Enable(idWindowHistory, hasproject);
+    mbar->Enable(idWindowInfo, hasproject);
+    mbar->Enable(idWindowTools, hasproject);
+    mbar->Enable(idWindowAudioMixer, hasproject);
+    mbar->Enable(idWindowMonitor, hasproject);
+    mbar->Enable(idWindowProject, hasproject);
+    mbar->Enable(idWindowTimelinesMenu, hasproject);
+
 }
 
 void AppFrame::OnProjectStatusChanged(wxUpdateUIEvent& event) {
