@@ -15,6 +15,8 @@
 #pragma hdrstop
 #endif //__BORLANDC__
 
+#include <wx/fs_zip.h>
+#include <wx/fs_mem.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/config.h>
 
@@ -28,10 +30,8 @@
 
 IMPLEMENT_APP(App);
 
-int cmd_SHOW_STARTUP_DIALOG = wxNewId();
 
 BEGIN_EVENT_TABLE( App, wxApp )
-    EVT_COMMAND(-1, cmd_SHOW_STARTUP_DIALOG, App::OnShowStartupDialog)
 END_EVENT_TABLE()
 
 bool App::LoadConfig()
@@ -41,21 +41,36 @@ bool App::LoadConfig()
     return true;
 }
 
-void App::OnShowStartupDialog(wxCommandEvent& event) {
-//    wxMessageBox(_("Hola mundo! :) "),_("Hello world"));
-}
-
 void App::InitManagers() {
     ProjectManager::Get();
 }
 
+bool App::LoadXRCResources() {
+    bool result = false;
+    wxXmlResource* rsc = wxXmlResource::Get();
+    do {
+        if(!rsc->Load(_T("resources/mainmenu.xrc"))) break;
+        if(!rsc->Load(_T("resources/projectpane.xrc"))) break;
+        if(!rsc->Load(_T("resources/welcome.xrc"))) break;
+        result = true;
+    }while(false);
+    return result;
+}
+
+
 bool App::OnInit()
 {
+    wxFileSystem::AddHandler(new wxZipFSHandler);
+    wxFileSystem::AddHandler(new wxMemoryFSHandler);
     wxXmlResource::Get()->InitAllHandlers();
 	//(*AppInitialize
 	bool wxsOK = true;
 	wxInitAllImageHandlers();
+
 	//*)
+    if(!LoadXRCResources()) {
+        return false;
+    }
 
     InitManagers();
 
@@ -67,8 +82,6 @@ bool App::OnInit()
     AppFrame* frame = new AppFrame(NULL, _("Saya - Swift audiovisual Authoring for You and Anyone"));
     ProjectManager::Get()->SetMainFrame(frame);
     SetTopWindow(frame);
-    frame->Show();
-    wxCommandEvent evt(cmd_SHOW_STARTUP_DIALOG);
-    wxPostEvent(this, evt);
+    frame->Show(); // TODO: Comment me after welcome dialog has been implemented
 	return wxsOK;
 }

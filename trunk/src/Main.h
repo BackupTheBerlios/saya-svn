@@ -17,6 +17,8 @@
 
 #include "App.h"
 #include "vidproject/projectmanager.h"
+
+class WelcomeDialog;
 class wxUpdateUIEvent;
 class wxPanel;
 class wxTreeCtrl;
@@ -60,14 +62,17 @@ class AppFrame: public wxFrame
         wxPanel* m_monitorpanel; /// Monitor Panel
         wxPanel* m_effectspanel; /// Effects Panel
         wxPanel* m_timelinepanel; /// Timeline Panel
+        WelcomeDialog* m_welcomedialog;
         wxTreeCtrl* m_ResourcesTree; /// Resources Tree in the Project Panel
 
         bool LoadResources();
         void CreateDockAreas();
+        bool CreateDialogs();
         bool CreateMenuBar();
         bool CreatePanels();
         long GetProjectPanelSashPos();
         void ShowLayout(bool show);
+        void ShowWelcomeDialog();
 
         void OnResourceTreeContextMenu(wxTreeEvent& event);
 

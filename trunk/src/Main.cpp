@@ -27,6 +27,7 @@
 #endif
 #include "App.h"
 #include "Main.h"
+#include "welcomedlg.h"
 
 #include <deque>
 using namespace std;
@@ -441,6 +442,7 @@ END_EVENT_TABLE()
 
 AppFrame::AppFrame(wxFrame *frame, const wxString& title) :
 wxFrame(frame, -1, title),
+m_welcomedialog(NULL),
 m_hadproject(false),
 m_panes_status_checked(false),
 m_layouthidden(false)
@@ -448,8 +450,8 @@ m_layouthidden(false)
     bool result = false;
     do {
         m_cfg = new wxConfig(APP_NAME);
-        if(!LoadResources()) break;
         if(!CreateMenuBar()) break;
+        if(!CreateDialogs()) break;
         CreateStatusBar(2);
 
         m_mgr.SetManagedWindow(this);
@@ -465,29 +467,15 @@ m_layouthidden(false)
         UpdateStatustext();
 
 
+
         m_FactoryDefaultLayout = m_mgr.SavePerspective();
         LoadDefaultLayout(true);
-//        {
-//            wxCommandEvent tmpevent(wxEVT_COMMAND_MENU_SELECTED,idWorkspaceDefault);
-//           wxPostEvent(this, tmpevent);
-//        }
 
         result = true;
     }while(false);
     if(!result) {
         Destroy();
     }
-}
-
-bool AppFrame::LoadResources() {
-    bool result = false;
-    wxXmlResource* rsc = wxXmlResource::Get();
-    do {
-        if(!rsc->Load(_T("resources/mainmenu.xrc"))) break;
-        if(!rsc->Load(_T("resources/projectpane.xrc"))) break;
-        result = true;
-    }while(false);
-    return result;
 }
 
 bool AppFrame::CreateMenuBar() {
@@ -499,6 +487,19 @@ bool AppFrame::CreateMenuBar() {
     } else {
         LoadFail(_T("main_menu_bar"));
     }
+    return result;
+}
+
+bool AppFrame::CreateDialogs() {
+    bool result = false;
+    do {
+        m_welcomedialog = new WelcomeDialog(this);
+        if(!m_welcomedialog) {
+            LoadFail(_T("welcome_dialog"));
+            break;
+        }
+        result = true;
+    } while(false);
     return result;
 }
 
@@ -548,7 +549,8 @@ bool AppFrame::LoadDefaultLayout(bool firsttime) {
     if(firsttime)
     {
         wxUpdateUIEvent tmpevent(idProjectStatusChanged);
-        OnProjectStatusChanged(tmpevent);
+        wxPostEvent(this,tmpevent);
+//        OnProjectStatusChanged(tmpevent);
     }
     m_mgr.Update();
     return result;
@@ -708,6 +710,9 @@ AppFrame::~AppFrame() {
     ShutDownApp();
     ProjectManager::Unload();
     m_mgr.UnInit();
+    if(m_welcomedialog) {
+        delete m_welcomedialog;
+    }
     delete m_cfg;
 }
 
@@ -1208,7 +1213,22 @@ void AppFrame::ShowLayout(bool show) {
             m_layouthidden = true;
         }
     }
-    m_mgr.Update();
+    if(!show) {
+//        m_mgr.Update();
+        ShowWelcomeDialog();
+    } else {
+        if(m_welcomedialog) {
+            m_welcomedialog->Hide();
+        }
+//        Show(); // Uncomment me after the welcome dialog has been implemented
+        m_mgr.Update();
+    }
+}
+
+void AppFrame::ShowWelcomeDialog() {
+//    Hide(); // Uncomment me after the welcome dialog has been implemented
+
+    m_welcomedialog->Show();
 }
 
 void AppFrame::DoUpdateAppTitle() {

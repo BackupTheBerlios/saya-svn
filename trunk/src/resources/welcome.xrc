@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<resource version="2.4.0">
+	<object class="wxFrame" name="welcome_dialog" subclass="WelcomeDialog">
+		<style>wxMINIMIZE_BOX | wxCLOSE_BOX | wxCAPTION | wxFRAME_FLOAT_ON_PARENT</style>
+		<size>496,451</size>
+		<title>Welcome to Saya!</title>
+        <object class="wxBoxSizer">
+            <orient>wxVERTICAL</orient>
+            <object class="sizeritem">
+                <option>5</option>
+                <flag>wxEXPAND | wxALL</flag>
+                <border>5</border>
+                <object class="wxPanel" name="m_panel1">
+                    <style>wxTAB_TRAVERSAL</style>
+                    <object class="wxBoxSizer">
+                        <orient>wxVERTICAL</orient>
+                        <object class="sizeritem">
+                            <option>0</option>
+                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                            <border>5</border>
+                            <object class="wxStaticText" name="m_staticText8">
+                                <font>
+                                    <family>default</family>
+                                    <style>normal</style>
+                                    <weight>bold</weight>
+                                    <underlined>0</underlined>
+                                </font>
+                                <label>Recent Projects:</label>
+                            </object>
+                        </object>
+                        <object class="sizeritem">
+                            <option>1</option>
+                            <flag>wxEXPAND | wxALL</flag>
+                            <border>5</border>
+                            <object class="wxPanel" name="m_panel12">
+                                <style>wxTAB_TRAVERSAL</style>
+                                <object class="wxBoxSizer">
+                                    <orient>wxVERTICAL</orient>
+                                    <object class="sizeritem">
+                                        <option>1</option>
+                                        <flag>wxALL|wxEXPAND</flag>
+                                        <border>5</border>
+                                        <object class="wxHtmlWindow" name="idWelcomeRecentProjects">
+                                            <style>wxHW_SCROLLBAR_AUTO|wxRAISED_BORDER</style>
+                                        </object>
+                                    </object>
+                                </object>
+                            </object>
+                        </object>
+                    </object>
+                </object>
+            </object>
+            <object class="sizeritem">
+                <option>3</option>
+                <flag>wxEXPAND|wxALL|wxALIGN_CENTER_HORIZONTAL</flag>
+                <border>5</border>
+                <object class="wxPanel" name="m_panel2">
+                    <style>wxTAB_TRAVERSAL</style>
+                    <object class="wxBoxSizer">
+                        <orient>wxHORIZONTAL</orient>
+                        <object class="sizeritem">
+                            <option>1</option>
+                            <flag>wxEXPAND | wxALL</flag>
+                            <border>5</border>
+                            <object class="wxPanel" name="m_panel8">
+                                <style>wxNO_BORDER</style>
+                                <object class="wxBoxSizer">
+                                    <orient>wxVERTICAL</orient>
+                                    <object class="sizeritem">
+                                        <option>1</option>
+                                        <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                        <border>1</border>
+                                        <object class="wxBitmapButton" name="idWelcomeNewProject">
+                                            <style>wxBU_AUTODRAW</style>
+                                            <pos>-1,-1</pos>
+                                            <size>96,96</size>
+                                            <font>
+                                                <family>default</family>
+                                                <style>normal</style>
+                                                <weight>normal</weight>
+                                                <underlined>0</underlined>
+                                            </font>
+                                            <bitmap />
+                                            <default>0</default>
+                                        </object>
+                                    </object>
+                                    <object class="sizeritem">
+                                        <option>0</option>
+                                        <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                        <border>5</border>
+                                        <object class="wxStaticText" name="m_staticText1">
+                                            <style>wxALIGN_CENTRE</style>
+                                            <font>
+                                                <size>10</size>
+                                                <family>default</family>
+                                                <style>normal</style>
+                                                <weight>bold</weight>
+                                                <underlined>0</underlined>
+                                            </font>
+                                            <label>\nCreate new\nproject</label>
+                                        </object>
+                                    </object>
+                                </object>
+                            </object>
+                        </object>
+                        <object class="sizeritem">
+                            <option>1</option>
+                            <flag>wxEXPAND | wxALL</flag>
+                            <border>5</border>
+                            <object class="wxPanel" name="m_panel81">
+                                <style>wxNO_BORDER</style>
+                                <object class="wxBoxSizer">
+                                    <orient>wxVERTICAL</orient>
+                                    <object class="sizeritem">
+                                        <option>1</option>
+                                        <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                        <border>1</border>
+                                        <object class="wxBitmapButton" name="idWelcomeOpenProject">
+                                            <style>wxBU_AUTODRAW</style>
+                                            <pos>-1,-1</pos>
+                                            <size>96,96</size>
+                                            <font>
+                                                <family>default</family>
+                                                <style>normal</style>
+                                                <weight>normal</weight>
+                                                <underlined>0</underlined>
+                                            </font>
+                                            <bitmap />
+                                            <default>0</default>
+                                        </object>
+                                    </object>
+                                    <object class="sizeritem">
+                                        <option>0</option>
+                                        <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                        <border>5</border>
+                                        <object class="wxStaticText" name="m_staticText11">
+                                            <style>wxALIGN_CENTRE</style>
+                                            <font>
+                                                <size>10</size>
+                                                <family>default</family>
+                                                <style>normal</style>
+                                                <weight>bold</weight>
+                                                <underlined>0</underlined>
+                                            </font>
+                                            <label>\nOpen existing\nproject</label>
+                                        </object>
+                                    </object>
+                                </object>
+                            </object>
+                        </object>
+                        <object class="sizeritem">
+                            <option>1</option>
+                            <flag>wxEXPAND | wxALL</flag>
+                            <border>5</border>
+                            <object class="wxPanel" name="m_panel82">
+                                <style>wxNO_BORDER</style>
+                                <object class="wxBoxSizer">
+                                    <orient>wxVERTICAL</orient>
+                                    <object class="sizeritem">
+                                        <option>1</option>
+                                        <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                        <border>1</border>
+                                        <object class="wxBitmapButton" name="idWelcomeQuit">
+                                            <style>wxBU_AUTODRAW</style>
+                                            <pos>-1,-1</pos>
+                                            <size>96,96</size>
+                                            <font>
+                                                <family>default</family>
+                                                <style>normal</style>
+                                                <weight>normal</weight>
+                                                <underlined>0</underlined>
+                                            </font>
+                                            <bitmap />
+                                            <default>0</default>
+                                        </object>
+                                    </object>
+                                    <object class="sizeritem">
+                                        <option>0</option>
+                                        <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                        <border>5</border>
+                                        <object class="wxStaticText" name="m_staticText12">
+                                            <style>wxALIGN_CENTRE</style>
+                                            <font>
+                                                <size>10</size>
+                                                <family>default</family>
+                                                <style>normal</style>
+                                                <weight>bold</weight>
+                                                <underlined>0</underlined>
+                                            </font>
+                                            <label>\nClose\n</label>
+                                        </object>
+                                    </object>
+                                </object>
+                            </object>
+                        </object>
+                    </object>
+                </object>
+            </object>
+        </object>
+    </object>
+</resource>

@@ -49,6 +49,7 @@
 			<Option target="Debug" />
 		</Unit>
 		<Unit filename="resources/mainmenu.xrc" />
+		<Unit filename="resources/welcome.xrc" />
 		<Unit filename="todo.txt" />
 		<Unit filename="vidproject/avclip.cpp" />
 		<Unit filename="vidproject/avclip.h" />
@@ -70,6 +71,10 @@
 		<Unit filename="vidproject/undohistory.h" />
 		<Unit filename="vidproject/vidproject.cpp" />
 		<Unit filename="vidproject/vidproject.h" />
+		<Unit filename="welcomedlg.cpp" />
+		<Unit filename="welcomedlg.h">
+			<Option target="Debug" />
+		</Unit>
 		<Unit filename="wx_pch.h">
 			<Option compile="1" />
 			<Option weight="0" />
