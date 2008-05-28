@@ -50,7 +50,6 @@ bool App::LoadXRCResources() {
     wxXmlResource* rsc = wxXmlResource::Get();
     do {
         if(!rsc->Load(_T("resources/mainmenu.xrc"))) break;
-        if(!rsc->Load(_T("resources/projectpane.xrc"))) break;
         if(!rsc->Load(_T("resources/welcome.xrc"))) break;
         result = true;
     }while(false);
@@ -83,5 +82,6 @@ bool App::OnInit()
     ProjectManager::Get()->SetMainFrame(frame);
     SetTopWindow(frame);
     frame->Show(); // TODO: Comment me after welcome dialog has been implemented
+
 	return wxsOK;
 }

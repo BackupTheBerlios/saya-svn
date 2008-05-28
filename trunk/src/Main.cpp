@@ -508,10 +508,12 @@ bool AppFrame::CreatePanels() {
     do {
         m_projectpanel = CreateProjectPane(); // wxXmlResource::Get()->LoadPanel(this,wxT("project_panel"));
         if(!m_projectpanel) { LoadFail(_T("project_panel")); break; }
-         m_monitorpanel = wxXmlResource::Get()->LoadPanel(this,wxT("monitor_panel"));
-         if(!m_monitorpanel) { LoadFail(_T("monitor_panel")); break; }
-         m_effectspanel = wxXmlResource::Get()->LoadPanel(this,wxT("effects_panel"));
-         if(!m_effectspanel) { LoadFail(_T("effects_panel")); break; }
+           m_monitorpanel = new wxPanel(this);
+           m_effectspanel = new wxPanel(this);
+//         m_monitorpanel = wxXmlResource::Get()->LoadPanel(this,wxT("monitor_panel"));
+//         if(!m_monitorpanel) { LoadFail(_T("monitor_panel")); break; }
+//         m_effectspanel = wxXmlResource::Get()->LoadPanel(this,wxT("effects_panel"));
+//         if(!m_effectspanel) { LoadFail(_T("effects_panel")); break; }
 
         m_timelinepanel = new wxPanel(this, -1,wxDefaultPosition, wxSize(800,400));
         result = true;
@@ -536,7 +538,6 @@ void AppFrame::CreateDockAreas() {
                               BestSize(wxSize(250, 300)).MaximizeButton().MinimizeButton().PinButton().
                               Bottom().Layer(1));
     m_mgr.AddPane(m_timelinepanel, wxAuiPaneInfo().Name(wxT("MainPane")).CentrePane().MinSize(wxSize(500,200)).MaximizeButton().Caption(_("Timeline")).CaptionVisible(true));
-
 }
 
 bool AppFrame::LoadDefaultLayout(bool firsttime) {
@@ -1210,6 +1211,7 @@ void AppFrame::ShowLayout(bool show) {
             for(i = 0;i < myarr.size(); i++) {
                 myarr[i].Hide();
             }
+            m_mgr.Update();
             m_layouthidden = true;
         }
     }
@@ -1220,13 +1222,13 @@ void AppFrame::ShowLayout(bool show) {
         if(m_welcomedialog) {
             m_welcomedialog->Hide();
         }
-//        Show(); // Uncomment me after the welcome dialog has been implemented
+//        Show(); // TODO: Uncomment me after the welcome dialog has been implemented
         m_mgr.Update();
     }
 }
 
 void AppFrame::ShowWelcomeDialog() {
-//    Hide(); // Uncomment me after the welcome dialog has been implemented
+//    Hide(); // TODO: Uncomment me after the welcome dialog has been implemented
 
     m_welcomedialog->Show();
 }
