@@ -30,6 +30,7 @@
     #include <wx/splitter.h>
     #include <wx/treectrl.h>
     #include <wx/sizer.h>
+    #include <wx/html/htmlwin.h>
 #endif // WX_PRECOMP
 
 #endif // WX_PCH_H_INCLUDED

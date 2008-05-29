@@ -25,10 +25,17 @@ class WelcomeDialog: public wxFrame
     public:
         WelcomeDialog(wxFrame *frame);
         virtual ~WelcomeDialog();
+        virtual bool Show(bool show = true);
     private:
         wxPanel* m_panel;
         void OnClose(wxCloseEvent& event);
+        void OnNewProject(wxCommandEvent& event);
+        void OnOpenProject(wxCommandEvent& event);
+        void OnCloseButton(wxCommandEvent& event);
+        void RefreshRecentFilesList();
+        void OnLinkClicked(wxHtmlLinkEvent& event);
         wxFrame* m_parent;
+
 
 	DECLARE_EVENT_TABLE()
 

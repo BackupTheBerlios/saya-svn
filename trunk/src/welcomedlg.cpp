@@ -15,15 +15,27 @@
     #include <wx/splitter.h>
     #include <wx/treectrl.h>
     #include <wx/sizer.h>
+    #include <wx/html/htmlwin.h>
 #endif
 #include "vidproject/projectmanager.h"
 #include "App.h"
 #include "welcomedlg.h"
 
 int idWelcomeDialog = XRCID("welcome_dialog");
+int idWelcomeNewProject = XRCID("idWelcomeNewProject");
+int idWelcomeOpenProject = XRCID("idWelcomeOpenProject");
+int idWelcomeQuit = XRCID("idWelcomeQuit");
+int idWelcomeRecentProjects = XRCID("idWelcomeRecentProjects");
+extern int idFileOpen;
+extern int idNewProject;
+
 
 BEGIN_EVENT_TABLE(WelcomeDialog, wxFrame)
     EVT_CLOSE(WelcomeDialog::OnClose)
+    EVT_BUTTON(idWelcomeNewProject, WelcomeDialog::OnNewProject)
+    EVT_BUTTON(idWelcomeOpenProject, WelcomeDialog::OnOpenProject)
+    EVT_BUTTON(idWelcomeQuit, WelcomeDialog::OnCloseButton)
+    EVT_HTML_LINK_CLICKED(idWelcomeRecentProjects, WelcomeDialog::OnLinkClicked)
 END_EVENT_TABLE()
 
 WelcomeDialog::WelcomeDialog(wxFrame *frame) :
@@ -38,6 +50,60 @@ m_panel(NULL)
 }
 
 void WelcomeDialog::OnClose(wxCloseEvent& event) {
+    m_parent->Close();
+}
+
+void WelcomeDialog::OnNewProject(wxCommandEvent& event) {
+    if(IsAppShuttingDown()) return;
+    wxCommandEvent tmpevent(wxEVT_COMMAND_MENU_SELECTED, idNewProject);
+    m_parent->ProcessEvent(tmpevent);
+}
+
+void WelcomeDialog::OnOpenProject(wxCommandEvent& event) {
+    if(IsAppShuttingDown()) return;
+    wxCommandEvent tmpevent(wxEVT_COMMAND_MENU_SELECTED, idFileOpen);
+    m_parent->ProcessEvent(tmpevent);
+}
+
+bool WelcomeDialog::Show(bool show) {
+    RefreshRecentFilesList();
+    return wxFrame::Show(show);
+}
+
+void WelcomeDialog::RefreshRecentFilesList() {
+    if(IsAppShuttingDown()) return;
+    wxString tmps = wxEmptyString;
+    wxString curfile;
+    size_t i;
+    for(i = 1; i <=9 && (i<= ProjectManager::Get()->m_recentfiles.size()); ++i) {
+        curfile = ProjectManager::Get()->GetRecentProjectName(i);
+        if(!curfile.IsEmpty()) {
+            tmps += wxString::Format(_T("<li><a href=\"sayarecent://%d\">%s</a></li>"),i,curfile.c_str());
+        }
+    }
+    if(!tmps.IsEmpty()) {
+        tmps = _T("<ol>") + tmps + _T("</ol>");
+    }
+    wxHtmlWindow* myhtml = XRCCTRL(*this,"idWelcomeRecentProjects",wxHtmlWindow);
+    if(myhtml) {
+        myhtml->SetPage(tmps);
+    }
+}
+
+void WelcomeDialog::OnLinkClicked(wxHtmlLinkEvent& event) {
+    wxHtmlLinkInfo linkinfo = event.GetLinkInfo();
+    wxString href = linkinfo.GetHref();
+    long fileno = 1;
+    if(href.StartsWith(_T("sayarecent://"))) {
+        href = href.SubString(13,1);
+        if(href.ToLong(&fileno)) {
+            wxCommandEvent tmpevent(wxEVT_COMMAND_MENU_SELECTED,wxID_FILE1 + (fileno - 1));
+            m_parent->ProcessEvent(tmpevent);
+        }
+    }
+}
+
+void WelcomeDialog::OnCloseButton(wxCommandEvent& event) {
     m_parent->Close();
 }
 

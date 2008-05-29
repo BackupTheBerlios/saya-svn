@@ -778,7 +778,7 @@ void AppFrame::OnOpenRecentFile(wxCommandEvent &event) {
     if(IsAppShuttingDown())
         return;
     if(ProjectManager::Get()->CloseProject(false)) { // First close current project, ask to save, etc.
-        int fileno = event.GetId() - wxID_FILE1;
+        int fileno = (event.GetId() - wxID_FILE1) + 1;
         bool result = ProjectManager::Get()->LoadRecentProject(fileno);
         if(!result) {
             wxString msg;
@@ -1222,13 +1222,13 @@ void AppFrame::ShowLayout(bool show) {
         if(m_welcomedialog) {
             m_welcomedialog->Hide();
         }
-//        Show(); // TODO: Uncomment me after the welcome dialog has been implemented
+        Show();
         m_mgr.Update();
     }
 }
 
 void AppFrame::ShowWelcomeDialog() {
-//    Hide(); // TODO: Uncomment me after the welcome dialog has been implemented
+    Hide();
 
     m_welcomedialog->Show();
 }
