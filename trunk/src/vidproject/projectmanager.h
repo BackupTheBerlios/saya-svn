@@ -153,7 +153,14 @@ class ProjectManager
           * @param fileno The index of the filename to retrieve (from 1 to 9)
           * @return The filename corresponding to the nth entry in the Recent Projects list.
           */
-        wxString GetRecentProjectName(int fileno);
+        const wxString GetRecentProjectName(int fileno);
+
+        /** @brief Gets an offline project's Title
+          * A proxy for VidProject::GetOfflineProjectTitle
+          * @param filename The filename of the project
+          * @return The project's title
+          */
+        const wxString GetOfflineProjectTitle(const wxString& filename);
 
         /** @brief Gets the filename for the nth recently imported file.
           *

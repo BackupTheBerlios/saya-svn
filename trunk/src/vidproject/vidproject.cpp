@@ -10,6 +10,8 @@
 #include "vidproject.h"
 #include "projectmanager.h"
 #include <wx/ffile.h>
+#include "tinyxml/tinywxuni.h"
+#include "tinyxml/tinyxml.h"
 
 VideoSettings::VideoSettings() {
     ResetToDefaults();
@@ -61,6 +63,33 @@ VidProject::~VidProject()
 void VidProject::Clear() {
     m_ExportSettings.ResetToDefaults();
 }
+
+const wxString VidProject::GetOfflineProjectTitle(const wxString& filename) {
+    wxString result = wxEmptyString;
+    wxString data;
+    do {
+        if(!wxFileExists(filename)) {
+            break;
+        }
+        TiXmlDocument* mydoc = TinyXML::LoadDocument(filename);
+        if(!mydoc) {
+            break;
+        }
+        // TODO: Obtain the project's name from the XML
+        TiXmlHandle hRoot(0);
+        hRoot = mydoc->FirstChildElement("xvidproject");
+        TiXmlElement* pElem = hRoot.FirstChild("title").ToElement();
+        if(pElem) {
+            const char *pKey = pElem->GetText();
+            if(pKey) {
+                result = wxString(pKey,wxConvUTF8);
+            }
+        }
+    } while(false);
+
+    return result;
+}
+
 
 void VidProject::Revert() {
     if(IsNew()) {

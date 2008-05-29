@@ -78,7 +78,11 @@ void WelcomeDialog::RefreshRecentFilesList() {
     for(i = 1; i <=9 && (i<= ProjectManager::Get()->m_recentfiles.size()); ++i) {
         curfile = ProjectManager::Get()->GetRecentProjectName(i);
         if(!curfile.IsEmpty()) {
-            tmps += wxString::Format(_T("<li><a href=\"sayarecent://%d\">%s</a></li>"),i,curfile.c_str());
+            wxString prjtitle = ProjectManager::Get()->GetOfflineProjectTitle(curfile);
+            if(prjtitle.IsEmpty()) {
+                prjtitle = _("(Untitled)");
+            }
+            tmps += wxString::Format(_T("<li><a href=\"sayarecent://%d\">%s</a><br /><small>%s</small></li>"),i,prjtitle.c_str(),curfile.c_str());
         }
     }
     if(!tmps.IsEmpty()) {

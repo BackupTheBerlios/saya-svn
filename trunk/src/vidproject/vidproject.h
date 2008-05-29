@@ -93,6 +93,12 @@ class VidProject:public serializable
         /** Clears all data in the project, leaving it as new. */
         void Clear();
 
+        /** @brief Gets an offline project's Title
+          * @param filename The filename of the project
+          * @return The project's title
+          */
+        static const wxString GetOfflineProjectTitle(const wxString& filename);
+
         // Undo History management functions
 
         /** Clears the Undo History */

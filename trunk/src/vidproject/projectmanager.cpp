@@ -220,7 +220,7 @@ bool ProjectManager::LoadProject(const wxString filename) {
     return result;
 }
 
-wxString ProjectManager::GetRecentProjectName(int fileno) {
+const wxString ProjectManager::GetRecentProjectName(int fileno) {
     int maxfileno = m_recentfiles.size();
     if(fileno < 1)
         fileno = 1;
@@ -230,6 +230,10 @@ wxString ProjectManager::GetRecentProjectName(int fileno) {
         return wxEmptyString; //
     fileno--; // Zero based now
     return m_recentfiles[fileno];
+}
+
+const wxString ProjectManager::GetOfflineProjectTitle(const wxString& filename) {
+    return VidProject::GetOfflineProjectTitle(filename);
 }
 
 wxString ProjectManager::GetRecentImportName(int fileno) {
