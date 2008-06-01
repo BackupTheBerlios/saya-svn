@@ -48,7 +48,10 @@
 		<Unit filename="drafts/undoredo.txt">
 			<Option target="Debug" />
 		</Unit>
+		<Unit filename="newprojectdlg.cpp" />
+		<Unit filename="newprojectdlg.h" />
 		<Unit filename="resources/mainmenu.xrc" />
+		<Unit filename="resources/newproject.xrc" />
 		<Unit filename="resources/welcome.xrc" />
 		<Unit filename="todo.txt" />
 		<Unit filename="vidproject/avclip.cpp" />
