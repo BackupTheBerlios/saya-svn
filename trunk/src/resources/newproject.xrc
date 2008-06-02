@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <resource xmlns="http://www.wxwindows.org/wxxrc" version="2.4.0">
-	<object class="wxDialog" name="new_project_dialog">
+	<object class="wxDialog" name="MyDialog1">
 		<style>wxDEFAULT_DIALOG_STYLE</style>
 		<size>640,640</size>
 		<title>Create New Project</title>
@@ -314,12 +314,12 @@
 																				<flag>wxALIGN_CENTER_VERTICAL|wxEXPAND|wxLEFT|wxRIGHT|wxTOP</flag>
 																				<border>5</border>
 																				<object class="wxChoice" name="m_choice2">
-																					<tooltip>Choose 1:1 for non-standard resolutions (i.e. avi files)\nChoose &quot;custom&quot; to set the Pixel aspect ratio yourself (careful with that)</tooltip>
+																					<tooltip>Choose &quot;agnostic&quot; for non-standard resolutions.\nChoose &quot;custom&quot; to set the Pixel aspect ratio yourself (careful with that)</tooltip>
 																					<selection>0</selection>
 																					<content>
-																						<item> 4:3 (Standard)</item>
-																						<item>16:9 (Widescreen)</item>
-																						<item> 1:1 (computer)</item>
+																						<item>Standard (4:3)</item>
+																						<item>Widescreen (16:9)</item>
+																						<item>Agnostic (square pixels)</item>
 																						<item>Custom</item>
 																					</content>
 																				</object>
@@ -329,7 +329,7 @@
 																				<flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP</flag>
 																				<border>5</border>
 																				<object class="wxStaticText" name="m_staticText8">
-																					<tooltip>Some aspect ratio / resolution combinations mean that the pixels aren&apos;t square. The pixel&apos;s resulting aspect ratio is shown in this textbox, and is only modifiable if the video aspect ratio is set to &quot;custom&quot;.</tooltip>
+																					<tooltip>Sets the pixels&apos; aspect ratio.\n2.0: The pixels are twice as wide as they&apos;re tall.\n0.5: The pixels are half as wide as they&apos;re tall.\n1.0: The pixels are square.</tooltip>
 																					<label>Pixel aspect:</label>
 																				</object>
 																			</object>
@@ -338,6 +338,7 @@
 																				<flag>wxLEFT|wxRIGHT|wxTOP</flag>
 																				<border>5</border>
 																				<object class="wxTextCtrl" name="m_textCtrl6">
+																					<tooltip>Sets the pixels&apos; aspect ratio.\n2.0: The pixels are twice as wide as they&apos;re tall.\n0.5: The pixels are half as wide as they&apos;re tall.\n1.0: The pixels are square.</tooltip>
 																					<value></value>
 																					<maxlength>0</maxlength>
 																				</object>

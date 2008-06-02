@@ -1442,7 +1442,7 @@
                                                                                     <property name="proportion">1</property>
                                                                                     <object class="wxChoice" expanded="1">
                                                                                         <property name="bg"></property>
-                                                                                        <property name="choices">&quot; 4:3 (Standard)&quot; &quot;16:9 (Widescreen)&quot; &quot; 1:1 (computer)&quot; &quot;Custom&quot;</property>
+                                                                                        <property name="choices">&quot;Standard (4:3)&quot; &quot;Widescreen (16:9)&quot; &quot;Agnostic (square pixels)&quot; &quot;Custom&quot;</property>
                                                                                         <property name="context_help"></property>
                                                                                         <property name="enabled">1</property>
                                                                                         <property name="fg"></property>
@@ -1457,7 +1457,7 @@
                                                                                         <property name="selection">0</property>
                                                                                         <property name="size">-1,-1</property>
                                                                                         <property name="subclass"></property>
-                                                                                        <property name="tooltip">Choose 1:1 for non-standard resolutions (i.e. avi files)&#x0A;Choose &quot;custom&quot; to set the Pixel aspect ratio yourself (careful with that)</property>
+                                                                                        <property name="tooltip">Choose &quot;agnostic&quot; for non-standard resolutions.&#x0A;Choose &quot;custom&quot; to set the Pixel aspect ratio yourself (careful with that)</property>
                                                                                         <property name="window_extra_style"></property>
                                                                                         <property name="window_name"></property>
                                                                                         <property name="window_style"></property>
@@ -1508,7 +1508,7 @@
                                                                                         <property name="size"></property>
                                                                                         <property name="style"></property>
                                                                                         <property name="subclass"></property>
-                                                                                        <property name="tooltip">Some aspect ratio / resolution combinations mean that the pixels aren&apos;t square. The pixel&apos;s resulting aspect ratio is shown in this textbox, and is only modifiable if the video aspect ratio is set to &quot;custom&quot;.</property>
+                                                                                        <property name="tooltip">Sets the pixels&apos; aspect ratio.&#x0A;2.0: The pixels are twice as wide as they&apos;re tall.&#x0A;0.5: The pixels are half as wide as they&apos;re tall.&#x0A;1.0: The pixels are square.</property>
                                                                                         <property name="window_extra_style"></property>
                                                                                         <property name="window_name"></property>
                                                                                         <property name="window_style"></property>
@@ -1559,7 +1559,7 @@
                                                                                         <property name="size"></property>
                                                                                         <property name="style"></property>
                                                                                         <property name="subclass"></property>
-                                                                                        <property name="tooltip"></property>
+                                                                                        <property name="tooltip">Sets the pixels&apos; aspect ratio.&#x0A;2.0: The pixels are twice as wide as they&apos;re tall.&#x0A;0.5: The pixels are half as wide as they&apos;re tall.&#x0A;1.0: The pixels are square.</property>
                                                                                         <property name="value"></property>
                                                                                         <property name="window_extra_style"></property>
                                                                                         <property name="window_name"></property>

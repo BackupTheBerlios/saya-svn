@@ -9,10 +9,10 @@ bool serializable::unserialize(const wxString& data) {
     return false;
 }
 
-wxString VideoSettings::serialize() {
+wxString AVSettings::serialize() {
     wxString result;
-    wxString opentag = _T("<VideoSettings");
-    wxString closetag = _T("</VideoSettings>");
+    wxString opentag = _T("<AVSettings");
+    wxString closetag = _T("</AVSettings>");
     propertymap::iterator iter;
 
     wxString attributes;
@@ -42,7 +42,7 @@ wxString VideoSettings::serialize() {
     return result;
 }
 
-bool VideoSettings::unserialize(const wxString& data) {
+bool AVSettings::unserialize(const wxString& data) {
 // TODO (rick#1#): Implement me!
     return false;
 }

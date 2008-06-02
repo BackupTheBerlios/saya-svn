@@ -13,17 +13,17 @@
 #include "tinyxml/tinywxuni.h"
 #include "tinyxml/tinyxml.h"
 
-VideoSettings::VideoSettings() {
+AVSettings::AVSettings() {
     ResetToDefaults();
 }
 
-VideoSettings::~VideoSettings() {
+AVSettings::~AVSettings() {
 }
 
-void VideoSettings::ResetToDefaults() {
+void AVSettings::ResetToDefaults() {
     width = 720;
     height = 480;
-    aspectratio = 16/9.0;
+    aspectratio = ARWide;
     fps = 29.997;
     vidformat = _T("avi");
     videocodec = _T("");

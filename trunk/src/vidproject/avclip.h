@@ -46,19 +46,6 @@ enum ResourceType   /** Used for the video resources. */
     RTUCLeader      /**<Enum value RTUCLeader. */
 };
 
-enum SurroundType   /** Used for audio tracks */
-{
-    STMono = 0,     /**<Enum value STMono. Mono (1 channel) */
-    STStereo,       /**<Enum value STStereo. Stereo (Left, right) */
-    STSurround51,   /**<Enum value STSurround51. 5.1 surround */
-    STSurround71,   /**<Enum value STSurround71. 7.1 surround */
-    STSurround102,  /**<Enum value STSurround102. 10.2 surround */
-    STOther,        /**<Enum value STOther. Other. */
-    STReserved6, STReserved7, STReserved8, STReserved9,STReserved10,
-    STReserved11,STReserved12,STReserved13,STReserved14,STReserved15
-};
-
-
 /*! @class AVClip avclip.h
  *  @brief Defines a clip in the timeline.
  *
@@ -251,6 +238,8 @@ class AVClip: public serializable {
 
         /** @brief How many channels does this track have?
           *
+          * Audio clips can be altered in the number of tracks they contain. Therefore,
+          * we need to specify these settings in the clip, too.
           * @see SurroundType
           */
         unsigned short m_AudioChannelCount;
@@ -420,9 +409,9 @@ class AVResource:public serializable {
 
         /** @brief Video Settings for the clip.
           *
-          * @see VideoSettings
+          * @see AVSettings
           */
-        VideoSettings m_VideoSettings;
+        AVSettings m_AVSettings;
 
         /** @see serializable::unserialize */
         virtual bool unserialize(const wxString& data);
