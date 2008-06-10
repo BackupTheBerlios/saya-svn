@@ -182,7 +182,7 @@ void AudioOutputDevice::DisconnectInput() {
     m_input = NULL;
 }
 
-void AudioOutputDevice::LoadAudioData(unsigned int channel,unsigned int bytespersample,unsigned int freq,char *buf,unsigned int buflen) {
+void AudioOutputDevice::LoadAudioData(unsigned int channel,unsigned int bytespersample,unsigned int freq,const char *buf,unsigned int buflen) {
 }
 
 AudioOutputDevice::~AudioOutputDevice() {
