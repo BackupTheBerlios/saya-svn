@@ -108,7 +108,7 @@ void WelcomeDialog::OnLinkClicked(wxHtmlLinkEvent& event) {
 }
 
 void WelcomeDialog::OnCloseButton(wxCommandEvent& event) {
-    m_parent->Close();
+    m_parent->Close(true);
 }
 
 WelcomeDialog::~WelcomeDialog() {

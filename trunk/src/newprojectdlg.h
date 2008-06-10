@@ -27,6 +27,7 @@ class NewProjectDlg : public wxDialog
         virtual ~NewProjectDlg();
     private:
         wxWindow* m_parent;
+        void OnAVSettingsUpdateUI(wxUpdateUIEvent& event);
 	DECLARE_EVENT_TABLE()
 
 };

@@ -27,7 +27,7 @@ class AppFrame: public wxFrame
 {
     public:
         AppFrame(wxFrame *frame, const wxString& title);
-        void OnFrameLayout (wxCommandEvent &event);
+        void OnFrameLayout (wxCommandEvent& event);
         void UpdateStatustext();
         bool SaveProject();
         bool SaveProjectAs();
@@ -80,11 +80,12 @@ class AppFrame: public wxFrame
         void OnFileClose(wxCommandEvent& event);
 
 
-        void OnClearRecentProjectList(wxCommandEvent &event);
-        void OnOpenRecentFile(wxCommandEvent &event);
-        void OnFileSave(wxCommandEvent &event);
-        void OnFileSaveAs(wxCommandEvent &event);
-        void OnFileSaveCopy(wxCommandEvent &event);
+        void OnClearRecentProjectList(wxCommandEvent& event);
+        void OnOpenRecentFile(wxCommandEvent& event);
+        void OnFileSave(wxCommandEvent& event);
+        void OnFileSaveAs(wxCommandEvent& event);
+        void OnFileSaveCopy(wxCommandEvent& event);
+        void OnNewProject(wxCommandEvent& event);
 
         void OnClose(wxCloseEvent& event);
         void OnQuit(wxCommandEvent& event);

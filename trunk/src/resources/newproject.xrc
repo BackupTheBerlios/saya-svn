@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <resource xmlns="http://www.wxwindows.org/wxxrc" version="2.4.0">
-	<object class="wxDialog" name="MyDialog1">
+	<object class="wxDialog" name="new_project_dialog">
 		<style>wxDEFAULT_DIALOG_STYLE</style>
 		<size>640,640</size>
 		<title>Create New Project</title>
@@ -39,7 +39,7 @@
 									<option>1</option>
 									<flag>wxALL|wxEXPAND</flag>
 									<border>5</border>
-									<object class="wxTextCtrl" name="m_textCtrl1">
+									<object class="wxTextCtrl" name="idNewPrjTitle">
 										<tooltip>This will be the Project&apos;s official name.</tooltip>
 										<value></value>
 										<maxlength>0</maxlength>
@@ -58,7 +58,7 @@
 									<option>0</option>
 									<flag>wxALL|wxEXPAND</flag>
 									<border>5</border>
-									<object class="wxDirPickerCtrl" name="m_dirPicker1">
+									<object class="wxDirPickerCtrl" name="idNewPrjLocation">
 										<value></value>
 										<message>Select a folder</message>
 										<style>wxDIRP_DEFAULT_STYLE</style>
@@ -78,7 +78,7 @@
 									<option>1</option>
 									<flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND|wxLEFT|wxRIGHT|wxTOP</flag>
 									<border>5</border>
-									<object class="wxTextCtrl" name="m_textCtrl2">
+									<object class="wxTextCtrl" name="idNewPrjFilename">
 										<tooltip>The project&apos;s filename. Note that replacing spaces with underscores is recommended.</tooltip>
 										<value></value>
 										<maxlength>0</maxlength>
@@ -94,7 +94,7 @@
 									<option>0</option>
 									<flag>wxLEFT</flag>
 									<border>5</border>
-									<object class="wxCheckBox" name="m_checkBox1">
+									<object class="wxCheckBox" name="idNewPrjUnderscores">
 										<font>
 											<size>8</size>
 											<family>default</family>
@@ -138,7 +138,7 @@
 									<option>1</option>
 									<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
 									<border>5</border>
-									<object class="wxChoice" name="m_choice1">
+									<object class="wxChoice" name="idNewPrjPresets">
 										<selection>0</selection>
 										<content />
 									</object>
@@ -147,7 +147,7 @@
 									<option>0</option>
 									<flag>wxALL</flag>
 									<border>5</border>
-									<object class="wxButton" name="m_button1">
+									<object class="wxButton" name="idNewPrjSaveSettingsAs">
 										<tooltip>Saves the current project&apos;s settings as predefined settings</tooltip>
 										<label>Save Custom Settings as...</label>
 										<default>0</default>
@@ -159,11 +159,11 @@
 							<option>1</option>
 							<flag>wxBOTTOM|wxEXPAND|wxLEFT|wxRIGHT</flag>
 							<border>5</border>
-							<object class="wxNotebook" name="m_settingsnotebook">
+							<object class="wxNotebook" name="idNewPrjSettingsNotebook">
 								<object class="notebookpage">
 									<label>A/V Settings</label>
 									<selected>1</selected>
-									<object class="wxPanel" name="m_panel6">
+									<object class="wxPanel" name="idNewPrjAVSettingsPanel">
 										<style>wxTAB_TRAVERSAL</style>
 										<object class="wxBoxSizer">
 											<orient>wxVERTICAL</orient>
@@ -497,14 +497,14 @@
 								<object class="notebookpage">
 									<label>Encoder settings</label>
 									<selected>0</selected>
-									<object class="wxPanel" name="m_panel8">
+									<object class="wxPanel" name="idNewPrjEncoderSettingsPanel">
 										<style>wxTAB_TRAVERSAL</style>
 									</object>
 								</object>
 								<object class="notebookpage">
 									<label>Default Sequence Settings</label>
 									<selected>0</selected>
-									<object class="wxPanel" name="m_panel7">
+									<object class="wxPanel" name="idNewPrjSequenceSettingsPanel">
 										<style>wxTAB_TRAVERSAL</style>
 										<tooltip>When you create a new sequence, it will adopt these settings.</tooltip>
 									</object>

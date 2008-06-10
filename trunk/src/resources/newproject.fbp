@@ -30,7 +30,7 @@
             <property name="id">wxID_ANY</property>
             <property name="maximum_size"></property>
             <property name="minimum_size"></property>
-            <property name="name">MyDialog1</property>
+            <property name="name">new_project_dialog</property>
             <property name="pos"></property>
             <property name="size">640,640</property>
             <property name="style">wxDEFAULT_DIALOG_STYLE</property>
@@ -211,7 +211,7 @@
                                             <property name="maximum_size"></property>
                                             <property name="maxlength">0</property>
                                             <property name="minimum_size">400,-1</property>
-                                            <property name="name">m_textCtrl1</property>
+                                            <property name="name">idNewPrjTitle</property>
                                             <property name="permission">protected</property>
                                             <property name="pos"></property>
                                             <property name="size"></property>
@@ -317,7 +317,7 @@
                                             <property name="maximum_size"></property>
                                             <property name="message">Select a folder</property>
                                             <property name="minimum_size"></property>
-                                            <property name="name">m_dirPicker1</property>
+                                            <property name="name">idNewPrjLocation</property>
                                             <property name="permission">protected</property>
                                             <property name="pos"></property>
                                             <property name="size"></property>
@@ -420,7 +420,7 @@
                                             <property name="maximum_size"></property>
                                             <property name="maxlength">0</property>
                                             <property name="minimum_size"></property>
-                                            <property name="name">m_textCtrl2</property>
+                                            <property name="name">idNewPrjFilename</property>
                                             <property name="permission">protected</property>
                                             <property name="pos"></property>
                                             <property name="size"></property>
@@ -486,7 +486,7 @@
                                             <property name="label">Auto-replace spaces with underscores (recommended)</property>
                                             <property name="maximum_size"></property>
                                             <property name="minimum_size"></property>
-                                            <property name="name">m_checkBox1</property>
+                                            <property name="name">idNewPrjUnderscores</property>
                                             <property name="permission">protected</property>
                                             <property name="pos"></property>
                                             <property name="size"></property>
@@ -656,7 +656,7 @@
                                             <property name="id">wxID_ANY</property>
                                             <property name="maximum_size"></property>
                                             <property name="minimum_size"></property>
-                                            <property name="name">m_choice1</property>
+                                            <property name="name">idNewPrjPresets</property>
                                             <property name="permission">protected</property>
                                             <property name="pos"></property>
                                             <property name="selection">0</property>
@@ -708,7 +708,7 @@
                                             <property name="label">Save Custom Settings as...</property>
                                             <property name="maximum_size"></property>
                                             <property name="minimum_size"></property>
-                                            <property name="name">m_button1</property>
+                                            <property name="name">idNewPrjSaveSettingsAs</property>
                                             <property name="permission">protected</property>
                                             <property name="pos"></property>
                                             <property name="size"></property>
@@ -761,7 +761,7 @@
                                     <property name="id">wxID_ANY</property>
                                     <property name="maximum_size"></property>
                                     <property name="minimum_size"></property>
-                                    <property name="name">m_settingsnotebook</property>
+                                    <property name="name">idNewPrjSettingsNotebook</property>
                                     <property name="permission">protected</property>
                                     <property name="pos"></property>
                                     <property name="size"></property>
@@ -810,7 +810,7 @@
                                             <property name="id">wxID_ANY</property>
                                             <property name="maximum_size"></property>
                                             <property name="minimum_size"></property>
-                                            <property name="name">m_panel6</property>
+                                            <property name="name">idNewPrjAVSettingsPanel</property>
                                             <property name="permission">protected</property>
                                             <property name="pos"></property>
                                             <property name="size"></property>
@@ -869,7 +869,7 @@
                                                                     <property name="border">5</property>
                                                                     <property name="flag">wxEXPAND|wxLEFT|wxRIGHT</property>
                                                                     <property name="proportion">3</property>
-                                                                    <object class="wxStaticBoxSizer" expanded="1">
+                                                                    <object class="wxStaticBoxSizer" expanded="0">
                                                                         <property name="id">wxID_ANY</property>
                                                                         <property name="label">Video</property>
                                                                         <property name="minimum_size"></property>
@@ -968,7 +968,7 @@
                                                                                                 <property name="maximum_size"></property>
                                                                                                 <property name="maxlength">0</property>
                                                                                                 <property name="minimum_size"></property>
-                                                                                                <property name="name">m_textCtrl3</property>
+                                                                                                <property name="name">idNewPrjAVSettings_width</property>
                                                                                                 <property name="permission">protected</property>
                                                                                                 <property name="pos"></property>
                                                                                                 <property name="size"></property>
@@ -1074,7 +1074,7 @@
                                                                                                 <property name="maximum_size"></property>
                                                                                                 <property name="maxlength">0</property>
                                                                                                 <property name="minimum_size"></property>
-                                                                                                <property name="name">m_textCtrl4</property>
+                                                                                                <property name="name">idNewPrjAVSettings_height</property>
                                                                                                 <property name="permission">protected</property>
                                                                                                 <property name="pos"></property>
                                                                                                 <property name="size"></property>
@@ -1191,7 +1191,7 @@
                                                                                                 <property name="id">wxID_ANY</property>
                                                                                                 <property name="maximum_size"></property>
                                                                                                 <property name="minimum_size"></property>
-                                                                                                <property name="name">m_comboBox3</property>
+                                                                                                <property name="name">idNewPrjAVSettings_fps</property>
                                                                                                 <property name="permission">protected</property>
                                                                                                 <property name="pos"></property>
                                                                                                 <property name="size">100,-1</property>
@@ -1349,7 +1349,7 @@
                                                                                         <property name="id">wxID_ANY</property>
                                                                                         <property name="maximum_size"></property>
                                                                                         <property name="minimum_size"></property>
-                                                                                        <property name="name">m_choice3</property>
+                                                                                        <property name="name">idNewPrjAVSettings_interlacing</property>
                                                                                         <property name="permission">protected</property>
                                                                                         <property name="pos"></property>
                                                                                         <property name="selection">0</property>
@@ -1451,7 +1451,7 @@
                                                                                         <property name="id">wxID_ANY</property>
                                                                                         <property name="maximum_size"></property>
                                                                                         <property name="minimum_size"></property>
-                                                                                        <property name="name">m_choice2</property>
+                                                                                        <property name="name">idNewPrjAVSettings_aspectratio</property>
                                                                                         <property name="permission">protected</property>
                                                                                         <property name="pos"></property>
                                                                                         <property name="selection">0</property>
@@ -1553,7 +1553,7 @@
                                                                                         <property name="maximum_size"></property>
                                                                                         <property name="maxlength">0</property>
                                                                                         <property name="minimum_size"></property>
-                                                                                        <property name="name">m_textCtrl6</property>
+                                                                                        <property name="name">idNewPrjAVSettings_pixelaspect</property>
                                                                                         <property name="permission">protected</property>
                                                                                         <property name="pos"></property>
                                                                                         <property name="size"></property>
@@ -1601,7 +1601,7 @@
                                                                     <property name="border">5</property>
                                                                     <property name="flag">wxEXPAND|wxLEFT|wxRIGHT</property>
                                                                     <property name="proportion">2</property>
-                                                                    <object class="wxStaticBoxSizer" expanded="1">
+                                                                    <object class="wxStaticBoxSizer" expanded="0">
                                                                         <property name="id">wxID_ANY</property>
                                                                         <property name="label">Audio</property>
                                                                         <property name="minimum_size"></property>
@@ -1691,7 +1691,7 @@
                                                                                         <property name="id">wxID_ANY</property>
                                                                                         <property name="maximum_size">-1,-1</property>
                                                                                         <property name="minimum_size"></property>
-                                                                                        <property name="name">m_comboBox2</property>
+                                                                                        <property name="name">idNewPrjAVSettings_samplerate</property>
                                                                                         <property name="permission">protected</property>
                                                                                         <property name="pos"></property>
                                                                                         <property name="size">125,-1</property>
@@ -1796,7 +1796,7 @@
                                                                                         <property name="id">wxID_ANY</property>
                                                                                         <property name="maximum_size"></property>
                                                                                         <property name="minimum_size"></property>
-                                                                                        <property name="name">m_choice4</property>
+                                                                                        <property name="name">idNewPrjAVSettings_samplesize</property>
                                                                                         <property name="permission">protected</property>
                                                                                         <property name="pos"></property>
                                                                                         <property name="selection">0</property>
@@ -1898,7 +1898,7 @@
                                                                                         <property name="id">wxID_ANY</property>
                                                                                         <property name="maximum_size"></property>
                                                                                         <property name="minimum_size"></property>
-                                                                                        <property name="name">m_choice6</property>
+                                                                                        <property name="name">idNewPrjAVSettings_surround</property>
                                                                                         <property name="permission">protected</property>
                                                                                         <property name="pos"></property>
                                                                                         <property name="selection">1</property>
@@ -2002,7 +2002,7 @@
                                                                                         <property name="maximum_size"></property>
                                                                                         <property name="min">1</property>
                                                                                         <property name="minimum_size"></property>
-                                                                                        <property name="name">m_spinCtrl1</property>
+                                                                                        <property name="name">idNewPrjAVSettings_channels</property>
                                                                                         <property name="permission">protected</property>
                                                                                         <property name="pos"></property>
                                                                                         <property name="size"></property>
@@ -2052,7 +2052,7 @@
                                                             <property name="proportion">0</property>
                                                             <object class="wxStaticBoxSizer" expanded="1">
                                                                 <property name="id">wxID_ANY</property>
-                                                                <property name="label">Description</property>
+                                                                <property name="label">About these Settings</property>
                                                                 <property name="minimum_size"></property>
                                                                 <property name="name">sbSizerDesc</property>
                                                                 <property name="orient">wxVERTICAL</property>
@@ -2073,7 +2073,7 @@
                                                                         <property name="maximum_size"></property>
                                                                         <property name="maxlength">0</property>
                                                                         <property name="minimum_size"></property>
-                                                                        <property name="name">m_textCtrl9</property>
+                                                                        <property name="name">idNewPrjAVSettings_description</property>
                                                                         <property name="permission">protected</property>
                                                                         <property name="pos"></property>
                                                                         <property name="size"></property>
@@ -2134,7 +2134,7 @@
                                             <property name="id">wxID_ANY</property>
                                             <property name="maximum_size"></property>
                                             <property name="minimum_size"></property>
-                                            <property name="name">m_panel8</property>
+                                            <property name="name">idNewPrjEncoderSettingsPanel</property>
                                             <property name="permission">protected</property>
                                             <property name="pos"></property>
                                             <property name="size"></property>
@@ -2182,7 +2182,7 @@
                                             <property name="id">wxID_ANY</property>
                                             <property name="maximum_size"></property>
                                             <property name="minimum_size"></property>
-                                            <property name="name">m_panel7</property>
+                                            <property name="name">idNewPrjSequenceSettingsPanel</property>
                                             <property name="permission">protected</property>
                                             <property name="pos"></property>
                                             <property name="size"></property>

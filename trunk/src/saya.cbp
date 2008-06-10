@@ -48,6 +48,10 @@
 		<Unit filename="drafts/undoredo.txt">
 			<Option target="Debug" />
 		</Unit>
+		<Unit filename="iomgr/audiooutputdevice.cpp" />
+		<Unit filename="iomgr/audiooutputdevice.h" />
+		<Unit filename="iomgr/iocommon.cpp" />
+		<Unit filename="iomgr/iocommon.h" />
 		<Unit filename="newprojectdlg.cpp" />
 		<Unit filename="newprojectdlg.h" />
 		<Unit filename="resources/mainmenu.xrc" />

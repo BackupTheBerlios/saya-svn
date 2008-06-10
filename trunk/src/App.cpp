@@ -51,6 +51,7 @@ bool App::LoadXRCResources() {
     do {
         if(!rsc->Load(_T("resources/mainmenu.xrc"))) break;
         if(!rsc->Load(_T("resources/welcome.xrc"))) break;
+        if(!rsc->Load(_T("resources/newproject.xrc"))) break;
         result = true;
     }while(false);
     return result;

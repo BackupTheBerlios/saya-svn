@@ -28,6 +28,7 @@
 #include "App.h"
 #include "Main.h"
 #include "welcomedlg.h"
+#include "newprojectdlg.h"
 
 #include <deque>
 using namespace std;
@@ -263,6 +264,7 @@ BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_TREE_ITEM_MENU(idPrjResourcesTree, AppFrame::OnResourceTreeContextMenu)
 
 //  File menu
+    EVT_MENU(idNewProject, AppFrame::OnNewProject)
     EVT_MENU(idFileOpen, AppFrame::OnFileOpen)
     EVT_MENU_RANGE(wxID_FILE1, wxID_FILE9, AppFrame::OnOpenRecentFile)
     EVT_MENU(idFileClearRecentProjectList, AppFrame::OnClearRecentProjectList)
@@ -753,6 +755,14 @@ bool AppFrame::CanRedo() {
     if(!ProjectManager::Get()->HasProject())
         return false;
     return ProjectManager::Get()->GetProject()->CanUndo();
+}
+
+void AppFrame::OnNewProject(wxCommandEvent& event) {
+    NewProjectDlg* mydialog = new NewProjectDlg(this);
+    if(!mydialog) {
+        return;
+    }
+    mydialog->ShowModal();
 }
 
 void AppFrame::OnFileOpen(wxCommandEvent& event) {
