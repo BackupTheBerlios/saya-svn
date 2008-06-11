@@ -10,7 +10,8 @@ AudioOutputDevice::* Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
 #include "audiooutputdevice.h"
 /* #include "audiosourcedevie.h" */
 
-AudioOutputDevice::AudioOutputDevice() :
+AudioOutputDevice::AudioOutputDevice(bool usedefaultbuffers) :
+m_usedefaultbuffers(usedefaultbuffers),
 m_ok(false),
 m_playing(false),
 m_bytespersample(2),
@@ -18,9 +19,7 @@ m_freq(44100),
 m_numchannels(2),
 m_numbuffers(0),
 m_buflen(88200),
-m_defaultbuflen(88200),
-m_input(NULL),
-m_stop(false)
+m_defaultbuflen(88200)
 {
     size_t i;
     for(i = 0; i < 256; i++) {
@@ -47,19 +46,6 @@ bool AudioOutputDevice::IsOk() {
 
 bool AudioOutputDevice::InitializeOutput() {
     return true;
-}
-
-void AudioOutputDevice::PlayPeriod(unsigned int starttime, unsigned int stoptime) {
-    if(!IsOk()) return;
-    m_stop = false;
-    if(m_input != NULL) {
-//  TODO: Write the AudioSourceDevice class
-//       m_input->PlayAudio(this, starttime, stoptime);
-    }
-}
-
-void AudioOutputDevice::Stop() {
-    m_stop = true;
 }
 
 void AudioOutputDevice::ShutDown() {
@@ -122,6 +108,10 @@ char* AudioOutputDevice::GetChannelBuffer(unsigned int idx) {
 void AudioOutputDevice::AllocateBuffers() {
     size_t i;
 
+    if(!m_usedefaultbuffers) {
+        m_numbuffers = 0;
+        return;
+    }
     for(i = 0; i < 256 && i < m_numchannels; i++) {
         m_buffers[i] = new char[m_defaultbuflen * m_bytespersample];
     }
@@ -166,26 +156,14 @@ void AudioOutputDevice::DisconnectOutput() {
     if(!IsOk()) return;
 }
 
+void AudioOutputDevice::LoadAudioData(unsigned int channel,unsigned int bytespersample,unsigned int freq,const char *buf,unsigned int buflen) {
+    if(!IsOk()) return;
+}
+
 void AudioOutputDevice::RenderData() {
     if(!IsOk()) return;
 }
 
-bool AudioOutputDevice::ConnectInput(AudioSourceDevice* inputdev) {
-    if(m_input != NULL) {
-        DisconnectInput();
-    }
-    m_input = inputdev;
-    return (m_input != NULL);
-}
-
-void AudioOutputDevice::DisconnectInput() {
-    m_input = NULL;
-}
-
-void AudioOutputDevice::LoadAudioData(unsigned int channel,unsigned int bytespersample,unsigned int freq,const char *buf,unsigned int buflen) {
-}
-
 AudioOutputDevice::~AudioOutputDevice() {
-    DisconnectInput();
     ShutDown();
 }

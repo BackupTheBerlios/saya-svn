@@ -10,21 +10,19 @@
 #ifndef audiooutputdevice_h
 #define audiooutputdevice_h
 
-class AudioSourceDevice;
-
 /** @brief Generic class for Audio Output
   *
   * The AudioOutputDevice class is a generic output class that will connect an audio output device driver (or file encoder)
-  * with a data source.
+  * with a data source. This class is only a wrapper;
   * It can be an MP3 decoder, a sound generator, or in our case, the audio output for our project.
-  * This class was designed so that you won't have to worry about sample rate, timing or audio/video synchronization.
-  * The syncrhonization and optional frame/skipping will be handled by the MasterOutputDevice class.
-  * The class has the following virtual methods (not including the destructor) that will be implemented by derived classes:
+  * The A/Vsyncrhonization and optional frame skipping needs to be handled by a streaming class.
+  * This class has the following virtual methods (not including the destructor) that must be implemented by derived classes:
   *
   * InitializeOutput()          - Initializes the output device.
   * Clear()                     - Mutes the audio output device.
   * DisconnectOutput()          - Disconnects the output device from the program.
-  * RenderData()                - Sends a data stream from the buffer to the output device.
+  * LoadAudioData()             - Loads audio data for a single channel
+  * RenderData()                - Sends the multichannel data stream from the buffer to the output device.
   * SetDeviceSampleFreq()       - Tries to Set the output device's sample frequency.
   * SetDeviceBytesPerSample()   - Tries to set the output device's bytes-per-sample size.
   * GetDeviceNumChannels()      - Gets the output device's number of channels.
@@ -34,16 +32,18 @@ class AudioSourceDevice;
   * GetChannelBuffer()          - Gets the output buffer for a given audio channel.
   *
   * These protected methods are used by the derived classes to implement low-level audio playback / encoding.
-  *
-  * Loading of data is done through the function LoadAudioData(), which must be invoked only by the AudioSourceDevice class.
-  *
-  * @see AudioSourceDevice
-  *
   */
 class AudioOutputDevice {
     public:
 
-        AudioOutputDevice();        /** Constructor */
+        /** @brief Constructor
+          *
+          * Includes a parameter to indicate whether it should use the default output buffers.
+          * When deriving your class, you can call the constructor with false to implement your own
+          * buffering scheme.
+          * @note Once this variable is set, it cannot be changed.
+          */
+        AudioOutputDevice(bool usedefaultbuffers = true);
 
         /** @brief Initializes the output device and sets the m_ok flag.
          *
@@ -54,18 +54,6 @@ class AudioOutputDevice {
 
          /** Returns the OK status for the output device. */
         bool IsOk();
-
-        /** @brief Starts playback / encoding
-         *
-         *  The PlayPeriod method reproduces the input audio corresponding to a short period of time.
-         *  It's designed to be called by the MasterOutputDevice class.
-         *  @param starttime The beginning time (in milliseconds) to be played
-         *  @param stoptime  The ending time (in milliseconds; inclusive) to be played
-         */
-        void PlayPeriod(unsigned int starttime, unsigned int stoptime);
-
-        /** Stops playback / encoding. */
-        void Stop();
 
         /** Clears and disconnects the output device. Sets m_ok to false. */
         void ShutDown();
@@ -106,18 +94,7 @@ class AudioOutputDevice {
         /** Returns the number of audio-channels in the output (from 0 to 255).  */
         unsigned int GetNumChannels();
 
-        /** Connects the input to an AudioSourceDevice object */
-        bool ConnectInput(AudioSourceDevice* inputdev);
-
-        /** @brief Disconnects the audio source.
-          * @note The source is NOT deallocated - just disconnected. Allocation and deallocation must be done elsewhere.
-          */
-        void DisconnectInput();
-
-        /** @brief Gets the Audio Source connected to this output device, or NULL if none. */
-        AudioSourceDevice* GetInput();
-
-        /** @brief Loads audio data from an external buffer - to be used by AudioSourceDevice
+        /** @brief Loads audio data from an external buffer.
          *
          *  @param channel Number of Channel being processed.
          *  @param bytespersample Number of Bytes per audio sample. From 1 to 4.
@@ -125,8 +102,7 @@ class AudioOutputDevice {
          *  @param buf Buffer containing the data to be processed.
          *  @param buflen The length of the buffer to be processed, in bytes.
          */
-        void LoadAudioData(unsigned int channel,unsigned int bytespersample,unsigned int freq,const char *buf,unsigned int buflen);
-        // TODO: Implement a FIFO circular buffer algorithm and add the required variables as necessary.
+        virtual void LoadAudioData(unsigned int channel,unsigned int bytespersample,unsigned int freq,const char *buf,unsigned int buflen);
 
         /** Standard destructor. */
         virtual ~AudioOutputDevice();
@@ -140,7 +116,7 @@ class AudioOutputDevice {
          */
         virtual bool InitializeOutput();
 
-        /** Mutes the audio output device. Called by Stop() and ShutDown(). */
+        /** Mutes the audio output device. Called by ShutDown(). */
         virtual void Clear();
 
         /** Frees the audio output device. Called by ShutDown(). */
@@ -182,6 +158,7 @@ class AudioOutputDevice {
         /** Deallocates the Audio output buffers. Called by ShutDown. */
         void DeallocateBuffers();
 
+        bool m_usedefaultbuffers;
         bool m_ok;                      /** Tells whether the output device was initialized correctly. */
         bool m_playing;                 /** Set to true if playing is active. */
         unsigned int m_bytespersample;  /** Current setting of bytes per sample */
@@ -190,13 +167,7 @@ class AudioOutputDevice {
         unsigned int m_numbuffers;      /** Number of audio buffers currently allocated */
         unsigned int m_buflen;          /** Current Output buffer's length, in samples */
         unsigned int m_defaultbuflen;   /** Output buffer length for the next Init(). */
-        AudioSourceDevice* m_input;     /** The audio source device connected to this object */
         char *m_buffers[256];           /** Array of 256 pointers to char buffers */
-
-    protected:
-
-        /** The m_stop flag indicates whether playback should be stopped. Set to true by Stop(). */
-        bool m_stop;
 };
 
 #endif
