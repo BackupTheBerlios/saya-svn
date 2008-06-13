@@ -52,6 +52,8 @@
 		<Unit filename="iomgr/audiooutputdevice.h" />
 		<Unit filename="iomgr/iocommon.cpp" />
 		<Unit filename="iomgr/iocommon.h" />
+		<Unit filename="iomgr/mutex.cpp" />
+		<Unit filename="iomgr/mutex.h" />
 		<Unit filename="iomgr/videooutputdevice.cpp" />
 		<Unit filename="iomgr/videooutputdevice.h" />
 		<Unit filename="newprojectdlg.cpp" />
