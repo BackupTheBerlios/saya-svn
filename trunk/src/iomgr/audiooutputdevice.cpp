@@ -1,9 +1,9 @@
 /***************************************************************
  * Name:      audiooutputdevice.h
  * Purpose:   Implementation of the AudioOutputDevice class
-AudioOutputDevice::* Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
+ * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * Created:   2008-05-09
-AudioOutputDevice::* Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
+ * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * License:   GPL version 3 or later
  **************************************************************/
 
