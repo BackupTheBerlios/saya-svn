@@ -9,6 +9,11 @@
 
 #include "mutex.h"
 
+#ifndef __WIN32__
+    #include <unistd.h>
+#endif
+
+
 syMutex::syMutex() {
     #ifdef __WIN32__
         InitializeCriticalSection(&m_mutexobj);
@@ -48,4 +53,22 @@ syMutexLocker::syMutexLocker(syMutex& mutex) {
 
 syMutexLocker::~syMutexLocker() {
     m_mutex->Unlock();
+}
+
+void syMilliSleep(unsigned long msec) {
+    #ifdef __WIN32__
+    ::Sleep(msec);
+    #else
+    // The following code was adapted from http://cc.byexamples.com/20070525/nanosleep-is-better-than-sleep-and-usleep/
+    // WARNING: Not tested
+    // TODO: Remove the warning notice after this function has been tested successfully.
+    struct timespec req={0};
+    time_t sec=(int)(msec/1000);
+    msec=msec-(sec*1000);
+    req.tv_sec=sec;
+    req.tv_nsec=msec*1000000L;
+    while(nanosleep(&req,&req)==-1) {
+         continue;
+    }
+    #endif
 }

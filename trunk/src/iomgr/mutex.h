@@ -7,8 +7,8 @@
  * License:   WxWindows License
  **************************************************************/
 
-#ifndef iomgr_mutex_h
-#define iomgr_mutex_h
+#ifndef saya_mutex_h
+#define saya_mutex_h
 
 #ifdef __WIN32__
     #include <windows.h>
@@ -56,5 +56,8 @@ class syMutexLocker {
     private:
         syMutex* m_mutex;
 };
+
+/** Sleeps for the determinate number of milliseconds */
+void syMilliSleep(unsigned long msec);
 
 #endif

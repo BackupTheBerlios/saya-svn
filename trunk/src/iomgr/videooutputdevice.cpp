@@ -7,6 +7,7 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
+#include "mutex.h"
 #include "videooutputdevice.h"
 
 /** Maximum size for the rendered window. 100 megapixels ought to be enough for anyone. */
@@ -22,10 +23,12 @@ m_changingsize(false),
 m_shuttingdown(false),
 m_ok(false)
 {
+    m_mutex = new syMutex;
 }
 
 VideoOutputDevice::~VideoOutputDevice() {
     ShutDown();
+    delete m_mutex;
 }
 
 bool VideoOutputDevice::Init() {
@@ -46,7 +49,7 @@ bool VideoOutputDevice::MustAbortPlayback() {
 void VideoOutputDevice::ShutDown() {
     m_shuttingdown = true;
     while(m_playing) {
-        // TODO: Sleep for 10 milliseconds
+        syMilliSleep(10); // Sleep for 10 milliseconds
     }
     Clear();
     DisconnectOutput();
@@ -65,13 +68,14 @@ unsigned int VideoOutputDevice::GetHeight() {
 bool VideoOutputDevice::ChangeSize(unsigned int newwidth,unsigned int newheight) {
     bool result = true;
 
-    // TODO: Begin mutex here
-    if(m_shuttingdown || m_changingsize || m_playing || newwidth > MaxVideoOutputDeviceWidth || newheight > MaxVideoOutputDeviceHeight) {
-        result = false;
-    } else {
-        m_changingsize = true;
+    {
+        syMutexLocker mylocker(*m_mutex);
+        if(m_shuttingdown || m_changingsize || m_playing || newwidth > MaxVideoOutputDeviceWidth || newheight > MaxVideoOutputDeviceHeight) {
+            result = false;
+        } else {
+            m_changingsize = true;
+        }
     }
-    // TODO: End mutex here
 
     if(result) {
         result = ChangeDeviceSize(newwidth, newheight);
@@ -91,13 +95,15 @@ bool VideoOutputDevice::ChangeDeviceSize(unsigned int newwidth,unsigned int newh
 
 void VideoOutputDevice::LoadVideoData(VideoColorFormat colorformat, const char *buf,unsigned int buflen) {
     bool result = true;
-    // TODO: Begin mutex here
-    if(m_playing || MustAbortPlayback()) {
-        result = false;
-    } else {
-        m_playing = true;
+
+    {
+        syMutexLocker mylocker(*m_mutex);
+        if(m_playing || MustAbortPlayback()) {
+            result = false;
+        } else {
+            m_playing = true;
+        }
     }
-    // TODO: End mutex here
 
     if(result) {
         LoadDeviceVideoData(colorformat,buf,buflen);

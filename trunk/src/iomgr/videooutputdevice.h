@@ -10,6 +10,7 @@
 #ifndef videooutputdevice_h
 #define videooutputdevice_h
 
+class syMutex;
 /** enumerates the Video Color formats that our device can render / encode */
 enum VideoColorFormat {
     vcfRGB8,
@@ -158,6 +159,7 @@ class VideoOutputDevice {
         bool m_shuttingdown;
 
         bool m_ok;                      /** Tells whether the output device was initialized correctly. */
+        syMutex* m_mutex;
 };
 
 #endif
