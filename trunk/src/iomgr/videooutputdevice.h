@@ -70,7 +70,7 @@ class VideoOutputDevice {
          *  @param newwidth the new width to be set for playback
          *  @param newheight the new height to be set for playback
          *  @return true if size was successfully changed, false otherwise.
-         *  @note This is a wrapper for the protected function ChangeDeviceSize(). After change takes place, variables
+         *  @note This is a wrapper for the protected method ChangeDeviceSize(). After change takes place, variables
          *  m_width and m_height are updated.
          *  @note This method can be called ONLY by the main thread!
          */
@@ -108,7 +108,7 @@ class VideoOutputDevice {
 
         /** @brief Flag indicating that playback must be aborted immediately.
           * @return true if playback/encoding thread must be aborted; false otherwise.
-          * @note This function MUST be called by LoadDeviceVideoData.
+          * @note This method MUST be called by LoadDeviceVideoData.
           */
         bool MustAbortPlayback();
 
@@ -121,19 +121,20 @@ class VideoOutputDevice {
           */
         virtual bool ChangeDeviceSize(unsigned int newwidth,unsigned int newheight);
 
-        /** @brief Loads video data from an external buffer.
+        /** @brief Virtual method which loads video data from an external buffer.
          *
          *  @param colorformat The input color format being sent.
          *  @param buf Buffer containing the data to be processed.
          *  @param buflen The length of the buffer to be processed, in bytes.
          *  @note  This method MUST do nothing if either m_width or m_height are set to 0.
          *         When the data is finally converted, RenderData MUST be called.
-         *  @note  This function MUST check MustAbortPlayback() regularly and abort rendering when the result is true.
+         *  @note  This method MUST check MustAbortPlayback() regularly and abort rendering when the result is true.
          */
         virtual void LoadDeviceVideoData(VideoColorFormat colorformat, const char *buf,unsigned int buflen);
 
 
         /** Plays the received frames.
+          * @note This method MUST check MustAbortPlayback() regularly and abort rendering when the result is true.
           * @note This method MUST do nothing if either m_width or m_height are set to 0.
           */
         virtual void RenderData();

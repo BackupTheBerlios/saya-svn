@@ -85,6 +85,7 @@ bool VideoOutputDevice::ChangeSize(unsigned int newwidth,unsigned int newheight)
         }
         m_changingsize = false;
     }
+
     return result;
 }
 

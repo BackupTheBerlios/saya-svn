@@ -10,6 +10,8 @@
 #ifndef audiooutputdevice_h
 #define audiooutputdevice_h
 
+class syMutex;
+
 /** @brief Generic class for Audio Output
   *
   * The AudioOutputDevice class is a generic output class that will connect an audio output device driver (or file encoder)
@@ -94,7 +96,7 @@ class AudioOutputDevice {
         /** Returns the number of audio-channels in the output (from 0 to 255).  */
         unsigned int GetNumChannels();
 
-        /** @brief Loads audio data from an external buffer.
+        /** @brief Loads audio data from an external buffer. This method is a wrapper for LoadDeviceAudioData.
          *
          *  @param channel Number of Channel being processed.
          *  @param bytespersample Number of Bytes per audio sample. From 1 to 4.
@@ -102,7 +104,7 @@ class AudioOutputDevice {
          *  @param buf Buffer containing the data to be processed.
          *  @param buflen The length of the buffer to be processed, in bytes.
          */
-        virtual void LoadAudioData(unsigned int channel,unsigned int bytespersample,unsigned int freq,const char *buf,unsigned int buflen);
+        void LoadAudioData(unsigned int channel,unsigned int bytespersample,unsigned int freq,const char *buf,unsigned int buflen);
 
         /** Standard destructor. */
         virtual ~AudioOutputDevice();
@@ -122,9 +124,11 @@ class AudioOutputDevice {
         /** Frees the audio output device. Called by ShutDown(). */
         virtual void DisconnectOutput();
 
-        /** Plays / encodes the data received. */
+        /** Plays / encodes the data received.
+          *
+          * @note This method MUST check MustAbortPlayback() regularly and abort rendering when the result is true.
+          */
         virtual void RenderData();
-        // TODO: Implement a FIFO circular buffer algorithm and add the required variables as necessary.
 
         /** @brief Sets the output sample frequency in Hz.
           *
@@ -150,6 +154,23 @@ class AudioOutputDevice {
           */
         char* GetChannelBuffer(unsigned int idx);
 
+        /** @brief Virtual method which loads audio data from an external buffer. Called by LoadAudioData.
+         *
+         *  @param channel Number of Channel being processed.
+         *  @param bytespersample Number of Bytes per audio sample. From 1 to 4.
+         *  @param freq Frequency in Hz.
+         *  @param buf Buffer containing the data to be processed.
+         *  @param buflen The length of the buffer to be processed, in bytes.
+         *  @note  This method must check MustAbortPlayback() regularly and return immediately when true.
+         */
+        virtual void LoadDeviceAudioData(unsigned int channel,unsigned int bytespersample,unsigned int freq,const char *buf,unsigned int buflen);
+
+        /** @brief Flag indicating that playback must be aborted immediately.
+          * @return true if playback/encoding thread must be aborted; false otherwise.
+          * @note This method MUST be called regularly by LoadDeviceAudioData.
+          */
+        bool MustAbortPlayback();
+
     private:
 
         /** Allocates the Audio output buffers. Called by Init. */
@@ -159,8 +180,23 @@ class AudioOutputDevice {
         void DeallocateBuffers();
 
         bool m_usedefaultbuffers;
-        bool m_ok;                      /** Tells whether the output device was initialized correctly. */
-        bool m_playing;                 /** Set to true if playing is active. */
+
+
+        /** flag that indicates that playing is ACTUALLY taking place. */
+        bool m_playing;
+
+        /** flag that forbids playback when changing the device size */
+        bool m_changingparams;
+
+        /** flag that forbids playback when shutting down the device */
+        bool m_shuttingdown;
+
+        /** Tells whether the output device was initialized correctly. */
+        bool m_ok;
+
+        /** Mutex for thread safety */
+        syMutex* m_mutex;
+
         unsigned int m_bytespersample;  /** Current setting of bytes per sample */
         unsigned int m_freq;            /** Current sample frequency */
         unsigned int m_numchannels;     /** Number of audio channels for this device */
