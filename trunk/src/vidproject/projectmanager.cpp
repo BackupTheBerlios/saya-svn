@@ -11,19 +11,22 @@
 #pragma hdrstop
 #endif //__BORLANDC__
 
+#include "../iomgr/iocommon.h"
 #include "projectmanager.h"
 #include "vidproject.h"
-#include <wx/wx.h>
-#include <wx/ffile.h>
-#include <wx/filedlg.h>
+#include <string>
+
+// For internationalization
+#include <libintl.h>
+//
+
+using namespace std;
 
 static bool s_IsAppShuttingDown = false;
-const wxString APP_NAME = _T("SayaVideoEditor");
-const wxString APP_VENDOR = _T("Rick Garcia");
-const wxString APP_SHOWNAME = _T("Saya");
-const wxString APP_SHOWOFFNAME = _T("Saya - Swift audiovisual Authoring for You and Anyone");
-
-int idProjectStatusChanged = XRCID("idProjectStatusChanged");
+const std::string APP_NAME = "SayaVideoEditor";
+const std::string APP_VENDOR = "Rick Garcia";
+const std::string APP_SHOWNAME = "Saya";
+const std::string APP_SHOWOFFNAME = "Saya - Swift audiovisual Authoring for You and Anyone";
 
 bool IsAppShuttingDown() {
     return s_IsAppShuttingDown;
@@ -40,8 +43,13 @@ ProjectManager::ProjectManager() {
     m_project = 0;
     m_recentfiles.clear();
     m_recentfilesmodified = true;
-    m_MainFrame = NULL;
+    m_evthandler = NULL;
+    m_configprovider = NULL;
     m_clearundohistoryonsave = true;
+}
+
+void ProjectManager::SetConfigProvider(sayaConfigProvider* provider) {
+    m_configprovider = provider;
 }
 
 bool ProjectManager::GetClearUndoHistoryOnSave() {
@@ -53,8 +61,8 @@ void ProjectManager::SetClearUndoHistoryOnSave(bool flag) {
 }
 
 
-void ProjectManager::SetMainFrame(wxFrame* frame) {
-    m_MainFrame = frame;
+void ProjectManager::SetEventHandler(sayaEvtHandler* handler) {
+    m_evthandler = handler;
 }
 
 ProjectManager* ProjectManager::Get() {
@@ -79,13 +87,13 @@ bool ProjectManager::HasProject() {
     return (m_project != NULL);
 }
 
-const wxString ProjectManager::GetLastProjectDir() {
-    return m_LastProjectDir;
+const std::string ProjectManager::GetLastProjectDir() {
+    return m_lastprojectdir;
 }
 
-void ProjectManager::AddToRecentFiles(const wxString& s,bool fromthebeginning) {
+void ProjectManager::AddToRecentFiles(const std::string& s,bool fromthebeginning) {
 
-    if(s == wxEmptyString)
+    if(s.empty())
         return;
 
     if(!fromthebeginning && m_recentfiles.size() >= 9) {
@@ -112,9 +120,9 @@ void ProjectManager::AddToRecentFiles(const wxString& s,bool fromthebeginning) {
     m_recentfilesmodified = true;
 }
 
-void ProjectManager::AddToRecentImports(const wxString& s,bool fromthebeginning) {
+void ProjectManager::AddToRecentImports(const std::string& s,bool fromthebeginning) {
 
-    if(s == wxEmptyString)
+    if(s.empty())
         return;
 
     if(!fromthebeginning && m_recentimports.size() >= 9) {
@@ -155,20 +163,22 @@ void ProjectManager::ClearRecentImports() {
 
 bool ProjectManager::LoadConfig() {
     // TODO (rick#1#): Load configuration for the project manager
-    wxConfig* cfg = new wxConfig (APP_NAME);
-    wxString key;
-    wxString tmpname;
+    if(!m_configprovider) {
+        return false; // ERROR!
+    }
+    sayaConfig* cfg = m_configprovider->Create(APP_NAME);
+    std::string key;
+    std::string tmpname;
 
     // Read last used directory
-    key = _T("paths/LastProjectDir");
+    key = "paths/LastProjectDir";
     if (cfg->Exists(key))
-        m_LastProjectDir = cfg->Read(key,wxEmptyString);
-    key = _T("RecentProjects");
+        m_lastprojectdir = cfg->Read(key,"");
     int i;
     for(i = 1; i <= 9; i++) {
-        key.Printf(_T("RecentProjects/File%d"),i);
+        key = ioCommon::Printf(gettext("RecentProjects/File%d"),i);
         if(cfg->Exists(key)) {
-            tmpname = cfg->Read(key,wxEmptyString);
+            tmpname = cfg->Read(key,"");
             AddToRecentFiles(tmpname,false);
         }
     }
@@ -179,19 +189,23 @@ bool ProjectManager::LoadConfig() {
 
 bool ProjectManager::SaveConfig() {
     // TODO (rick#1#): Save configuration for the project manager
-    wxConfig* cfg = new wxConfig (APP_NAME);
-    wxString key;
+    if(!m_configprovider) {
+        return false; // ERROR!
+    }
+    sayaConfig* cfg = m_configprovider->Create(APP_NAME);
+    std::string key;
 
     // Save last used directory
-    cfg->Write (_T("paths/LastProjectDir"),m_LastProjectDir);
+    cfg->Write("paths/LastProjectDir",m_lastprojectdir);
 
     // Save Recent Projects list
 
+    key = "";
     size_t i;
     for(i = 0; i < 9; i++) {
-        key.Printf(_T("RecentProjects/File%d"),i+1);
+        key = ioCommon::Printf(gettext("RecentProjects/File%d"),i);
         if(i>=m_recentfiles.size()) {
-            cfg->Write(key,wxEmptyString);
+            cfg->Write(key,"");
         } else {
             cfg->Write(key,m_recentfiles[i]);
         }
@@ -201,56 +215,60 @@ bool ProjectManager::SaveConfig() {
     return true;
 }
 
-bool ProjectManager::LoadProject(const wxString filename) {
-    wxString data = wxEmptyString;
+bool ProjectManager::LoadProject(const std::string filename) {
+    std::string data("");
     bool result = false;
     CloseProject(true); // Close any project we have in memory
     VidProject* prj = VidProject::Load(filename,m_lasterror);
     if(prj != NULL) {
-        wxFileName fullname;
-        fullname.Assign(filename);
-        m_LastProjectDir = fullname.GetPath(); // Extract last project directory from opened file path
         AddToRecentFiles(filename);
+        m_lastprojectdir = ioCommon::GetPathname(filename); // Extract last project directory from opened file path
         m_project = prj;
         result = true;
     } else {
-        wxMessageBox(m_lasterror,_("Error loading project"),wxOK | wxICON_ERROR, m_MainFrame);
+        if(m_evthandler) {
+            m_evthandler->ErrorMessageBox(m_lasterror.c_str(),gettext("Error loading project"));
+        }
     }
     OnProjectStatusModified();
     return result;
 }
 
-const wxString ProjectManager::GetRecentProjectName(int fileno) {
+const std::string ProjectManager::GetRecentProjectName(int fileno) {
     int maxfileno = m_recentfiles.size();
     if(fileno < 1)
         fileno = 1;
     if(fileno >= maxfileno)
         fileno = maxfileno;
     if(!fileno)
-        return wxEmptyString; //
+        return ""; //
     fileno--; // Zero based now
     return m_recentfiles[fileno];
 }
 
-const wxString ProjectManager::GetOfflineProjectTitle(const wxString& filename) {
+const std::string ProjectManager::GetOfflineProjectTitle(const std::string& filename) {
     return VidProject::GetOfflineProjectTitle(filename);
 }
 
-wxString ProjectManager::GetRecentImportName(int fileno) {
+const std::string ProjectManager::GetOfflineProjectTitle(const char* filename) {
+    return VidProject::GetOfflineProjectTitle(std::string(filename));
+}
+
+std::string ProjectManager::GetRecentImportName(int fileno) {
     int maxfileno = m_recentimports.size();
     if(fileno < 1)
         fileno = 1;
     if(fileno >= maxfileno)
         fileno = maxfileno;
     if(!fileno)
-        return wxEmptyString; //
+        return ""; //
     fileno--; // Zero based now
     return m_recentimports[fileno];
 }
 
 bool ProjectManager::LoadRecentProject(int fileno) {
-    wxString filename = GetRecentProjectName(fileno);
-    if(filename.IsEmpty())
+    std::string filename = GetRecentProjectName(fileno);
+    if(filename.empty())
         return false;
     bool result = LoadProject(filename);
     OnProjectStatusModified();
@@ -263,13 +281,13 @@ bool ProjectManager::SaveProject() {
     return m_project->Save(); // Title update is invoked by the project saving method
 }
 
-bool ProjectManager::SaveProjectAs(const wxString filename) {
+bool ProjectManager::SaveProjectAs(const std::string filename) {
     if(!m_project)
         return false;
     return m_project->SaveAs(filename); // Title update is invoked by the project saving method
 }
 
-bool ProjectManager::SaveProjectCopy(const wxString filename) {
+bool ProjectManager::SaveProjectCopy(const std::string filename) {
     if(!m_project)
         return false;
     return m_project->SaveCopy(filename); // Title update is invoked by the project saving method
@@ -284,8 +302,13 @@ bool ProjectManager::InteractiveSaveProject() {
     } else {
         result = SaveProject();
         if(!result) {
-            int answer = wxMessageBox(_("Couldn't save the file! Try with a different name?"),_("Error saving"),wxYES_NO | wxICON_EXCLAMATION,m_MainFrame);
-            if(answer == wxYES) {
+            bool answer = false;
+            std::string msg = gettext("Couldn't save the file! Try with a different name?");
+            std::string caption = gettext("Error Saving");
+            if(m_evthandler) {
+                answer = m_evthandler->YesNoMessageBox(msg.c_str(),caption.c_str(),true);
+            }
+            if(answer) {
                 result = InteractiveSaveProjectAs();
             }
         }
@@ -296,29 +319,27 @@ bool ProjectManager::InteractiveSaveProject() {
 bool ProjectManager::InteractiveSaveProjectAs() {
     if(m_project == NULL)
         return true;
-    // TODO (rick#1#): Use default project directory for saving
-    // Show file save-as dialog and get filename, with overwrite prompt.
-
-    wxFileDialog mydialog(m_MainFrame,_("Save file as..."),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
     bool result = false;
-    if(mydialog.ShowModal() == wxID_OK) {
-        wxString filename = mydialog.GetPath(); // Gets full path including filename
+    std::string filename("");
+    if(m_evthandler != NULL) {
+        filename = m_evthandler->ShowDialogSaveProjectAs();
+    }
+    if(!filename.empty()) {
         result = SaveProjectAs(filename);
     }
     return result;
 }
 
 bool ProjectManager::InteractiveSaveProjectCopy() {
-    VidProject* prj = ProjectManager::Get()->GetProject();
-    if(prj == NULL)
+    if(m_project == NULL)
         return true;
-    // TODO (rick#1#): Use default project directory for saving
-    // Show file save-as dialog and get filename, with overwrite prompt.
-    wxFileDialog mydialog(m_MainFrame,_("Save Copy As"),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
     bool result = false;
-    if(mydialog.ShowModal() == wxID_OK) {
-        wxString filename = mydialog.GetPath(); // Gets full path including filename
-        result = ProjectManager::Get()->SaveProjectCopy(filename);
+    std::string filename("");
+    if(m_evthandler != NULL) {
+        filename = m_evthandler->ShowDialogSaveProjectCopyAs();
+    }
+    if(!filename.empty()) {
+        result = SaveProjectCopy(filename);
     }
     return result;
 }
@@ -329,17 +350,21 @@ bool ProjectManager::CloseProject(bool force) {
     bool result = (force || !(m_project->IsModified()));
     // If not modified (or forced), return success.
     if(!result) {
-        int answer = wxMessageBox(_("Project has been modified. Save?\nChoose 'Cancel' "
-        "to continue working on the project."),
-        _("Save project?"),wxYES_NO | wxCANCEL | wxICON_QUESTION,m_MainFrame);
-        if(answer == wxYES) {
+        sayaYesNoCancel answer = sayaNo;
+        if(m_evthandler != NULL) {
+            m_evthandler->YesNoCancelMessageBox(gettext("Project has been modified. Save?\nChoose 'Cancel' "
+            "to continue working on the project."),
+            gettext("Save project?"),false);
+        }
+        if(answer == sayaYes) {
             result = InteractiveSaveProject();
             if(!result) {
-                wxMessageBox(_("Could not save file! Project will not be closed."),
-                _("Info"),wxOK | wxICON_INFORMATION,m_MainFrame);
+                if(m_evthandler != NULL) {
+                    m_evthandler->ErrorMessageBox(gettext("Could not save file! Project will not be closed."), gettext("Info"));
+                }
             }
         } else {
-            result = (answer == wxNO); // if user chooses No (don't save), return success.
+            result = (answer == sayaNo); // if user chooses No (don't save), return success.
             // else (user chooses Cancel) return failure.
         }
     }
@@ -352,9 +377,8 @@ bool ProjectManager::CloseProject(bool force) {
 }
 
 void ProjectManager::OnProjectStatusModified() {
-    wxUpdateUIEvent event(idProjectStatusChanged);
-    if(m_MainFrame) {
-        wxPostEvent(m_MainFrame,event);
+    if(m_evthandler) {
+        m_evthandler->ProcessSayaEvent(sayaevt_ProjectStatusChanged);
     }
 }
 

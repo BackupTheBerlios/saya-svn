@@ -2,7 +2,7 @@
 #define AVCOMMON_H
 
 #include <map>
-#include <wx/string.h>
+#include <string>
 /***************************************************************
  * Name:      avcommon.h
  * Purpose:   Common classes and definitions for timeline handling
@@ -50,7 +50,7 @@ enum AudioBitSize /** Audio sample size */
     ABS16bit
 };
 
-typedef std::map<wxString,wxString> propertymap;
+typedef std::map<std::string,std::string> propertymap;
 
 class serializable {
     public:
@@ -60,13 +60,13 @@ class serializable {
          *  @param data The data to unserialize into the object
          *  @return the result. true if successful.
          */
-        virtual bool unserialize(const wxString& data);
+        virtual bool unserialize(const std::string& data);
 
         /** Compresses the object data into a serialized string format.
          *  @param data The data to unserialize into the object
          *  @return The serialized data
          */
-        virtual wxString serialize();
+        virtual std::string serialize();
 
         virtual ~serializable() {}
 };
@@ -114,13 +114,13 @@ class AVSettings: public serializable {
         unsigned int channels;
 
         /** Specifies the container format of the video. */
-        wxString vidformat;
+        std::string vidformat;
 
         /** Specifies the codec in which the video is encoded. */
-        wxString videocodec;
+        std::string videocodec;
 
         /** Specifies the codec in which the audio is encoded. */
-        wxString audiocodec;
+        std::string audiocodec;
 
         /** Specifies the settings for the video codec. */
         propertymap videocodecsettings;
@@ -132,10 +132,10 @@ class AVSettings: public serializable {
         propertymap formatsettings;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const wxString& data);
+        virtual bool unserialize(const std::string& data);
 
         /** @see serializable::serialize */
-        virtual wxString serialize();
+        virtual std::string serialize();
 };
 
 #endif

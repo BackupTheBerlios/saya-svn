@@ -12,8 +12,6 @@
 
 #include "vidproject.h"
 #include <deque>
-#include <wx/wx.h>
-using namespace std;
 
 /** Tells whether the application is shutting down. */
 bool IsAppShuttingDown();
@@ -21,12 +19,111 @@ bool IsAppShuttingDown();
 /** Sets the flag that forbids a new Project Manager instance to be created. */
 void ShutDownApp();
 
-extern const wxString APP_NAME; /** The application's name. */
-extern const wxString APP_VENDOR; /** The application vendor's name (me) */
-extern const wxString APP_SHOWNAME; /** The application's official name */
-extern const wxString APP_SHOWOFFNAME; /** The application's name and tagline for showing off */
+extern const std::string APP_NAME; /** The application's name. */
+extern const std::string APP_VENDOR; /** The application vendor's name (that would be moi) */
+extern const std::string APP_SHOWNAME; /** The application's official name */
+extern const std::string APP_SHOWOFFNAME; /** The application's name and tagline for showing off */
 
-extern int idProjectStatusChanged; /** Used to send an UpdateUI event to the mainframe, to change the frame's title. */
+/** Used for UI-toolkit-independent event handling */
+enum sayaEventType {
+    sayaevt_DoNothing = 0,
+    sayaevt_ProjectStatusChanged
+};
+
+/** Used for Yes/No/Cancel dialogs */
+enum sayaYesNoCancel {
+    sayaYes = 0,
+    sayaNo,
+    sayaCancel
+};
+
+/** @brief Abstract UI-toolkit-independent Event Handler.
+  *
+  * In an effort to make Saya as independent as possible regarding UI Toolkits, we're using
+  * a wrapper class for your main event handler to deal with user interaction.
+  * All strings passed and received are ANSI strings in multibyte format.
+  * @note To receive project-related events, you must call ProjectMananger::SetEventHandler.
+  */
+class sayaEvtHandler {
+    public:
+        /** Standard constructor */
+        sayaEvtHandler() {}
+
+        /** Standard destructor */
+        virtual ~sayaEvtHandler() {}
+
+        /** Event processing function */
+        virtual void ProcessSayaEvent(sayaEventType id, void* data = NULL) = 0;
+
+        /** Shows an Error message box */
+        virtual void ErrorMessageBox(const char* msg,const char* caption) = 0;
+
+        /** Shows a yes/no message box and returns the answer (true = yes, false = no) */
+        virtual bool YesNoMessageBox(const char* msg,const char* caption,bool exclamation) = 0;
+
+        /** Shows a yes/no/cancel message box and returns the answer */
+        virtual sayaYesNoCancel YesNoCancelMessageBox(const char* msg,const char* caption,bool exclamation) = 0;
+
+        /** Shows the "Save Project As" dialog */
+        virtual std::string ShowDialogSaveProjectAs() = 0;
+
+        /** Shows the "Save Project Copy As" dialog */
+        virtual std::string ShowDialogSaveProjectCopyAs() = 0;
+
+};
+
+/** Abstract Cross-platform Configuration class.
+  *
+  * @note All strings passed and received are ANSI strings in multibyte format.
+  */
+class sayaConfig {
+    public:
+
+        /** Standard constructor */
+        sayaConfig(std::string application_name) {}
+
+        /** Standard destructor */
+        virtual ~sayaConfig() {};
+
+        /** @brief Reads a string configuration value.
+          *
+          * @param key The key to read the configuration value from.
+          * @param defaultvalue The default value to return, if the value is not found.
+          * @return The value of the read configuration.
+          */
+        virtual std::string Read(const std::string& key, const std::string& defaultvalue) = 0;
+
+        /** @brief Writes a string configuration value.
+          *
+          * @param key The key to write the configuration value into.
+          * @param value The value to write.
+          * @return true on success; false otherwise.
+          */
+        virtual bool Write(const std::string& key, const std::string& value) = 0;
+
+        /** @brief Checks if a configuration key exists.
+          *
+          * @param key The key to search in the config.
+          * @return true if the key exists; false otherwise.
+          */
+        virtual bool Exists(const std::string& key) = 0;
+};
+
+/** Abstract Cross-platform Configuration Provider class.
+  *
+  * This class creates a Configuration object for you to use.
+  * @note All strings passed and received are ANSI strings in multibyte format.
+  */
+class sayaConfigProvider {
+    public:
+        /** Standard Constructor */
+        sayaConfigProvider() {};
+
+        /** Standard Destructor */
+        virtual ~sayaConfigProvider() {};
+
+        virtual sayaConfig* Create(const std::string application_name) = 0;
+};
 
 
 /** @class ProjectManager
@@ -51,7 +148,7 @@ class ProjectManager
         /** Standard destructor. */
         virtual ~ProjectManager();
 
-        bool LoadProject(const wxString filename);
+        bool LoadProject(const std::string filename);
         /** @brief Loads a project from disk.
           *
           * @param filename The project's filename.
@@ -69,7 +166,7 @@ class ProjectManager
           * @param filename The New filename for the project.
           * @return True on success, false otherwise.
           */
-        bool SaveProjectAs(const wxString filename);
+        bool SaveProjectAs(const std::string filename);
 
         /** @brief Saves a copy of the project under the specified filename.
           *
@@ -77,7 +174,7 @@ class ProjectManager
           * @return True on success, false otherwise.
           * @note Save Project copy does not alter the project's unsaved status!
           */
-        bool SaveProjectCopy(const wxString filename);
+        bool SaveProjectCopy(const std::string filename);
 
         /** @brief Saves file, or shows the "Save As..." dialog to the user if the project is new.
           * @note All errors are handled and if the file cannot be saved, options are given to the user.
@@ -127,10 +224,16 @@ class ProjectManager
           * Call this from your main program to specify which frame will
           * receive the events.
           */
-        void SetMainFrame(wxFrame* frame);
+        void SetEventHandler(sayaEvtHandler* handler);
+
+        /** Sets the Configuration provider.
+          *
+          * @note You MUST call this method from your program after creating the project manager.
+          */
+        void SetConfigProvider(sayaConfigProvider* provider);
 
         /** Gets the last used project directory */
-        const wxString GetLastProjectDir();
+        const std::string GetLastProjectDir();
 
         // Recent Projects and Imported files
 
@@ -139,35 +242,37 @@ class ProjectManager
           * @param s The filename to be added to the list.
           * @param fromthebeginning Tells whether to prepend the file at the beginning, or append it to the end.
           */
-        void AddToRecentFiles(const wxString& s,bool fromthebeginning = true);
+        void AddToRecentFiles(const std::string& s,bool fromthebeginning = true);
 
         /** @brief Adds a filename to the Recently Imported files list.
           *
           * @param s The filename to be added to the list.
           * @param fromthebeginning Tells whether to prepend the file at the beginning, or append it to the end.
           */
-        void AddToRecentImports(const wxString& s,bool fromthebeginning = true);
+        void AddToRecentImports(const std::string& s,bool fromthebeginning = true);
 
         /** @brief Gets the filename for the nth recently opened project.
           *
           * @param fileno The index of the filename to retrieve (from 1 to 9)
           * @return The filename corresponding to the nth entry in the Recent Projects list.
           */
-        const wxString GetRecentProjectName(int fileno);
+        const std::string GetRecentProjectName(int fileno);
 
         /** @brief Gets an offline project's Title
           * A proxy for VidProject::GetOfflineProjectTitle
           * @param filename The filename of the project
           * @return The project's title
           */
-        const wxString GetOfflineProjectTitle(const wxString& filename);
+        const std::string GetOfflineProjectTitle(const std::string& filename);
+
+        const std::string GetOfflineProjectTitle(const char* filename);
 
         /** @brief Gets the filename for the nth recently imported file.
           *
           * @param fileno The index of the filename to retrieve (from 1 to 9)
           * @return The filename corresponding to the nth entry in the Recently Imported files list.
           */
-        wxString GetRecentImportName(int filenmo);
+        std::string GetRecentImportName(int filenmo);
 
         /** Clears the Recent Projects file list. */
         void ClearRecentFiles();
@@ -188,10 +293,10 @@ class ProjectManager
         bool m_recentimportsmodified;
 
         /** A list of the most recently opened project files. */
-        deque<wxString> m_recentfiles;
+        std::deque<std::string> m_recentfiles;
 
         /** A list of the most recently imported clips. */
-        deque<wxString> m_recentimports;
+        std::deque<std::string> m_recentimports;
 
         /** @brief Gets the current project manager instance, or creates one.
           *
@@ -213,7 +318,7 @@ class ProjectManager
         bool HasProject();
 
         /** Stores the last program error */
-        wxString m_lasterror;
+        std::string m_lasterror;
 
         /** Tells whether to clear the Undo History after the project's successfully saved. */
         bool m_clearundohistoryonsave;
@@ -227,10 +332,13 @@ class ProjectManager
         VidProject* m_project;
 
         /** The last used project directory */
-        wxString m_LastProjectDir;
+        std::string m_lastprojectdir;
 
-        /** A pointer to the program's main frame */
-        wxFrame* m_MainFrame;
+        /** A pointer to the program's event handler */
+        sayaEvtHandler* m_evthandler;
+
+        /** A pointer to the program's config provider */
+        sayaConfigProvider* m_configprovider;
 };
 
 #endif // PROJECTMANAGER_H

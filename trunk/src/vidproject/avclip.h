@@ -10,7 +10,7 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
-#include <wx/string.h>
+#include <string>
 #include <vector>
 #include <map>
 #include <deque>
@@ -65,10 +65,10 @@ class AVClip: public serializable {
         virtual ~AVClip();
 
         /** @brief Loads serialized data. @see serializable::unserialize() */
-        virtual bool unserialize(const wxString& data);
+        virtual bool unserialize(const std::string& data);
 
         /** @brief Saves serialized data. @see serializable::serialize() */
-        virtual wxString serialize();
+        virtual std::string serialize();
 
 
         ClipType m_ClipType;       /// The type of clip we're storing in the timeline. @see ClipType
@@ -216,7 +216,7 @@ class AVClip: public serializable {
           * Markers are stored as an STL map of strings. The index corresponds to a moment in time,
           * while the string is the desired marker.
           */
-        std::map<unsigned int,wxString> m_Markers; // A map that goes time => marker_id.
+        std::map<unsigned int,std::string> m_Markers; // A map that goes time => marker_id.
 
         /** @brief Links to the synchronized video/audio clip. Use 0 for no link.
           *
@@ -273,7 +273,7 @@ class AVSequence: public serializable {
         /** Standard constructor. */
         AVSequence();
 
-        wxString m_SeqName; /// User-friendly name for the sequence.
+        std::string m_SeqName; /// User-friendly name for the sequence.
 
         /** @brief Resource Id for the sequence.
           *
@@ -306,10 +306,10 @@ class AVSequence: public serializable {
         unsigned int m_EndWorkArea;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const wxString& data);
+        virtual bool unserialize(const std::string& data);
 
         /** @see serializable::serialize */
-        virtual wxString serialize();
+        virtual std::string serialize();
 
         /** Standard destructor. */
         virtual ~AVSequence() {}
@@ -349,10 +349,10 @@ class AVTrack:public serializable {
         virtual ~AVTrack();
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const wxString& data);
+        virtual bool unserialize(const std::string& data);
 
         /** @see serializable::serialize */
-        virtual wxString serialize();
+        virtual std::string serialize();
 };
 
 class AVTimeline:public serializable {
@@ -366,10 +366,10 @@ class AVTimeline:public serializable {
         std::vector<AVSequence> m_Sequences;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const wxString& data);
+        virtual bool unserialize(const std::string& data);
 
         /** @see serializable::serialize */
-        virtual wxString serialize();
+        virtual std::string serialize();
 };
 
 class AVResource:public serializable {
@@ -392,20 +392,20 @@ class AVResource:public serializable {
           * startup based on m_RelativeFilename and the project's
           * path.
           */
-        wxString m_Filename;
+        std::string m_Filename;
 
         /** @brief The relative filename for the resource.
           *
           * Resources are stored in a directory below the project's path.
           * This way they can easily be located and transported.
           */
-        wxString m_RelativeFilename;
+        std::string m_RelativeFilename;
 
         /** @brief Resource's icon.
           *
           * The icon is stored in 64x64 JPEG, encoded in base64.
           */
-        wxString m_Icon; // 64x64 JPEG icon encoded with base64
+        std::string m_Icon; // 64x64 JPEG icon encoded with base64
 
         /** @brief Video Settings for the clip.
           *
@@ -414,10 +414,10 @@ class AVResource:public serializable {
         AVSettings m_AVSettings;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const wxString& data);
+        virtual bool unserialize(const std::string& data);
 
         /** @see serializable::serialize */
-        virtual wxString serialize();
+        virtual std::string serialize();
 };
 
 typedef std::map<unsigned int, AVResource> AVResources;

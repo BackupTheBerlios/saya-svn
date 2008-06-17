@@ -72,8 +72,6 @@
 		<Unit filename="vidproject/projectmanager.h" />
 		<Unit filename="vidproject/tinyxml/tinystr.cpp" />
 		<Unit filename="vidproject/tinyxml/tinystr.h" />
-		<Unit filename="vidproject/tinyxml/tinywxuni.cpp" />
-		<Unit filename="vidproject/tinyxml/tinywxuni.h" />
 		<Unit filename="vidproject/tinyxml/tinyxml.cpp" />
 		<Unit filename="vidproject/tinyxml/tinyxml.h" />
 		<Unit filename="vidproject/tinyxml/tinyxmlerror.cpp" />

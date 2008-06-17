@@ -10,9 +10,9 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
-#include <wx/string.h>
 #include <map>
 #include <deque>
+#include <string>
 #include "avclip.h"
 #include "undohistory.h"
 
@@ -40,12 +40,12 @@ class VidProject:public serializable
         /** @brief Loads the project from XML data.
           * @see serializable::unserialize
           */
-        virtual bool unserialize(const wxString& data);
+        virtual bool unserialize(const std::string& data);
 
         /** @brief Saves the project into XML data.
           * @see serializable::serialize
           */
-        virtual wxString serialize();
+        virtual std::string serialize();
 
         /** @brief Loads a project from disk.
           *
@@ -55,7 +55,7 @@ class VidProject:public serializable
           * @param errortext The text of the error (if any).
           * @return a pointer to the newly created project.
           */
-        static VidProject* Load(const wxString filename,wxString &errortext);
+        static VidProject* Load(const std::string filename,std::string &errortext);
 
         /** @brief Saves the project under its current filename.
           * @return True on success; false otherwise.
@@ -67,14 +67,14 @@ class VidProject:public serializable
           * The project will adopt the new filename if successful.
           * @return True on success; false otherwise.
           */
-        bool SaveAs(const wxString filename);
+        bool SaveAs(const std::string filename);
 
         /** @brief Saves a copy of the project with another filename.
           *
           * The project's unsaved status will remain untouched.
           * @return True on success; false otherwise.
           */
-        bool SaveCopy(const wxString filename);
+        bool SaveCopy(const std::string filename);
 
         /** @brief Reverts the project to the original state after it was loaded from disk.
           *
@@ -97,7 +97,7 @@ class VidProject:public serializable
           * @param filename The filename of the project
           * @return The project's title
           */
-        static const wxString GetOfflineProjectTitle(const wxString& filename);
+        static const std::string GetOfflineProjectTitle(const std::string& filename);
 
         // Undo History management functions
 
@@ -117,16 +117,16 @@ class VidProject:public serializable
         void Redo();
 
         /** Saves the current state in an undo slot, and stores the operation's name. */
-        void PushUndo(const wxString OpName);
+        void PushUndo(const std::string OpName);
 
         /** Gets the name for the last done operation. */
-        const wxString GetUndoOpname();
+        const std::string GetUndoOpname();
 
         /** Gets the name for the last undone operation. */
-        const wxString GetRedoOpname();
+        const std::string GetRedoOpname();
 
         /** Gets the name for the operation done after state idx. */
-        const wxString GetUndoHistoryOpName(unsigned int idx);
+        const std::string GetUndoHistoryOpName(unsigned int idx);
 
         /** Gets the current undo slot. */
         unsigned int GetUndoIdx();
@@ -144,10 +144,10 @@ class VidProject:public serializable
         bool m_NeedsExportSettings;
 
         /** Project's Title */
-        wxString m_Title;
+        std::string m_Title;
 
         /** Project's filename */
-        wxString m_Filename;
+        std::string m_Filename;
 
         /** Is the project new (it hasn't been saved yet)? */
         bool IsNew();
@@ -159,18 +159,18 @@ class VidProject:public serializable
         /** Project's modified flag */
         bool m_IsModified;
         /** Saves the project to a given filename. */
-        bool SaveToFile(const wxString &filename);
+        bool SaveToFile(const std::string &filename);
 
         /** Project's original state as loaded from disk. */
-        wxString m_OriginalXML;
+        std::string m_OriginalXML;
 
         /** Undo History Stack. @see UndoHistoryClass */
         UndoHistoryClass m_UndoHistory;
 
         /** Saves project's current state. */
-        void SaveState(wxString& data);
+        void SaveState(std::string& data);
         /** Loads specified state from the project. */
-        bool LoadState(const wxString& data);
+        bool LoadState(const std::string& data);
 
         /** The data for the sequences and clips in the project. */
         AVTimeline m_Timeline; // the data for all clips

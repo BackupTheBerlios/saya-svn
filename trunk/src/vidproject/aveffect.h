@@ -21,7 +21,7 @@ class FXParamKeyFrame {
          *  The variable is of string type for better flexibility. This is an intermediate format;
          *  more efficient data structures will be used to pass the actual parameters to the renderer.
          */
-        wxString datum;
+        std::string datum;
 
         /** Standard constructor. */
         FXParamKeyFrame();
@@ -41,7 +41,7 @@ typedef std::map<unsigned int,FXParamKeyFrame> FXParamTimeline;
   * Each parameter has its own timeline, so we'll be able to play with the curves and modify keyframes as
   * we please.
   */
-typedef std::map<wxString,FXParamTimeline> FXParameterList;
+typedef std::map<std::string,FXParamTimeline> FXParameterList;
 
 class AVEffectParamDeclaration: public serializable {
     public:
@@ -56,31 +56,31 @@ class AVEffectParamDeclaration: public serializable {
          *
          * Parameters can use the suffixes ".x" and ".y" to choose a point in the clip's area.
          */
-        wxString ParamName;
+        std::string ParamName;
 
         /** The parameter's description as it will appear in the effects window. */
-        wxString Description;
+        std::string Description;
 
         /** The parameter's description as it will appear in the help dialog. */
-        wxString LongDescription; // The parameter's Long Description as it will appear in the help dialog.
+        std::string LongDescription; // The parameter's Long Description as it will appear in the help dialog.
 
         /** Defines a tooltip for the parameter. */
-        wxString Tooltip;
+        std::string Tooltip;
 
         /** @brief Defines the parameter type.
           *
-          * It must be a C++ basic data type, except for "string" which will be interpreted as wxString.
+          * It must be a C++ basic data type, except for "string" which will be interpreted as std::string.
           */
-        wxString ParamType;
+        std::string ParamType;
 
         /** Defines the minimum value for the parameter. */
-        wxString MinValue;
+        std::string MinValue;
 
         /** Defines the maximum value for the parameter. */
-        wxString MaxValue;
+        std::string MaxValue;
 
         /** Defines the default value for the parameter. */
-        wxString DefaultValue;
+        std::string DefaultValue;
 
         /** @brief Specifies the widget type used to modify the parameter.
           *
@@ -93,13 +93,13 @@ class AVEffectParamDeclaration: public serializable {
           * "angle" (for rotation effects)
           * "xyangle" (for 3D rotation effects)
           */
-        wxString WidgetType;
+        std::string WidgetType;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const wxString& data);
+        virtual bool unserialize(const std::string& data);
 
         /** @see serializable::serialize */
-        virtual wxString serialize();
+        virtual std::string serialize();
 };
 
 class AVEffectDeclaration : public serializable {
@@ -120,24 +120,24 @@ class AVEffectDeclaration : public serializable {
           * must be of alphanumeric / underscore. First character must be alphabetic.
           * @note the namespaces "saya" and "openvip" are reserved.
           */
-        wxString EffectId;
+        std::string EffectId;
         /** Displayable effect name. */
-        wxString DisplayName; // Displayable effect name
+        std::string DisplayName; // Displayable effect name
         /** Short description for the effect (like in a tooltip). */
-        wxString ShortDescription; // for tooltip
+        std::string ShortDescription; // for tooltip
         /** Long description for the effect for documentation / help. */
-        wxString LongDescription; // For documentation and help
+        std::string LongDescription; // For documentation and help
         /** @brief The declaration for the parameters.
           *
           * @see AVEffectParamDeclaration
           */
-        std::map<wxString,AVEffectParamDeclaration> ParametersInfo;
+        std::map<std::string,AVEffectParamDeclaration> ParametersInfo;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const wxString& data);
+        virtual bool unserialize(const std::string& data);
 
         /** @see serializable::serialize */
-        virtual wxString serialize();
+        virtual std::string serialize();
 };
 
 class AVEffect : public serializable {
@@ -155,7 +155,7 @@ class AVEffect : public serializable {
           *
           * @see AVEffectDeclaration::EffectId
           */
-        wxString EffectId; // Effect's ID
+        std::string EffectId; // Effect's ID
         /** @brief The effect's parameters.
           *
           * @see FXParameterList
@@ -173,14 +173,14 @@ class AVEffect : public serializable {
         unsigned int m_EndTime;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const wxString& data);
+        virtual bool unserialize(const std::string& data);
 
         /** @see serializable::serialize */
-        virtual wxString serialize();
+        virtual std::string serialize();
 };
 
 /** An associative array of string parameters */
-typedef std::map<wxString,wxString> TransitionParameters;
+typedef std::map<std::string,std::string> TransitionParameters;
 
 class AVTransition : public serializable {
     public:
@@ -193,7 +193,7 @@ class AVTransition : public serializable {
           *
           * Tells which transition effect we're applying
           */
-        wxString TransitionId; // Transition's ID
+        std::string TransitionId; // Transition's ID
 
         /** parameters for the transition */
         TransitionParameters m_Parameters;
@@ -209,10 +209,10 @@ class AVTransition : public serializable {
         virtual ~AVTransition();
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const wxString& data);
+        virtual bool unserialize(const std::string& data);
 
         /** @see serializable::serialize */
-        virtual wxString serialize();
+        virtual std::string serialize();
 };
 
 

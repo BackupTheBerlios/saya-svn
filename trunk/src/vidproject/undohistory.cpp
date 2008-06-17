@@ -47,25 +47,25 @@ bool UndoHistoryClass::IsNextEof() {
     return ((m_State + 1) >= m_queue.size());
 }
 
-bool UndoHistoryClass::RestoreFromCurrentSlot(wxString& data) {
+bool UndoHistoryClass::RestoreFromCurrentSlot(std::string& data) {
     if(IsEof()) return false;
     data = m_queue[m_State].data;
     return true;
 }
 
-void UndoHistoryClass::SaveIntoCurrentSlot(const wxString Opname, const wxString& data) {
+void UndoHistoryClass::SaveIntoCurrentSlot(const std::string Opname, const std::string& data) {
     UndoState tmpstate(Opname,data);
     if(!IsEof()) {
         m_queue[m_State] = tmpstate;
     } else {
         m_queue.push_back(tmpstate);
-        m_UsedSize +=  data.Len()* sizeof(wxChar);
+        m_UsedSize +=  data.length()* sizeof(wxChar);
     }
 }
 
 void UndoHistoryClass::PopBack() {
     unsigned long freedmemory;
-    freedmemory = m_queue[m_queue.size() - 1].data.Len() * sizeof(wxChar);
+    freedmemory = m_queue[m_queue.size() - 1].data.length() * sizeof(wxChar);
     m_queue.pop_back();
     if(m_UsedSize <= freedmemory) {
         m_UsedSize = 0;
@@ -78,7 +78,7 @@ void UndoHistoryClass::PopFront() {
     if(!m_queue.size())
         return;
     unsigned long freedmemory;
-    freedmemory = m_queue[0].data.Len() * sizeof(wxChar);
+    freedmemory = m_queue[0].data.length() * sizeof(wxChar);
     m_queue.pop_front();
     if(m_State) {
         m_State--; // Shift state index, too!
@@ -90,21 +90,21 @@ void UndoHistoryClass::PopFront() {
     }
 }
 
-const wxString UndoHistoryClass::GetOpname(unsigned int idx) {
+const std::string UndoHistoryClass::GetOpname(unsigned int idx) {
     if(idx < m_queue.size()) {
         return m_queue[idx].nextOp;
     }
-    return wxEmptyString;
+    return "";
 }
 
-bool UndoHistoryClass::Undo(wxString& data, const wxString& curstatedata) {
+bool UndoHistoryClass::Undo(std::string& data, const std::string& curstatedata) {
     if(!m_queue.size() || !m_State) {
         return false;
     }
 
 //    1. if(IsEof()) Save state in current slot with an empty transition name;
     if(IsEof()) {
-        SaveIntoCurrentSlot(wxEmptyString, curstatedata);
+        SaveIntoCurrentSlot("", curstatedata);
     }
 //    2. if(curpos) { curpos--; restore state; }
     bool result = false;
@@ -115,7 +115,7 @@ bool UndoHistoryClass::Undo(wxString& data, const wxString& curstatedata) {
     return result;
 }
 
-bool UndoHistoryClass::Redo(wxString& data) {
+bool UndoHistoryClass::Redo(std::string& data) {
 
 //    1. if(!IsNextEof()) { curpos++; restore state; }
     bool result = false;
@@ -126,7 +126,7 @@ bool UndoHistoryClass::Redo(wxString& data) {
     return result;
 }
 
-void UndoHistoryClass::PushUndo(const wxString Opname,const wxString& data) {
+void UndoHistoryClass::PushUndo(const std::string Opname,const std::string& data) {
 
 //    1. while(!IsNextEof()) delete the topmost state.
     while(!IsNextEof()) {
@@ -155,16 +155,16 @@ void UndoHistoryClass::CheckMemUsage() {
     }
 }
 
-const wxString UndoHistoryClass::GetUndoOpname() {
+const std::string UndoHistoryClass::GetUndoOpname() {
     if(m_State && m_queue.size() >= m_State) {
         return m_queue[m_State - 1].nextOp;
     }
-    return wxEmptyString;
+    return "";
 }
 
-const wxString UndoHistoryClass::GetRedoOpname() {
+const std::string UndoHistoryClass::GetRedoOpname() {
     if(!IsNextEof()) {
         return m_queue[m_State].nextOp;
     }
-    return wxEmptyString;
+    return "";
 }

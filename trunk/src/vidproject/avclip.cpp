@@ -19,12 +19,12 @@ AVClip::~AVClip()
     //dtor
 }
 
-bool AVClip::unserialize(const wxString& data) {
+bool AVClip::unserialize(const std::string& data) {
     return false;
 }
 
-wxString AVClip::serialize() {
-    return wxEmptyString;
+std::string AVClip::serialize() {
+    return "";
 }
 
 AVTimeline::AVTimeline() {
@@ -33,12 +33,12 @@ AVTimeline::AVTimeline() {
 AVTimeline::~AVTimeline() {
 }
 
-bool AVTimeline::unserialize(const wxString& data) {
+bool AVTimeline::unserialize(const std::string& data) {
     return false;
 }
 
-wxString AVTimeline::serialize() {
-    return wxEmptyString;
+std::string AVTimeline::serialize() {
+    return "";
 }
 
 AVResource::AVResource() {
@@ -47,11 +47,11 @@ AVResource::AVResource() {
 AVResource::~AVResource() {
 }
 
-bool AVResource::unserialize(const wxString& data) {
+bool AVResource::unserialize(const std::string& data) {
     return false;
 }
 
-wxString AVResource::serialize() {
-    return wxEmptyString;
+std::string AVResource::serialize() {
+    return "";
 }
 

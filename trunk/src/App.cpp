@@ -30,9 +30,33 @@
 
 IMPLEMENT_APP(App);
 
-
 BEGIN_EVENT_TABLE( App, wxApp )
 END_EVENT_TABLE()
+
+AppConfig::AppConfig(std::string application_name) : sayaConfig(application_name) {
+    m_config = new wxConfig(wxString(application_name.c_str(),wxConvUTF8));
+}
+
+std::string AppConfig::Read(const std::string& key, const std::string& defaultvalue) {
+    return std::string(m_config->Read(wxString(key.c_str(),wxConvUTF8),wxString(defaultvalue.c_str(),wxConvUTF8)).mb_str());
+}
+
+bool AppConfig::Write(const std::string& key, const std::string& value) {
+    return m_config->Write(wxString(key.c_str(),wxConvUTF8),wxString(value.c_str(),wxConvUTF8));
+}
+
+bool AppConfig::Exists(const std::string& key) {
+    return m_config->Exists(wxString(key.c_str(),wxConvUTF8));
+}
+
+AppConfig::~AppConfig() {
+    delete m_config;
+    m_config = NULL;
+}
+
+sayaConfig* AppConfigProvider::Create(const std::string application_name) {
+    return new AppConfig(application_name);
+}
 
 bool App::LoadConfig()
 {
@@ -43,6 +67,7 @@ bool App::LoadConfig()
 
 void App::InitManagers() {
     ProjectManager::Get();
+    ProjectManager::Get()->SetConfigProvider(&m_configprovider);
 }
 
 bool App::LoadXRCResources() {
@@ -80,7 +105,7 @@ bool App::OnInit()
     }
 
     AppFrame* frame = new AppFrame(NULL, _("Saya - Swift audiovisual Authoring for You and Anyone"));
-    ProjectManager::Get()->SetMainFrame(frame);
+    ProjectManager::Get()->SetEventHandler(frame);
     SetTopWindow(frame);
 
 	return wxsOK;

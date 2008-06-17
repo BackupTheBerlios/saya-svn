@@ -1,48 +1,48 @@
 #include "avcommon.h"
+#include <sstream>
+using namespace std;
 
-
-wxString serializable::serialize() {
-    return _T("<null />");
+std::string serializable::serialize() {
+    return "<null />";
 }
 
-bool serializable::unserialize(const wxString& data) {
+bool serializable::unserialize(const std::string& data) {
     return false;
 }
 
-wxString AVSettings::serialize() {
-    wxString result;
-    wxString opentag = _T("<AVSettings");
-    wxString closetag = _T("</AVSettings>");
+std::string AVSettings::serialize() {
+    std::string result;
+    std::string opentag = "<AVSettings";
+    std::string closetag = "</AVSettings>";
     propertymap::iterator iter;
 
-    wxString attributes;
-    wxString attr;
-    attributes += wxString::Format(_T(" width=\"%d\""),width);
-    attributes += wxString::Format(_T(" height=\"%d\""),height);
-    attributes += wxString::Format(_T(" aspectratio=\"%f\""),aspectratio);
-    attributes += wxString::Format(_T(" fps=\"%f\""),fps);
-    attributes += wxString::Format(_T(" fps=\"%f\""),fps);
-    result = opentag + attributes + _T(">");
-    result += wxString(_T("<vidformat type=\"")) + vidformat + _T("\">");
+    std::stringstream attributes;
+    std::string attr;
+    attributes << " width=\"" << width << "\"";
+    attributes << " hegiht=\"" << height << "\"";
+    attributes << " aspectratio=\"" << aspectratio << "\"";
+    attributes << " fps=\"" << fps << "\"";
+    result = opentag + attributes.str() + ">";
+    result += std::string("<vidformat type=\"") + vidformat + "\">";
     for(iter = formatsettings.begin();iter != formatsettings.end(); iter++) {
-        result += wxString(_T("<item name=\"")) + iter->first + _T("\">") + iter->second + _T("</item>");
+        result += std::string("<item name=\"") + iter->first + "\">" + iter->second + "</item>";
     }
-    result += _T("</vidformat>");
-    result += wxString(_T("<videocodec type=\"")) + videocodec + _T("\">");
+    result += "</vidformat>";
+    result += std::string("<videocodec type=\"") + videocodec + "\">";
     for(iter = videocodecsettings.begin();iter != videocodecsettings.end(); iter++) {
-        result += wxString(_T("<item name=\"")) + iter->first + _T("\">") + iter->second + _T("</item>");
+        result += std::string("<item name=\"") + iter->first + "\">" + iter->second + "</item>";
     }
-    result += _T("</videocodec>");
-    result += wxString(_T("<audioocodec type=\"")) + audiocodec + _T("\">");
+    result += "</videocodec>";
+    result += std::string("<audioocodec type=\"") + audiocodec + "\">";
     for(iter = audiocodecsettings.begin();iter != audiocodecsettings.end(); iter++) {
-        result += wxString(_T("<item name=\"")) + iter->first + _T("\">") + iter->second + _T("</item>");
+        result += std::string("<item name=\"") + iter->first + "\">" + iter->second + "</item>";
     }
-    result += _T("</audiocodec>");
+    result += "</audiocodec>";
     result += closetag;
     return result;
 }
 
-bool AVSettings::unserialize(const wxString& data) {
-// TODO (rick#1#): Implement me!
+bool AVSettings::unserialize(const std::string& data) {
+// FIXME (rick#1#): Implement me!
     return false;
 }

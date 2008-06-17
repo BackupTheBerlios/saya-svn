@@ -7,11 +7,11 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
+#include "../iomgr/iocommon.h"
 #include "vidproject.h"
 #include "projectmanager.h"
-#include <wx/ffile.h>
-#include "tinyxml/tinywxuni.h"
 #include "tinyxml/tinyxml.h"
+#include <libintl.h>
 
 AVSettings::AVSettings() {
     ResetToDefaults();
@@ -25,34 +25,34 @@ void AVSettings::ResetToDefaults() {
     height = 480;
     aspectratio = ARWide;
     fps = 29.997;
-    vidformat = _T("avi");
-    videocodec = _T("");
-    audiocodec = _T("");
+    vidformat = "avi";
+    videocodec = "";
+    audiocodec = "";
     videocodecsettings.clear();
     audiocodecsettings.clear();
     formatsettings.clear();
 }
 
-bool VidProject::unserialize(const wxString& data) {
-    // TODO (rick#1#): Implement me!
+bool VidProject::unserialize(const std::string& data) {
+    // FIXME (rick#1#): Implement me!
     Clear();
     return true;
 }
 
-wxString VidProject::serialize() {
-    // TODO (rick#1#): Implement me!
-    wxString data;
-    data = _T("<?xml version=\"1.0\"?>\n<xvidproject version=\"1.0\">\n</xvidproject>\n");
+std::string VidProject::serialize() {
+    // FIXME (rick#1#): Implement me!
+    std::string data;
+    data = "<?xml version=\"1.0\"?>\n<xvidproject version=\"1.0\">\n</xvidproject>\n";
     return data;
 }
 
 VidProject::VidProject()
 {
     //ctor
-    m_Title = wxEmptyString;
+    m_Title = "";
     m_ExportSettings.ResetToDefaults();
     m_NeedsExportSettings = true;
-    m_Filename = wxEmptyString;
+    m_Filename = "";
 }
 
 VidProject::~VidProject()
@@ -64,25 +64,24 @@ void VidProject::Clear() {
     m_ExportSettings.ResetToDefaults();
 }
 
-const wxString VidProject::GetOfflineProjectTitle(const wxString& filename) {
-    wxString result = wxEmptyString;
-    wxString data;
+const std::string VidProject::GetOfflineProjectTitle(const std::string& filename) {
+    std::string result = "";
+    std::string data;
     do {
-        if(!wxFileExists(filename)) {
+        if(!ioCommon::FileExists(filename)) {
             break;
         }
-        TiXmlDocument* mydoc = TinyXML::LoadDocument(filename);
-        if(!mydoc) {
+        TiXmlDocument mydoc;
+        if(!mydoc.LoadFile(filename.c_str())) {
             break;
         }
-        // TODO: Obtain the project's name from the XML
         TiXmlHandle hRoot(0);
-        hRoot = mydoc->FirstChildElement("xvidproject");
+        hRoot = mydoc.FirstChildElement("xvidproject");
         TiXmlElement* pElem = hRoot.FirstChild("title").ToElement();
         if(pElem) {
             const char *pKey = pElem->GetText();
             if(pKey) {
-                result = wxString(pKey,wxConvUTF8);
+                result = pKey;
             }
         }
     } while(false);
@@ -107,14 +106,14 @@ bool VidProject::Reload() {
     if(IsNew()) {
         return false;
     }
-    wxString data = wxEmptyString;
-    wxString currentdata = serialize();
-    wxString original_xml = m_OriginalXML;
+    std::string data = "";
+    std::string currentdata = serialize();
+    std::string original_xml = m_OriginalXML;
     bool result = false;
-    wxFFile myfile;
+    FFile myfile;
 
     do {
-        if(!wxFileExists(m_Filename)) {
+        if(!ioCommon::FileExists(m_Filename)) {
             break;
         }
         if(!myfile.Open(m_Filename)) {
@@ -143,12 +142,12 @@ bool VidProject::Reload() {
     return result;
 }
 
-void VidProject::SaveState(wxString& data) {
-    data = wxEmptyString;
+void VidProject::SaveState(std::string& data) {
+    data = "";
 // TODO (rick#1#): Implement project State saving
 }
 
-bool VidProject::LoadState(const wxString& data) {
+bool VidProject::LoadState(const std::string& data) {
 // TODO (rick#1#): Implement project State loading
     SetModified();
     return true;
@@ -168,8 +167,8 @@ bool VidProject::CanRedo() {
 
 
 void VidProject::Undo() {
-    wxString data,curdata;
-    curdata = wxEmptyString;
+    std::string data,curdata;
+    curdata = "";
     if(m_UndoHistory.IsEof()) {
         SaveState(curdata); // If there's no redo available, make one.
     }
@@ -180,14 +179,14 @@ void VidProject::Undo() {
 }
 
 void VidProject::Redo() {
-    wxString data;
+    std::string data;
     if(m_UndoHistory.Redo(data)) {
         LoadState(data);
     }
 }
 
-void VidProject::PushUndo(const wxString OpName) {
-    wxString data;
+void VidProject::PushUndo(const std::string OpName) {
+    std::string data;
     SaveState(data);
     m_UndoHistory.PushUndo(OpName,data);
     if(m_UndoHistory.Redo(data)) {
@@ -195,15 +194,15 @@ void VidProject::PushUndo(const wxString OpName) {
     }
 }
 
-const wxString VidProject::GetUndoOpname() {
+const std::string VidProject::GetUndoOpname() {
     return m_UndoHistory.GetUndoOpname();
 }
 
-const wxString VidProject::GetRedoOpname() {
+const std::string VidProject::GetRedoOpname() {
     return m_UndoHistory.GetRedoOpname();
 }
 
-const wxString VidProject::GetUndoHistoryOpName(unsigned int idx) {
+const std::string VidProject::GetUndoHistoryOpName(unsigned int idx) {
     return m_UndoHistory.GetOpname(idx);
 }
 
@@ -232,31 +231,31 @@ void VidProject::ResetModified() {
 }
 
 bool VidProject::IsNew() {
-    return (m_Filename.IsEmpty());
+    return (m_Filename.empty());
 }
 
-VidProject* VidProject::Load(const wxString filename, wxString &errortext) {
-    wxString data = wxEmptyString;
+VidProject* VidProject::Load(const std::string filename, std::string &errortext) {
+    std::string data = "";
     VidProject* nextproject = new VidProject;
     bool result = false;
-    wxFFile myfile;
+    FFile myfile;
     do {
-        if(!wxFileExists(filename)) {
-            errortext.Printf(_("Error: Could not find file '%s'!"),filename.c_str());
+        if(!ioCommon::FileExists(filename)) {
+            errortext = ioCommon::Printf(gettext("Error: Could not find file '%s'!"),filename.c_str());
             break;
         }
         if(!myfile.Open(filename)) {
-            errortext.Printf(_("Error: Could not open file '%s'!"),filename.c_str());
+            errortext = ioCommon::Printf(gettext("Error: Could not open file '%s'!"),filename.c_str());
             break;
         }
         if(!myfile.ReadAll(&data)) {
-            errortext.Printf(_("Error: Could not read file '%s'!"),filename.c_str());
+            errortext = ioCommon::Printf(gettext("Error: Could not read file '%s'!"),filename.c_str());
             break;
         }
         myfile.Close();
         result = nextproject->unserialize(data);
         if(!result) {
-            errortext.Printf(_("Error: File '%s' contains invalid data!"),filename.c_str());
+            errortext = ioCommon::Printf(gettext("Error: File '%s' contains invalid data!"),filename.c_str());
         } else {
             nextproject->m_Filename = filename;
             nextproject->ResetModified();
@@ -285,7 +284,7 @@ bool VidProject::Save() {
     return result;
 }
 
-bool VidProject::SaveAs(const wxString filename) {
+bool VidProject::SaveAs(const std::string filename) {
     bool result = SaveToFile(filename);
     if(result) {
         m_Filename = filename;
@@ -298,22 +297,22 @@ bool VidProject::SaveAs(const wxString filename) {
     return result;
 }
 
-bool VidProject::SaveCopy(const wxString filename) {
+bool VidProject::SaveCopy(const std::string filename) {
     bool result = SaveToFile(filename);
     return result;
 }
 
-bool VidProject::SaveToFile(const wxString &filename) {
-    if(filename.IsEmpty()) {
+bool VidProject::SaveToFile(const std::string &filename) {
+    if(filename.empty()) {
         return false;
     }
-    wxString data;
+    std::string data;
     bool result = false;
     do {
         data = serialize();
-        wxTempFile tmpfile(filename);
+        TempFile tmpfile(filename);
         if(!tmpfile.IsOpened()) break;
-        if(!tmpfile.Write(data,wxConvUTF8)) {
+        if(!tmpfile.Write(data)) {
             tmpfile.Discard();
             break;
         }

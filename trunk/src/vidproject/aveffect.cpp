@@ -21,22 +21,22 @@ AVTransition::AVTransition() {
 AVTransition::~AVTransition() {
 }
 
-bool AVTransition::unserialize(const wxString& data) {
-// TODO (rick#1#): Implement me!
+bool AVTransition::unserialize(const std::string& data) {
+// FIXME (rick#1#): Implement me!
     return false;
 }
 
-wxString AVTransition::serialize() {
-    return wxEmptyString;
+std::string AVTransition::serialize() {
+    return "";
 }
 
-bool AVEffect::unserialize(const wxString& data) {
-// TODO (rick#1#): Implement me!
+bool AVEffect::unserialize(const std::string& data) {
+// FIXME (rick#1#): Implement me!
     return false;
 }
 
-wxString AVEffect::serialize() {
-    return wxEmptyString;
+std::string AVEffect::serialize() {
+    return "";
 }
 
 

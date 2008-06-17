@@ -17,13 +17,14 @@
 
 #include "App.h"
 #include "vidproject/projectmanager.h"
+#include <string>
 
 class WelcomeDialog;
 class wxUpdateUIEvent;
 class wxPanel;
 class wxTreeCtrl;
 
-class AppFrame: public wxFrame
+class AppFrame: public wxFrame, public sayaEvtHandler
 {
     public:
         AppFrame(wxFrame *frame, const wxString& title);
@@ -50,13 +51,33 @@ class AppFrame: public wxFrame
         bool CanUndo();                 /// Does the project have an item in the "undo" list?
         bool CanRedo();                 /// Does the project have an item in the "redo" list?
 
-        void LoadFail(wxString resourcename); /// Shows an error about Loading an XML resource.
+        /// Shows an error about Loading an XML resource.
+        void LoadFail(wxString resourcename);
+
+        /// Processes events related to Saya projects
+        virtual void ProcessSayaEvent(sayaEventType id, void* data = NULL);
+
+        /// Shows an error message box.
+        virtual void ErrorMessageBox(const char* msg,const char* caption);
+
+        /// Shows a Yes/No message box.
+        virtual bool YesNoMessageBox(const char* msg,const char* caption,bool exclamation);
+
+        /// Shows a Yes/No/Cancel message box.
+        virtual sayaYesNoCancel YesNoCancelMessageBox(const char* msg,const char* caption,bool exclamation);
+
+        /// Shows "Save Project As" dialog.
+        virtual std::string ShowDialogSaveProjectAs();
+
+        /// Shows "Save Project Copy As" dialog.
+        virtual std::string ShowDialogSaveProjectCopyAs();
 
         wxMenu* FindMenu(const wxString name);
         ~AppFrame();
         ProjectManager* m_prjMan;
     private:
 
+        sayaEvtHandler* m_handler;
         wxPanel* CreateProjectPane(); /// Creates the project pane
         wxPanel* m_projectpanel; /// Project Panel
         wxPanel* m_monitorpanel; /// Monitor Panel
@@ -123,5 +144,7 @@ class AppFrame: public wxFrame
         DECLARE_EVENT_TABLE()
 };
 
+const wxString std2wx(const std::string& str);
+const wxString std2wx(const char* str);
 
 #endif // SAYAMAIN_H
