@@ -70,6 +70,7 @@ bool App::LoadConfig()
 void App::InitManagers() {
     ProjectManager::Get();
     ProjectManager::Get()->SetConfigProvider(&m_configprovider);
+    ProjectManager::Get()->SetDebugLogger(this);
 }
 
 bool App::LoadXRCResources() {
@@ -106,6 +107,7 @@ bool App::OnInit()
         return false;
     }
 
+    m_debuglog->Log(_T("Initializing Project Manager..."));
     InitManagers();
 
 
