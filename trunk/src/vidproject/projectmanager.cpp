@@ -174,9 +174,9 @@ bool ProjectManager::LoadConfig() {
     key = "paths/LastProjectDir";
     if (cfg->Exists(key))
         m_lastprojectdir = cfg->Read(key,"");
-    int i;
+    unsigned int i;
     for(i = 1; i <= 9; i++) {
-        key = ioCommon::Printf(gettext("RecentProjects/File%d"),i);
+        key = ioCommon::Printf("RecentProjects/File%u",i);
         if(cfg->Exists(key)) {
             tmpname = cfg->Read(key,"");
             AddToRecentFiles(tmpname,false);
@@ -201,9 +201,12 @@ bool ProjectManager::SaveConfig() {
     // Save Recent Projects list
 
     key = "";
-    size_t i;
+    unsigned int i;
     for(i = 0; i < 9; i++) {
-        key = ioCommon::Printf(gettext("RecentProjects/File%d"),i);
+        key = ioCommon::Printf("RecentProjects/File%u",i);
+        if(m_evthandler) {
+            m_evthandler->DebugLog(key.c_str());
+        }
         if(i>=m_recentfiles.size()) {
             cfg->Write(key,"");
         } else {

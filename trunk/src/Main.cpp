@@ -1324,7 +1324,9 @@ void AppFrame::ProcessSayaEvent(sayaEventType id, void* data) {
 }
 
 void AppFrame::DebugLog(const char* msg) {
-
+    if(m_debuglog) {
+        m_debuglog->Log(msg);
+    }
 }
 
 void AppFrame::ErrorMessageBox(const char* msg,const char* caption) {
