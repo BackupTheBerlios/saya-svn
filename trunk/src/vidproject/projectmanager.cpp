@@ -184,7 +184,7 @@ bool ProjectManager::LoadConfig() {
     for(i = 1; i <= 9; i++) {
         key = ioCommon::Printf("RecentProjects/File%u",i);
         if(m_logger != NULL) {
-            m_logger->DebugLog(ioCommon::Printf("Reading key: %s",key.c_str()));
+            m_logger->DebugLog(string("Reading key: ") + key);
         }
         if(cfg->Exists(key)) {
             tmpname = cfg->Read(key,"");

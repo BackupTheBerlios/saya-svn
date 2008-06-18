@@ -152,11 +152,16 @@ const string ioCommon::Printf(const char* format, ... ) {
     unsigned long bufsize = 2048; // We have to set a limit. 2K should be enough for most strings
     char* buffer;
     buffer = new char[bufsize + 1];
-    numchars = vsnprintf(buffer, bufsize, format, arguments);
-    buffer[bufsize] = 0;
+
     // vsnprintf is a version of sprintf that takes a variable number of arguments. Additionally,
     // it allows you to set a limit on the buffer size used for storing the resulting string.
     // See http://linux.about.com/library/cmd/blcmdl3_vsnprintf.htm
+
+    va_start(arguments, format);
+    numchars = vsnprintf(buffer, bufsize, format, arguments);
+    va_end(arguments);
+
+    buffer[bufsize] = 0;
 
     if(numchars < bufsize) {
         buffer[numchars] = 0;
@@ -174,7 +179,9 @@ const string ioCommon::PrintfBig(unsigned long bufsize, const char* format, ... 
         return "";
     } else {
         char buffer[bufsize]; // For big strings
+        va_start(arguments, format);
         numchars = vsnprintf(buffer, bufsize - 1, format, arguments);
+        va_end(arguments);
         if(numchars < bufsize - 1) {
             buffer[numchars] = 0;
         } else {
