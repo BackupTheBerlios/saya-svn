@@ -58,6 +58,9 @@ class sayaEvtHandler {
         /** Shows an Error message box */
         virtual void ErrorMessageBox(const char* msg,const char* caption) = 0;
 
+        /** Adds a message to the debug log */
+        virtual void DebugLog(const char* msg) = 0;
+
         /** Shows a yes/no message box and returns the answer (true = yes, false = no) */
         virtual bool YesNoMessageBox(const char* msg,const char* caption,bool exclamation) = 0;
 

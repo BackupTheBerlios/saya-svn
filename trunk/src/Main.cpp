@@ -29,6 +29,7 @@
 #include "Main.h"
 #include "welcomedlg.h"
 #include "newprojectdlg.h"
+#include "debuglog.h"
 
 #include <deque>
 using namespace std;
@@ -457,11 +458,14 @@ END_EVENT_TABLE()
 AppFrame::AppFrame(wxFrame *frame, const wxString& title) :
 wxFrame(frame, -1, title),
 m_welcomedialog(NULL),
+m_debuglog(NULL),
 m_hadproject(false),
 m_panes_status_checked(false),
 m_layouthidden(false)
 {
     bool result = false;
+    m_debuglog = new AppDebugLog(this);
+    m_debuglog->Log(_T("Debug log initialized."));
     do {
         m_cfg = new wxConfig(std2wx(APP_NAME));
         if(!CreateMenuBar()) break;
@@ -729,6 +733,7 @@ AppFrame::~AppFrame() {
         delete m_welcomedialog;
     }
     delete m_cfg;
+    delete m_debuglog;
 }
 
 bool AppFrame::IsClipSelected() {
@@ -1316,6 +1321,10 @@ void AppFrame::ProcessSayaEvent(sayaEventType id, void* data) {
         break;
         default:;
     }
+}
+
+void AppFrame::DebugLog(const char* msg) {
+
 }
 
 void AppFrame::ErrorMessageBox(const char* msg,const char* caption) {
