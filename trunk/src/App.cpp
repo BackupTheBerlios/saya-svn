@@ -22,6 +22,7 @@
 
 #include "App.h"
 #include "Main.h"
+#include "debuglog.h"
 #include "vidproject/projectmanager.h"
 
 //(*AppHeaders
@@ -31,6 +32,7 @@
 IMPLEMENT_APP(App);
 
 BEGIN_EVENT_TABLE( App, wxApp )
+    EVT_MENU(idExitApp, App::OnExitApp)
 END_EVENT_TABLE()
 
 AppConfig::AppConfig(std::string application_name) : sayaConfig(application_name) {
@@ -85,14 +87,21 @@ bool App::LoadXRCResources() {
 
 bool App::OnInit()
 {
+    m_debuglog = new AppDebugLog(NULL);
+    m_debuglog->Log(_T("Debug log initialized."));
+
+    m_debuglog->Log(_T("Initializing File system handlers..."));
     wxFileSystem::AddHandler(new wxZipFSHandler);
     wxFileSystem::AddHandler(new wxMemoryFSHandler);
+    m_debuglog->Log(_T("Initializing XML Resource handlers..."));
     wxXmlResource::Get()->InitAllHandlers();
 	//(*AppInitialize
+	//*)
 	bool wxsOK = true;
+    m_debuglog->Log(_T("Initializing Image handlers..."));
 	wxInitAllImageHandlers();
 
-	//*)
+    m_debuglog->Log(_T("Loading resources..."));
     if(!LoadXRCResources()) {
         return false;
     }
@@ -102,11 +111,41 @@ bool App::OnInit()
 
     if(!LoadConfig()) {
         wxLogError(_("WARNING: Could not read configuration!"));
+        m_debuglog->Log(_T("WARNING: Could not read configuration!"));
     }
 
-    AppFrame* frame = new AppFrame(NULL, _("Saya - Swift audiovisual Authoring for You and Anyone"));
+    m_debuglog->Log(_T("Creating main frame..."));
+    AppFrame* frame = new AppFrame(NULL, _("Saya - Unsheathe your Creativity"));
     ProjectManager::Get()->SetEventHandler(frame);
     SetTopWindow(frame);
 
+    m_debuglog->Log(_T("Initialization finished."));
 	return wxsOK;
+}
+
+int App::OnExit() {
+    return wxApp::OnExit();
+}
+
+App::~App() {
+}
+
+void App::DebugLog(const std::string&msg) {
+    if(m_debuglog) {
+        m_debuglog->Log(msg.c_str());
+    }
+}
+
+void App::DebugLog(const char* msg) {
+    if(m_debuglog) {
+        m_debuglog->Log(msg);
+    }
+}
+
+void App::OnExitApp(wxCommandEvent& event) {
+    if(m_debuglog) {
+        m_debuglog->Log(_T("Good bye."));
+        delete m_debuglog;
+    }
+    m_debuglog = NULL;
 }

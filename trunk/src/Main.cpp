@@ -29,7 +29,6 @@
 #include "Main.h"
 #include "welcomedlg.h"
 #include "newprojectdlg.h"
-#include "debuglog.h"
 
 #include <deque>
 using namespace std;
@@ -39,6 +38,7 @@ enum wxbuildinfoformat {
     short_f, long_f };
 
 int idProjectStatusChanged = XRCID("idProjectStatusChanged");
+int idExitApp = wxNewId();
 
 wxString wxbuildinfo(wxbuildinfoformat format)
 {
@@ -458,14 +458,11 @@ END_EVENT_TABLE()
 AppFrame::AppFrame(wxFrame *frame, const wxString& title) :
 wxFrame(frame, -1, title),
 m_welcomedialog(NULL),
-m_debuglog(NULL),
 m_hadproject(false),
 m_panes_status_checked(false),
 m_layouthidden(false)
 {
     bool result = false;
-    m_debuglog = new AppDebugLog(this);
-    m_debuglog->Log(_T("Debug log initialized."));
     do {
         m_cfg = new wxConfig(std2wx(APP_NAME));
         if(!CreateMenuBar()) break;
@@ -733,7 +730,6 @@ AppFrame::~AppFrame() {
         delete m_welcomedialog;
     }
     delete m_cfg;
-    delete m_debuglog;
 }
 
 bool AppFrame::IsClipSelected() {
@@ -847,6 +843,8 @@ void AppFrame::OnClose(wxCloseEvent &event) {
     if(willveto) {
         event.Veto();
     } else {
+        wxCommandEvent event(wxEVT_COMMAND_MENU_SELECTED, idExitApp);
+        wxPostEvent(wxTheApp, event);
         Destroy();
     }
 }
@@ -1320,12 +1318,6 @@ void AppFrame::ProcessSayaEvent(sayaEventType id, void* data) {
             }
         break;
         default:;
-    }
-}
-
-void AppFrame::DebugLog(const char* msg) {
-    if(m_debuglog) {
-        m_debuglog->Log(msg);
     }
 }
 

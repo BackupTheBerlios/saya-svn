@@ -44,6 +44,7 @@ ProjectManager::ProjectManager() {
     m_recentfiles.clear();
     m_recentfilesmodified = true;
     m_evthandler = NULL;
+    m_logger = NULL;
     m_configprovider = NULL;
     m_clearundohistoryonsave = true;
 }
@@ -64,6 +65,11 @@ void ProjectManager::SetClearUndoHistoryOnSave(bool flag) {
 void ProjectManager::SetEventHandler(sayaEvtHandler* handler) {
     m_evthandler = handler;
 }
+
+void ProjectManager::SetDebugLogger(sayaDebugLogger* logger) {
+    m_logger = logger;
+}
+
 
 ProjectManager* ProjectManager::Get() {
     if(TheProjectManager == NULL && !IsAppShuttingDown()) {
@@ -177,6 +183,9 @@ bool ProjectManager::LoadConfig() {
     unsigned int i;
     for(i = 1; i <= 9; i++) {
         key = ioCommon::Printf("RecentProjects/File%u",i);
+        if(m_logger != NULL) {
+            m_logger->DebugLog(ioCommon::Printf("Reading key: %s",key.c_str()).c_str());
+        }
         if(cfg->Exists(key)) {
             tmpname = cfg->Read(key,"");
             AddToRecentFiles(tmpname,false);
@@ -204,8 +213,8 @@ bool ProjectManager::SaveConfig() {
     unsigned int i;
     for(i = 0; i < 9; i++) {
         key = ioCommon::Printf("RecentProjects/File%u",i);
-        if(m_evthandler) {
-            m_evthandler->DebugLog(key.c_str());
+        if(m_logger) {
+            m_logger->DebugLog(key.c_str());
         }
         if(i>=m_recentfiles.size()) {
             cfg->Write(key,"");

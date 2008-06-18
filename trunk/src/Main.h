@@ -24,8 +24,7 @@ class wxUpdateUIEvent;
 class wxPanel;
 class wxTreeCtrl;
 
-class AppDebugLog;
-
+extern int idExitApp;
 
 class AppFrame: public wxFrame, public sayaEvtHandler
 {
@@ -60,9 +59,6 @@ class AppFrame: public wxFrame, public sayaEvtHandler
         /// Processes events related to Saya projects
         virtual void ProcessSayaEvent(sayaEventType id, void* data = NULL);
 
-        /// Adds a message to the debug log.
-        virtual void DebugLog(const char* msg);
-
         /// Shows an error message box.
         virtual void ErrorMessageBox(const char* msg,const char* caption);
 
@@ -91,7 +87,6 @@ class AppFrame: public wxFrame, public sayaEvtHandler
         wxPanel* m_timelinepanel; /// Timeline Panel
         WelcomeDialog* m_welcomedialog;
         wxTreeCtrl* m_ResourcesTree; /// Resources Tree in the Project Panel
-        AppDebugLog* m_debuglog;
 
         bool LoadResources();
         void CreateDockAreas();

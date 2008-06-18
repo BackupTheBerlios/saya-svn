@@ -11,7 +11,10 @@
 #define APP_H
 
 #include <wx/app.h>
+#include <string>
 #include "vidproject/projectmanager.h"
+
+class AppDebugLog;
 
 /** Our Implementation of sayaConfig with wxWidgets. @see sayaConfig */
 class AppConfig : public sayaConfig {
@@ -47,16 +50,22 @@ class AppConfigProvider : public sayaConfigProvider {
 };
 
 // *** Our App ***
-class App : public wxApp
+class App : public wxApp, public sayaDebugLogger
 {
     public:
         virtual bool OnInit();
+        virtual int OnExit();
         bool LoadConfig();
         bool LoadXRCResources();
         void InitManagers();
+        virtual void DebugLog(const char* msg);
+        virtual void DebugLog(const std::string& msg);
         DECLARE_EVENT_TABLE()
+        virtual ~App();
     private:
+        void OnExitApp(wxCommandEvent& event);
         AppConfigProvider m_configprovider;
+        AppDebugLog* m_debuglog;
 };
 
 #endif // SAYAAPP_H

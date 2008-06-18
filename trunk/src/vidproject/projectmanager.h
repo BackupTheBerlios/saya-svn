@@ -58,9 +58,6 @@ class sayaEvtHandler {
         /** Shows an Error message box */
         virtual void ErrorMessageBox(const char* msg,const char* caption) = 0;
 
-        /** Adds a message to the debug log */
-        virtual void DebugLog(const char* msg) = 0;
-
         /** Shows a yes/no message box and returns the answer (true = yes, false = no) */
         virtual bool YesNoMessageBox(const char* msg,const char* caption,bool exclamation) = 0;
 
@@ -73,6 +70,22 @@ class sayaEvtHandler {
         /** Shows the "Save Project Copy As" dialog */
         virtual std::string ShowDialogSaveProjectCopyAs() = 0;
 
+};
+
+class sayaDebugLogger {
+    public:
+
+        /** Adds a message to the debug log */
+        virtual void DebugLog(const char* msg) = 0;
+
+        /** Adds a message to the debug log (std::string version) */
+        virtual void DebugLog(const std::string& msg) = 0;
+
+        /** Standard constructor */
+        sayaDebugLogger() {}
+
+        /** Standard destructor */
+        virtual ~sayaDebugLogger() {}
 };
 
 /** Abstract Cross-platform Configuration class.
@@ -229,6 +242,13 @@ class ProjectManager
           */
         void SetEventHandler(sayaEvtHandler* handler);
 
+        /** @brief sets the pointer for the program's debug logger
+          *
+          * Call this from your main program to specify an object which will do the
+          * debug logging.
+          */
+        void SetDebugLogger(sayaDebugLogger* logger);
+
         /** Sets the Configuration provider.
           *
           * @note You MUST call this method from your program after creating the project manager.
@@ -339,6 +359,9 @@ class ProjectManager
 
         /** A pointer to the program's event handler */
         sayaEvtHandler* m_evthandler;
+
+        /** A pointer to the program's debug logger */
+        sayaDebugLogger* m_logger;
 
         /** A pointer to the program's config provider */
         sayaConfigProvider* m_configprovider;
