@@ -303,17 +303,17 @@ class ProjectManager
         /** Clears the Recent Imports file list. */
         void ClearRecentImports();
 
-        /** @brief Tells whenever the Recent Opened projects list has been modified.
+        /** @brief Counter telling the revision of the Recent Opened projects list.
           *
-          * Used and reset by the main frame to update the recent projects submenu.
+          * Whenever the Recent Opened Files list changes, the number is increased by one.
           */
-        bool m_recentfilesmodified;
+        unsigned int GetRecentFilesModCounter();
 
-        /** @brief Tells whenever the Recent Imported files list has been modified.
+        /** @brief Counter telling the revision of the recently imported files list.
           *
-          * Used and reset by the main frame to update the recent imports submenu.
+          * Whenever the Recent Imported Files list changes, the number is increased by one.
           */
-        bool m_recentimportsmodified;
+        unsigned int GetRecentImportsModCounter();
 
         /** A list of the most recently opened project files. */
         std::deque<std::string> m_recentfiles;
@@ -350,7 +350,9 @@ class ProjectManager
         void OnProjectStatusModified();
 
     protected:
+
     private:
+
         /** The currently opened project */
         VidProject* m_project;
 
@@ -365,6 +367,13 @@ class ProjectManager
 
         /** A pointer to the program's config provider */
         sayaConfigProvider* m_configprovider;
+
+        /** Counter for the Recent Projects List revision */
+        unsigned int m_recentfilesmodcounter;
+
+        /** Counter for the Recent Imports List revision */
+        unsigned int m_recentimportsmodcounter;
+
 };
 
 #endif // PROJECTMANAGER_H

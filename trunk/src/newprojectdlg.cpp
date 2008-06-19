@@ -76,5 +76,7 @@ NewProjectDlg::~NewProjectDlg() {
 
 void NewProjectDlg::OnAVSettingsUpdateUI(wxUpdateUIEvent& event) {
     bool canEdit = false;
+    // NOTE This is where we need to disable the widgets on the "new project" dialog.
+
 }
 

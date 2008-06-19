@@ -460,7 +460,9 @@ wxFrame(frame, -1, title),
 m_welcomedialog(NULL),
 m_hadproject(false),
 m_panes_status_checked(false),
-m_layouthidden(false)
+m_layouthidden(false),
+m_recentfilesmodcounter(0),
+m_recentimportsmodcounter(0)
 {
     bool result = false;
     do {
@@ -943,8 +945,9 @@ void AppFrame::OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event) {
     ProjectManager* pmgr = ProjectManager::Get();
     if(!pmgr)
         return;
-    if(pmgr->m_recentfilesmodified) {
-        pmgr->m_recentfilesmodified = false;
+    unsigned int tmpcounter = pmgr->GetRecentImportsModCounter();
+    if(tmpcounter != m_recentimportsmodcounter) {
+        m_recentimportsmodcounter = tmpcounter;
         wxMenuItem* myItem = GetMenuBar()-> FindItem(idFileOpenRecentProject);
         if(myItem) {
             wxMenu* mySubMenu = myItem->GetSubMenu();
@@ -979,8 +982,9 @@ void AppFrame::OnRecentImportsMenuUpdateUI(wxUpdateUIEvent& event) {
     ProjectManager* pmgr = ProjectManager::Get();
     if(!pmgr)
         return;
-    if(pmgr->m_recentimportsmodified) {
-        pmgr->m_recentimportsmodified = false;
+    unsigned int tmpcounter = pmgr->GetRecentFilesModCounter();
+    if(tmpcounter != m_recentfilesmodcounter) {
+        m_recentfilesmodcounter = tmpcounter;
         wxMenuItem* myItem = GetMenuBar()-> FindItem(idFileImportRecent);
         if(myItem) {
             wxMenu* mySubMenu = myItem->GetSubMenu();

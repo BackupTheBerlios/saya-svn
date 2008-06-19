@@ -42,11 +42,13 @@ ProjectManager::ProjectManager() {
     //ctor
     m_project = 0;
     m_recentfiles.clear();
-    m_recentfilesmodified = true;
     m_evthandler = NULL;
     m_logger = NULL;
     m_configprovider = NULL;
     m_clearundohistoryonsave = true;
+    m_recentfilesmodcounter = 1;
+    m_recentimportsmodcounter = 1;
+
 }
 
 void ProjectManager::SetConfigProvider(sayaConfigProvider* provider) {
@@ -123,7 +125,7 @@ void ProjectManager::AddToRecentFiles(const std::string& s,bool fromthebeginning
     } else {
         m_recentfiles.push_back(s); // Add to the end
     }
-    m_recentfilesmodified = true;
+    m_recentfilesmodcounter = (m_recentfilesmodcounter + 1) & 0x3FFFFFFF;
 }
 
 void ProjectManager::AddToRecentImports(const std::string& s,bool fromthebeginning) {
@@ -152,19 +154,29 @@ void ProjectManager::AddToRecentImports(const std::string& s,bool fromthebeginni
     } else {
         m_recentimports.push_back(s); // Add to the end
     }
-    m_recentimportsmodified = true;
+    m_recentimportsmodcounter = (m_recentimportsmodcounter + 1) & 0x3FFFFFFF;
 }
 
 
 void ProjectManager::ClearRecentFiles() {
     m_recentfiles.clear();
-    m_recentfilesmodified = true;
+    m_recentfilesmodcounter = (m_recentfilesmodcounter + 1) & 0x3FFFFFFF;
 }
 
 void ProjectManager::ClearRecentImports() {
     m_recentimports.clear();
-    m_recentimportsmodified = true;
+    m_recentimportsmodcounter = (m_recentimportsmodcounter + 1) & 0x3FFFFFFF;
 }
+
+unsigned int ProjectManager::GetRecentFilesModCounter() {
+    return m_recentfilesmodcounter;
+}
+
+unsigned int ProjectManager::GetRecentImportsModCounter() {
+    return m_recentimportsmodcounter;
+
+}
+
 
 
 bool ProjectManager::LoadConfig() {

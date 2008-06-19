@@ -141,6 +141,8 @@ class AppFrame: public wxFrame, public sayaEvtHandler
         bool m_hadproject;
         bool m_panes_status_checked;
         bool m_layouthidden;
+        unsigned int m_recentfilesmodcounter;
+        unsigned int m_recentimportsmodcounter;
         wxString m_CurrentPerspective;
         wxString m_FactoryDefaultLayout;
         DECLARE_EVENT_TABLE()
