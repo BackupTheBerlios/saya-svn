@@ -31,14 +31,17 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="`wx-config --cflags`" />
+			<Add option="-Wall" />
+			<Add option="$(#wx.cflags)" />
 			<Add option="-Winvalid-pch" />
 			<Add option="-include wx_pch.h" />
 			<Add option="-DWX_PRECOMP" />
-			<Add option="-Wall" />
+			<Add directory="$(#wx.include2)" />
 		</Compiler>
 		<Linker>
-			<Add option="`wx-config --libs`" />
+			<Add option="$(#wx.lflags)" />
+			<Add option="$(#saya.lflags)" />
+			<Add directory="$(#wx.output_lib_dir)" />
 		</Linker>
 		<Unit filename="App.cpp" />
 		<Unit filename="App.h" />
