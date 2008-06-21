@@ -56,7 +56,7 @@ void AppDebugLog::Log(const char* msg) {
 
 void AppDebugLog::Log(const wxString& msg) {
     wxDateTime t = wxDateTime::Now();
-    m_log->AppendText(wxString(_T("[")) + t.FormatISODate() + _T(" ") + t.FormatISOTime() + _T("] : ") + msg + _T("\n"));
+    m_log->AppendText(wxString(_T("[")) + wxString(t.FormatISODate()) + _T(" ") + wxString(t.FormatISOTime()) + _T("] : ") + msg + _T("\n"));
 }
 
 void AppDebugLog::OnClose(wxCloseEvent& event) {
