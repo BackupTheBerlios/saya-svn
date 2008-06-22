@@ -12,6 +12,7 @@
 
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
+    #include <wx/html/htmlwin.h>
 #endif
 
 #include "App.h"

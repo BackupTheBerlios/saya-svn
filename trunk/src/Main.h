@@ -13,6 +13,7 @@
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
     #include <wx/aui/aui.h>
+    #include <wx/treectrl.h>
 #endif
 
 #include "App.h"
