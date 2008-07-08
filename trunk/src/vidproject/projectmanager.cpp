@@ -224,7 +224,7 @@ bool ProjectManager::SaveConfig() {
     key = "";
     unsigned int i;
     for(i = 0; i < 9; i++) {
-        key = ioCommon::Printf("RecentProjects/File%u",i);
+        key = ioCommon::Printf("RecentProjects/File%u",i+1);
         if(m_logger) {
             m_logger->DebugLog(key.c_str());
         }
