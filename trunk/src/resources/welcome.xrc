@@ -80,7 +80,7 @@
                                                 <weight>normal</weight>
                                                 <underlined>0</underlined>
                                             </font>
-                                            <bitmap />
+                                            <bitmap>img/new_video.png</bitmap>
                                             <default>0</default>
                                         </object>
                                     </object>
@@ -125,7 +125,7 @@
                                                 <weight>normal</weight>
                                                 <underlined>0</underlined>
                                             </font>
-                                            <bitmap />
+                                            <bitmap>img/folder_video.png</bitmap>
                                             <default>0</default>
                                         </object>
                                     </object>
@@ -170,7 +170,7 @@
                                                 <weight>normal</weight>
                                                 <underlined>0</underlined>
                                             </font>
-                                            <bitmap />
+                                            <bitmap>img/exit.png</bitmap>
                                             <default>0</default>
                                         </object>
                                     </object>
