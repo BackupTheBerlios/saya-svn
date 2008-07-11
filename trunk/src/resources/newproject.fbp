@@ -32,7 +32,7 @@
             <property name="minimum_size"></property>
             <property name="name">new_project_dialog</property>
             <property name="pos"></property>
-            <property name="size">640,640</property>
+            <property name="size">-1,-1</property>
             <property name="style">wxDEFAULT_DIALOG_STYLE</property>
             <property name="subclass"></property>
             <property name="title">Create New Project</property>

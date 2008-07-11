@@ -2,7 +2,7 @@
 <resource xmlns="http://www.wxwindows.org/wxxrc" version="2.4.0">
 	<object class="wxDialog" name="new_project_dialog">
 		<style>wxDEFAULT_DIALOG_STYLE</style>
-		<size>640,640</size>
+		<size>-1,-1</size>
 		<title>Create New Project</title>
 		<object class="wxBoxSizer">
 			<orient>wxVERTICAL</orient>
