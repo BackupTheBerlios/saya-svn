@@ -97,6 +97,8 @@ bool App::OnInit()
     m_debuglog->Log(_T("Initializing XML Resource handlers..."));
     wxXmlResource::Get()->InitAllHandlers();
 	//(*AppInitialize
+	bool wxsOK = true;
+	wxInitAllImageHandlers();
 	//*)
 	bool wxsOK = true;
     m_debuglog->Log(_T("Initializing Image handlers..."));
