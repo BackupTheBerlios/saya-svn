@@ -100,7 +100,6 @@ bool App::OnInit()
 	bool wxsOK = true;
 	wxInitAllImageHandlers();
 	//*)
-	bool wxsOK = true;
     m_debuglog->Log(_T("Initializing Image handlers..."));
 	wxInitAllImageHandlers();
 
