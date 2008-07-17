@@ -2,8 +2,8 @@
 <resource xmlns="http://www.wxwindows.org/wxxrc" version="2.4.0">
 	<object class="wxDialog" name="new_project_dialog">
 		<style>wxDEFAULT_DIALOG_STYLE</style>
-		<size>-1,-1</size>
 		<title>Create New Project</title>
+		<centered>1</centered>
 		<object class="wxBoxSizer">
 			<orient>wxVERTICAL</orient>
 			<object class="sizeritem">
@@ -12,98 +12,119 @@
 				<border>5</border>
 				<object class="wxPanel" name="m_panel10">
 					<style>wxTAB_TRAVERSAL</style>
-					<object class="wxStaticBoxSizer">
+					<object class="wxBoxSizer">
 						<orient>wxVERTICAL</orient>
-						<label>Title and filename</label>
+						<object class="sizeritem">
+							<option>0</option>
+							<flag>wxLEFT|wxTOP</flag>
+							<border>5</border>
+							<object class="wxStaticText" name="m_staticText17">
+								<font>
+									<family>default</family>
+									<style>normal</style>
+									<weight>bold</weight>
+									<underlined>0</underlined>
+								</font>
+								<label>General</label>
+							</object>
+						</object>
 						<object class="sizeritem">
 							<option>1</option>
-							<flag>wxEXPAND</flag>
-							<border>5</border>
-							<object class="wxFlexGridSizer">
-								<rows>3</rows>
-								<cols>2</cols>
-								<vgap>0</vgap>
-								<hgap>0</hgap>
-								<growablecols>1</growablecols>
-								<growablerows></growablerows>
+							<flag>wxEXPAND|wxLEFT|wxRIGHT</flag>
+							<border>13</border>
+							<object class="wxBoxSizer">
+								<orient>wxVERTICAL</orient>
 								<object class="sizeritem">
-									<option>0</option>
-									<flag>wxALIGN_CENTER_VERTICAL|wxLEFT</flag>
-									<border>5</border>
-									<object class="wxStaticText" name="m_staticText2">
-										<tooltip>This will be the Project&apos;s official name.</tooltip>
-										<label>Title:       </label>
-									</object>
-								</object>
-								<object class="sizeritem">
-									<option>1</option>
-									<flag>wxALL|wxEXPAND</flag>
-									<border>5</border>
-									<object class="wxTextCtrl" name="idNewPrjTitle">
-										<tooltip>This will be the Project&apos;s official name.</tooltip>
-										<value></value>
-										<maxlength>0</maxlength>
-									</object>
-								</object>
-								<object class="sizeritem">
-									<option>0</option>
-									<flag>wxALIGN_CENTER_VERTICAL|wxLEFT</flag>
-									<border>5</border>
-									<object class="wxStaticText" name="m_staticText1">
-										<tooltip>The directory where the project file will be created.\nFor portability purposes, all resources (video, audio, etc.) SHOULD be beneath this directory.</tooltip>
-										<label>Location:</label>
-									</object>
-								</object>
-								<object class="sizeritem">
-									<option>0</option>
-									<flag>wxALL|wxEXPAND</flag>
-									<border>5</border>
-									<object class="wxDirPickerCtrl" name="idNewPrjLocation">
-										<value></value>
-										<message>Select a folder</message>
-										<style>wxDIRP_DEFAULT_STYLE</style>
-										<tooltip>The directory where the project file will be created.\nFor portability purposes, all resources (video, audio, etc.) SHOULD be beneath this directory.</tooltip>
-									</object>
-								</object>
-								<object class="sizeritem">
-									<option>0</option>
-									<flag>wxALIGN_CENTER_VERTICAL|wxLEFT</flag>
-									<border>5</border>
-									<object class="wxStaticText" name="m_staticText3">
-										<tooltip>The project&apos;s filename. Note that replacing spaces with underscores is recommended.</tooltip>
-										<label>Filename:</label>
-									</object>
-								</object>
-								<object class="sizeritem">
-									<option>1</option>
-									<flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND|wxLEFT|wxRIGHT|wxTOP</flag>
-									<border>5</border>
-									<object class="wxTextCtrl" name="idNewPrjFilename">
-										<tooltip>The project&apos;s filename. Note that replacing spaces with underscores is recommended.</tooltip>
-										<value></value>
-										<maxlength>0</maxlength>
-									</object>
-								</object>
-								<object class="spacer">
 									<option>1</option>
 									<flag>wxEXPAND</flag>
 									<border>5</border>
-									<size>0,0</size>
-								</object>
-								<object class="sizeritem">
-									<option>0</option>
-									<flag>wxLEFT</flag>
-									<border>5</border>
-									<object class="wxCheckBox" name="idNewPrjUnderscores">
-										<font>
-											<size>8</size>
-											<family>default</family>
-											<style>normal</style>
-											<weight>normal</weight>
-											<underlined>0</underlined>
-										</font>
-										<label>Auto-replace spaces with underscores (recommended)</label>
-										<checked>1</checked>
+									<object class="wxFlexGridSizer">
+										<rows>3</rows>
+										<cols>2</cols>
+										<vgap>0</vgap>
+										<hgap>0</hgap>
+										<growablecols>1</growablecols>
+										<growablerows></growablerows>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALIGN_CENTER_VERTICAL|wxLEFT</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="m_staticText2">
+												<tooltip>This will be the Project&apos;s official name.</tooltip>
+												<label>Title:       </label>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxBOTTOM|wxEXPAND|wxLEFT|wxTOP</flag>
+											<border>5</border>
+											<object class="wxTextCtrl" name="idNewPrjTitle">
+												<tooltip>This will be the Project&apos;s official name.</tooltip>
+												<value></value>
+												<maxlength>0</maxlength>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALIGN_CENTER_VERTICAL|wxLEFT</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="m_staticText1">
+												<tooltip>The directory where the project file will be created.\nFor portability purposes, all resources (video, audio, etc.) SHOULD be beneath this directory.</tooltip>
+												<label>Location:</label>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxBOTTOM|wxEXPAND|wxLEFT|wxTOP</flag>
+											<border>5</border>
+											<object class="wxDirPickerCtrl" name="idNewPrjLocation">
+												<value></value>
+												<message>Select a folder</message>
+												<style>wxDIRP_DEFAULT_STYLE</style>
+												<tooltip>The directory where the project file will be created.\nFor portability purposes, all resources (video, audio, etc.) SHOULD be beneath this directory.</tooltip>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALIGN_CENTER_VERTICAL|wxLEFT</flag>
+											<border>5</border>
+											<object class="wxStaticText" name="m_staticText3">
+												<tooltip>The project&apos;s filename. Note that replacing spaces with underscores is recommended.</tooltip>
+												<label>Filename:</label>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxALIGN_CENTER_VERTICAL|wxBOTTOM|wxEXPAND|wxLEFT|wxTOP</flag>
+											<border>5</border>
+											<object class="wxTextCtrl" name="idNewPrjFilename">
+												<tooltip>The project&apos;s filename. Note that replacing spaces with underscores is recommended.</tooltip>
+												<value></value>
+												<maxlength>0</maxlength>
+											</object>
+										</object>
+										<object class="spacer">
+											<option>1</option>
+											<flag>wxEXPAND</flag>
+											<border>5</border>
+											<size>0,0</size>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxLEFT</flag>
+											<border>5</border>
+											<object class="wxCheckBox" name="idNewPrjUnderscores">
+												<font>
+													<size>8</size>
+													<family>default</family>
+													<style>normal</style>
+													<weight>normal</weight>
+													<underlined>0</underlined>
+												</font>
+												<label>Auto-replace spaces with underscores (recommended)</label>
+												<checked>1</checked>
+											</object>
+										</object>
 									</object>
 								</object>
 							</object>
@@ -117,60 +138,73 @@
 				<border>5</border>
 				<object class="wxPanel" name="m_panel11">
 					<style>wxTAB_TRAVERSAL</style>
-					<object class="wxStaticBoxSizer">
+					<object class="wxBoxSizer">
 						<orient>wxVERTICAL</orient>
-						<label>Project Settings</label>
 						<object class="sizeritem">
 							<option>0</option>
-							<flag>wxEXPAND</flag>
+							<flag>wxALL</flag>
 							<border>5</border>
-							<object class="wxBoxSizer">
-								<orient>wxHORIZONTAL</orient>
-								<object class="sizeritem">
-									<option>0</option>
-									<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-									<border>5</border>
-									<object class="wxStaticText" name="m_staticText4">
-										<label>Predefined Settings:</label>
-									</object>
-								</object>
-								<object class="sizeritem">
-									<option>1</option>
-									<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-									<border>5</border>
-									<object class="wxChoice" name="idNewPrjPresets">
-										<selection>0</selection>
-										<content />
-									</object>
-								</object>
-								<object class="sizeritem">
-									<option>0</option>
-									<flag>wxALL</flag>
-									<border>5</border>
-									<object class="wxButton" name="idNewPrjSaveSettingsAs">
-										<tooltip>Saves the current project&apos;s settings as predefined settings</tooltip>
-										<label>Save Custom Settings as...</label>
-										<default>0</default>
-									</object>
-								</object>
+							<object class="wxStaticText" name="m_staticText18">
+								<font>
+									<family>default</family>
+									<style>normal</style>
+									<weight>bold</weight>
+									<underlined>0</underlined>
+								</font>
+								<label>Project Settings</label>
 							</object>
 						</object>
 						<object class="sizeritem">
 							<option>1</option>
-							<flag>wxBOTTOM|wxEXPAND|wxLEFT|wxRIGHT</flag>
-							<border>5</border>
-							<object class="wxNotebook" name="idNewPrjSettingsNotebook">
-								<object class="notebookpage">
-									<label>A/V Settings</label>
-									<selected>1</selected>
-									<object class="wxPanel" name="idNewPrjAVSettingsPanel">
-										<style>wxTAB_TRAVERSAL</style>
-										<object class="wxBoxSizer">
-											<orient>wxVERTICAL</orient>
-											<object class="sizeritem">
-												<option>1</option>
-												<flag>wxEXPAND</flag>
-												<border>5</border>
+							<flag>wxEXPAND|wxLEFT|wxRIGHT</flag>
+							<border>13</border>
+							<object class="wxBoxSizer">
+								<orient>wxVERTICAL</orient>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxBoxSizer">
+										<orient>wxHORIZONTAL</orient>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALIGN_CENTER_VERTICAL|wxLEFT</flag>
+											<border>6</border>
+											<object class="wxStaticText" name="m_staticText4">
+												<label>Predefined Settings:</label>
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>1</option>
+											<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+											<border>5</border>
+											<object class="wxChoice" name="idNewPrjPresets">
+												<selection>0</selection>
+												<content />
+											</object>
+										</object>
+										<object class="sizeritem">
+											<option>0</option>
+											<flag>wxALL</flag>
+											<border>5</border>
+											<object class="wxButton" name="idNewPrjSaveSettingsAs">
+												<tooltip>Saves the current project&apos;s settings as predefined settings</tooltip>
+												<label>Save Custom Settings as...</label>
+												<default>0</default>
+											</object>
+										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>1</option>
+									<flag>wxALL|wxBOTTOM|wxEXPAND</flag>
+									<border>5</border>
+									<object class="wxNotebook" name="idNewPrjSettingsNotebook">
+										<object class="notebookpage">
+											<label>A/V Settings</label>
+											<selected>1</selected>
+											<object class="wxPanel" name="idNewPrjAVSettingsPanel">
+												<style>wxTAB_TRAVERSAL</style>
 												<object class="wxBoxSizer">
 													<orient>wxVERTICAL</orient>
 													<object class="sizeritem">
@@ -178,167 +212,356 @@
 														<flag>wxEXPAND</flag>
 														<border>5</border>
 														<object class="wxBoxSizer">
-															<orient>wxHORIZONTAL</orient>
+															<orient>wxVERTICAL</orient>
 															<object class="sizeritem">
-																<option>3</option>
-																<flag>wxEXPAND|wxLEFT|wxRIGHT</flag>
+																<option>1</option>
+																<flag>wxEXPAND|wxTOP</flag>
 																<border>5</border>
-																<object class="wxStaticBoxSizer">
-																	<orient>wxVERTICAL</orient>
-																	<label>Video</label>
+																<object class="wxBoxSizer">
+																	<orient>wxHORIZONTAL</orient>
 																	<object class="sizeritem">
 																		<option>1</option>
 																		<flag>wxEXPAND</flag>
 																		<border>5</border>
-																		<object class="wxFlexGridSizer">
-																			<rows>2</rows>
-																			<cols>2</cols>
-																			<vgap>0</vgap>
-																			<hgap>0</hgap>
-																			<growablecols></growablecols>
-																			<growablerows></growablerows>
-																			<object class="sizeritem">
-																				<option>0</option>
-																				<flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP</flag>
-																				<border>5</border>
-																				<object class="wxStaticText" name="m_staticText5">
-																					<label>Size (w x h):</label>
-																				</object>
-																			</object>
-																			<object class="sizeritem">
-																				<option>1</option>
-																				<flag>wxEXPAND</flag>
-																				<border>5</border>
-																				<object class="wxBoxSizer">
-																					<orient>wxHORIZONTAL</orient>
-																					<object class="sizeritem">
-																						<option>1</option>
-																						<flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP</flag>
-																						<border>5</border>
-																						<object class="wxTextCtrl" name="m_textCtrl3">
-																							<value></value>
-																							<maxlength>0</maxlength>
-																						</object>
-																					</object>
-																					<object class="sizeritem">
-																						<option>0</option>
-																						<flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP</flag>
-																						<border>5</border>
-																						<object class="wxStaticText" name="m_staticText6">
-																							<label>x</label>
-																						</object>
-																					</object>
-																					<object class="sizeritem">
-																						<option>1</option>
-																						<flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP</flag>
-																						<border>5</border>
-																						<object class="wxTextCtrl" name="m_textCtrl4">
-																							<value></value>
-																							<maxlength>0</maxlength>
-																						</object>
-																					</object>
-																				</object>
-																			</object>
-																			<object class="sizeritem">
-																				<option>0</option>
-																				<flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP</flag>
-																				<border>5</border>
-																				<object class="wxStaticText" name="m_staticText9">
-																					<label>Frame rate:</label>
-																				</object>
-																			</object>
-																			<object class="sizeritem">
-																				<option>1</option>
-																				<flag>wxEXPAND</flag>
-																				<border>5</border>
-																				<object class="wxBoxSizer">
-																					<orient>wxHORIZONTAL</orient>
-																					<object class="sizeritem">
-																						<option>0</option>
-																						<flag>wxALL</flag>
-																						<border>5</border>
-																						<object class="wxComboBox" name="m_comboBox3">
-																							<size>100,-1</size>
-																							<value></value>
-																							<content>
-																								<item>23.97</item>
-																								<item>24</item>
-																								<item>25</item>
-																								<item>29.997</item>
-																								<item>30</item>
-																							</content>
-																						</object>
-																					</object>
-																					<object class="sizeritem">
-																						<option>0</option>
-																						<flag>wxALIGN_CENTER_VERTICAL</flag>
-																						<border>5</border>
-																						<object class="wxStaticText" name="m_staticText16">
-																							<label>frames / s</label>
-																						</object>
-																					</object>
-																				</object>
-																			</object>
-																			<object class="sizeritem">
-																				<option>0</option>
-																				<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-																				<border>5</border>
-																				<object class="wxStaticText" name="m_staticText10">
-																					<label>Interlacing:</label>
-																				</object>
-																			</object>
+																		<object class="wxBoxSizer">
+																			<orient>wxVERTICAL</orient>
 																			<object class="sizeritem">
 																				<option>0</option>
 																				<flag>wxALL</flag>
 																				<border>5</border>
-																				<object class="wxChoice" name="m_choice3">
-																					<size>220,-1</size>
-																					<selection>0</selection>
-																					<content>
-																						<item>Progressive (non interlaced)</item>
-																						<item>Interlaced; bottom field first</item>
-																						<item>interlaced; top field first</item>
-																					</content>
-																				</object>
-																			</object>
-																			<object class="sizeritem">
-																				<option>0</option>
-																				<flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP</flag>
-																				<border>5</border>
-																				<object class="wxStaticText" name="m_staticText7">
-																					<label>Aspect Ratio:</label>
+																				<object class="wxStaticText" name="m_staticText19">
+																					<font>
+																						<family>default</family>
+																						<style>normal</style>
+																						<weight>bold</weight>
+																						<underlined>0</underlined>
+																					</font>
+																					<label>Video</label>
 																				</object>
 																			</object>
 																			<object class="sizeritem">
 																				<option>1</option>
-																				<flag>wxALIGN_CENTER_VERTICAL|wxEXPAND|wxLEFT|wxRIGHT|wxTOP</flag>
+																				<flag>wxEXPAND|wxLEFT</flag>
+																				<border>13</border>
+																				<object class="wxBoxSizer">
+																					<orient>wxVERTICAL</orient>
+																					<object class="sizeritem">
+																						<option>1</option>
+																						<flag>wxALL|wxEXPAND</flag>
+																						<border>5</border>
+																						<object class="wxFlexGridSizer">
+																							<rows>2</rows>
+																							<cols>2</cols>
+																							<vgap>0</vgap>
+																							<hgap>0</hgap>
+																							<growablecols></growablecols>
+																							<growablerows></growablerows>
+																							<object class="sizeritem">
+																								<option>0</option>
+																								<flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP</flag>
+																								<border>5</border>
+																								<object class="wxStaticText" name="m_staticText5">
+																									<label>Size (w x h):</label>
+																								</object>
+																							</object>
+																							<object class="sizeritem">
+																								<option>1</option>
+																								<flag>wxEXPAND</flag>
+																								<border>5</border>
+																								<object class="wxBoxSizer">
+																									<orient>wxHORIZONTAL</orient>
+																									<object class="sizeritem">
+																										<option>1</option>
+																										<flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP</flag>
+																										<border>5</border>
+																										<object class="wxTextCtrl" name="idNewPrjAVSettings_width">
+																											<value></value>
+																											<maxlength>0</maxlength>
+																										</object>
+																									</object>
+																									<object class="sizeritem">
+																										<option>0</option>
+																										<flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP</flag>
+																										<border>5</border>
+																										<object class="wxStaticText" name="m_staticText6">
+																											<label>x</label>
+																										</object>
+																									</object>
+																									<object class="sizeritem">
+																										<option>1</option>
+																										<flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP</flag>
+																										<border>5</border>
+																										<object class="wxTextCtrl" name="idNewPrjAVSettings_height">
+																											<value></value>
+																											<maxlength>0</maxlength>
+																										</object>
+																									</object>
+																								</object>
+																							</object>
+																							<object class="sizeritem">
+																								<option>0</option>
+																								<flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP</flag>
+																								<border>5</border>
+																								<object class="wxStaticText" name="m_staticText9">
+																									<label>Frame rate:</label>
+																								</object>
+																							</object>
+																							<object class="sizeritem">
+																								<option>1</option>
+																								<flag>wxEXPAND</flag>
+																								<border>5</border>
+																								<object class="wxBoxSizer">
+																									<orient>wxHORIZONTAL</orient>
+																									<object class="sizeritem">
+																										<option>0</option>
+																										<flag>wxALL</flag>
+																										<border>5</border>
+																										<object class="wxComboBox" name="idNewPrjAVSettings_fps">
+																											<size>100,-1</size>
+																											<value></value>
+																											<content>
+																												<item>23.97</item>
+																												<item>24</item>
+																												<item>25</item>
+																												<item>29.997</item>
+																												<item>30</item>
+																											</content>
+																										</object>
+																									</object>
+																									<object class="sizeritem">
+																										<option>0</option>
+																										<flag>wxALIGN_CENTER_VERTICAL</flag>
+																										<border>5</border>
+																										<object class="wxStaticText" name="m_staticText16">
+																											<label>frames / s</label>
+																										</object>
+																									</object>
+																								</object>
+																							</object>
+																							<object class="sizeritem">
+																								<option>0</option>
+																								<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+																								<border>5</border>
+																								<object class="wxStaticText" name="m_staticText10">
+																									<label>Interlacing:</label>
+																								</object>
+																							</object>
+																							<object class="sizeritem">
+																								<option>0</option>
+																								<flag>wxALL</flag>
+																								<border>5</border>
+																								<object class="wxChoice" name="idNewPrjAVSettings_interlacing">
+																									<size>220,-1</size>
+																									<selection>0</selection>
+																									<content>
+																										<item>Progressive (non interlaced)</item>
+																										<item>Interlaced; bottom field first</item>
+																										<item>interlaced; top field first</item>
+																									</content>
+																								</object>
+																							</object>
+																							<object class="sizeritem">
+																								<option>0</option>
+																								<flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP</flag>
+																								<border>5</border>
+																								<object class="wxStaticText" name="m_staticText8">
+																									<tooltip>Sets the pixels&apos; aspect ratio.\n2.0: The pixels are twice as wide as they&apos;re tall.\n0.5: The pixels are half as wide as they&apos;re tall.\n1.0: The pixels are square.</tooltip>
+																									<label>Pixel aspect:</label>
+																								</object>
+																							</object>
+																							<object class="sizeritem">
+																								<option>0</option>
+																								<flag>wxLEFT|wxRIGHT|wxTOP</flag>
+																								<border>5</border>
+																								<object class="wxTextCtrl" name="idNewPrjAVSettings_pixelaspect">
+																									<tooltip>Sets the pixels&apos; aspect ratio.\n2.0: The pixels are twice as wide as they&apos;re tall.\n0.5: The pixels are half as wide as they&apos;re tall.\n1.0: The pixels are square.</tooltip>
+																									<value></value>
+																									<maxlength>0</maxlength>
+																								</object>
+																							</object>
+																						</object>
+																					</object>
+																				</object>
+																			</object>
+																		</object>
+																	</object>
+																	<object class="sizeritem">
+																		<option>0</option>
+																		<flag>wxEXPAND</flag>
+																		<border>5</border>
+																		<object class="wxBoxSizer">
+																			<orient>wxVERTICAL</orient>
+																			<object class="sizeritem">
+																				<option>0</option>
+																				<flag>wxALL</flag>
 																				<border>5</border>
-																				<object class="wxChoice" name="m_choice2">
-																					<tooltip>Choose &quot;agnostic&quot; for non-standard resolutions.\nChoose &quot;custom&quot; to set the Pixel aspect ratio yourself (careful with that)</tooltip>
-																					<selection>0</selection>
-																					<content>
-																						<item>Standard (4:3)</item>
-																						<item>Widescreen (16:9)</item>
-																						<item>Agnostic (square pixels)</item>
-																						<item>Custom</item>
-																					</content>
+																				<object class="wxStaticText" name="m_staticText21">
+																					<font>
+																						<family>default</family>
+																						<style>normal</style>
+																						<weight>bold</weight>
+																						<underlined>0</underlined>
+																					</font>
+																					<label>Audio</label>
 																				</object>
 																			</object>
 																			<object class="sizeritem">
-																				<option>0</option>
-																				<flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP</flag>
-																				<border>5</border>
-																				<object class="wxStaticText" name="m_staticText8">
-																					<tooltip>Sets the pixels&apos; aspect ratio.\n2.0: The pixels are twice as wide as they&apos;re tall.\n0.5: The pixels are half as wide as they&apos;re tall.\n1.0: The pixels are square.</tooltip>
-																					<label>Pixel aspect:</label>
+																				<option>1</option>
+																				<flag>wxEXPAND|wxLEFT</flag>
+																				<border>18</border>
+																				<object class="wxBoxSizer">
+																					<orient>wxVERTICAL</orient>
+																					<object class="sizeritem">
+																						<option>1</option>
+																						<flag>wxEXPAND</flag>
+																						<border>5</border>
+																						<object class="wxFlexGridSizer">
+																							<rows>2</rows>
+																							<cols>2</cols>
+																							<vgap>0</vgap>
+																							<hgap>0</hgap>
+																							<growablecols></growablecols>
+																							<growablerows></growablerows>
+																							<object class="sizeritem">
+																								<option>0</option>
+																								<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+																								<border>5</border>
+																								<object class="wxStaticText" name="m_staticText11">
+																									<label>Sample\nRate (Hz) : </label>
+																								</object>
+																							</object>
+																							<object class="sizeritem">
+																								<option>0</option>
+																								<flag>wxALL</flag>
+																								<border>5</border>
+																								<object class="wxComboBox" name="idNewPrjAVSettings_samplerate">
+																									<style>wxCB_DROPDOWN</style>
+																									<size>125,-1</size>
+																									<font>
+																										<size>9</size>
+																										<family>script</family>
+																										<style>normal</style>
+																										<weight>normal</weight>
+																										<underlined>0</underlined>
+																									</font>
+																									<value></value>
+																									<content>
+																										<item>8000</item>
+																										<item>11025</item>
+																										<item>16000</item>
+																										<item>22050</item>
+																										<item>24000</item>
+																										<item>32000</item>
+																										<item>44100</item>
+																										<item>48000</item>
+																										<item>96000</item>
+																									</content>
+																								</object>
+																							</object>
+																							<object class="sizeritem">
+																								<option>0</option>
+																								<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+																								<border>5</border>
+																								<object class="wxStaticText" name="m_staticText12">
+																									<label>Sample\nsize:</label>
+																								</object>
+																							</object>
+																							<object class="sizeritem">
+																								<option>0</option>
+																								<flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+																								<border>5</border>
+																								<object class="wxChoice" name="idNewPrjAVSettings_samplesize">
+																									<selection>0</selection>
+																									<content>
+																										<item>16 bit</item>
+																										<item>8 bit</item>
+																									</content>
+																								</object>
+																							</object>
+																							<object class="sizeritem">
+																								<option>0</option>
+																								<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+																								<border>5</border>
+																								<object class="wxStaticText" name="m_staticText14">
+																									<label>Surround:</label>
+																								</object>
+																							</object>
+																							<object class="sizeritem">
+																								<option>0</option>
+																								<flag>wxALL|wxEXPAND</flag>
+																								<border>5</border>
+																								<object class="wxChoice" name="idNewPrjAVSettings_surround">
+																									<selection>1</selection>
+																									<content>
+																										<item>Mono</item>
+																										<item>Stereo</item>
+																										<item>5.1 Surround</item>
+																										<item>7.1 Surround</item>
+																										<item>10.2 Surround</item>
+																										<item>Custom</item>
+																									</content>
+																								</object>
+																							</object>
+																							<object class="sizeritem">
+																								<option>0</option>
+																								<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+																								<border>5</border>
+																								<object class="wxStaticText" name="m_staticText15">
+																									<label>Channels:</label>
+																								</object>
+																							</object>
+																							<object class="sizeritem">
+																								<option>0</option>
+																								<flag>wxALL|wxEXPAND</flag>
+																								<border>5</border>
+																								<object class="wxSpinCtrl" name="idNewPrjAVSettings_channels">
+																									<style>wxSP_ARROW_KEYS</style>
+																									<value>2</value>
+																									<min>1</min>
+																									<max>32</max>
+																								</object>
+																							</object>
+																						</object>
+																					</object>
 																				</object>
 																			</object>
+																		</object>
+																	</object>
+																</object>
+															</object>
+															<object class="sizeritem">
+																<option>0</option>
+																<flag>wxEXPAND</flag>
+																<border>5</border>
+																<object class="wxBoxSizer">
+																	<orient>wxVERTICAL</orient>
+																	<object class="sizeritem">
+																		<option>0</option>
+																		<flag>wxALL</flag>
+																		<border>5</border>
+																		<object class="wxStaticText" name="m_staticText20">
+																			<font>
+																				<family>default</family>
+																				<style>normal</style>
+																				<weight>bold</weight>
+																				<underlined>0</underlined>
+																			</font>
+																			<label>About these Settings:</label>
+																		</object>
+																	</object>
+																	<object class="sizeritem">
+																		<option>0</option>
+																		<flag>wxBOTTOM|wxEXPAND|wxRIGHT|wxTOP</flag>
+																		<border>5</border>
+																		<object class="wxBoxSizer">
+																			<orient>wxVERTICAL</orient>
 																			<object class="sizeritem">
-																				<option>0</option>
-																				<flag>wxLEFT|wxRIGHT|wxTOP</flag>
+																				<option>1</option>
+																				<flag>wxBOTTOM|wxEXPAND|wxLEFT</flag>
 																				<border>5</border>
-																				<object class="wxTextCtrl" name="m_textCtrl6">
-																					<tooltip>Sets the pixels&apos; aspect ratio.\n2.0: The pixels are twice as wide as they&apos;re tall.\n0.5: The pixels are half as wide as they&apos;re tall.\n1.0: The pixels are square.</tooltip>
+																				<object class="wxTextCtrl" name="idNewPrjAVSettings_description">
+																					<style>wxTE_MULTILINE</style>
+																					<size>-1,130</size>
 																					<value></value>
 																					<maxlength>0</maxlength>
 																				</object>
@@ -347,166 +570,26 @@
 																	</object>
 																</object>
 															</object>
-															<object class="sizeritem">
-																<option>2</option>
-																<flag>wxEXPAND|wxLEFT|wxRIGHT</flag>
-																<border>5</border>
-																<object class="wxStaticBoxSizer">
-																	<orient>wxHORIZONTAL</orient>
-																	<label>Audio</label>
-																	<object class="sizeritem">
-																		<option>1</option>
-																		<flag>wxEXPAND</flag>
-																		<border>5</border>
-																		<object class="wxFlexGridSizer">
-																			<rows>2</rows>
-																			<cols>2</cols>
-																			<vgap>0</vgap>
-																			<hgap>0</hgap>
-																			<growablecols></growablecols>
-																			<growablerows></growablerows>
-																			<object class="sizeritem">
-																				<option>0</option>
-																				<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-																				<border>5</border>
-																				<object class="wxStaticText" name="m_staticText11">
-																					<label>Sample\nRate (Hz) : </label>
-																				</object>
-																			</object>
-																			<object class="sizeritem">
-																				<option>0</option>
-																				<flag>wxALL</flag>
-																				<border>5</border>
-																				<object class="wxComboBox" name="m_comboBox2">
-																					<style>wxCB_DROPDOWN</style>
-																					<size>125,-1</size>
-																					<font>
-																						<size>9</size>
-																						<family>script</family>
-																						<style>normal</style>
-																						<weight>normal</weight>
-																						<underlined>0</underlined>
-																					</font>
-																					<value></value>
-																					<content>
-																						<item>8000</item>
-																						<item>11025</item>
-																						<item>16000</item>
-																						<item>22050</item>
-																						<item>24000</item>
-																						<item>32000</item>
-																						<item>44100</item>
-																						<item>48000</item>
-																						<item>96000</item>
-																					</content>
-																				</object>
-																			</object>
-																			<object class="sizeritem">
-																				<option>0</option>
-																				<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-																				<border>5</border>
-																				<object class="wxStaticText" name="m_staticText12">
-																					<label>Sample\nsize:</label>
-																				</object>
-																			</object>
-																			<object class="sizeritem">
-																				<option>0</option>
-																				<flag>wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
-																				<border>5</border>
-																				<object class="wxChoice" name="m_choice4">
-																					<selection>0</selection>
-																					<content>
-																						<item>16 bit</item>
-																						<item>8 bit</item>
-																					</content>
-																				</object>
-																			</object>
-																			<object class="sizeritem">
-																				<option>0</option>
-																				<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-																				<border>5</border>
-																				<object class="wxStaticText" name="m_staticText14">
-																					<label>Surround:</label>
-																				</object>
-																			</object>
-																			<object class="sizeritem">
-																				<option>0</option>
-																				<flag>wxALL|wxEXPAND</flag>
-																				<border>5</border>
-																				<object class="wxChoice" name="m_choice6">
-																					<selection>1</selection>
-																					<content>
-																						<item>Mono</item>
-																						<item>Stereo</item>
-																						<item>5.1 Surround</item>
-																						<item>7.1 Surround</item>
-																						<item>10.2 Surround</item>
-																						<item>Custom</item>
-																					</content>
-																				</object>
-																			</object>
-																			<object class="sizeritem">
-																				<option>0</option>
-																				<flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-																				<border>5</border>
-																				<object class="wxStaticText" name="m_staticText15">
-																					<label>Channels:</label>
-																				</object>
-																			</object>
-																			<object class="sizeritem">
-																				<option>0</option>
-																				<flag>wxALL|wxEXPAND</flag>
-																				<border>5</border>
-																				<object class="wxSpinCtrl" name="m_spinCtrl1">
-																					<style>wxSP_ARROW_KEYS</style>
-																					<value>2</value>
-																					<min>1</min>
-																					<max>32</max>
-																				</object>
-																			</object>
-																		</object>
-																	</object>
-																</object>
-															</object>
-														</object>
-													</object>
-													<object class="sizeritem">
-														<option>0</option>
-														<flag>wxBOTTOM|wxEXPAND|wxLEFT|wxRIGHT</flag>
-														<border>5</border>
-														<object class="wxStaticBoxSizer">
-															<orient>wxVERTICAL</orient>
-															<label>Description</label>
-															<object class="sizeritem">
-																<option>1</option>
-																<flag>wxALL|wxEXPAND</flag>
-																<border>5</border>
-																<object class="wxTextCtrl" name="m_textCtrl9">
-																	<style>wxTE_MULTILINE</style>
-																	<value></value>
-																	<maxlength>0</maxlength>
-																</object>
-															</object>
 														</object>
 													</object>
 												</object>
 											</object>
 										</object>
-									</object>
-								</object>
-								<object class="notebookpage">
-									<label>Encoder settings</label>
-									<selected>0</selected>
-									<object class="wxPanel" name="idNewPrjEncoderSettingsPanel">
-										<style>wxTAB_TRAVERSAL</style>
-									</object>
-								</object>
-								<object class="notebookpage">
-									<label>Default Sequence Settings</label>
-									<selected>0</selected>
-									<object class="wxPanel" name="idNewPrjSequenceSettingsPanel">
-										<style>wxTAB_TRAVERSAL</style>
-										<tooltip>When you create a new sequence, it will adopt these settings.</tooltip>
+										<object class="notebookpage">
+											<label>Encoder settings</label>
+											<selected>0</selected>
+											<object class="wxPanel" name="idNewPrjEncoderSettingsPanel">
+												<style>wxTAB_TRAVERSAL</style>
+											</object>
+										</object>
+										<object class="notebookpage">
+											<label>Default Sequence Settings</label>
+											<selected>0</selected>
+											<object class="wxPanel" name="idNewPrjSequenceSettingsPanel">
+												<style>wxTAB_TRAVERSAL</style>
+												<tooltip>When you create a new sequence, it will adopt these settings.</tooltip>
+											</object>
+										</object>
 									</object>
 								</object>
 							</object>
@@ -515,22 +598,30 @@
 				</object>
 			</object>
 			<object class="sizeritem">
-				<option>0</option>
-				<flag>wxALIGN_RIGHT|wxALL</flag>
-				<border>5</border>
-				<object class="wxStdDialogButtonSizer">
-					<object class="button">
-						<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
-						<border>5</border>
-						<object class="wxButton" name="wxID_OK">
-							<label>&amp;OK</label>
-						</object>
-					</object>
-					<object class="button">
-						<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
-						<border>5</border>
-						<object class="wxButton" name="wxID_CANCEL">
-							<label>&amp;Cancel</label>
+				<option>1</option>
+				<flag>wxEXPAND|wxRIGHT</flag>
+				<border>22</border>
+				<object class="wxBoxSizer">
+					<orient>wxVERTICAL</orient>
+					<object class="sizeritem">
+						<option>0</option>
+						<flag>wxALIGN_RIGHT|wxALIGN_TOP|wxBOTTOM</flag>
+						<border>8</border>
+						<object class="wxStdDialogButtonSizer">
+							<object class="button">
+								<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+								<border>5</border>
+								<object class="wxButton" name="wxID_OK">
+									<label>&amp;OK</label>
+								</object>
+							</object>
+							<object class="button">
+								<flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+								<border>5</border>
+								<object class="wxButton" name="wxID_CANCEL">
+									<label>&amp;Cancel</label>
+								</object>
+							</object>
 						</object>
 					</object>
 				</object>
