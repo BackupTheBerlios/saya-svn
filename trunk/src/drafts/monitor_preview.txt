@@ -1,0 +1,19 @@
+HOW to implement the monitor preview:
+
+The common class VideoOutputDevice contains everything (I hope) we need to implement video playback (per frame -
+we'll deal with the timing details later).
+
+What we need to do, is create some classes which derivate from VideoOutputDevice.
+
+1) We can start with a NullVideoOutputDevice class, that simply does ABSOLUTELY NOTHING.
+
+2) Based on this class, we can start tying it up to the wxWidgets Monitor / Preview panel.
+
+3) When everything's done, we can make a "debug test" to display an image on the display. Of course, it will show nothing.
+
+4) Now let's make a standard bitmap drawer with wxWidgets. The wxWidgets part will be hidden from the interface
+   (that's how it should be) and make it the default.
+
+5) The hardest part will be integrating SDL onto this thing.
+
+6) When we can display images through SDL, we're ready for the next step: Integrating video playback (to be continued).
