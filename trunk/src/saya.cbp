@@ -58,6 +58,9 @@
 		<Unit filename="Main.h" />
 		<Unit filename="debuglog.cpp" />
 		<Unit filename="debuglog.h" />
+		<Unit filename="drafts/monitor_preview.txt">
+			<Option target="Debug" />
+		</Unit>
 		<Unit filename="drafts/undoredo.txt">
 			<Option target="Debug" />
 		</Unit>
