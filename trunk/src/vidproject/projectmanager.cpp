@@ -15,6 +15,8 @@
 #include "projectmanager.h"
 #include "vidproject.h"
 #include <string>
+#include <list>
+#include <map>
 
 // For internationalization
 #include <libintl.h>
@@ -404,6 +406,37 @@ void ProjectManager::OnProjectStatusModified() {
     if(m_evthandler) {
         m_evthandler->ProcessSayaEvent(sayaevt_ProjectStatusChanged);
     }
+}
+
+std::list<std::string> ProjectManager::GetPresets(){
+    std::list<std::string> presets;
+    presets.push_back("Predef 1");
+    presets.push_back("Predef 2");
+    presets.push_back("Predef 3");
+    presets.push_back("Predef 4");
+    presets.push_back("Predef 5");
+    return presets;
+}
+
+std::map<std::string, std::string> ProjectManager::GetPresetData(std::string preset){
+
+    map<std::string, std::string> configs;
+    configs["idNewPrjAVSettings_width"] = "600";
+    configs["idNewPrjAVSettings_height"] = "400";
+    configs["idNewPrjAVSettings_fps"] = "24";
+    configs["idNewPrjAVSettings_interlacing"] = "Progressive (non interlaced)";
+    configs["idNewPrjAVSettings_pixelaspect"] = "1.0";
+    configs["idNewPrjAVSettings_samplerate"] = "44100";
+    configs["idNewPrjAVSettings_samplesize"] = "8 bit";
+    configs["idNewPrjAVSettings_surround"] = "Stereo";
+    configs["idNewPrjAVSettings_channels"] = "2";
+    configs["idNewPrjAVSettings_description"] = "some description for the preset";
+
+    return configs;
+}
+
+bool ProjectManager::SaveNewPreset(std::string preset, std::map<std::string, std::string>){
+    return true;
 }
 
 ProjectManager::~ProjectManager() {

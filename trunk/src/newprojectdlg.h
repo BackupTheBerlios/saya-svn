@@ -27,7 +27,22 @@ class NewProjectDlg : public wxDialog
         virtual ~NewProjectDlg();
     private:
         wxWindow* m_parent;
+        wxChoice* idNewPrjPresetsChoice;
+        wxTextCtrl* idNewPrjAVSettings_widthTextCtrl;
+        wxTextCtrl* idNewPrjAVSettings_heightTextCtrl;
+        wxComboBox* idNewPrjAVSettings_fpsComboBox;
+        wxChoice* idNewPrjAVSettings_interlacingChoice;
+        wxTextCtrl* idNewPrjAVSettings_pixelaspectTextCtrl;
+        wxComboBox* idNewPrjAVSettings_samplerateComboBox;
+        wxChoice* idNewPrjAVSettings_samplesizeChoice;
+        wxChoice* idNewPrjAVSettings_surroundChoice;
+        wxSpinCtrl* idNewPrjAVSettings_channelsSpinCtrl;
+        wxTextCtrl* idNewPrjAVSettings_descriptionTextCtrl;
+
         void OnAVSettingsUpdateUI(wxUpdateUIEvent& event);
+        void OnPjrPresetsChanged(wxCommandEvent& event);
+        void OnPrjSaveSettingsAsClicked(wxCommandEvent& event);
+        bool LoadPresets();
 	DECLARE_EVENT_TABLE()
 
 };

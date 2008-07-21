@@ -12,6 +12,8 @@
 
 #include "vidproject.h"
 #include <deque>
+#include <list>
+#include <map>
 
 /** Tells whether the application is shutting down. */
 bool IsAppShuttingDown();
@@ -348,6 +350,16 @@ class ProjectManager
 
         /** Called whenever the project's status or filename have changed. */
         void OnProjectStatusModified();
+
+        /** Gets (only names) all predefined settings saved by user (not include custom)  */
+        std::list<std::string> GetPresets();
+
+        /** Returns the info for the specified preset. The map contains the id of the component and the value.
+        The value is a string, but it is well formed for every value type of every widget */
+        std::map<std::string, std::string> GetPresetData(std::string preset);
+
+        /** Save new predefined setting */
+        bool SaveNewPreset(std::string preset, std::map<std::string, std::string>);
 
     protected:
 

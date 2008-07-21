@@ -437,13 +437,6 @@
 																								<object class="wxComboBox" name="idNewPrjAVSettings_samplerate">
 																									<style>wxCB_DROPDOWN</style>
 																									<size>125,-1</size>
-																									<font>
-																										<size>9</size>
-																										<family>script</family>
-																										<style>normal</style>
-																										<weight>normal</weight>
-																										<underlined>0</underlined>
-																									</font>
 																									<value></value>
 																									<content>
 																										<item>8000</item>
