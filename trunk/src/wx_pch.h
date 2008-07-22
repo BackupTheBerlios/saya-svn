@@ -29,6 +29,7 @@
     #include <wx/aui/aui.h>
     #include <wx/splitter.h>
     #include <wx/treectrl.h>
+    #include <wx/spinctrl.h>
     #include <wx/sizer.h>
     #include <wx/html/htmlwin.h>
 #endif // WX_PRECOMP

@@ -19,6 +19,7 @@
 class wxUpdateUIEvent;
 class wxPanel;
 class wxTreeCtrl;
+class wxSpinCtrl;
 
 class NewProjectDlg : public wxDialog
 {

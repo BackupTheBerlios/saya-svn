@@ -23,6 +23,7 @@
     #include <wx/aui/aui.h>
     #include <wx/splitter.h>
     #include <wx/treectrl.h>
+    #include <wx/spinctrl.h>
     #include <wx/sizer.h>
     #include <wx/html/htmlwin.h>
 #endif
@@ -88,7 +89,7 @@ NewProjectDlg::NewProjectDlg(wxWindow* parent) : m_parent(0)
         idNewPrjAVSettings_samplerateComboBox = XRCCTRL(*this, "idNewPrjAVSettings_samplerate", wxComboBox);
         idNewPrjAVSettings_samplesizeChoice = XRCCTRL(*this, "idNewPrjAVSettings_samplesize", wxChoice);
         idNewPrjAVSettings_surroundChoice = XRCCTRL(*this, "idNewPrjAVSettings_surround", wxChoice);
-        //idNewPrjAVSettings_channelsSpinCtrl = XRCCTRL(*this, "idNewPrjAVSettings_channels", wxSpinCtrl);
+        idNewPrjAVSettings_channelsSpinCtrl = XRCCTRL(*this, "idNewPrjAVSettings_channels", wxSpinCtrl);
         idNewPrjAVSettings_descriptionTextCtrl = XRCCTRL(*this, "idNewPrjAVSettings_description", wxTextCtrl);
 
         //put this call here because we need presest widget
