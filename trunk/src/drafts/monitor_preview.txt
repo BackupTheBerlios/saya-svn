@@ -17,3 +17,9 @@ What we need to do, is create some classes which derivate from VideoOutputDevice
 5) The hardest part will be integrating SDL onto this thing.
 
 6) When we can display images through SDL, we're ready for the next step: Integrating video playback (to be continued).
+
+UPDATE (22/Jul/2008) :
+
+I finally found out how to make the VideoOutputDevice classes simple to implement. Use wxWidgets-specific implementations of them,
+and use the VideoOutputDevice interface to communicate with the rest of the program. This doesn't break the framework design, and
+at the same time allows us to use existing wxWidgets implementations of SDL.
