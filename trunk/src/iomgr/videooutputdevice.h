@@ -94,7 +94,7 @@ class VideoOutputDevice {
 
         /** @brief Initializes the output device.
           *
-          * @note The m_ok flag MUST be set by this method.
+          * @note The m_ok flag is set to this method's return value.
           * @return True on success; false otherwise.
           * @note This method MUST set the m_width, m_height and m_colorformat variables.
           */
