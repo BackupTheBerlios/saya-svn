@@ -19,7 +19,7 @@
 #endif
 #include "vidproject/projectmanager.h"
 #include "App.h"
-#include "PickNameDlg.h"
+#include "picknamedlg.h"
 
 int idPickNameDialog = XRCID("pick_name_dialog");
 int idPickNameDlgNameText = XRCID("idPickNameDlgNameText");
