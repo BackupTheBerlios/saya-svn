@@ -71,7 +71,7 @@ class VideoOutputDevice {
          *  @param newheight the new height to be set for playback
          *  @return true if size was successfully changed, false otherwise.
          *  @note This is a wrapper for the protected method ChangeDeviceSize(). After change takes place, variables
-         *  m_width and m_height are updated.
+         *  m_Width and m_Height are updated.
          *  @note This method can be called ONLY by the main thread!
          */
         bool ChangeSize(unsigned int newwidth,unsigned int newheight);
@@ -96,7 +96,7 @@ class VideoOutputDevice {
           *
           * @note The m_ok flag is set to this method's return value.
           * @return True on success; false otherwise.
-          * @note This method MUST set the m_width, m_height and m_colorformat variables.
+          * @note This method MUST set the m_Width, m_Height and m_ColorFormat variables.
           */
         virtual bool InitializeOutput();
 
@@ -126,7 +126,7 @@ class VideoOutputDevice {
          *  @param colorformat The input color format being sent.
          *  @param buf Buffer containing the data to be processed.
          *  @param buflen The length of the buffer to be processed, in bytes.
-         *  @note  This method MUST do nothing if either m_width or m_height are set to 0.
+         *  @note  This method MUST do nothing if either m_Width or m_Height are set to 0.
          *         When the data is finally converted, RenderData MUST be called.
          *  @note  This method MUST check MustAbortPlayback() regularly and abort rendering when the result is true.
          */
@@ -135,18 +135,18 @@ class VideoOutputDevice {
 
         /** Plays the received frames.
           * @note This method MUST check MustAbortPlayback() regularly and abort rendering when the result is true.
-          * @note This method MUST do nothing if either m_width or m_height are set to 0.
+          * @note This method MUST do nothing if either m_Width or m_Height are set to 0.
           */
         virtual void RenderData();
 
         /** Output color format */
-        VideoColorFormat m_colorformat;
+        VideoColorFormat m_ColorFormat;
 
         /** Output width */
-        unsigned int m_width;
+        unsigned int m_Width;
 
         /**  Output height */
-        unsigned int m_height;
+        unsigned int m_Height;
 
     private:
 

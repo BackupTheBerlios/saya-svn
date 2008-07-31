@@ -15,9 +15,9 @@ const unsigned int MaxVideoOutputDeviceWidth = 10240;
 const unsigned int MaxVideoOutputDeviceHeight = 10240;
 
 VideoOutputDevice::VideoOutputDevice() :
-m_colorformat(vcfRGB32),
-m_width(0),
-m_height(0),
+m_ColorFormat(vcfRGB32),
+m_Width(0),
+m_Height(0),
 m_playing(false),
 m_changingsize(false),
 m_shuttingdown(false),
@@ -58,11 +58,11 @@ void VideoOutputDevice::ShutDown() {
 }
 
 unsigned int VideoOutputDevice::GetWidth() {
-    return m_width;
+    return m_Width;
 }
 
 unsigned int VideoOutputDevice::GetHeight() {
-    return m_height;
+    return m_Height;
 }
 
 bool VideoOutputDevice::ChangeSize(unsigned int newwidth,unsigned int newheight) {
@@ -80,8 +80,8 @@ bool VideoOutputDevice::ChangeSize(unsigned int newwidth,unsigned int newheight)
     if(result) {
         result = ChangeDeviceSize(newwidth, newheight);
         if(result) {
-            m_width = newwidth;
-            m_height = newheight;
+            m_Width = newwidth;
+            m_Height = newheight;
         }
         m_changingsize = false;
     }
@@ -118,9 +118,9 @@ void VideoOutputDevice::LoadDeviceVideoData(VideoColorFormat colorformat, const 
 
 bool VideoOutputDevice::InitializeOutput() {
     // This is a stub
-    m_width = 640;
-    m_height = 480;
-    m_colorformat = vcfRGB32;
+    m_Width = 640;
+    m_Height = 480;
+    m_ColorFormat = vcfRGB32;
     return false;
 }
 
