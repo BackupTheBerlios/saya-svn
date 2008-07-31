@@ -30,7 +30,7 @@
 #include "vidproject/projectmanager.h"
 #include "App.h"
 #include "newprojectdlg.h"
-#include "PickNameDlg.h"
+#include "picknamedlg.h"
 
 #include <map>
 #include <list>

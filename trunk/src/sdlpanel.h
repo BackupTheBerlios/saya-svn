@@ -10,6 +10,9 @@
               (LGPL licensed)
  **************************************************************/
 
+#ifndef sdlpanel_h
+#define sdlpanel_h
+
 #include <wx/panel.h>
 #include <wx/dcbuffer.h>
 #include <wx/image.h>
@@ -62,3 +65,5 @@ class SDLPanel : public wxPanel {
 
         DECLARE_EVENT_TABLE()
 };
+
+#endif
