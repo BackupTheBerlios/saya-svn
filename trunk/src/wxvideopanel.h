@@ -17,6 +17,7 @@
 
 class wxVideoOutputDevice;
 class wxVideoPanel;
+class syMutex;
 
 /** @brief wxWidgets-specific implementation of the VideoOutputDevice class.
  *
@@ -35,6 +36,34 @@ class wxVideoOutputDevice : public VideoOutputDevice {
         virtual ~wxVideoOutputDevice();
 
         static unsigned long CalculateBufferLength(unsigned int width,unsigned int height);
+
+        /** Tries to Lock the Video Buffer.
+          * @return true on success; false otherwise.
+          */
+        bool LockBuffer();
+
+        /** Unlocks the Video Buffer, if the current thread is the owner
+          * @return true if the Buffer's owner was either 0 or the current thread; false otherwise.
+          */
+        bool UnlockBuffer();
+
+        /** Gets the Video Buffer's pointer
+          * @return a pointer to the Video Buffer
+          * @warning You MUST lock the buffer using the LockBuffer method prior to calling this function.
+          */
+        char* GetBuffer();
+
+        /** Gets the Video Buffer's Size
+          * @return the Video Buffer Size, in bytes.
+          * @warning You MUST lock the buffer using the LockBuffer method prior to calling this function.
+          */
+        unsigned long GetBufferSize();
+
+        /** Gets the Video Buffer's Actual length (which will always be less than or equal than the buffer size)
+          * @return the Video Buffer Actual length, in bytes.
+          * @warning You MUST lock the buffer using the LockBuffer method prior to calling this function.
+          */
+        unsigned long GetBufferLength();
 
     protected:
 
@@ -92,10 +121,11 @@ class wxVideoOutputDevice : public VideoOutputDevice {
         /** Reallocates the current buffer to fit the new size requirements */
         void ReAllocBuffer(unsigned int newwidth, unsigned int newheight);
         /** The corresponding Panel which we will refresh and from which we will take the width and height */
-        wxVideoPanel* m_Panel;
 
-        /** Flag indicating whether we're able to send data to the panel */
-        bool m_Connected;
+        unsigned long m_BufferOwner;
+        unsigned long m_BufferLockCount;
+        syMutex* m_BufferMutex;
+        wxVideoPanel* m_Panel;
 };
 
 class wxVideoPanel : public wxPanel {
@@ -123,8 +153,9 @@ class wxVideoPanel : public wxPanel {
 
         wxVideoOutputDevice* m_Video;
 
-        bool m_SizeChanged;
         bool m_IsPlaying;
+        bool m_SizeChanging;
+        bool m_BufferChanged;
 
     public:
 
@@ -144,6 +175,11 @@ class wxVideoPanel : public wxPanel {
          * Standard Destructor
          */
         ~wxVideoPanel();
+
+        /**
+         * Tells the Panel that the buffer has changed
+         */
+        void FlagForRepaint();
 
         DECLARE_EVENT_TABLE()
 };

@@ -11,6 +11,7 @@
 
 #ifndef __WIN32__
     #include <unistd.h>
+    #include <sys/syscall.h>
 #endif
 
 
@@ -29,6 +30,15 @@ syMutex::~syMutex() {
         pthread_mutex_destroy(&m_mutexobj);
     #endif
 }
+
+unsigned long syMutex::GetThreadId() {
+    #ifdef __WIN32__
+        return (unsigned long)GetCurrentThreadId();
+    #else
+        return (unsigned long)syscall(__NR_gettid);
+    #endif
+}
+
 
 void syMutex::Lock() {
     #ifdef __WIN32__

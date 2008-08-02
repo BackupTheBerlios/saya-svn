@@ -33,6 +33,8 @@ class syMutex {
         void Lock();
         /** Leaves the Critical Section */
         void Unlock();
+
+        static unsigned long GetThreadId();
     private:
         #ifdef __WIN32__
             CRITICAL_SECTION m_mutexobj;
