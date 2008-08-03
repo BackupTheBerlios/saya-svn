@@ -10,27 +10,9 @@
 #ifndef videooutputdevice_h
 #define videooutputdevice_h
 
+#include "sybitmap.h"
+
 class syMutex;
-/** enumerates the Video Color formats that our device can render / encode */
-enum VideoColorFormat {
-    vcfRGB8,
-    vcfRGB32,
-    vcfRGB24,
-    vcfRGB16,
-    vcfRGB15,
-    vcfBGR15,
-    vcfBGR16,
-    vcfBGR24,
-    vcfBGR32,
-    vcfYUY2,
-    vcfYUV,
-    vcfYV12,
-    vcfYUV12,
-    vcfYVYU,
-    vcfUYVY,
-    vcfYUY9,
-    vcfY800
-};
 
 /**
  * @brief Generic wrapper for a Video Output device.
