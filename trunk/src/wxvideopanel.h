@@ -38,9 +38,11 @@ class wxVideoOutputDevice : public VideoOutputDevice {
         static unsigned long CalculateBufferLength(unsigned int width,unsigned int height);
 
         /** Tries to Lock the Video Buffer.
+          * @param tries The number of attempts to lock the buffer
+          * @param delay The delay in milliseconds between each locking attempt
           * @return true on success; false otherwise.
           */
-        bool LockBuffer();
+        bool LockBuffer(unsigned int tries = 1,unsigned delay = 10);
 
         /** Unlocks the Video Buffer, if the current thread is the owner
           * @return true if the Buffer's owner was either 0 or the current thread; false otherwise.
@@ -51,7 +53,7 @@ class wxVideoOutputDevice : public VideoOutputDevice {
           * @return a pointer to the Video Buffer
           * @warning You MUST lock the buffer using the LockBuffer method prior to calling this function.
           */
-        char* GetBuffer();
+        unsigned char* GetBuffer();
 
         /** Gets the Video Buffer's Size
           * @return the Video Buffer Size, in bytes.
@@ -108,7 +110,7 @@ class wxVideoOutputDevice : public VideoOutputDevice {
         virtual void RenderData();
 
         /** A temporary buffer that holds the video data */
-        char* m_Buffer;
+        unsigned char* m_Buffer;
 
         /** Specifies the allocated memory dedicated to this buffer */
         unsigned long m_BufferSize;

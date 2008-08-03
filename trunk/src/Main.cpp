@@ -30,7 +30,7 @@
 #include "welcomedlg.h"
 #include "newprojectdlg.h"
 #include "sdlpanel.h"
-
+#include "wxvideopanel.h"
 #include <deque>
 using namespace std;
 
@@ -527,8 +527,8 @@ bool AppFrame::CreatePanels() {
         m_projectpanel = CreateProjectPane(); // wxXmlResource::Get()->LoadPanel(this,wxT("project_panel"));
         if(!m_projectpanel) { LoadFail(_T("project_panel")); break; }
 //           m_monitorpanel = new SDLPanel(this);
-           m_monitorpanel = new wxPanel(this);
-           m_effectspanel = new wxPanel(this);
+           m_monitorpanel = new wxVideoPanel(this);
+           m_effectspanel = new wxVideoPanel(this);
 //         m_monitorpanel = wxXmlResource::Get()->LoadPanel(this,wxT("monitor_panel"));
 //         if(!m_monitorpanel) { LoadFail(_T("monitor_panel")); break; }
 //         m_effectspanel = wxXmlResource::Get()->LoadPanel(this,wxT("effects_panel"));

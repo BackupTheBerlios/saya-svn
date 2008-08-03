@@ -10,8 +10,10 @@
  *            (LGPL licensed)
  ***************************************************************************/
 
-// #include <wx/dcbuffer.h>
-// #include <wx/image.h>
+#include <wx/dcbuffer.h>
+#include <wx/image.h>
+#include <wx/bitmap.h>
+
 #include "wxvideopanel.h"
 #include "iomgr/mutex.h"
 
@@ -72,7 +74,7 @@ void wxVideoOutputDevice::ReAllocBuffer(unsigned int newwidth,unsigned int newhe
             delete[] m_Buffer;
             m_Buffer = NULL;
         }
-        m_Buffer = new char[m_BufferLength];
+        m_Buffer = new unsigned char[m_BufferLength];
         m_BufferSize = m_BufferLength;
     }
 }
@@ -113,15 +115,28 @@ bool wxVideoOutputDevice::ChangeDeviceSize(unsigned int newwidth,unsigned int ne
     return true;
 }
 
-bool wxVideoOutputDevice::LockBuffer() {
+bool wxVideoOutputDevice::LockBuffer(unsigned int tries,unsigned int delay) {
     syMutexLocker tmplock(*m_BufferMutex);
-    bool result = (m_BufferOwner == 0 || (m_BufferOwner == syMutex::GetThreadId()));
-    if(result) {
-        if(!m_BufferLockCount) {
-            m_BufferOwner = syMutex::GetThreadId();
-        }
-        ++m_BufferLockCount;
+    bool result = false;
+    unsigned i = 0;
+    if(delay < 10) {
+        delay = 10;
     }
+    do {
+        result = (m_BufferOwner == 0 || (m_BufferOwner == syMutex::GetThreadId()));
+        if(result) {
+            if(!m_BufferLockCount) {
+                m_BufferOwner = syMutex::GetThreadId();
+            }
+            ++m_BufferLockCount;
+        } else {
+            if(tries > 0) {
+                ++i;
+            }
+            syMilliSleep(delay);
+        }
+    }while(!result && tries > 0 && i < tries);
+
     return result;
 }
 
@@ -148,7 +163,7 @@ bool wxVideoOutputDevice::UnlockBuffer() {
     return result;
 }
 
-char* wxVideoOutputDevice::GetBuffer() {
+unsigned char* wxVideoOutputDevice::GetBuffer() {
     return m_Buffer;
 }
 
@@ -166,9 +181,8 @@ void wxVideoOutputDevice::LoadDeviceVideoData(VideoColorFormat colorformat, cons
     }
     bool abort = false;
 
-    while(!LockBuffer()) {
-        syMilliSleep(10); // Sleep for 10 msecs and try again
-    }
+    LockBuffer(0,10); // Lock the buffer with 10 msecs between lock attempts; Never stop trying.
+
     // Copy the data to our buffer
     if(buflen > m_BufferLength) {
         buflen = m_BufferLength;
@@ -222,21 +236,24 @@ wxVideoPanel::~wxVideoPanel() {
 }
 
 void wxVideoPanel::OnPaint(wxPaintEvent &event) {
-    if(!m_Video || m_SizeChanging) {
+    if(m_SizeChanging) {
+        // Do not try to repaint screen while resizing
         return;
     }
-    if(!m_Video->IsOk()) {
-        return;
+    if(m_Video && m_Video->IsOk()) {
+        // Video is created and active. Let's try to copy it.
+        if(m_Video->LockBuffer(5,10)) { // Try to lock the Video Buffer 5 times, with 10 ms between each.
+            wxBitmap bmp(wxImage(m_Video->GetWidth(),m_Video->GetHeight(),m_Video->GetBuffer(), true));
+            m_Video->UnlockBuffer();
+            wxBufferedPaintDC dc(this, bmp);
+        }
+    } else {
+        // Video has not yet been created. Let's paint a black bitmap.
+        wxPaintDC pdc(this);
+        wxBrush mybrush(*wxBLACK, wxSOLID);
+        pdc.SetBackground(mybrush);
+        pdc.Clear();
     }
-    if(!m_Video->LockBuffer()) {
-        return;
-    }
-
-    // TODO: Draw screen with the buffer's pixel data. Note: If the buffer is NULL, then we must
-    // repaint everything in black.
-
-
-    m_Video->UnlockBuffer();
 }
 
 void wxVideoPanel::OnEraseBackground(wxEraseEvent &event) {
@@ -245,8 +262,8 @@ void wxVideoPanel::OnEraseBackground(wxEraseEvent &event) {
 
 void wxVideoPanel::OnIdle(wxIdleEvent &event) {
     if(m_BufferChanged) {
-        Refresh();
         m_BufferChanged = false;
+        Refresh();
     }
 }
 
