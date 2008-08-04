@@ -30,14 +30,17 @@ END_EVENT_TABLE()
 
 wxVideoOutputDevice::wxVideoOutputDevice(wxVideoPanel* panel) : VideoOutputDevice(),
 m_Bitmap(NULL),
+m_BackupBitmap(NULL),
 m_Panel(panel)
 {
     m_Bitmap = new syVODBitmap();
+    m_BackupBitmap = new syBitmap();
     m_Bitmap->SetVOD(this);
 }
 
 wxVideoOutputDevice::~wxVideoOutputDevice() {
     ShutDown();
+    delete m_BackupBitmap;
     delete m_Bitmap;
 }
 
@@ -62,9 +65,20 @@ void wxVideoOutputDevice::DisconnectOutput() {
 }
 
 bool wxVideoOutputDevice::ChangeDeviceSize(unsigned int newwidth,unsigned int newheight) {
-    m_Bitmap->Lock(0,10); // unlimited lock attempts, 10ms. each
-    m_Bitmap->Realloc(newwidth,newheight, m_ColorFormat);
+    m_Bitmap->Lock(0,8); // unlimited lock attempts, 8ms each
+
+    // Copy the current data into the backup bitmap
+    m_BackupBitmap->CopyFrom(m_Bitmap);
+
+    // Reallocate the current bitmap's buffer, if necessary
+    m_Bitmap->Realloc(m_Width,m_Height,m_ColorFormat);
+
+    // Now paste the old data
+    m_Bitmap->PasteFrom(m_BackupBitmap);
+
+    // And unlock
     m_Bitmap->Unlock();
+
     return true;
 }
 
@@ -105,13 +119,16 @@ m_IsPlaying(false),
 m_SizeChanging(false),
 m_BufferChanged(false)
 {
+    m_PaintingDemo = false;
+    m_DemoBitmap = new syBitmap(200,100,vcfRGB24);
     m_Video = new wxVideoOutputDevice(this);
     m_Video->Init();
+    Demo();
 }
 
 wxVideoPanel::~wxVideoPanel() {
-    m_Video->ShutDown();
     delete m_Video;
+    delete m_DemoBitmap;
     m_Video = NULL;
 }
 
@@ -122,12 +139,13 @@ void wxVideoPanel::OnPaint(wxPaintEvent &event) {
     }
     if(m_Video && m_Video->IsOk()) {
         // Video is created and active. Let's copy it.
-        if(m_Video->GetBitmap()->Lock(5,10)) { // 5 attempts, 10 ms each.
+        m_Video->GetBitmap()->Lock(0,10); // Unlimited attempts, 10 ms each.
+        {
             wxSize size = GetSize();
-            wxBitmap* bmp = NULL;
-
             unsigned int w = size.GetWidth();
             unsigned int h = size.GetHeight();
+            wxBitmap* bmp = NULL;
+
             if(w == m_Video->GetWidth() && h == m_Video->GetHeight()) {
                 // Same size, no problem
                 bmp = new wxBitmap(wxImage(w,h,m_Video->GetBitmap()->GetBuffer(), true));
@@ -161,6 +179,31 @@ void wxVideoPanel::OnIdle(wxIdleEvent &event) {
     if(m_BufferChanged) {
         m_BufferChanged = false;
         Refresh();
+        event.RequestMore();
+    }
+//    Demo();
+}
+
+void wxVideoPanel::Demo() {
+    if(!m_Video || m_PaintingDemo) {
+        return;
+    }
+    if(m_Video->GetWidth() !=0 && m_Video->GetHeight() !=0) {
+        m_PaintingDemo = true;
+        // Let's paint some pretty colors!
+
+        int x,y;
+        unsigned long pixel,tick;
+        for(y = 0; y < (int)(m_DemoBitmap->GetHeight()); ++y) {
+            for(x = 0; x < (int)(m_DemoBitmap->GetWidth()); ++x) {
+                tick = wxDateTime::UNow().GetMillisecond();
+                pixel = y*y+(x*x) + tick;
+                m_DemoBitmap->SetPixel(x,y,pixel);
+            }
+        }
+        m_Video->LoadVideoData(m_DemoBitmap);
+        m_PaintingDemo = false;
+        syMilliSleep(10);
     }
 }
 
@@ -176,7 +219,7 @@ void wxVideoPanel::OnSize(wxSizeEvent& event) {
     bool result = m_Video->ChangeSize(newsize.GetWidth(),newsize.GetHeight());
     m_SizeChanging = false;
     if(result) {
-        FlagForRepaint();
+        Refresh();
     }
 }
 

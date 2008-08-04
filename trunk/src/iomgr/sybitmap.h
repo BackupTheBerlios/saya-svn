@@ -93,30 +93,38 @@ class syBitmap {
         /** Returns the bitmap's color format */
         VideoColorFormat GetColorFormat();
 
+        /** @brief Returns a pointer to the start of the specified row
+         *
+         *  @param y The row to be accessed (zero-based)
+         *  @return A pointer to the current row if the value of "y" is valid; NULL otherwise.
+         */
+        unsigned char* GetRow(int y);
+
+        /** @brief Returns a pointer to the pixel corresponding to the specified coordinates
+         *  @param x The column (zero-based)
+         *  @param y The row (zero-based)
+         *  @return The pointer to the pixel in question, or NULL in case of an invalid y
+         *  @note y is invalid if it exceeds the bitmap's height or is less than 0.
+         */
+        unsigned char* GetPixelAddr(int x, int y);
+
         /** @brief Gets a pixel in the current color format at the specified coordinates
          *
          *  @param x The x coordinate (zero-based)
          *  @param y The y coordinate (zero-based)
          *  @return The contents of the specified pixel, in the current color format
-         *  @note If the coordinates exceed the bitmap's dimensions, we get a 0.
+         *  @note If the coordinates exceed the bitmap's dimensions or are less than 0, we get a 0.
          */
-        unsigned long GetPixel(unsigned int x, unsigned int y);
+        unsigned long GetPixel(int x, int y);
 
         /** @brief Sets a pixel in the current color format at the specified coordinates
          *
          *  @param x The x coordinate (zero-based)
          *  @param y The y coordinate (zero-based)
          *  @param pixel A long integer containing the pixel in the current color format
-         *  @note If the coordinates exceed the bitmap's dimensions, no action is taken.
+         *  @note If the coordinates exceed the bitmap's dimensions or are less than 0, no action is taken.
          */
-        void SetPixel(unsigned int x, unsigned int y, unsigned long pixel);
-
-        /** @brief Returns a pointer to the start of the specified row
-         *
-         *  @param y The row to be accessed (zero-based)
-         *  @return A pointer to the current row if the value of "y" is valid; NULL otherwise.
-         */
-        unsigned char* GetRow(unsigned int y);
+        void SetPixel(int x, int y, unsigned long pixel);
 
         /** @brief Converts a pixel between two color formats
          *  @param pixel The original pixel
@@ -161,6 +169,9 @@ class syBitmap {
 
         /** Length in bytes of the whole buffer */
         unsigned long m_BufferSize;
+
+        /** Bytes per pixel of the current color format */
+        unsigned int m_bypp;
 
 };
 

@@ -85,6 +85,8 @@ class wxVideoOutputDevice : public VideoOutputDevice {
         /** Holds a temporary buffer for the video data */
         syVODBitmap* m_Bitmap;
 
+        syBitmap* m_BackupBitmap;
+
         /** The corresponding Panel which we will refresh and from which we will take the width and height */
         wxVideoPanel* m_Panel;
 };
@@ -117,6 +119,9 @@ class wxVideoPanel : public wxPanel {
         bool m_IsPlaying;
         bool m_SizeChanging;
         bool m_BufferChanged;
+        bool m_PaintingDemo;
+
+        syBitmap* m_DemoBitmap;
 
     public:
 
@@ -141,6 +146,8 @@ class wxVideoPanel : public wxPanel {
          * Tells the Panel that the buffer has changed
          */
         void FlagForRepaint();
+
+        void Demo();
 
         DECLARE_EVENT_TABLE()
 };

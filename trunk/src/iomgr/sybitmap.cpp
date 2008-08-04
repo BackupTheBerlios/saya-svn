@@ -16,6 +16,7 @@
  **************************************************************/
 
 #include "sybitmap.h"
+#include <math.h>
 
 syBitmap::syBitmap() :
 m_Width(0),
@@ -23,7 +24,8 @@ m_Height(0),
 m_ColorFormat(vcfRGB32),
 m_Buffer(NULL),
 m_BufferLength(0),
-m_BufferSize(0)
+m_BufferSize(0),
+m_bypp(4)
 {
 
 }
@@ -34,7 +36,9 @@ m_Height(0),
 m_ColorFormat(vcfRGB32),
 m_Buffer(NULL),
 m_BufferLength(0),
-m_BufferSize(0)
+m_BufferSize(0),
+m_bypp(4)
+
 {
     Realloc(width, height, colorformat);
 }
@@ -55,10 +59,12 @@ void syBitmap::Create(unsigned int width,unsigned int height,VideoColorFormat co
 }
 
 void syBitmap::Realloc(unsigned int newwidth,unsigned int newheight,VideoColorFormat newformat) {
+    if(!newwidth || !newheight) {
+        return;
+    }
     unsigned int bypp = syBitmap::CalculateBytesperPixel(newformat);
     unsigned int rowlen = bypp * newwidth;
-    while(rowlen & 3) { ++rowlen; } // Round to 4
-    unsigned int newsize = rowlen * newwidth;
+    unsigned int newsize = rowlen * newheight;
 
     if(newsize > m_BufferSize) {
 
@@ -71,6 +77,7 @@ void syBitmap::Realloc(unsigned int newwidth,unsigned int newheight,VideoColorFo
     }
     m_BufferLength = newsize;
     m_ColorFormat = newformat;
+    m_bypp = CalculateBytesperPixel(newformat);
     m_Width = newwidth;
     m_Height = newheight;
 }
@@ -153,6 +160,7 @@ void syBitmap::CopyFrom(syBitmap* source) {
     unsigned long i;
     unsigned long imax = source->GetBufferLength();
     for(i = 0; i < imax; ++i) {
+        if((i & 32767) == 0 && MustAbort()) { break; } // Check for abort every 32K
         m_Buffer[i] = original_buffer[i];
     }
 }
@@ -163,26 +171,99 @@ void syBitmap::PasteFrom(syBitmap* source,syStretchMode stretchmode) {
     }
 
     do {
+        unsigned int srcw = source->GetWidth();
+        unsigned int srch = source->GetHeight();
+        if(!srcw || !srch || !m_Width || !m_Height) {
+            break; // Invalid width/height
+        }
+        int x,y;
+        VideoColorFormat srcfmt = source->GetColorFormat();
         // Trivial case: Original has exactly the same dimensions and color format
-        if(source->GetWidth() == m_Width && source->GetHeight() == m_Height
-           && source->GetColorFormat() == m_ColorFormat) {
+        if(srcw == m_Width && srch == m_Height && srcfmt == m_ColorFormat) {
             CopyFrom(source);
-            break;
+            break; // Get out of the do-while-false construct
         }
-        if(source->GetWidth() == m_Width && source->GetHeight() == m_Height) {
-            // Same dimensions, different color format
-            break;
-            // TODO: Impelment bitmap pasting (same dimensions, different color format)
+
+        // Near trivial case: Same dimensions, different color format
+        if(srcw == m_Width && srch == m_Height) {
+            for(y = 0; y < (int)m_Height; ++y) {
+                if((y & 32) == 0 && MustAbort()) { break; } // Check for abort every 32 rows
+                for(x = 0; x < (int)m_Width; ++x) {
+                    SetPixel(x,y,ConvertPixel(source->GetPixel(x,y), srcfmt, m_ColorFormat));
+                }
+            }
+            break; // Get out of the do-while-false construct
         }
+
         // Nontrivial case: Resize and possibly stretch from the original
-        // TODO: Impelment bitmap pasting (different dimensions and color format)
+        int srcx, srcy;
+        double xscale, yscale, xoffset, yoffset, tmpx, tmpy;
 
+        if(stretchmode == sy_stcopy && (srcw > m_Width || srch > m_Height)) {
+            stretchmode = sy_stkeepaspectratio;
+        }
+
+        // xscale, yscale, xoffset and yoffset are calculated according to the following formula:
+        // srcx = (x * xscale) + xoffset + 0.5 // This formula is applied in the loop at the bottom
+        // Ignoring the offset and the 0.5 for rounding, we have:
+        //      srcx = x * xscale;
+        // Therefore,
+        //      xscale = srcx / x;
+        // If x = m_Width, then:
+        //      xscale = srcw / m_Width.
+        //
+        // Now, if we want to make the centers fit together, then we have the following condition:
+        //      srcx = srcw/2, and x = m_Width/2.
+        // Applying it to srcx = (x * xscale) + xoffset, we have:
+        //      srcw/2 = (m_Width/2 * xscale) + xoffset
+        //      xoffset = srcw/2 - (m_Width/2 * xscale).
+        // By Getting the 1/2 out, we have:
+        //      xoffset = (srcw - m_Width*xscale)/2
+        // And so, we end up with the following formulas:
+        //
+        // -----------------------------------------
+        // xscale = srcw / m_Width;
+        // yscale = srch / m_Height;
+        // xoffset = (srcw - (m_Width*xscale)) / 2;
+        // yoffset = (srch - (m_Height*yscale)) / 2;
+        // -----------------------------------------
+
+        switch(stretchmode) {
+            case sy_stcopy: // Just center the bitmap
+            xscale = 1.0;
+            yscale = 1.0;
+            xoffset = (double)(srcw - m_Width) / 2;
+            yoffset = (double)(srch - m_Height) / 2;
+            break;
+
+            case sy_stkeepaspectratio: // Scale without distorting
+            default: // Resize to fit
+            xscale = ((double)srcw) / m_Width;
+            yscale = ((double)srch) / m_Height;
+
+            if(stretchmode == sy_stkeepaspectratio) {
+                if(yscale >= xscale) { // Pick the greatest scale so that everything fits inside
+                    xscale = yscale;
+                } else {
+                    yscale = xscale;
+                }
+            }
+            xoffset = ((double)srcw - (double)(m_Width*xscale)) / 2;
+            yoffset = ((double)srch - (double)(m_Height*yscale)) / 2;
+        }
+
+        // And now we implement the formula srcx = (x * xscale) + xoffset + 0.5 into a for loop
+
+        for(y = 0, tmpy = yoffset + 0.5; y < (int)m_Height; ++y, tmpy += yscale) {
+            if((y & 32) == 0 && MustAbort()) { break; } // Check for abort every 32 rows
+            srcy = int(floor(tmpy));
+            for(x = 0, tmpx = xoffset + 0.5; x < (int)m_Width; ++x, tmpx += xscale) {
+                // Simmetric rounding is done by adding 0.5 to tmpx beforehand.
+                srcx = int(floor(tmpx));
+                SetPixel(x,y,ConvertPixel(source->GetPixel(srcx,srcy), srcfmt, m_ColorFormat));
+            }
+        }
     }while(false);
-}
-
-unsigned long syBitmap::GetPixel(unsigned int x, unsigned int y) {
-    return 0;
-    // TODO: Implement syBitmap::GetPixel
 }
 
 bool syBitmap::MustAbort() {
@@ -201,18 +282,55 @@ void syBitmap::Clear() {
     }
 }
 
-void syBitmap::SetPixel(unsigned int x, unsigned int y, unsigned long pixel) {
-    // TODO: Implement syBitmap::SetPixel
+unsigned char* syBitmap::GetRow(int y) {
+    if(m_Width == 0 || m_Height == 0 || y < 0 || y >= (int)m_Height) {
+        return NULL;
+    }
+    unsigned long w = m_Width*m_bypp;
+    return (m_Buffer + (w*y));
 }
 
-unsigned char* syBitmap::GetRow(unsigned int y) {
-    return NULL;
-    // TODO: Implement syBitmap::GetRow
+unsigned char* syBitmap::GetPixelAddr(int x, int y) {
+    unsigned char* base = GetRow(y);
+    if(x < 0 || x >= (int)m_Width) {
+        base = NULL;
+    }
+    if(base != NULL) {
+        base += (x*m_bypp);
+    }
+    return base;
+}
+
+unsigned long syBitmap::GetPixel(int x, int y) {
+    unsigned int i;
+    unsigned long result = 0;
+    unsigned char* base = GetPixelAddr(x,y);
+    if(base != NULL) {
+        for(i = 0; i < m_bypp; ++i) {
+            result = (result << 8) | (*base & 255);
+            base++;
+        }
+    }
+    return result;
+}
+
+void syBitmap::SetPixel(int x, int y, unsigned long pixel) {
+    unsigned int i;
+    unsigned char* base = GetPixelAddr(x,y);
+    if(base != NULL) {
+        for(i = 0; i < m_bypp; ++i) {
+            *base = pixel & 255;
+            pixel >>= 8;
+            base++;
+        }
+    }
 }
 
 unsigned long syBitmap::ConvertPixel(unsigned long pixel,VideoColorFormat sourcefmt,VideoColorFormat destfmt) {
-    return 0;
-    // TODO: Implement syBitmap::ConvertPixel
-
+    if(sourcefmt == destfmt) { // Trivial case: Formats are the same
+        return pixel;
+    }
+    // TODO: Implement non-trivial cases in syBitmap::ConvertPixel
+    return pixel;
 }
 
