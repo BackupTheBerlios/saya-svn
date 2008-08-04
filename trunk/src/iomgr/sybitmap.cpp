@@ -185,6 +185,22 @@ unsigned long syBitmap::GetPixel(unsigned int x, unsigned int y) {
     // TODO: Implement syBitmap::GetPixel
 }
 
+bool syBitmap::MustAbort() {
+    return false;
+}
+
+void syBitmap::Clear() {
+    if(!m_Buffer || m_Width == 0 || m_Height == 0) {
+        return;
+    }
+
+    unsigned long i;
+    for(i = 0; i < m_BufferSize; ++i) {
+        // We clear all the buffer and not just the visible part
+        m_Buffer[i] = 0;
+    }
+}
+
 void syBitmap::SetPixel(unsigned int x, unsigned int y, unsigned long pixel) {
     // TODO: Implement syBitmap::SetPixel
 }
@@ -199,3 +215,4 @@ unsigned long syBitmap::ConvertPixel(unsigned long pixel,VideoColorFormat source
     // TODO: Implement syBitmap::ConvertPixel
 
 }
+

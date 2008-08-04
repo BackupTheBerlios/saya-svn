@@ -94,7 +94,7 @@ bool VideoOutputDevice::ChangeDeviceSize(unsigned int newwidth,unsigned int newh
     return false;
 }
 
-void VideoOutputDevice::LoadVideoData(VideoColorFormat colorformat, const char *buf,unsigned int buflen) {
+void VideoOutputDevice::LoadVideoData(syBitmap* bitmap) {
     bool result = true;
 
     {
@@ -107,12 +107,12 @@ void VideoOutputDevice::LoadVideoData(VideoColorFormat colorformat, const char *
     }
 
     if(result) {
-        LoadDeviceVideoData(colorformat,buf,buflen);
+        LoadDeviceVideoData(bitmap);
         m_playing = false;
     }
 }
 
-void VideoOutputDevice::LoadDeviceVideoData(VideoColorFormat colorformat, const char *buf,unsigned int buflen) {
+void VideoOutputDevice::LoadDeviceVideoData(syBitmap* bitmap) {
     // This is a stub
 }
 
@@ -134,4 +134,107 @@ void VideoOutputDevice::DisconnectOutput() {
 
 void VideoOutputDevice::RenderData() {
     // This is a stub
+}
+
+/** syBitmap subclass for use with VideoOutputDevice */
+
+syVODBitmap::syVODBitmap() :
+m_VOD(NULL),
+m_BufferMutex(NULL),
+m_BufferOwner(0),
+m_BufferLockCount(0)
+{
+    m_BufferMutex = new syMutex();
+}
+
+/** Constructor with incorporated bitmap creation */
+syVODBitmap::syVODBitmap(unsigned int width,unsigned int height,VideoColorFormat colorformat) :
+syBitmap(width,height,colorformat),
+m_VOD(NULL),
+m_BufferMutex(NULL),
+m_BufferOwner(0),
+m_BufferLockCount(0)
+{
+    m_BufferMutex = new syMutex();
+}
+
+syVODBitmap::~syVODBitmap() {
+    delete m_BufferMutex;
+}
+
+void syVODBitmap::SetVOD(VideoOutputDevice* device) {
+    m_VOD = device;
+}
+
+bool syVODBitmap::MustAbort() {
+    if(!m_VOD) {
+        return false;
+    }
+    return m_VOD->MustAbortPlayback();
+}
+
+bool syVODBitmap::Lock(unsigned int tries,unsigned delay) {
+    bool result = false;
+    unsigned i = 0;
+    if(delay < 10) {
+        delay = 10;
+    }
+    do {
+        {   // The extra braces are a stack spaceholder for tmplock
+            syMutexLocker tmplock(*m_BufferMutex);
+            result = (m_BufferOwner == 0 || (m_BufferOwner == syMutex::GetThreadId()));
+            if(result) {
+                if(!m_BufferLockCount) {
+                    m_BufferOwner = syMutex::GetThreadId();
+                }
+                ++m_BufferLockCount;
+            }
+        }   // After closing this brace, the mutexlocker is released from the stack, and the mutex is unlocked.
+        if(!result) {
+            if(tries > 0) {
+                ++i;
+            }
+            syMilliSleep(delay);
+        }
+    }while(!result && (tries==0 || i < tries));
+    return result;
+}
+
+bool syVODBitmap::Unlock() {
+    bool result = false;
+    do {
+        syMutexLocker tmplock(*m_BufferMutex);
+        if(!m_BufferOwner) {
+            result = true;
+            break;
+        }
+        if(m_BufferOwner == syMutex::GetThreadId()) {
+            if(m_BufferLockCount > 0) {
+                --m_BufferLockCount;
+            }
+            if(!m_BufferLockCount) {
+                m_BufferOwner = 0;
+            }
+            result = true;
+            break;
+        }
+    }while(false);
+
+    return result;
+}
+
+bool syVODBitmap::ReleaseBuffer(bool force) {
+    bool isLockedNow = Lock(10,10);
+    bool result = isLockedNow;
+    if(isLockedNow || force) {
+        delete[] m_Buffer;
+        m_Buffer = NULL;
+        m_BufferLength = 0;
+        m_BufferSize = 0;
+        result = true;
+    }
+    if(isLockedNow) {
+        Unlock();
+    }
+    return result;
 }

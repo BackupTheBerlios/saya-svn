@@ -47,11 +47,11 @@ enum VideoColorFormat {
 
 /** Stretching strategy for pasting bitmaps */
 enum syStretchMode {
-    sy_copy, /** just copy the bitmap and center it.
+    sy_stcopy, /** just copy the bitmap and center it.
               *   If the original is larger, it will be resized while keeping the aspect ratio
               */
-    sy_keepaspectratio, /** Resize as possible without distorting */
-    sy_stretch /** Full stretching/resizing of the original */
+    sy_stkeepaspectratio, /** Resize as possible without distorting */
+    sy_ststretch /** Full stretching/resizing of the original */
 };
 
 class syBitmap {
@@ -73,7 +73,7 @@ class syBitmap {
         void CopyFrom(syBitmap* source);
 
         /** Pastes from another bitmap, resizing if necessary */
-        void PasteFrom(syBitmap* source,syStretchMode stretchmode = sy_keepaspectratio);
+        void PasteFrom(syBitmap* source,syStretchMode stretchmode = sy_stkeepaspectratio);
 
         /** Returns a pointer to the Buffer being used */
         unsigned char* GetBuffer();
@@ -128,13 +128,21 @@ class syBitmap {
 
         static unsigned int CalculateBytesperPixel(VideoColorFormat format);
 
-    protected:
+        /** @brief For use with VideoOutputDevice. If the result is true, the operation must be aborted ASAP.
+         *  @note  You must override this method accordingly to use it in multithreaded apps.
+         */
+        virtual bool MustAbort();
 
         /** Reallocates buffer to hold a bitmap with different size/color format
          *
          *  @note The actual buffer contents are lost
          */
         void Realloc(unsigned int newwidth,unsigned int newheight,const VideoColorFormat newformat);
+
+        /** Clears the buffer, filling it with zeroes. */
+        void Clear();
+
+    protected:
 
         /** Width in pixels */
         unsigned int m_Width;

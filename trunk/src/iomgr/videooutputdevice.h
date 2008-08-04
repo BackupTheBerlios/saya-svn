@@ -1,6 +1,7 @@
 /***************************************************************
  * Name:      videooutputdevice.h
- * Purpose:   Declaration    of the VideoOutputDevice class
+ * Purpose:   Declaration of the VideoOutputDevice class
+ *            and related classes
  * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * Created:   2008-05-09
  * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
@@ -11,13 +12,17 @@
 #define videooutputdevice_h
 
 #include "sybitmap.h"
+#include "mutex.h"
 
 class syMutex;
+class VideoOutputDevice;
+class syVODBitmap;
 
 /**
  * @brief Generic wrapper for a Video Output device.
  */
 class VideoOutputDevice {
+    friend class syVODBitmap;
     public:
         /** Standard Constructor */
         VideoOutputDevice();
@@ -60,13 +65,11 @@ class VideoOutputDevice {
 
         /** @brief Loads video data from an external buffer.
          *
-         *  @param colorformat The input color format being sent.
-         *  @param buf Buffer containing the data to be processed.
-         *  @param buflen The length of the buffer to be processed, in bytes.
+         *  @param bitmap the bitmap (buffer) containing the image to be sent.
          *  @note  This method is a wrapper for LoadDeviceVideoData.
          *  @note  This method should be called by the worker thread
          */
-        void LoadVideoData(VideoColorFormat colorformat, const char *buf,unsigned int buflen);
+        void LoadVideoData(syBitmap* bitmap);
 
         /** Standard destructor. */
         virtual ~VideoOutputDevice();
@@ -105,14 +108,12 @@ class VideoOutputDevice {
 
         /** @brief Virtual method which loads video data from an external buffer.
          *
-         *  @param colorformat The input color format being sent.
-         *  @param buf Buffer containing the data to be processed.
-         *  @param buflen The length of the buffer to be processed, in bytes.
-         *  @note  This method MUST do nothing if either m_Width or m_Height are set to 0.
-         *         When the data is finally converted, RenderData MUST be called.
+         *  @param bitmap the bitmap (buffer) containing the image to be sent.
+         *  @note  This method MUST do nothing if either m_width or m_height are set to 0.
+         *  @note  When the data is finally converted, RenderData MUST be called.
          *  @note  This method MUST check MustAbortPlayback() regularly and abort rendering when the result is true.
          */
-        virtual void LoadDeviceVideoData(VideoColorFormat colorformat, const char *buf,unsigned int buflen);
+        virtual void LoadDeviceVideoData(syBitmap* bitmap);
 
 
         /** Plays the received frames.
@@ -143,6 +144,51 @@ class VideoOutputDevice {
 
         bool m_ok;                      /** Tells whether the output device was initialized correctly. */
         syMutex* m_mutex;
+};
+
+/** syBitmap subclass for use with VideoOutputDevice */
+class syVODBitmap : public syBitmap {
+    public:
+        /** Standard constructor */
+        syVODBitmap();
+
+        /** Constructor with incorporated bitmap creation */
+        syVODBitmap(unsigned int width,unsigned int height,VideoColorFormat colorformat);
+
+        /** Standard destructor */
+        virtual ~syVODBitmap();
+
+        /** Sets the VideoOutputDevice associated with this bitmap */
+        void SetVOD(VideoOutputDevice* device);
+
+        /** @brief Tries to Lock the Video Buffer for multithreaded operations.
+          * @param tries The number of attempts to lock the buffer
+          * @param delay The delay in milliseconds between each locking attempt
+          * @return true on success; false otherwise.
+          */
+        bool Lock(unsigned int tries = 1,unsigned delay = 10);
+
+        /** @brief Unlocks the Video Buffer (if the current thread is the owner)
+          * @return true if the Buffer's owner was either 0 or the current thread; false otherwise.
+          */
+        bool Unlock();
+
+        /** @brief Releases the internal bitmap buffer.
+          *
+          * @param force If true, the bitmap is released even when locked by other thread.
+          * @warning DO NOT use the parameter force unless you REALLY REALLY KNOW what you're doing!
+          * @return true if the buffer was released successfully; false if the buffer was locked by another thread.
+          */
+        bool ReleaseBuffer(bool force);
+
+        /** For multi-threaded operations */
+        virtual bool MustAbort();
+    private:
+
+        VideoOutputDevice* m_VOD;
+        syMutex* m_BufferMutex;
+        unsigned long m_BufferOwner;
+        unsigned long m_BufferLockCount;
 };
 
 #endif

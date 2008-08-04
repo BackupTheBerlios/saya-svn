@@ -26,8 +26,8 @@ class syMutex;
  *
  *  @see VideoOutputDevice
  */
-
 class wxVideoOutputDevice : public VideoOutputDevice {
+    friend class syVODBitmap;
     public:
         /** Initializes the Output Device based on a wxVideoPanel. */
         wxVideoOutputDevice(wxVideoPanel* panel);
@@ -35,37 +35,10 @@ class wxVideoOutputDevice : public VideoOutputDevice {
         /** Standard destructor */
         virtual ~wxVideoOutputDevice();
 
-        static unsigned long CalculateBufferLength(unsigned int width,unsigned int height);
-
-        /** Tries to Lock the Video Buffer.
-          * @param tries The number of attempts to lock the buffer
-          * @param delay The delay in milliseconds between each locking attempt
-          * @return true on success; false otherwise.
+        /** Gets the Video Bitmap Buffer
+          * @return a pointer to the Bitmap
           */
-        bool LockBuffer(unsigned int tries = 1,unsigned delay = 10);
-
-        /** Unlocks the Video Buffer, if the current thread is the owner
-          * @return true if the Buffer's owner was either 0 or the current thread; false otherwise.
-          */
-        bool UnlockBuffer();
-
-        /** Gets the Video Buffer's pointer
-          * @return a pointer to the Video Buffer
-          * @warning You MUST lock the buffer using the LockBuffer method prior to calling this function.
-          */
-        unsigned char* GetBuffer();
-
-        /** Gets the Video Buffer's Size
-          * @return the Video Buffer Size, in bytes.
-          * @warning You MUST lock the buffer using the LockBuffer method prior to calling this function.
-          */
-        unsigned long GetBufferSize();
-
-        /** Gets the Video Buffer's Actual length (which will always be less than or equal than the buffer size)
-          * @return the Video Buffer Actual length, in bytes.
-          * @warning You MUST lock the buffer using the LockBuffer method prior to calling this function.
-          */
-        unsigned long GetBufferLength();
+        syVODBitmap* GetBitmap();
 
     protected:
 
@@ -93,14 +66,12 @@ class wxVideoOutputDevice : public VideoOutputDevice {
 
         /** @brief Loads video data from an external buffer.
          *
-         *  @param colorformat The input color format being sent.
-         *  @param buf Buffer containing the data to be processed.
-         *  @param buflen The length of the buffer to be processed, in bytes.
+         *  @param bitmap Buffer containing the data to be processed.
          *  @note  This method MUST do nothing if either m_width or m_height are set to 0.
-         *         When the data is finally converted, RenderData MUST be called.
+         *  @note  When the data is finally converted, RenderData MUST be called.
          *  @note  This method MUST check MustAbortPlayback() regularly and abort rendering when the result is true.
          */
-        virtual void LoadDeviceVideoData(VideoColorFormat colorformat, const char *buf,unsigned int buflen);
+        virtual void LoadDeviceVideoData(syBitmap* bitmap);
 
 
         /** Plays the received frames by Refreshing the panel's internal buffer.
@@ -109,24 +80,12 @@ class wxVideoOutputDevice : public VideoOutputDevice {
           */
         virtual void RenderData();
 
-        /** A temporary buffer that holds the video data */
-        unsigned char* m_Buffer;
-
-        /** Specifies the allocated memory dedicated to this buffer */
-        unsigned long m_BufferSize;
-
-        /** Specifies the exact length to hold the current video frame */
-        unsigned long m_BufferLength;
-
     private:
 
-        /** Reallocates the current buffer to fit the new size requirements */
-        void ReAllocBuffer(unsigned int newwidth, unsigned int newheight);
-        /** The corresponding Panel which we will refresh and from which we will take the width and height */
+        /** Holds a temporary buffer for the video data */
+        syVODBitmap* m_Bitmap;
 
-        unsigned long m_BufferOwner;
-        unsigned long m_BufferLockCount;
-        syMutex* m_BufferMutex;
+        /** The corresponding Panel which we will refresh and from which we will take the width and height */
         wxVideoPanel* m_Panel;
 };
 

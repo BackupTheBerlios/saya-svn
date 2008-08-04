@@ -29,32 +29,16 @@ END_EVENT_TABLE()
 // *** Begin wxVideoOutputDevice code ***
 
 wxVideoOutputDevice::wxVideoOutputDevice(wxVideoPanel* panel) : VideoOutputDevice(),
-m_Buffer(NULL),
-m_BufferSize(0),
-m_BufferLength(0),
-m_BufferOwner(0),
-m_BufferLockCount(0),
-m_BufferMutex(NULL),
+m_Bitmap(NULL),
 m_Panel(panel)
 {
-    m_BufferMutex = new syMutex;
-
+    m_Bitmap = new syVODBitmap();
+    m_Bitmap->SetVOD(this);
 }
 
 wxVideoOutputDevice::~wxVideoOutputDevice() {
-    m_BufferOwner = 0;
-    m_BufferLockCount = 0;
     ShutDown();
-    delete m_BufferMutex;
-    m_BufferMutex = NULL;
-}
-
-unsigned long wxVideoOutputDevice::CalculateBufferLength(unsigned int width,unsigned int height) {
-    unsigned long linesize = 3*width;
-    if(linesize > 0) {
-        while(linesize & 3 > 0) ++linesize; // Round to 4 bytes
-    }
-    return linesize * height;
+    delete m_Bitmap;
 }
 
 bool wxVideoOutputDevice::InitializeOutput() {
@@ -63,151 +47,46 @@ bool wxVideoOutputDevice::InitializeOutput() {
     m_ColorFormat = vcfRGB24;
     m_Width = tmpsize.GetWidth();
     m_Height = tmpsize.GetHeight();
-    ReAllocBuffer(m_Width,m_Height);
+    m_Bitmap->Realloc(m_Width,m_Height,m_ColorFormat);
     return true;
 }
 
-void wxVideoOutputDevice::ReAllocBuffer(unsigned int newwidth,unsigned int newheight) {
-    m_BufferLength = CalculateBufferLength(newwidth,newheight);
-    if(m_Buffer==NULL || m_BufferSize < m_BufferLength) {
-        if(m_Buffer!=NULL) {
-            delete[] m_Buffer;
-            m_Buffer = NULL;
-        }
-        m_Buffer = new unsigned char[m_BufferLength];
-        m_BufferSize = m_BufferLength;
-    }
-}
-
 void wxVideoOutputDevice::Clear() {
-    if(!m_Buffer || m_Width == 0 || m_Height == 0) {
-        return;
-    }
-
-    // Clear the buffer...
-    unsigned long i;
-    for(i = 0; i < m_BufferSize; ++i) {
-        // We clear all the buffer and not just the visible part
-        m_Buffer[i] = 0;
-    }
+    m_Bitmap->Clear(); // Clear the bitmap...
     // ... and repaint the panel.
     RenderData();
 }
 
 void wxVideoOutputDevice::DisconnectOutput() {
-    if(m_Buffer != NULL) {
-        delete[] m_Buffer;
-        m_Buffer = NULL;
-    }
-    m_BufferSize = 0;
-    m_BufferLength = 0;
-    m_BufferOwner = 0;
-    m_BufferLockCount = 0;
+    m_Bitmap->ReleaseBuffer(false);
 }
 
 bool wxVideoOutputDevice::ChangeDeviceSize(unsigned int newwidth,unsigned int newheight) {
-    if(!LockBuffer()) {
-        return false; // Error!
-    }
-    ReAllocBuffer(newwidth,newheight);
-    // m_Width and m_Height change handled by VideoOutputDevice::ChangeSize(), no need to change here
-    UnlockBuffer();
+    m_Bitmap->Lock(0,10); // unlimited lock attempts, 10ms. each
+    m_Bitmap->Realloc(newwidth,newheight, m_ColorFormat);
+    m_Bitmap->Unlock();
     return true;
 }
 
-bool wxVideoOutputDevice::LockBuffer(unsigned int tries,unsigned int delay) {
-    syMutexLocker tmplock(*m_BufferMutex);
-    bool result = false;
-    unsigned i = 0;
-    if(delay < 10) {
-        delay = 10;
-    }
-    do {
-        result = (m_BufferOwner == 0 || (m_BufferOwner == syMutex::GetThreadId()));
-        if(result) {
-            if(!m_BufferLockCount) {
-                m_BufferOwner = syMutex::GetThreadId();
-            }
-            ++m_BufferLockCount;
-        } else {
-            if(tries > 0) {
-                ++i;
-            }
-            syMilliSleep(delay);
-        }
-    }while(!result && tries > 0 && i < tries);
-
-    return result;
+syVODBitmap* wxVideoOutputDevice::GetBitmap() {
+    return m_Bitmap;
 }
 
-bool wxVideoOutputDevice::UnlockBuffer() {
-    bool result = false;
-    do {
-        syMutexLocker tmplock(*m_BufferMutex);
-        if(!m_BufferOwner) {
-            result = true;
-            break;
-        }
-        if(m_BufferOwner == syMutex::GetThreadId()) {
-            if(m_BufferLockCount > 0) {
-                --m_BufferLockCount;
-            }
-            if(!m_BufferLockCount) {
-                m_BufferOwner = 0;
-            }
-            result = true;
-            break;
-        }
-    }while(false);
-
-    return result;
-}
-
-unsigned char* wxVideoOutputDevice::GetBuffer() {
-    return m_Buffer;
-}
-
-unsigned long wxVideoOutputDevice::GetBufferSize() {
-    return m_BufferSize;
-}
-
-unsigned long wxVideoOutputDevice::GetBufferLength() {
-    return m_BufferLength;
-}
-
-void wxVideoOutputDevice::LoadDeviceVideoData(VideoColorFormat colorformat, const char *buf,unsigned int buflen) {
-    if(m_Width == 0 || m_Height == 0) {
+void wxVideoOutputDevice::LoadDeviceVideoData(syBitmap* bitmap) {
+    if(!m_Width || !m_Height) {
         return;
     }
-    bool abort = false;
 
-    LockBuffer(0,10); // Lock the buffer with 10 msecs between lock attempts; Never stop trying.
+    m_Bitmap->Lock(0,10); // Lock the buffer with 10 msecs between lock attempts; Never stop trying.
 
-    // Copy the data to our buffer
-    if(buflen > m_BufferLength) {
-        buflen = m_BufferLength;
-    }
-    unsigned int i,j;
-    for(i = 0; i < buflen; ++i,++j) {
-        if(j & 32768 == 0) { // Check every 32K
-            j = 0;
-            if(MustAbortPlayback()) {
-                abort = true;
-                break;
-            }
-        }
-        m_Buffer[i] = buf[i];
-    }
-    UnlockBuffer();
+    m_Bitmap->PasteFrom(bitmap,sy_stkeepaspectratio);
+    // Copy from the source bitmap, stretching it as much as possible without distorting it.
+    // Note: Since syBitmap checks our MustAbortPlayback() method, we don't need to worry about it
 
-    // Check again after we're finished
-    if(!abort) {
-        abort = MustAbortPlayback();
-    }
+    m_Bitmap->Unlock(); // Don't forget to unlock the buffer
 
-    if(!abort) {
-        // Copy the data to the Panel
-        RenderData();
+    if(!MustAbortPlayback()) { // If we're called to abort, skip this step
+        RenderData(); // We're clear. Now copy the data to m_Panel.
     }
 }
 
@@ -231,6 +110,7 @@ m_BufferChanged(false)
 }
 
 wxVideoPanel::~wxVideoPanel() {
+    m_Video->ShutDown();
     delete m_Video;
     m_Video = NULL;
 }
@@ -241,11 +121,28 @@ void wxVideoPanel::OnPaint(wxPaintEvent &event) {
         return;
     }
     if(m_Video && m_Video->IsOk()) {
-        // Video is created and active. Let's try to copy it.
-        if(m_Video->LockBuffer(5,10)) { // Try to lock the Video Buffer 5 times, with 10 ms between each.
-            wxBitmap bmp(wxImage(m_Video->GetWidth(),m_Video->GetHeight(),m_Video->GetBuffer(), true));
-            m_Video->UnlockBuffer();
-            wxBufferedPaintDC dc(this, bmp);
+        // Video is created and active. Let's copy it.
+        if(m_Video->GetBitmap()->Lock(5,10)) { // 5 attempts, 10 ms each.
+            wxSize size = GetSize();
+            wxBitmap* bmp = NULL;
+
+            unsigned int w = size.GetWidth();
+            unsigned int h = size.GetHeight();
+            if(w == m_Video->GetWidth() && h == m_Video->GetHeight()) {
+                // Same size, no problem
+                bmp = new wxBitmap(wxImage(w,h,m_Video->GetBitmap()->GetBuffer(), true));
+            } else {
+                // Size has changed! We must resize the video.
+                syBitmap sybmp(w,h,vcfRGB24);
+                sybmp.PasteFrom(m_Video->GetBitmap(),sy_stkeepaspectratio);
+                bmp = new wxBitmap(wxImage(w,h,sybmp.GetBuffer(), true));
+            }
+            m_Video->GetBitmap()->Unlock();
+            { // We add another stack layer (the brace) for the dc so it gets deleted BEFORE our bitmap.
+              // Otherwise, we'll get a segfault.
+                wxBufferedPaintDC dc(this, *bmp);
+            }
+            delete bmp;
         }
     } else {
         // Video has not yet been created. Let's paint a black bitmap.
