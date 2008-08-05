@@ -16,6 +16,7 @@
  **************************************************************/
 
 #include "sybitmap.h"
+#include "sybitmapcopier.h"
 #include <math.h>
 
 syBitmap::syBitmap() :
@@ -326,6 +327,27 @@ void syBitmap::SetPixel(int x, int y, unsigned long pixel) {
     }
 }
 
+void syBitmap::CopyPixel(unsigned char* src,unsigned char* dst,VideoColorFormat sourcefmt,VideoColorFormat destfmt) {
+    unsigned int srcbypp = syBitmap::CalculateBytesperPixel(sourcefmt);
+    unsigned int i;
+    if(sourcefmt == destfmt) {
+        for(i = 0; i < srcbypp; ++i, ++src, ++dst) {
+            *dst = *src;
+        }
+    } else {
+        unsigned int dstbypp = syBitmap::CalculateBytesperPixel(destfmt);
+        unsigned long pixel = 0;
+        for(i = 0; i < srcbypp; ++i, ++src) {
+            pixel = (pixel << 8) | (*src & 255);
+        }
+        pixel = syBitmap::ConvertPixel(pixel, sourcefmt, destfmt);
+        for(i = 0; i < dstbypp; ++i, ++dst) {
+            *dst = pixel & 255;
+            pixel >>= 8;
+        }
+    }
+}
+
 unsigned long syBitmap::ConvertPixel(unsigned long pixel,VideoColorFormat sourcefmt,VideoColorFormat destfmt) {
     if(sourcefmt == destfmt) { // Trivial case: Formats are the same
         return pixel;
@@ -333,4 +355,3 @@ unsigned long syBitmap::ConvertPixel(unsigned long pixel,VideoColorFormat source
     // TODO: Implement non-trivial cases in syBitmap::ConvertPixel
     return pixel;
 }
-

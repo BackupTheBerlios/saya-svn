@@ -173,6 +173,7 @@ bool syVODBitmap::MustAbort() {
     return m_VOD->MustAbortPlayback();
 }
 
+// TODO: Move syVODBitmap::Lock, syVODBitmap::Unlock and syVODBitmap::ReleaseBuffer to syBitmap
 bool syVODBitmap::Lock(unsigned int tries,unsigned delay) {
     bool result = false;
     unsigned i = 0;

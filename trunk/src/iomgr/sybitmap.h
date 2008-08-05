@@ -127,12 +127,23 @@ class syBitmap {
         void SetPixel(int x, int y, unsigned long pixel);
 
         /** @brief Converts a pixel between two color formats
+         *
          *  @param pixel The original pixel
          *  @param sourcefmt The color format of the original pixel
          *  @param destfmt The desired color format of the result
          *  @return The pixel converted to the new color format
          */
         static unsigned long ConvertPixel(unsigned long pixel,VideoColorFormat sourcefmt,VideoColorFormat destfmt);
+
+        /** @brief Copies a pixel from a memory location to another, converting the color format if necessary.
+         *
+         *  @warning absolutely no memory checking is done. Use with care.
+         *  @param src The address of the source pixel to copy
+         *  @param dst The address of the destination pixel to copy into
+         *  @param sourcefmt The color format of the source
+         *  @param destfmt The color format of the destination
+         */
+        static void CopyPixel(unsigned char* src,unsigned char* dst,VideoColorFormat sourcefmt,VideoColorFormat destfmt);
 
         static unsigned int CalculateBytesperPixel(VideoColorFormat format);
 

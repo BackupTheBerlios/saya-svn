@@ -72,6 +72,8 @@
 		<Unit filename="iomgr/mutex.h" />
 		<Unit filename="iomgr/sybitmap.cpp" />
 		<Unit filename="iomgr/sybitmap.h" />
+		<Unit filename="iomgr/sybitmapcopier.cpp" />
+		<Unit filename="iomgr/sybitmapcopier.h" />
 		<Unit filename="iomgr/videooutputdevice.cpp" />
 		<Unit filename="iomgr/videooutputdevice.h" />
 		<Unit filename="newprojectdlg.cpp" />
