@@ -26,6 +26,9 @@ class syBitmapCopier {
         /** Initializes the member variables to perform the batch copying */
         void Init(syBitmap *sourcebmp, syBitmap *destbmp);
 
+        /** Resets m_Src and m_Dst to the bitmaps original addresses */
+        void Reset();
+
         /** Copies pixel from m_Src to m_Dst, converting the color format if necessary. */
         void CopyPixel();
 
@@ -72,6 +75,12 @@ class syBitmapCopier {
          */
         void CopyRowAndIncrementBoth();
 
+        /** Source bitmap */
+        syBitmap* m_Source;
+
+        /** Destination bitmap */
+        syBitmap* m_Dest;
+
         /** Source color format obtained by Init(). Kept public to allow external modification. */
         VideoColorFormat m_SourceFmt;
 
@@ -108,5 +117,88 @@ class syBitmapCopier {
         /** Destination Row Length, in bytes, obtained by Init(). Kept public to allow external modification. */
         unsigned int m_DestRowLength;
 };
+
+inline void syBitmapCopier::CopyPixel() {
+    unsigned int i;
+    if(m_SourceFmt == m_DestFmt) {
+        for(i = 0; i < m_SourceBypp; ++i) {
+            m_Dst[i] = m_Src[i];
+        }
+    } else {
+        unsigned long pixel = 0;
+        for(i = 0; i < m_SourceBypp; ++i) {
+            pixel = (pixel << 8) | (m_Src[i] & 255);
+        }
+        pixel = syBitmap::ConvertPixel(pixel, m_SourceFmt, m_DestFmt);
+        for(i = 0; i < m_DestBypp; ++i) {
+            m_Dst[i] = pixel & 255;
+            pixel >>= 8;
+        }
+    }
+}
+
+inline void syBitmapCopier::CopyPixelAndIncrementSrc() {
+    CopyPixel();
+    m_Src += m_SourceBypp;
+}
+
+inline void syBitmapCopier::CopyPixelAndIncrementDst() {
+    CopyPixel();
+    m_Dst += m_DestBypp;
+}
+
+inline void syBitmapCopier::CopyPixelAndIncrementBoth() {
+    CopyPixel();
+    m_Src += m_SourceBypp;
+    m_Dst += m_DestBypp;
+}
+
+inline void syBitmapCopier::CopyRow() {
+    if(m_SourceFmt == m_DestFmt) {
+        unsigned int maxlength = m_SourceRowLength;
+        if(maxlength > m_DestRowLength) {
+            maxlength = m_DestRowLength;
+        }
+        for(unsigned int j = 0; j < maxlength; ++j) {
+            m_Src[j] = m_Dst[j];
+        }
+    } else {
+        unsigned int maxw = m_SourceWidth;
+        if(maxw > m_DestWidth) {
+            maxw = m_DestWidth;
+        }
+        unsigned char* sourceptr = m_Src;
+        unsigned char* destptr = m_Dst;
+        for(unsigned int j = 0; j < maxw; ++j, sourceptr += m_SourceBypp, destptr += m_DestBypp) {
+            unsigned long pixel = 0;
+            unsigned int i;
+            for(i = 0; i < m_SourceBypp; ++i) {
+                pixel = (pixel << 8) | (sourceptr[i] & 255);
+            }
+            pixel = syBitmap::ConvertPixel(pixel, m_SourceFmt, m_DestFmt);
+            for(i = 0; i < m_DestBypp; ++i) {
+                destptr[i] = pixel & 255;
+                pixel >>= 8;
+            }
+        }
+    }
+}
+
+inline void syBitmapCopier::CopyRowAndIncrementSrc() {
+    CopyRow();
+    m_Src += m_SourceRowLength;
+
+}
+
+inline void syBitmapCopier::CopyRowAndIncrementDst() {
+    CopyRow();
+    m_Dst += m_DestRowLength;
+}
+
+inline void syBitmapCopier::CopyRowAndIncrementBoth() {
+    CopyRow();
+    m_Src += m_SourceRowLength;
+    m_Dst += m_DestRowLength;
+}
 
 #endif

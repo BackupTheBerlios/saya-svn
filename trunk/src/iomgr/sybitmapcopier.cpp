@@ -12,37 +12,24 @@
 #include "sybitmapcopier.h"
 
 void syBitmapCopier::Init(syBitmap *sourcebmp, syBitmap *destbmp) {
-// TODO: Implement syBitmapCopier::Init
+    if(!sourcebmp || !destbmp) { return; }
+    m_Source = sourcebmp;
+    m_Dest = destbmp;
+    m_SourceFmt = sourcebmp->GetColorFormat();
+    m_DestFmt = destbmp->GetColorFormat();
+    m_SourceBypp = syBitmap::CalculateBytesperPixel(m_SourceFmt);
+    m_DestBypp = syBitmap::CalculateBytesperPixel(m_DestFmt);
+    m_Src = sourcebmp->GetBuffer();
+    m_Dst = destbmp->GetBuffer();
+    m_SourceWidth = sourcebmp->GetWidth();
+    m_DestWidth = destbmp->GetWidth();
+    m_SourceHeight = sourcebmp->GetHeight();
+    m_DestHeight = destbmp->GetHeight();
+    m_SourceRowLength = m_SourceWidth * m_SourceBypp;
+    m_DestRowLength = m_DestWidth * m_DestBypp;
 }
 
-void syBitmapCopier::CopyPixel() {
-// TODO: Implement syBitmapCopier::CopyPixel
-}
-
-void syBitmapCopier::CopyPixelAndIncrementSrc() {
-// TODO: Implement syBitmapCopier::CopyPixelAndIncrementSrc
-}
-
-void syBitmapCopier::CopyPixelAndIncrementDst() {
-// TODO: Implement syBitmapCopier::CopyPixelAndIncrementDst
-}
-
-void syBitmapCopier::CopyPixelAndIncrementBoth() {
-// TODO: Implement syBitmapCopier::CopyPixelAndIncrementBoth
-}
-
-void syBitmapCopier::CopyRow() {
-// TODO: Implement syBitmapCopier::CopyRow
-}
-
-void syBitmapCopier::CopyRowAndIncrementSrc() {
-// TODO: Implement syBitmapCopier::CopyRowAndIncrementSrc
-}
-
-void syBitmapCopier::CopyRowAndIncrementDst() {
-// TODO: Implement syBitmapCopier::CopyRowAndIncrementDst
-}
-
-void syBitmapCopier::CopyRowAndIncrementBoth() {
-// TODO: Implement syBitmapCopier::CopyRowAndIncrementBoth
+void syBitmapCopier::Reset() {
+    m_Src = m_Source->GetBuffer();
+    m_Dst = m_Dest->GetBuffer();
 }
