@@ -21,8 +21,7 @@ class syVODBitmap;
 /**
  * @brief Generic wrapper for a Video Output device.
  */
-class VideoOutputDevice {
-    friend class syVODBitmap;
+class VideoOutputDevice : public syAborter {
     public:
         /** Standard Constructor */
         VideoOutputDevice();
@@ -36,6 +35,9 @@ class VideoOutputDevice {
 
          /** Returns the OK status for the output device. */
         bool IsOk();
+
+        /** Returns the value of the m_playing flag */
+        bool IsPlaying();
 
         /** @brief Clears and disconnects the output device. Sets m_ok to false.
           *
@@ -71,6 +73,13 @@ class VideoOutputDevice {
          */
         void LoadVideoData(syBitmap* bitmap);
 
+        /** @brief Flag indicating that playback must be aborted immediately.
+          * @return true if playback/encoding thread must be aborted; false otherwise.
+          * @note This method MUST be called by LoadDeviceVideoData.
+          * @see syAborter::MustAbort
+          */
+        virtual bool MustAbort();
+
         /** Standard destructor. */
         virtual ~VideoOutputDevice();
 
@@ -91,12 +100,6 @@ class VideoOutputDevice {
         /** Disconnects the video output device or memory resource. Called by ShutDown(). */
         virtual void DisconnectOutput();
 
-        /** @brief Flag indicating that playback must be aborted immediately.
-          * @return true if playback/encoding thread must be aborted; false otherwise.
-          * @note This method MUST be called by LoadDeviceVideoData.
-          */
-        bool MustAbortPlayback();
-
         /** @brief Called by ChangeSize whenever the output screen size is changed.
           *
           * This method must deal with size changes so that it resizes the buffers used for playback.
@@ -111,13 +114,13 @@ class VideoOutputDevice {
          *  @param bitmap the bitmap (buffer) containing the image to be sent.
          *  @note  This method MUST do nothing if either m_width or m_height are set to 0.
          *  @note  When the data is finally converted, RenderData MUST be called.
-         *  @note  This method MUST check MustAbortPlayback() regularly and abort rendering when the result is true.
+         *  @note  This method MUST check MustAbort() regularly and abort rendering when the result is true.
          */
         virtual void LoadDeviceVideoData(syBitmap* bitmap);
 
 
         /** Plays the received frames.
-          * @note This method MUST check MustAbortPlayback() regularly and abort rendering when the result is true.
+          * @note This method MUST check MustAbort() regularly and abort rendering when the result is true.
           * @note This method MUST do nothing if either m_Width or m_Height are set to 0.
           */
         virtual void RenderData();
@@ -142,53 +145,11 @@ class VideoOutputDevice {
         /** flag that forbids playback when shutting down the device */
         bool m_shuttingdown;
 
-        bool m_ok;                      /** Tells whether the output device was initialized correctly. */
+        /** Tells whether the output device was initialized correctly. */
+        bool m_ok;
+
+        /** Mutex for multithreading */
         syMutex* m_mutex;
-};
-
-/** syBitmap subclass for use with VideoOutputDevice */
-class syVODBitmap : public syBitmap {
-    public:
-        /** Standard constructor */
-        syVODBitmap();
-
-        /** Constructor with incorporated bitmap creation */
-        syVODBitmap(unsigned int width,unsigned int height,VideoColorFormat colorformat);
-
-        /** Standard destructor */
-        virtual ~syVODBitmap();
-
-        /** Sets the VideoOutputDevice associated with this bitmap */
-        void SetVOD(VideoOutputDevice* device);
-
-        /** @brief Tries to Lock the Video Buffer for multithreaded operations.
-          * @param tries The number of attempts to lock the buffer
-          * @param delay The delay in milliseconds between each locking attempt
-          * @return true on success; false otherwise.
-          */
-        bool Lock(unsigned int tries = 1,unsigned delay = 10);
-
-        /** @brief Unlocks the Video Buffer (if the current thread is the owner)
-          * @return true if the Buffer's owner was either 0 or the current thread; false otherwise.
-          */
-        bool Unlock();
-
-        /** @brief Releases the internal bitmap buffer.
-          *
-          * @param force If true, the bitmap is released even when locked by other thread.
-          * @warning DO NOT use the parameter force unless you REALLY REALLY KNOW what you're doing!
-          * @return true if the buffer was released successfully; false if the buffer was locked by another thread.
-          */
-        bool ReleaseBuffer(bool force);
-
-        /** For multi-threaded operations */
-        virtual bool MustAbort();
-    private:
-
-        VideoOutputDevice* m_VOD;
-        syMutex* m_BufferMutex;
-        unsigned long m_BufferOwner;
-        unsigned long m_BufferLockCount;
 };
 
 #endif

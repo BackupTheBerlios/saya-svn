@@ -10,7 +10,7 @@
 #ifndef audiooutputdevice_h
 #define audiooutputdevice_h
 
-class syMutex;
+#include "mutex.h"
 
 /** @brief Generic class for Audio Output
   *
@@ -35,7 +35,7 @@ class syMutex;
   *
   * These protected methods are used by the derived classes to implement low-level audio playback / encoding.
   */
-class AudioOutputDevice {
+class AudioOutputDevice : public syAborter {
     public:
 
         /** @brief Constructor
@@ -126,7 +126,7 @@ class AudioOutputDevice {
 
         /** Plays / encodes the data received.
           *
-          * @note This method MUST check MustAbortPlayback() regularly and abort rendering when the result is true.
+          * @note This method MUST check MustAbort() regularly and abort rendering when the result is true.
           */
         virtual void RenderData();
 
@@ -161,7 +161,7 @@ class AudioOutputDevice {
          *  @param freq Frequency in Hz.
          *  @param buf Buffer containing the data to be processed.
          *  @param buflen The length of the buffer to be processed, in bytes.
-         *  @note  This method must check MustAbortPlayback() regularly and return immediately when true.
+         *  @note  This method must check MustAbort() regularly and return immediately when true.
          */
         virtual void LoadDeviceAudioData(unsigned int channel,unsigned int bytespersample,unsigned int freq,const char *buf,unsigned int buflen);
 
@@ -169,7 +169,7 @@ class AudioOutputDevice {
           * @return true if playback/encoding thread must be aborted; false otherwise.
           * @note This method MUST be called regularly by LoadDeviceAudioData.
           */
-        bool MustAbortPlayback();
+        virtual bool MustAbort();
 
     private:
 

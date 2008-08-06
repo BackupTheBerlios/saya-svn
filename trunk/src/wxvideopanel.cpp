@@ -30,17 +30,14 @@ END_EVENT_TABLE()
 
 wxVideoOutputDevice::wxVideoOutputDevice(wxVideoPanel* panel) : VideoOutputDevice(),
 m_Bitmap(NULL),
-m_BackupBitmap(NULL),
 m_Panel(panel)
 {
-    m_Bitmap = new syVODBitmap();
-    m_BackupBitmap = new syBitmap();
-    m_Bitmap->SetVOD(this);
+    m_Bitmap = new syBitmap();
+    m_Bitmap->SetAborter(this);
 }
 
 wxVideoOutputDevice::~wxVideoOutputDevice() {
     ShutDown();
-    delete m_BackupBitmap;
     delete m_Bitmap;
 }
 
@@ -65,16 +62,10 @@ void wxVideoOutputDevice::DisconnectOutput() {
 }
 
 bool wxVideoOutputDevice::ChangeDeviceSize(unsigned int newwidth,unsigned int newheight) {
-    m_Bitmap->Lock(0,8); // unlimited lock attempts, 8ms each
-
-    // Copy the current data into the backup bitmap
-    m_BackupBitmap->CopyFrom(m_Bitmap);
+    m_Bitmap->Lock(0,1); // unlimited lock attempts, 1ms each
 
     // Reallocate the current bitmap's buffer, if necessary
     m_Bitmap->Realloc(m_Width,m_Height,m_ColorFormat);
-
-    // Now paste the old data
-    m_Bitmap->PasteFrom(m_BackupBitmap);
 
     // And unlock
     m_Bitmap->Unlock();
@@ -82,7 +73,7 @@ bool wxVideoOutputDevice::ChangeDeviceSize(unsigned int newwidth,unsigned int ne
     return true;
 }
 
-syVODBitmap* wxVideoOutputDevice::GetBitmap() {
+syBitmap* wxVideoOutputDevice::GetBitmap() {
     return m_Bitmap;
 }
 
@@ -91,15 +82,15 @@ void wxVideoOutputDevice::LoadDeviceVideoData(syBitmap* bitmap) {
         return;
     }
 
-    m_Bitmap->Lock(0,10); // Lock the buffer with 10 msecs between lock attempts; Never stop trying.
+    m_Bitmap->Lock(0,1); // Lock the buffer with 1 msec between lock attempts; Never stop trying.
 
     m_Bitmap->PasteFrom(bitmap,sy_stkeepaspectratio);
     // Copy from the source bitmap, stretching it as much as possible without distorting it.
-    // Note: Since syBitmap checks our MustAbortPlayback() method, we don't need to worry about it
+    // Note: Since syBitmap checks our MustAbort() method, we don't need to worry about it
 
     m_Bitmap->Unlock(); // Don't forget to unlock the buffer
 
-    if(!MustAbortPlayback()) { // If we're called to abort, skip this step
+    if(!MustAbort()) { // If we're called to abort, skip this step
         RenderData(); // We're clear. Now copy the data to m_Panel.
     }
 }
@@ -108,7 +99,7 @@ void wxVideoOutputDevice::RenderData() {
     if(m_Width == 0 || m_Height == 0) {
         return;
     }
-    m_Panel->FlagForRepaint(); // Just tell the Panel that the buffer has changed
+    m_Panel->LoadData(); // Copy the data to the wxPanel's internal bitmap
 }
 
 // *** Begin wxVideoPanel code ***
@@ -121,6 +112,7 @@ m_BufferChanged(false)
 {
     m_PaintingDemo = false;
     m_DemoBitmap = new syBitmap(200,100,vcfRGB24);
+    m_Bitmap = new syBitmap();
     m_Video = new wxVideoOutputDevice(this);
     m_Video->Init();
     Demo();
@@ -129,6 +121,7 @@ m_BufferChanged(false)
 wxVideoPanel::~wxVideoPanel() {
     delete m_Video;
     delete m_DemoBitmap;
+    delete m_Bitmap;
     m_Video = NULL;
 }
 
@@ -137,32 +130,17 @@ void wxVideoPanel::OnPaint(wxPaintEvent &event) {
         // Do not try to repaint screen while resizing
         return;
     }
-    if(m_Video && m_Video->IsOk()) {
-        // Video is created and active. Let's copy it.
-        m_Video->GetBitmap()->Lock(0,10); // Unlimited attempts, 10 ms each.
-        {
-            wxSize size = GetSize();
-            unsigned int w = size.GetWidth();
-            unsigned int h = size.GetHeight();
-            wxBitmap* bmp = NULL;
-
-            if(w == m_Video->GetWidth() && h == m_Video->GetHeight()) {
-                // Same size, no problem
-                bmp = new wxBitmap(wxImage(w,h,m_Video->GetBitmap()->GetBuffer(), true));
-            } else {
-                // Size has changed! We must resize the video.
-                syBitmap sybmp(w,h,vcfRGB24);
-                sybmp.PasteFrom(m_Video->GetBitmap(),sy_stkeepaspectratio);
-                bmp = new wxBitmap(wxImage(w,h,sybmp.GetBuffer(), true));
-            }
-            m_Video->GetBitmap()->Unlock();
-            { // We add another stack layer (the brace) for the dc so it gets deleted BEFORE our bitmap.
-              // Otherwise, we'll get a segfault.
-                wxBufferedPaintDC dc(this, *bmp);
-            }
-            delete bmp;
-        }
+    wxSize size = GetSize();
+    unsigned int w = size.GetWidth();
+    unsigned int h = size.GetHeight();
+    m_Bitmap->Lock(0,1);
+    if(w > 0 && h > 0 && m_Video && m_Video->IsOk() && m_Bitmap->GetBuffer()) {
+        // Video is created, active and available. Let's play our current bitmap.
+        wxBitmap bmp(wxImage(w,h,m_Bitmap->GetBuffer(), true));
+        m_Bitmap->Unlock(); // Unlock our own bitmap
+        wxBufferedPaintDC dc(this, bmp);
     } else {
+        m_Bitmap->Unlock(); // Unlock our own bitmap
         // Video has not yet been created. Let's paint a black bitmap.
         wxPaintDC pdc(this);
         wxBrush mybrush(*wxBLACK, wxSOLID);
@@ -179,9 +157,21 @@ void wxVideoPanel::OnIdle(wxIdleEvent &event) {
     if(m_BufferChanged) {
         m_BufferChanged = false;
         Refresh();
-        event.RequestMore();
     }
-//    Demo();
+    Demo();
+}
+
+void wxVideoPanel::LoadData() {
+    if(m_SizeChanging) {
+        // Do not load the new data while resizing
+        return;
+    }
+    if(m_Video && m_Video->IsOk()) {
+        m_Bitmap->Lock(0,1);
+        m_Bitmap->PasteFrom(m_Video->GetBitmap());
+        m_Bitmap->Unlock();
+        FlagForRepaint();
+    }
 }
 
 void wxVideoPanel::Demo() {
@@ -194,9 +184,10 @@ void wxVideoPanel::Demo() {
 
         int x,y;
         unsigned long pixel,tick;
+        tick = wxDateTime::UNow().GetSecond() * 1000 + wxDateTime::UNow().GetMillisecond();
+        tick /= 3;
         for(y = 0; y < (int)(m_DemoBitmap->GetHeight()); ++y) {
             for(x = 0; x < (int)(m_DemoBitmap->GetWidth()); ++x) {
-                tick = wxDateTime::UNow().GetMillisecond();
                 pixel = y*y+(x*x) + tick;
                 m_DemoBitmap->SetPixel(x,y,pixel);
             }
@@ -208,15 +199,15 @@ void wxVideoPanel::Demo() {
 }
 
 void wxVideoPanel::OnSize(wxSizeEvent& event) {
-    if(m_Video == NULL) {
-        return;
-    }
-    if(!m_Video->IsOk()) {
-        return;
-    }
+    bool result = false;
     m_SizeChanging = true;
     wxSize newsize = event.GetSize();
-    bool result = m_Video->ChangeSize(newsize.GetWidth(),newsize.GetHeight());
+    if(m_Video && m_Video->IsOk()) {
+        result = m_Video->ChangeSize(newsize.GetWidth(),newsize.GetHeight());
+    }
+    m_Bitmap->Lock(0,1);
+    m_Bitmap->Realloc(newsize.GetWidth(),newsize.GetHeight(),vcfRGB24);
+    m_Bitmap->Unlock();
     m_SizeChanging = false;
     if(result) {
         Refresh();

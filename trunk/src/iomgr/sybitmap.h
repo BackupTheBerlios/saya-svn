@@ -19,6 +19,7 @@
 #define sybitmap_h
 
 #include <cstdlib>
+#include "mutex.h"
 
 /** enumerates the Video Color formats that a VideoOutputDevice can render / encode
  *
@@ -147,10 +148,15 @@ class syBitmap {
 
         static unsigned int CalculateBytesperPixel(VideoColorFormat format);
 
-        /** @brief For use with VideoOutputDevice. If the result is true, the operation must be aborted ASAP.
-         *  @note  You must override this method accordingly to use it in multithreaded apps.
+        /** @brief Sets the Aborter object so we can interrupt a copy operation on request.
+         *  @see syAborter
          */
-        virtual bool MustAbort();
+        void SetAborter(syAborter* aborter);
+
+        /** @brief For use with VideoOutputDevice. If the result is true, the operation must be aborted ASAP.
+         *  @see syAborter
+         */
+        bool MustAbort();
 
         /** Reallocates buffer to hold a bitmap with different size/color format
          *
@@ -160,6 +166,26 @@ class syBitmap {
 
         /** Clears the buffer, filling it with zeroes. */
         void Clear();
+
+        /** @brief Tries to Lock the Video Buffer for multithreaded operations.
+          * @param tries The number of attempts to lock the buffer
+          * @param delay The delay in milliseconds between each locking attempt
+          * @return true on success; false otherwise.
+          */
+        bool Lock(unsigned int tries = 1,unsigned delay = 10);
+
+        /** @brief Unlocks the Video Buffer (if the current thread is the owner)
+          * @return true if the Buffer's owner was either 0 or the current thread; false otherwise.
+          */
+        bool Unlock();
+
+        /** @brief Releases the internal bitmap buffer.
+          *
+          * @param force If true, the bitmap is released even when locked by other thread.
+          * @warning DO NOT use the parameter force unless you REALLY REALLY KNOW what you're doing!
+          * @return true if the buffer was released successfully; false if the buffer was locked by another thread.
+          */
+        bool ReleaseBuffer(bool force);
 
     protected:
 
@@ -184,6 +210,20 @@ class syBitmap {
         /** Bytes per pixel of the current color format */
         unsigned int m_bypp;
 
+        /** A mutex to protect the buffer for multithreaded apps */
+        syMutex* m_BufferMutex;
+
+        /** The current owner thread */
+        unsigned long m_BufferOwner;
+
+        /** Locks can be recursive inside a single thread. Therefore, we need a counter. */
+        unsigned long m_BufferLockCount;
+
+        /** @brief Placeholder for an syAborter object.
+          *
+          * @see syBitmap::MustAbort
+          */
+        syAborter* m_Aborter;
 };
 
 #endif

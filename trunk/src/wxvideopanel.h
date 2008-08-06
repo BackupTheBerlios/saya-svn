@@ -27,7 +27,6 @@ class syMutex;
  *  @see VideoOutputDevice
  */
 class wxVideoOutputDevice : public VideoOutputDevice {
-    friend class syVODBitmap;
     public:
         /** Initializes the Output Device based on a wxVideoPanel. */
         wxVideoOutputDevice(wxVideoPanel* panel);
@@ -38,7 +37,7 @@ class wxVideoOutputDevice : public VideoOutputDevice {
         /** Gets the Video Bitmap Buffer
           * @return a pointer to the Bitmap
           */
-        syVODBitmap* GetBitmap();
+        syBitmap* GetBitmap();
 
     protected:
 
@@ -69,13 +68,13 @@ class wxVideoOutputDevice : public VideoOutputDevice {
          *  @param bitmap Buffer containing the data to be processed.
          *  @note  This method MUST do nothing if either m_width or m_height are set to 0.
          *  @note  When the data is finally converted, RenderData MUST be called.
-         *  @note  This method MUST check MustAbortPlayback() regularly and abort rendering when the result is true.
+         *  @note  This method MUST check MustAbort() regularly and abort rendering when the result is true.
          */
         virtual void LoadDeviceVideoData(syBitmap* bitmap);
 
 
         /** Plays the received frames by Refreshing the panel's internal buffer.
-          * @note This method MUST check MustAbortPlayback() regularly and abort rendering when the result is true.
+          * @note This method MUST check MustAbort() regularly and abort rendering when the result is true.
           * @note This method MUST do nothing if either m_width or m_height are set to 0.
           */
         virtual void RenderData();
@@ -83,15 +82,14 @@ class wxVideoOutputDevice : public VideoOutputDevice {
     private:
 
         /** Holds a temporary buffer for the video data */
-        syVODBitmap* m_Bitmap;
-
-        syBitmap* m_BackupBitmap;
+        syBitmap* m_Bitmap;
 
         /** The corresponding Panel which we will refresh and from which we will take the width and height */
         wxVideoPanel* m_Panel;
 };
 
 class wxVideoPanel : public wxPanel {
+    friend class wxVideoOutputDevice;
     DECLARE_CLASS(wxVideoPanel)
     private:
         /**
@@ -110,9 +108,15 @@ class wxVideoPanel : public wxPanel {
         void OnIdle(wxIdleEvent &event);
 
         /**
-         * Called whenever the size changes
+         *   Called whenever the size changes.
          */
         void OnSize(wxSizeEvent& event);
+
+        /** @brief Loads data from m_Video->RenderData().
+         *
+         *  @see wxVideoOutputDevice::RenderData
+         */
+        void LoadData();
 
         wxVideoOutputDevice* m_Video;
 
@@ -120,6 +124,11 @@ class wxVideoPanel : public wxPanel {
         bool m_SizeChanging;
         bool m_BufferChanged;
         bool m_PaintingDemo;
+
+        /** We need a bitmap besides the one in wxVideoOutputDevice to hold the video data temporarily.
+         *  Otherwise we can get into a lot of awful situations that are nearly impossible to debug.
+         */
+        syBitmap* m_Bitmap;
 
         syBitmap* m_DemoBitmap;
 

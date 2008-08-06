@@ -66,7 +66,7 @@ bool AudioOutputDevice::InitializeOutput() {
     return true;
 }
 
-bool AudioOutputDevice::MustAbortPlayback() {
+bool AudioOutputDevice::MustAbort() {
     return (!m_ok || m_shuttingdown || m_changingparams);
 }
 
@@ -210,7 +210,7 @@ void AudioOutputDevice::LoadAudioData(unsigned int channel,unsigned int bytesper
     bool result = true;
     {
         syMutexLocker mylocker(*m_mutex);
-        if(m_playing || MustAbortPlayback()) {
+        if(m_playing || MustAbort()) {
             result = false;
         } else {
             m_playing = true;

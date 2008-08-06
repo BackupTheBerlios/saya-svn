@@ -26,8 +26,13 @@ m_ColorFormat(vcfRGB32),
 m_Buffer(NULL),
 m_BufferLength(0),
 m_BufferSize(0),
-m_bypp(4)
+m_bypp(4),
+m_BufferMutex(NULL),
+m_BufferOwner(0),
+m_BufferLockCount(0),
+m_Aborter(NULL)
 {
+    m_BufferMutex = new syMutex();
 
 }
 
@@ -38,21 +43,19 @@ m_ColorFormat(vcfRGB32),
 m_Buffer(NULL),
 m_BufferLength(0),
 m_BufferSize(0),
-m_bypp(4)
-
+m_bypp(4),
+m_BufferMutex(NULL),
+m_BufferOwner(0),
+m_BufferLockCount(0),
+m_Aborter(NULL)
 {
+    m_BufferMutex = new syMutex();
     Realloc(width, height, colorformat);
 }
 
 syBitmap::~syBitmap() {
-    if(m_Buffer != NULL) {
-        delete[] m_Buffer;
-    }
-    m_Buffer = NULL;
-    m_BufferLength = 0;
-    m_BufferSize = 0;
-    m_Width = 0;
-    m_Height = 0;
+    ReleaseBuffer(true);
+    delete m_BufferMutex;
 }
 
 void syBitmap::Create(unsigned int width,unsigned int height,VideoColorFormat colorformat) {
@@ -268,7 +271,80 @@ void syBitmap::PasteFrom(syBitmap* source,syStretchMode stretchmode) {
 }
 
 bool syBitmap::MustAbort() {
+    if(m_Aborter) {
+        return m_Aborter->MustAbort();
+    }
     return false;
+}
+
+bool syBitmap::Lock(unsigned int tries,unsigned delay) {
+    bool result = false;
+    unsigned i = 0;
+    if(delay < 1) {
+        delay = 1;
+    }
+    do {
+        {   // The extra braces are a stack spaceholder for tmplock
+            syMutexLocker tmplock(*m_BufferMutex);
+            result = (m_BufferOwner == 0 || (m_BufferOwner == syMutex::GetThreadId()));
+            if(result) {
+                if(!m_BufferLockCount) {
+                    m_BufferOwner = syMutex::GetThreadId();
+                }
+                ++m_BufferLockCount;
+            }
+        }   // After closing this brace, the mutexlocker is released from the stack, and the mutex is unlocked.
+        if(!result) {
+            if(tries > 0) {
+                ++i;
+            }
+            syMilliSleep(delay);
+        }
+    }while(!result && (tries==0 || i < tries));
+    return result;
+}
+
+bool syBitmap::Unlock() {
+    bool result = false;
+    do {
+        syMutexLocker tmplock(*m_BufferMutex);
+        if(!m_BufferOwner) {
+            result = true;
+            break;
+        }
+        if(m_BufferOwner == syMutex::GetThreadId()) {
+            if(m_BufferLockCount > 0) {
+                --m_BufferLockCount;
+            }
+            if(!m_BufferLockCount) {
+                m_BufferOwner = 0;
+            }
+            result = true;
+            break;
+        }
+    }while(false);
+
+    return result;
+}
+
+bool syBitmap::ReleaseBuffer(bool force) {
+    bool isLockedNow = Lock(10,1);
+    bool result = isLockedNow;
+    if(isLockedNow || force) {
+        delete[] m_Buffer;
+        m_Buffer = NULL;
+        m_BufferLength = 0;
+        m_BufferSize = 0;
+        result = true;
+    }
+    if(isLockedNow) {
+        Unlock();
+    }
+    return result;
+}
+
+void syBitmap::SetAborter(syAborter* aborter) {
+    m_Aborter = aborter;
 }
 
 void syBitmap::Clear() {
@@ -355,3 +431,4 @@ unsigned long syBitmap::ConvertPixel(unsigned long pixel,VideoColorFormat source
     // TODO: Implement non-trivial cases in syBitmap::ConvertPixel
     return pixel;
 }
+
