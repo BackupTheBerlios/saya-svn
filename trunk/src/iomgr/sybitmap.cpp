@@ -22,7 +22,7 @@
 syBitmap::syBitmap() :
 m_Width(0),
 m_Height(0),
-m_ColorFormat(vcfRGB32),
+m_ColorFormat(vcfBGR32),
 m_Buffer(NULL),
 m_BufferLength(0),
 m_BufferSize(0),
@@ -30,7 +30,11 @@ m_bypp(4),
 m_BufferMutex(NULL),
 m_BufferOwner(0),
 m_BufferLockCount(0),
-m_Aborter(NULL)
+m_Aborter(NULL),
+m_YOffsets(NULL),
+m_XOffsets(NULL),
+m_YOffsetsSize(0),
+m_XOffsetsSize(0)
 {
     m_BufferMutex = new syMutex();
 
@@ -39,7 +43,7 @@ m_Aborter(NULL)
 syBitmap::syBitmap(unsigned int width,unsigned int height,VideoColorFormat colorformat) :
 m_Width(0),
 m_Height(0),
-m_ColorFormat(vcfRGB32),
+m_ColorFormat(vcfBGR32),
 m_Buffer(NULL),
 m_BufferLength(0),
 m_BufferSize(0),
@@ -47,7 +51,12 @@ m_bypp(4),
 m_BufferMutex(NULL),
 m_BufferOwner(0),
 m_BufferLockCount(0),
-m_Aborter(NULL)
+m_Aborter(NULL),
+m_YOffsets(NULL),
+m_XOffsets(NULL),
+m_YOffsetsSize(0),
+m_XOffsetsSize(0)
+
 {
     m_BufferMutex = new syMutex();
     Realloc(width, height, colorformat);
@@ -55,6 +64,12 @@ m_Aborter(NULL)
 
 syBitmap::~syBitmap() {
     ReleaseBuffer(true);
+    if(m_XOffsets != NULL) {
+        delete[] m_XOffsets;
+    }
+    if(m_YOffsets != NULL) {
+        delete[] m_YOffsets;
+    }
     delete m_BufferMutex;
 }
 
@@ -79,6 +94,25 @@ void syBitmap::Realloc(unsigned int newwidth,unsigned int newheight,VideoColorFo
         m_Buffer = new unsigned char[newsize];
         m_BufferSize = newsize;
     }
+
+    if(newheight > m_YOffsetsSize) {
+        if(m_YOffsets != NULL) {
+            delete[] m_YOffsets;
+            m_YOffsets = NULL;
+        }
+        m_YOffsets = new int[newheight];
+        m_YOffsetsSize = newheight;
+    }
+
+    if(newwidth > m_XOffsetsSize) {
+        if(m_XOffsets != NULL) {
+            delete[] m_XOffsets;
+            m_XOffsets = NULL;
+        }
+        m_XOffsets = new int[newwidth];
+        m_XOffsetsSize = newwidth;
+    }
+
     m_BufferLength = newsize;
     m_ColorFormat = newformat;
     m_bypp = CalculateBytesperPixel(newformat);
@@ -188,16 +222,19 @@ void syBitmap::PasteFrom(syBitmap* source,syStretchMode stretchmode) {
             break; // Get out of the do-while-false construct
         }
 
+
+        syBitmapCopier copier;
+        copier.Init(source, this);
+
         // Near trivial case: Same dimensions, different color format
         if(srcw == m_Width && srch == m_Height) {
             for(y = 0; y < (int)m_Height; ++y) {
                 if((y & 32) == 0 && MustAbort()) { break; } // Check for abort every 32 rows
-                for(x = 0; x < (int)m_Width; ++x) {
-                    SetPixel(x,y,ConvertPixel(source->GetPixel(x,y), srcfmt, m_ColorFormat));
-                }
+                copier.CopyRowAndIncrementBoth();
             }
             break; // Get out of the do-while-false construct
         }
+
 
         // Nontrivial case: Resize and possibly stretch from the original
         int srcx, srcy;
@@ -208,8 +245,8 @@ void syBitmap::PasteFrom(syBitmap* source,syStretchMode stretchmode) {
         }
 
         // xscale, yscale, xoffset and yoffset are calculated according to the following formula:
-        // srcx = (x * xscale) + xoffset + 0.5 // This formula is applied in the loop at the bottom
-        // Ignoring the offset and the 0.5 for rounding, we have:
+        // srcx = (x * xscale) + xoffset // This formula is applied in the loop at the bottom
+        // Ignoring the offset, we have:
         //      srcx = x * xscale;
         // Therefore,
         //      xscale = srcx / x;
@@ -256,15 +293,31 @@ void syBitmap::PasteFrom(syBitmap* source,syStretchMode stretchmode) {
             yoffset = ((double)srch - (double)(m_Height*yscale)) / 2;
         }
 
-        // And now we implement the formula srcx = (x * xscale) + xoffset + 0.5 into a for loop
+        // Now, we implement the formula srcx = (x * xscale) + xoffset into a for loop
+        // But instead of just calculating x and y, we calculate the byte offsets, too!
+        for(y = 0, tmpy = yoffset; y < (int)m_Height; ++y, tmpy += yscale) {
+            m_YOffsets[y] = copier.m_SourceRowLength*int(floor(tmpy));
+        }
+        for(x = 0, tmpx = xoffset; x < (int)m_Width; ++x, tmpx += xscale) {
+            m_XOffsets[x] = copier.m_SourceBypp*int(floor(tmpx));
+        }
 
-        for(y = 0, tmpy = yoffset + 0.5; y < (int)m_Height; ++y, tmpy += yscale) {
+        copier.Reset();
+        for(y = 0; y < (int)m_Height; ++y, copier.m_Dst += copier.m_DestRowLength) {
             if((y & 32) == 0 && MustAbort()) { break; } // Check for abort every 32 rows
-            srcy = int(floor(tmpy));
-            for(x = 0, tmpx = xoffset + 0.5; x < (int)m_Width; ++x, tmpx += xscale) {
-                // Simmetric rounding is done by adding 0.5 to tmpx beforehand.
-                srcx = int(floor(tmpx));
-                SetPixel(x,y,ConvertPixel(source->GetPixel(srcx,srcy), srcfmt, m_ColorFormat));
+            srcy = m_YOffsets[y];
+            if((srcy < 0) | ((unsigned int)srcy >= copier.m_SourceBufferLength)) {
+                copier.ClearRow();
+            } else {
+                unsigned int xoffset = 0;
+                for(x = 0; x < (int)m_Width; ++x, xoffset += copier.m_DestBypp) {
+                    srcx = m_XOffsets[x];
+                    if((srcx < 0) || ((unsigned int)srcx >= copier.m_SourceRowLength)) {
+                        copier.ClearPixelAt(xoffset);
+                    } else {
+                        copier.SetPixelAt(xoffset,ConvertPixel(copier.GetPixelAt(srcy+srcx), srcfmt, m_ColorFormat));
+                    }
+                }
             }
         }
     }while(false);

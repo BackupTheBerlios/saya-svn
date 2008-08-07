@@ -75,11 +75,26 @@ class syBitmapCopier {
          */
         void CopyRowAndIncrementBoth();
 
+        /** @brief Fills row in m_Dst with the specified pixel color. m_Dst is not incremented. */
+        void FillRow(unsigned long pixel);
+
+        /** @brief Fills row in m_Dst with zeroes. m_Dst is not incremented. */
+        void ClearRow();
+
+        /** @brief Gets the pixel in m_SourceBitmap at the given offset. */
+        unsigned long GetPixelAt(unsigned int offset);
+
+        /** @brief Sets the pixel in m_DestBitmap at the given offset. */
+        void SetPixelAt(unsigned int offset, unsigned long pixel);
+
+        /** @brief Clears the pixel in m_DestBitmap at the given offset. */
+        void ClearPixelAt(unsigned int offset);
+
         /** Source bitmap */
-        syBitmap* m_Source;
+        syBitmap* m_SourceBitmap;
 
         /** Destination bitmap */
-        syBitmap* m_Dest;
+        syBitmap* m_DestBitmap;
 
         /** Source color format obtained by Init(). Kept public to allow external modification. */
         VideoColorFormat m_SourceFmt;
@@ -116,6 +131,12 @@ class syBitmapCopier {
 
         /** Destination Row Length, in bytes, obtained by Init(). Kept public to allow external modification. */
         unsigned int m_DestRowLength;
+
+        /** Source buffer length (not size) in bytes */
+        unsigned int m_SourceBufferLength;
+
+        /** Destination buffer length (not size) in bytes */
+        unsigned int m_DestBufferLength;
 };
 
 inline void syBitmapCopier::CopyPixel() {
@@ -181,6 +202,45 @@ inline void syBitmapCopier::CopyRow() {
                 pixel >>= 8;
             }
         }
+    }
+}
+
+inline void syBitmapCopier::FillRow(unsigned long pixel) {
+    unsigned char* destptr = m_Dst;
+    for(unsigned int j = 0; j < m_DestWidth; ++j, destptr += m_DestBypp) {
+        unsigned int i;
+        for(i = 0; i < m_DestBypp; ++i) {
+            destptr[i] = (pixel >> (i << 3)) & 255;
+        }
+    }
+}
+
+inline void syBitmapCopier::ClearRow() {
+    unsigned char* destptr = m_Dst;
+    for(unsigned int j = 0; j < m_DestRowLength;  ++j, ++destptr) {
+        *destptr = 0;
+    }
+}
+
+inline void syBitmapCopier::SetPixelAt(unsigned int offset, unsigned long pixel) {
+    for(unsigned int i = 0; i < m_DestBypp; ++i) {
+        m_Dst[offset + i] = pixel & 255;
+        pixel >>= 8;
+    }
+}
+
+inline unsigned long syBitmapCopier::GetPixelAt(unsigned int offset) {
+    unsigned long pixel;
+    for(unsigned int i = 0; i < m_SourceBypp; ++i) {
+        pixel = (pixel << 8) | (m_Src[offset+i] & 255);
+    }
+    return pixel;
+}
+
+
+inline void syBitmapCopier::ClearPixelAt(unsigned int offset) {
+    for(unsigned int i = 0; i < m_DestBypp; ++i) {
+        m_Dst[offset + i] = 0;
     }
 }
 

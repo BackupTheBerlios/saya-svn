@@ -224,6 +224,24 @@ class syBitmap {
           * @see syBitmap::MustAbort
           */
         syAborter* m_Aborter;
+
+        /** @brief For use by PasteFrom when scaling bitmaps.
+         *
+         *  Contains the source bitmap's y offsets (in bytes) corresponding to our nth row.
+         */
+        int* m_YOffsets;
+
+        /** @brief For use by PasteFrom when scaling bitmaps.
+         *
+         *  Contains the source bitmap's x offsets (in bytes) corresponding to our nth column.
+         */
+        int* m_XOffsets;
+
+        /** Contains the current size used by m_YOffsets */
+        unsigned long m_YOffsetsSize;
+
+        /** Contains the current size used by m_XOffsets */
+        unsigned long m_XOffsetsSize;
 };
 
 #endif

@@ -13,8 +13,8 @@
 
 void syBitmapCopier::Init(syBitmap *sourcebmp, syBitmap *destbmp) {
     if(!sourcebmp || !destbmp) { return; }
-    m_Source = sourcebmp;
-    m_Dest = destbmp;
+    m_SourceBitmap = sourcebmp;
+    m_DestBitmap = destbmp;
     m_SourceFmt = sourcebmp->GetColorFormat();
     m_DestFmt = destbmp->GetColorFormat();
     m_SourceBypp = syBitmap::CalculateBytesperPixel(m_SourceFmt);
@@ -27,9 +27,11 @@ void syBitmapCopier::Init(syBitmap *sourcebmp, syBitmap *destbmp) {
     m_DestHeight = destbmp->GetHeight();
     m_SourceRowLength = m_SourceWidth * m_SourceBypp;
     m_DestRowLength = m_DestWidth * m_DestBypp;
+    m_SourceBufferLength = sourcebmp->GetBufferLength();
+    m_DestBufferLength = destbmp->GetBufferLength();
 }
 
 void syBitmapCopier::Reset() {
-    m_Src = m_Source->GetBuffer();
-    m_Dst = m_Dest->GetBuffer();
+    m_Src = m_SourceBitmap->GetBuffer();
+    m_Dst = m_DestBitmap->GetBuffer();
 }

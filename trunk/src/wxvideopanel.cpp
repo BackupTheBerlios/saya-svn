@@ -44,7 +44,7 @@ wxVideoOutputDevice::~wxVideoOutputDevice() {
 bool wxVideoOutputDevice::InitializeOutput() {
     // First, let's set the width and height according to the panel's data
     wxSize tmpsize = m_Panel->GetSize();
-    m_ColorFormat = vcfRGB24;
+    m_ColorFormat = vcfBGR24;
     m_Width = tmpsize.GetWidth();
     m_Height = tmpsize.GetHeight();
     m_Bitmap->Realloc(m_Width,m_Height,m_ColorFormat);
@@ -111,7 +111,7 @@ m_SizeChanging(false),
 m_BufferChanged(false)
 {
     m_PaintingDemo = false;
-    m_DemoBitmap = new syBitmap(200,100,vcfRGB24);
+    m_DemoBitmap = new syBitmap(200,100,vcfBGR24);
     m_Bitmap = new syBitmap();
     m_Video = new wxVideoOutputDevice(this);
     m_Video->Init();
@@ -185,10 +185,10 @@ void wxVideoPanel::Demo() {
         int x,y;
         unsigned long pixel,tick;
         tick = wxDateTime::UNow().GetSecond() * 1000 + wxDateTime::UNow().GetMillisecond();
-        tick /= 3;
+        tick /= 5;
         for(y = 0; y < (int)(m_DemoBitmap->GetHeight()); ++y) {
             for(x = 0; x < (int)(m_DemoBitmap->GetWidth()); ++x) {
-                pixel = y*y+(x*x) + tick;
+                pixel = ((y*y+(x*x) + tick) & 255);
                 m_DemoBitmap->SetPixel(x,y,pixel);
             }
         }
@@ -206,7 +206,7 @@ void wxVideoPanel::OnSize(wxSizeEvent& event) {
         result = m_Video->ChangeSize(newsize.GetWidth(),newsize.GetHeight());
     }
     m_Bitmap->Lock(0,1);
-    m_Bitmap->Realloc(newsize.GetWidth(),newsize.GetHeight(),vcfRGB24);
+    m_Bitmap->Realloc(newsize.GetWidth(),newsize.GetHeight(),vcfBGR24);
     m_Bitmap->Unlock();
     m_SizeChanging = false;
     if(result) {
