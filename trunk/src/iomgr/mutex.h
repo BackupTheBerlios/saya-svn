@@ -39,6 +39,9 @@ class syMutex {
 
         /** Gets a platform-dependent id for the main thread. */
         static unsigned long GetMainThreadId();
+
+        /** Is the current thread the main thread? */
+        static bool IsMainThread();
     private:
         #ifdef __WIN32__
             CRITICAL_SECTION m_mutexobj;

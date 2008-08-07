@@ -44,6 +44,11 @@ unsigned long syMutex::GetMainThreadId() {
     return syMainThreadId;
 }
 
+/** Is the current thread the main thread? */
+bool syMutex::IsMainThread() {
+    return (syMutex::GetThreadId() == syMainThreadId);
+}
+
 
 void syMutex::Lock() {
     #ifdef __WIN32__

@@ -61,6 +61,9 @@
 		<Unit filename="drafts/monitor_preview.txt">
 			<Option target="Debug" />
 		</Unit>
+		<Unit filename="drafts/renderer.txt">
+			<Option target="Debug" />
+		</Unit>
 		<Unit filename="drafts/undoredo.txt">
 			<Option target="Debug" />
 		</Unit>

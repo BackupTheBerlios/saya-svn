@@ -1,0 +1,34 @@
+How to implement the renderer?
+==============================
+
+So far, we have been able to make a workable implementation of VideoOutputDevice. It has the following members:
+
+class VideoOutputDevice : public syAborter {
+    public:
+        VideoOutputDevice(); // Constructor
+        bool Init(); // Initialices the output device
+        bool IsOk(); // Is the device OK?
+        bool IsPlaying(); // Is the device currently being transmitted data?
+        void ShutDown(); // Can only be called from the main thread!
+        VideoColorFormat GetColorFormat();
+        unsigned int GetWidth();
+        unsigned int GetHeight();
+        bool ChangeSize(unsigned int newwidth,unsigned int newheight); // Can only be called from the main thread!
+
+        void LoadVideoData(syBitmap* bitmap);
+        virtual bool MustAbort();
+        virtual ~VideoOutputDevice(); // Destructor
+    protected:
+    //    ...
+    private:
+    //    ...
+};
+
+The renderer must invoke VideoOutputDevice::Init on playback start and VideoOutputDevice::Shutdown
+on playback end;  he same for AudioOutputDevice::Init and AudioOutputDevice::ShutDown.
+Additionally, it must call VideoOutputDevice::LoadVideoData regularly (in case of playback) or for every frame
+(in case of encoding). Therefore, it requires a way to know the input's framerate. Also it needs to know the
+input's audio frequency.
+
+It requires to be multithreaded so that the framerate doesn't depend on the main thread's GUI being blocked
+or something.
