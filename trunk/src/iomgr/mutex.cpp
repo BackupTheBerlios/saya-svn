@@ -14,6 +14,7 @@
     #include <sys/syscall.h>
 #endif
 
+unsigned long syMainThreadId = syMutex::GetThreadId();
 
 syMutex::syMutex() {
     #ifdef __WIN32__
@@ -37,6 +38,10 @@ unsigned long syMutex::GetThreadId() {
     #else
         return (unsigned long)syscall(__NR_gettid);
     #endif
+}
+
+unsigned long syMutex::GetMainThreadId() {
+    return syMainThreadId;
 }
 
 

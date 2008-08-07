@@ -34,7 +34,11 @@ class syMutex {
         /** Leaves the Critical Section */
         void Unlock();
 
+        /** Gets a platform-dependent id for the currently running thread. */
         static unsigned long GetThreadId();
+
+        /** Gets a platform-dependent id for the main thread. */
+        static unsigned long GetMainThreadId();
     private:
         #ifdef __WIN32__
             CRITICAL_SECTION m_mutexobj;
