@@ -1,5 +1,5 @@
-How to implement the renderer?
-==============================
+How to implement the renderers? Draft 1.
+=========================================
 
 So far, we have been able to make a workable implementation of VideoOutputDevice. It has the following members:
 
@@ -32,3 +32,58 @@ input's audio frequency.
 
 It requires to be multithreaded so that the framerate doesn't depend on the main thread's GUI being blocked
 or something.
+
+Let's assume that it's VidProject which tells the renderer what the framerate is.
+
+So we have:
+
+void Renderer::Init(VideoInputDevice* videoin,AudioInputDevice* audioin,
+                    VideoOutputDevice* videoout,AudioOutputDevice* audioout);
+
+With this we mean we're gonna need new classes for input: VideoInputDevice and AudioInputDevice.
+
+bool Renderer::SetVideoFramerate(float framerate);
+
+And now, onto the playback functions:
+
+void Renderer::Play(float speed = 1.0,bool muted = false);
+void Renderer::Pause();
+void Renderer::Stop();
+void Renderer::Seek(unsigned long time); // Time in milliseconds to seek to
+
+All that's fine, but what happens when we want to display a still frame? We don't know what video output device we
+have - a player or an encoder-, so there must be some way to send a still frame to the video device.
+
+void Renderer::PlayFrame(); (Note that this should be either a protected function or only be enabled when the video is paused;
+otherwise we could desync video and audio)
+
+Now that I think of it, sending still frames is what the Video Playing does. Every N milliseconds, we send a frame to the
+output buffer. So there must be separate seeks for video and audio.
+
+void Renderer::SeekVideo(unsigned long time);
+void Renderer::SeekAudio(unsigned long time);
+
+And if we're seeking, there must be a way to tell if we're past the clip's duration.
+
+bool Renderer::IsVideoEof();
+bool Renderer::IsAudioEof();
+
+And it seems we'll need separate video and audio functions for everything (edit: NOT!)
+    void Renderer::PlayVideo(float speed = 1.0);
+    void Renderer::PlayAudio(float speed = 1.0);
+    void Renderer::PauseVideo();
+    void Renderer::PauseAudio();
+    void Renderer::StopVideo();
+    void Renderer::StopAudio();
+
+    But I wonder if having separate stop functions would be good at all because of sync issues. I mean, if we don't
+    want the audio or video to be shown we just don't decode it. It's matter of seeking, decoding, and sending.
+    So PlayVideo and Play Audio will just disable video and / or audio, and will only need pause, stop.
+
+    void Renderer::PauseVideo(); SCRAPPED
+    void Renderer::PauseAudio(); SCRAPPED
+    void Renderer::StopVideo(); SCRAPPED
+    void Renderer::StopAudio(); SCRAPPED
+
+I think that with this info we'll be able to design a good rendering / playback framework.
+
