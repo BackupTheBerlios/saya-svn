@@ -23,8 +23,8 @@ AVSettings::~AVSettings() {
 void AVSettings::ResetToDefaults() {
     width = 720;
     height = 480;
-    aspectratio = ARWide;
     fps = 29.997;
+    pixelaspect = 1.0;
     vidformat = "avi";
     videocodec = "";
     audiocodec = "";

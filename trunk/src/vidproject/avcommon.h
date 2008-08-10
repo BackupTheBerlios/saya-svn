@@ -36,14 +36,6 @@ enum InterlaceType  /** Used for video clips and resources */
     ITTopFirst
 };
 
-enum AspectRatioType /** Aspect ratio */
-{
-    ARStandard = 0, /** Standard (4:3) */
-    ARWide, /** Wide screen (16:9) */
-    ARAgnostic, /** Aspect-ratio agnostic (square pixels) */
-    ARCustom /** Determined by pixel aspect ratio */
-};
-
 enum AudioBitSize /** Audio sample size */
 {
     ABS8bit = 0,
@@ -87,9 +79,6 @@ class AVSettings: public serializable {
 
         /** Specifies the height of the video in pixels. */
         unsigned int height;
-
-        /** Specifies the aspect ratio of the video. */
-        AspectRatioType aspectratio;
 
         /** Specifies the pixels' aspect ratio. */
 

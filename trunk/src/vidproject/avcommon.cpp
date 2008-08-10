@@ -20,7 +20,7 @@ std::string AVSettings::serialize() {
     std::string attr;
     attributes << " width=\"" << width << "\"";
     attributes << " hegiht=\"" << height << "\"";
-    attributes << " aspectratio=\"" << aspectratio << "\"";
+    attributes << " pixelaspect=\"" << pixelaspect << "\"";
     attributes << " fps=\"" << fps << "\"";
     result = opentag + attributes.str() + ">";
     result += std::string("<vidformat type=\"") + vidformat + "\">";

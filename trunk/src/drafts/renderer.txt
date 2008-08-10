@@ -87,3 +87,58 @@ And it seems we'll need separate video and audio functions for everything (edit:
 
 I think that with this info we'll be able to design a good rendering / playback framework.
 
+How to implement the renderers? Draft 2.
+=========================================
+
+Now that I think of it, "renderer" isn't the appropriate word. Perhaps it should be "AVController", because
+it controls the video and audio.
+
+Anyway, this is what we have planned so far:
+
+void AVController::Init(VideoInputDevice* videoin,AudioInputDevice* audioin,
+                    VideoOutputDevice* videoout,AudioOutputDevice* audioout);
+bool AVController::SetVideoFramerate(float framerate); // Only for playback, not encoding
+
+// NOTE: The following functions are valid only for playback (therefore we need a flag in *OutputDevice to tell
+// whether it's a playback or encoder device.
+// NOTE: Duration is in milliseconds.
+void AVController::Play(float speed = 1.0,unsigned long duration = 0,bool muted = false);
+void AVController::PlayVideo(float speed = 1.0,unsigned long duration = 0);
+void AVController::PlayAudio(float speed = 1.0,unsigned long duration = 0);
+void AVController::StillFrame(); // Sends current frame to the VideoOutputDevice
+
+--------------------------------------
+The function in *OutputDevice will be:
+virtual bool*OutputDevice::IsEncoder();
+--------------------------------------
+
+void AVController::Pause();
+void AVController::Stop();
+
+// Seeks will only be valid if not sending info to the encoder / player. We need a flag/mutex for this.
+void AVController::Seek(unsigned long time,bool fromend = false); // Time in milliseconds to seek to
+void AVController::SeekVideo(unsigned long time,bool fromend = false);
+void AVController::SeekAudio(unsigned long time,bool fromend = false);
+
+unsigned long AVController::GetLength(); // Length of the video in milliseconds
+unsigned long AVController::GetVideoLength(); // Length of the video in milliseconds
+unsigned long AVController::GetAudioLength(); // Length of the audio in milliseconds
+
+bool AVController::IsEof();
+bool AVController::IsVideoEof();
+bool AVController::IsAudioEof();
+
+
+Now we'll need a VideoInputDevice.
+==================================
+
+(We'll deal with AudioInputDevice later.)
+
+virtual bool VideoInputDevice::Init(); // Allocates the video resource.
+virtual void VideoInputDevice::Seek(unsigned long time,bool fromend = false);
+// We'll use the same interface than AVController.
+virtual unsigned long VideoInputDevice::GetLength(); // Length in milliseconds
+virtual void VideoInputDevice::SendCurrentFrame(VideoOutputDevice* device);
+// Sends current frame to the VideoOutputDevice, by
+calling device->LoadVideoData.
+virtual void VideoInputDevice::ShutDown(); // Deallocates the video resource.

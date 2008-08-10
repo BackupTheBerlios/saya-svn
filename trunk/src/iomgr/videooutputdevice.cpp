@@ -139,3 +139,7 @@ void VideoOutputDevice::DisconnectOutput() {
 void VideoOutputDevice::RenderData() {
     // This is a stub
 }
+
+bool VideoOutputDevice::IsEncoder() {
+    return false;
+}

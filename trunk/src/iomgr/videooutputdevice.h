@@ -16,7 +16,6 @@
 
 class syMutex;
 class VideoOutputDevice;
-class syVODBitmap;
 
 /**
  * @brief Generic wrapper for a Video Output device.
@@ -79,6 +78,11 @@ class VideoOutputDevice : public syAborter {
           * @see syAborter::MustAbort
           */
         virtual bool MustAbort();
+
+        /** @brief Flag indicating whether it's a playback or an encoding device.
+         *  @return true for encoding; false for playback.
+         */
+        virtual bool IsEncoder();
 
         /** Standard destructor. */
         virtual ~VideoOutputDevice();

@@ -20,31 +20,7 @@
 
 #include <cstdlib>
 #include "mutex.h"
-
-/** enumerates the Video Color formats that a VideoOutputDevice can render / encode
- *
- *  @note Apparently, this list is incomplete and some formats are now obsolete.
- *  Needs update from an authoritative source.
- */
-enum VideoColorFormat {
-    vcfRGB8,
-    vcfRGB32,
-    vcfRGB24,
-    vcfRGB16,
-    vcfRGB15,
-    vcfBGR15,
-    vcfBGR16,
-    vcfBGR24,
-    vcfBGR32,
-    vcfYUY2,
-    vcfYUV,
-    vcfYV12,
-    vcfYUV12,
-    vcfYVYU,
-    vcfUYVY,
-    vcfYUY9,
-    vcfY800
-};
+#include "videocolorformat.h"
 
 /** Stretching strategy for pasting bitmaps */
 enum syStretchMode {
@@ -185,7 +161,7 @@ class syBitmap {
           * @warning DO NOT use the parameter force unless you REALLY REALLY KNOW what you're doing!
           * @return true if the buffer was released successfully; false if the buffer was locked by another thread.
           */
-        bool ReleaseBuffer(bool force);
+        bool ReleaseBuffer(bool force = false);
 
     protected:
 
