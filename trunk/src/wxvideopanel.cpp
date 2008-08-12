@@ -184,7 +184,8 @@ void wxVideoPanel::Demo() {
 
         int x,y;
         unsigned long pixel,tick;
-        tick = wxDateTime::UNow().GetSecond() * 1000 + wxDateTime::UNow().GetMillisecond();
+        tick = syGetTicks();
+        // tick = wxDateTime::UNow().GetSecond() * 1000 + wxDateTime::UNow().GetMillisecond();
         tick /= 5;
         for(y = 0; y < (int)(m_DemoBitmap->GetHeight()); ++y) {
             for(x = 0; x < (int)(m_DemoBitmap->GetWidth()); ++x) {

@@ -69,12 +69,12 @@ unsigned long VideoInputDevice::InternalSeek(unsigned long time, bool fromend) {
         if(time >= m_Length) {
             time = 0;
         } else {
-            time = (m_Length - 1) - time;
+            time = (m_Length) - time;
         }
     } else {
         if(time >= m_Length) {
             if(m_Length > 0) {
-                time = m_Length - 1;
+                time = m_Length;
             } else {
                 time = 0;
             }
@@ -127,6 +127,9 @@ unsigned long VideoInputDevice::GetLength() {
     return m_Length;
 }
 
+unsigned long VideoInputDevice::GetPos() {
+    return m_CurrentTime;
+}
 
 VideoColorFormat VideoInputDevice::GetColorFormat() {
     return m_ColorFormat;
@@ -185,7 +188,7 @@ void VideoInputDevice::SendCurrentFrame(syBitmap* bitmap) {
     ok = false;
     abort = false;
     while(!ok) {
-        {
+        {   // Lock the mutex to try to get the Busy status.
             syMutexLocker locker(*m_Mutex);
             oldbusy = m_IsBusy;
             if(!oldbusy) {
@@ -197,13 +200,13 @@ void VideoInputDevice::SendCurrentFrame(syBitmap* bitmap) {
             break;
         }
         if(!ok) {
-            syMilliSleep(1);
+            syMilliSleep(1); // Sleep until we get it.
         }
     }
-    if(!MustAbort()) {
-        LoadCurrentFrame();
+    if(!MustAbort()) { // Always check the MustAbort() flag.
+        LoadCurrentFrame(); // Loads frame from the input resouce
         if(bitmap) {
-            bitmap->CopyFrom(this->m_Bitmap);
+            bitmap->CopyFrom(this->m_Bitmap); // And copy to the destination bitmap
         }
         {
             syMutexLocker locker(*m_Mutex);

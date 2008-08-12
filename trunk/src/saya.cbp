@@ -67,8 +67,12 @@
 		<Unit filename="drafts/undoredo.txt">
 			<Option target="Debug" />
 		</Unit>
+		<Unit filename="iomgr/audioinputdevice.cpp" />
+		<Unit filename="iomgr/audioinputdevice.h" />
 		<Unit filename="iomgr/audiooutputdevice.cpp" />
 		<Unit filename="iomgr/audiooutputdevice.h" />
+		<Unit filename="iomgr/avcontroller.cpp" />
+		<Unit filename="iomgr/avcontroller.h" />
 		<Unit filename="iomgr/iocommon.cpp" />
 		<Unit filename="iomgr/iocommon.h" />
 		<Unit filename="iomgr/mutex.cpp" />

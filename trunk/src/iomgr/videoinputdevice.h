@@ -12,10 +12,10 @@
 #define videoinputdevice_h
 
 #include "videocolorformat.h"
+#include "mutex.h"
 
 class syBitmap;
 class VideoOutputDevice;
-class syMutex;
 
 /**
  * VideoInputDevice is the base class for video frame providers, be it images or movies (flash animations
@@ -63,6 +63,10 @@ class VideoInputDevice : public syAborter {
          *  @note  This is a thread-safe wrapper for the protected functions InternalSeek() and SeekResource().
          */
         unsigned long Seek(unsigned long time,bool fromend = false);
+
+
+        /** Gets the current position in time (milliseconds) */
+        unsigned long GetPos();
 
         /** @brief Gets the length of the data being read.
          *  @return The length of the resource's data, in milliseconds. Minimum one.
@@ -123,7 +127,7 @@ class VideoInputDevice : public syAborter {
         /** @brief Loads the current frame into m_Bitmap.
          *
          *  This is a stub; you need to override this function to acomplish anything.
-         *  @warning You MUST NOT call Seek() from LoadCurrentFrame(), or you will trigger a mutex deadlock.
+         *  @warning You MUST NOT call Seek() from LoadCurrentFrame(), or you will trigger a mutex deadlock!!
          *  If you need to do a seeking, call InternalSeek() instead.
          */
         virtual void LoadCurrentFrame();

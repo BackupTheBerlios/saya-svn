@@ -109,6 +109,15 @@ class AudioOutputDevice : public syAborter {
         /** Standard destructor. */
         virtual ~AudioOutputDevice();
 
+        /** Flag indicating whether the Output Device is for playback or for encoding.
+         *
+         *  @return true if it's for encoding; false if it's for playback.
+         */
+        virtual bool IsEncoder() { return false; }
+
+        /** Mutes the audio output device. Called by ShutDown(). */
+        virtual void Clear();
+
     protected:
 
         /** @brief Initializes the output device.
@@ -117,9 +126,6 @@ class AudioOutputDevice : public syAborter {
          *  @return True on success; false otherwise.
          */
         virtual bool InitializeOutput();
-
-        /** Mutes the audio output device. Called by ShutDown(). */
-        virtual void Clear();
 
         /** Frees the audio output device. Called by ShutDown(). */
         virtual void DisconnectOutput();

@@ -88,4 +88,9 @@ class syAborter {
 /** Sleeps for the determinate number of milliseconds */
 void syMilliSleep(unsigned long msec);
 
+/** @brief Obtains the number of milliseconds that have happened since the program has started.
+ *  Useful for microtime measurements.
+ */
+unsigned long syGetTicks();
+
 #endif
