@@ -137,9 +137,9 @@ unsigned long syGetTime() {
 unsigned long syGetTicks() {
     unsigned long result;
     #ifdef __WIN32__
-        // For milliseconds, we only need the first 3 digits of GetTickCount(). Then we add the seconds
-        // ellapsed since the library was initialized.
-        result = ((syGetTime() - sySecondsAtInit)*1000) + (GetTickCount() % 1000);
+        // Turns out that Windows already has a function to get the number of milliseconds since the
+        // system was started. It's called GetTickCount.
+        result = GetTickCount();
     #else
         // Here we call the posix function gettimeofday which returns the time in seconds and microseconds.
         // Since we're aiming for milliseconds, we have to multiply and divide by 1,000 the seconds
