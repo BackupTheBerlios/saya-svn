@@ -101,7 +101,7 @@ unsigned long syGetTime() {
     unsigned long result;
     #ifdef __WIN32__
         FILETIME ft;
-        GetSystemTimeAsFiletime(&ft);
+        GetSystemTimeAsFileTime(&ft);
         // To obtain the seconds, we divide by 10,000,000
         // (which is 1 second / 10 nanoseconds used by the WIN API)
         // But we need to use 64-bit math which C++ lacks!

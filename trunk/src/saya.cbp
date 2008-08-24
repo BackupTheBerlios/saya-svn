@@ -109,8 +109,6 @@
 			<Option target="Debug" />
 		</Unit>
 		<Unit filename="resources/welcome.xrc" />
-		<Unit filename="sdlpanel.cpp" />
-		<Unit filename="sdlpanel.h" />
 		<Unit filename="todo.txt" />
 		<Unit filename="vidproject/avclip.cpp" />
 		<Unit filename="vidproject/avclip.h" />
