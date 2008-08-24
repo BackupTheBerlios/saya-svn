@@ -132,6 +132,8 @@ class wxVideoPanel : public wxPanel {
 
         syBitmap* m_DemoBitmap;
 
+        VideoColorFormat m_NativeFormat;
+
     public:
 
         /**

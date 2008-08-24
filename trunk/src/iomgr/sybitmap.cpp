@@ -481,6 +481,23 @@ unsigned long syBitmap::ConvertPixel(unsigned long pixel,VideoColorFormat source
     if(sourcefmt == destfmt) { // Trivial case: Formats are the same
         return pixel;
     }
+
+    // Near trivial case: Swap B and R components in the pixel.
+    if(
+       (sourcefmt == vcfRGB24 && destfmt == vcfBGR24) ||
+       (sourcefmt == vcfBGR24 && destfmt == vcfRGB24) ||
+       (sourcefmt == vcfRGB32 && destfmt == vcfBGR32) ||
+       (sourcefmt == vcfBGR32 && destfmt == vcfRGB32)
+      ) {
+        // Swap first and third bytes
+        unsigned char c0, c1, c2, c3;
+        c0 = pixel & 0xFF;
+        c1 = (pixel >> 8) & 0xFF;
+        c2 = (pixel >> 16) & 0xFF;
+        c3 = (pixel >> 24) & 0xFF;
+        pixel = (c3 << 24) | (c0 << 16) | (c1 << 8) | c2;
+    }
+
     // TODO: Implement non-trivial cases in syBitmap::ConvertPixel
     return pixel;
 }

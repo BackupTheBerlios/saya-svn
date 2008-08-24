@@ -44,6 +44,7 @@ wxVideoOutputDevice::~wxVideoOutputDevice() {
 bool wxVideoOutputDevice::InitializeOutput() {
     // First, let's set the width and height according to the panel's data
     wxSize tmpsize = m_Panel->GetSize();
+
     m_ColorFormat = vcfBGR24;
     m_Width = tmpsize.GetWidth();
     m_Height = tmpsize.GetHeight();
@@ -108,8 +109,18 @@ wxVideoPanel::wxVideoPanel(wxWindow *parent) : wxPanel(parent),
 m_Video(NULL),
 m_IsPlaying(false),
 m_SizeChanging(false),
-m_BufferChanged(false)
+m_BufferChanged(false),
+m_PaintingDemo(false),
+m_Bitmap(NULL),
+m_DemoBitmap(NULL),
+m_NativeFormat(vcfBGR24)
 {
+#ifdef __WIN32__
+    m_NativeFormat = vcfRGB24; // Windows uses RGB
+#else
+    m_NativeFormat = vcfBGR24; // X11 devices use BGR
+#endif
+
     m_PaintingDemo = false;
     m_DemoBitmap = new syBitmap(200,100,vcfBGR24);
     m_Bitmap = new syBitmap();
@@ -207,7 +218,7 @@ void wxVideoPanel::OnSize(wxSizeEvent& event) {
         result = m_Video->ChangeSize(newsize.GetWidth(),newsize.GetHeight());
     }
     m_Bitmap->Lock(0,1);
-    m_Bitmap->Realloc(newsize.GetWidth(),newsize.GetHeight(),vcfBGR24);
+    m_Bitmap->Realloc(newsize.GetWidth(),newsize.GetHeight(),m_NativeFormat);
     m_Bitmap->Unlock();
     m_SizeChanging = false;
     if(result) {
