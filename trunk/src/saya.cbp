@@ -75,12 +75,12 @@
 		<Unit filename="iomgr/avcontroller.h" />
 		<Unit filename="iomgr/iocommon.cpp" />
 		<Unit filename="iomgr/iocommon.h" />
-		<Unit filename="iomgr/mutex.cpp" />
-		<Unit filename="iomgr/mutex.h" />
 		<Unit filename="iomgr/sybitmap.cpp" />
 		<Unit filename="iomgr/sybitmap.h" />
 		<Unit filename="iomgr/sybitmapcopier.cpp" />
 		<Unit filename="iomgr/sybitmapcopier.h" />
+		<Unit filename="iomgr/sythread.cpp" />
+		<Unit filename="iomgr/sythread.h" />
 		<Unit filename="iomgr/videocolorformat.h" />
 		<Unit filename="iomgr/videoinputdevice.cpp" />
 		<Unit filename="iomgr/videoinputdevice.h" />
