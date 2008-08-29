@@ -15,7 +15,7 @@
 #include <wx/bitmap.h>
 
 #include "wxvideopanel.h"
-#include "iomgr/mutex.h"
+#include "iomgr/sythread.h"
 
 IMPLEMENT_CLASS(wxVideoPanel, wxPanel)
 

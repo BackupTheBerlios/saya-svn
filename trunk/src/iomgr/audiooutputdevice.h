@@ -10,7 +10,7 @@
 #ifndef audiooutputdevice_h
 #define audiooutputdevice_h
 
-#include "mutex.h"
+#include "sythread.h"
 
 /** @brief Generic class for Audio Output
   *

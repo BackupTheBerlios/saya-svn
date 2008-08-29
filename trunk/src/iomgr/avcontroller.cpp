@@ -8,7 +8,7 @@
  **************************************************************/
 
 #include "avcontroller.h"
-#include "mutex.h"
+#include "sythread.h"
 #include "videoinputdevice.h"
 #include "videooutputdevice.h"
 #include "audioinputdevice.h"
@@ -50,7 +50,7 @@ void AVController::Init(VideoInputDevice* videoin,AudioInputDevice* audioin,
 }
 
 void AVController::ShutDown() {
-    if(!syMutex::IsMainThread()) { return; }
+    if(!syThread::IsMainThread()) { return; }
     Stop();
 
     if(m_VideoOut) {
@@ -148,7 +148,7 @@ void AVController::EncodeAudio(float speed,unsigned long duration) {
 
 // IMPORTANT! Before this function returns, all threads must have already been stopped!
 void AVController::Pause() {
-    if(!syMutex::IsMainThread()) { return; } // This function must be called by the main thread ONLY!
+    if(!syThread::IsMainThread()) { return; } // This function must be called by the main thread ONLY!
     m_Pause = true;
     // IMPORTANT! If m_Pause is true, the playing thread MUST consider per-frame operations as atomic, as to not corrupt
     // the data being sent to the Output Devices.
@@ -164,7 +164,7 @@ void AVController::Pause() {
 }
 
 void AVController::Stop() {
-    if(!syMutex::IsMainThread()) { return; } // This function must be called by the main thread ONLY!
+    if(!syThread::IsMainThread()) { return; } // This function must be called by the main thread ONLY!
     m_Stop = true;
     while(m_IsPlaying) {
         syMilliSleep(1);
@@ -174,7 +174,7 @@ void AVController::Stop() {
 unsigned long AVController::Seek(unsigned long time,bool fromend) {
     if(IsEncoder()) { return 0; }
     unsigned long videoresult = 0, audioresult = 0;
-    if(syMutex::IsMainThread()) {
+    if(syThread::IsMainThread()) {
         Pause();
     }
     if(m_VideoIn) {
@@ -195,7 +195,7 @@ unsigned long AVController::Seek(unsigned long time,bool fromend) {
 unsigned long AVController::SeekVideo(unsigned long time,bool fromend) {
     if(IsEncoder()) { return 0; }
     unsigned long result = 0;
-    if(syMutex::IsMainThread()) {
+    if(syThread::IsMainThread()) {
         Pause();
     }
     if(m_VideoIn) {
@@ -207,7 +207,7 @@ unsigned long AVController::SeekVideo(unsigned long time,bool fromend) {
 unsigned long AVController::SeekAudio(unsigned long time,bool fromend) {
     if(IsEncoder()) { return 0; }
     unsigned long result = 0;
-    if(syMutex::IsMainThread()) {
+    if(syThread::IsMainThread()) {
         Pause();
     }
     if(m_AudioIn) {
@@ -342,11 +342,11 @@ void AVController::StartEncoding() {
 }
 
 void AVController::PlaybackOrEncodingLoop() {
-    if(syMutex::GetThreadId() != m_WorkerThread) { return; }
+    if(syThread::GetThreadId() != m_WorkerThread) { return; }
 }
 
 void AVController::PlaybackLoop() {
-    if(syMutex::GetThreadId() != m_WorkerThread) { return; }
+    if(syThread::GetThreadId() != m_WorkerThread) { return; }
     unsigned long curvideopos, curaudiopos, starttime;
     unsigned long audiochunklength;
     curvideopos = m_StartVideoPos;
@@ -401,7 +401,7 @@ void AVController::PlaybackLoop() {
 }
 
 void AVController::EncodingLoop() {
-    if(syMutex::GetThreadId() != m_WorkerThread) { return; }
+    if(syThread::GetThreadId() != m_WorkerThread) { return; }
 
     // TODO: Implement AVController::EncodingLoop()
 
@@ -421,7 +421,7 @@ void AVController::SetAudioGranularity(unsigned long granularity) {
 }
 
 bool AVController::StartWorkerThread() {
-    if(!syMutex::IsMainThread()) { return false; }
+    if(!syThread::IsMainThread()) { return false; }
     bool result = false;
     // TODO: Implement AVController::StartWorkerThread
     return result;

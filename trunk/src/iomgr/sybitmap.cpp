@@ -339,10 +339,10 @@ bool syBitmap::Lock(unsigned int tries,unsigned delay) {
     do {
         {   // The extra braces are a stack spaceholder for tmplock
             syMutexLocker tmplock(*m_BufferMutex);
-            result = (m_BufferOwner == 0 || (m_BufferOwner == syMutex::GetThreadId()));
+            result = (m_BufferOwner == 0 || (m_BufferOwner == syThread::GetThreadId()));
             if(result) {
                 if(!m_BufferLockCount) {
-                    m_BufferOwner = syMutex::GetThreadId();
+                    m_BufferOwner = syThread::GetThreadId();
                 }
                 ++m_BufferLockCount;
             }
@@ -365,7 +365,7 @@ bool syBitmap::Unlock() {
             result = true;
             break;
         }
-        if(m_BufferOwner == syMutex::GetThreadId()) {
+        if(m_BufferOwner == syThread::GetThreadId()) {
             if(m_BufferLockCount > 0) {
                 --m_BufferLockCount;
             }

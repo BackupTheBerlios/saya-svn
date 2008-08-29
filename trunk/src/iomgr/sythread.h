@@ -1,14 +1,17 @@
 /***************************************************************
- * Name:      mutex.h
- * Purpose:   Declaration of a Cross-platform Mutex class
+ * Name:      sythread.h
+ * Purpose:   Declaration of a Cross-platform Thread class
  * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * Created:   2008-06-12
  * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * License:   WxWindows License
+ * Comments:  The syThread class API was modelled after the
+ *            wxWidgets thread API. If I actually use wxWidgets
+ *            code , I'll add the respective copyrights here.
  **************************************************************/
 
-#ifndef saya_mutex_h
-#define saya_mutex_h
+#ifndef sythread_h
+#define sythread_h
 
 #ifdef __WIN32__
     #include <windows.h>
@@ -92,5 +95,60 @@ void syMilliSleep(unsigned long msec);
  *  Useful for microtime measurements.
  */
 unsigned long syGetTicks();
+
+
+/** The syThread class is a reimplementation of the wxWidgets wxThread class
+ *  using unix pthreads (we avoid STL 3rd party implementations on purpose).
+ *  For Win32 systems, we'll link to the pthreads-win32 DLL
+ *  (see http://sourceware.org/pthreads-win32/ )
+ */
+class syThread {
+
+    public:
+
+        /** Gets a platform-dependent id for the currently running thread. */
+        static unsigned long GetThreadId();
+
+        /** Gets a platform-dependent id for the main thread. */
+        static unsigned long GetMainThreadId();
+
+        /** Is the current thread the main thread? */
+        static bool IsMainThread();
+
+        /** Standard Constructor */
+        syThread();
+
+        /** Standard Destructor */
+        ~syThread();
+
+//    TODO: Implement the following methods:
+//    Create
+//    Delete
+//    Entry
+//    Exit
+//    GetCPUCount
+//    GetCurrentId
+//    GetId
+//    GetPriority
+//    IsAlive
+//    IsDetached
+//    IsMain
+//    IsPaused
+//    IsRunning
+//    Kill
+//    OnExit
+//    Pause
+//    Run
+//    SetPriority
+//    Sleep
+//    Resume
+//    SetConcurrency
+//    TestDestroy
+//    This
+//    Yield
+//    Wait
+
+};
+
 
 #endif

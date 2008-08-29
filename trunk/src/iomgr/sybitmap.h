@@ -19,7 +19,7 @@
 #define sybitmap_h
 
 #include <cstdlib>
-#include "mutex.h"
+#include "sythread.h"
 #include "videocolorformat.h"
 
 /** Stretching strategy for pasting bitmaps */

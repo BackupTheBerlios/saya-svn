@@ -8,7 +8,7 @@
  **************************************************************/
 
 #include "audiooutputdevice.h"
-#include "mutex.h"
+#include "sythread.h"
 /* #include "audiosourcedevie.h" */
 
 AudioOutputDevice::AudioOutputDevice(bool usedefaultbuffers) :

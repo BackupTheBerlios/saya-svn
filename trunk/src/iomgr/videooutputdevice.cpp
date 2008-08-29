@@ -7,7 +7,7 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
-#include "mutex.h"
+#include "sythread.h"
 #include "videooutputdevice.h"
 
 /** Maximum size for the rendered window. 100 megapixels ought to be enough for anyone. */
@@ -50,7 +50,7 @@ bool VideoOutputDevice::MustAbort() {
 }
 
 void VideoOutputDevice::ShutDown() {
-    if(!syMutex::IsMainThread()) { return; } // Can only be called from the main thread!
+    if(!syThread::IsMainThread()) { return; } // Can only be called from the main thread!
     m_shuttingdown = true;
     while(m_playing) {
         syMilliSleep(10); // Sleep for 10 milliseconds
@@ -70,7 +70,7 @@ unsigned int VideoOutputDevice::GetHeight() {
 }
 
 bool VideoOutputDevice::ChangeSize(unsigned int newwidth,unsigned int newheight) {
-    if(!syMutex::IsMainThread()) { return false; } // Can only be called from the main thread!
+    if(!syThread::IsMainThread()) { return false; } // Can only be called from the main thread!
     bool result = true;
     {
         syMutexLocker mylocker(*m_mutex);

@@ -11,7 +11,7 @@
 #include "sybitmap.h"
 #include "videoinputdevice.h"
 #include "videooutputdevice.h"
-#include "mutex.h"
+#include "sythread.h"
 
 VideoInputDevice::VideoInputDevice() :
 m_Bitmap(NULL),
@@ -53,7 +53,7 @@ bool VideoInputDevice::MustAbort() {
 }
 
 void VideoInputDevice::ShutDown() {
-    if(!syMutex::IsMainThread()) { return; } // Can only be called from the main thread!
+    if(!syThread::IsMainThread()) { return; } // Can only be called from the main thread!
     m_IsShuttingDown = true;
     while(m_IsBusy) {
         syMilliSleep(1); // Sleep for 1 millisecond at least

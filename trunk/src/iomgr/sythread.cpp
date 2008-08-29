@@ -1,13 +1,16 @@
 /***************************************************************
- * Name:      mutex.h
- * Purpose:   Implementation of a Cross-platform Mutex class
+ * Name:      sythread.h
+ * Purpose:   Implementation of a Cross-platform Thread class
  * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * Created:   2008-06-12
  * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * License:   WxWindows License
+ * Comments:  The syThread class API was modelled after the
+ *            wxWidgets thread API. If I actually use wxWidgets
+ *            code , I'll add the respective copyrights here.
  **************************************************************/
 
-#include "mutex.h"
+#include "sythread.h"
 
 #ifndef __WIN32__
     #include <unistd.h>
@@ -17,7 +20,7 @@
 
 unsigned long syGetTime();
 
-unsigned long syMainThreadId = syMutex::GetThreadId();
+unsigned long syMainThreadId = syThread::GetThreadId();
 unsigned long sySecondsAtInit = syGetTime();
 
 syMutex::syMutex() {
@@ -35,24 +38,6 @@ syMutex::~syMutex() {
         pthread_mutex_destroy(&m_mutexobj);
     #endif
 }
-
-unsigned long syMutex::GetThreadId() {
-    #ifdef __WIN32__
-        return (unsigned long)GetCurrentThreadId();
-    #else
-        return (unsigned long)syscall(__NR_gettid);
-    #endif
-}
-
-unsigned long syMutex::GetMainThreadId() {
-    return syMainThreadId;
-}
-
-/** Is the current thread the main thread? */
-bool syMutex::IsMainThread() {
-    return (syMutex::GetThreadId() == syMainThreadId);
-}
-
 
 void syMutex::Lock() {
     #ifdef __WIN32__
@@ -151,3 +136,54 @@ unsigned long syGetTicks() {
     #endif
     return result;
 }
+
+// syThread
+
+syThread::syThread() {
+}
+
+syThread::~syThread() {
+}
+
+unsigned long syThread::GetThreadId() {
+    #ifdef __WIN32__
+        return (unsigned long)GetCurrentThreadId();
+    #else
+        return (unsigned long)syscall(__NR_gettid);
+    #endif
+}
+
+unsigned long syThread::GetMainThreadId() {
+    return syMainThreadId;
+}
+
+/** Is the current thread the main thread? */
+bool syThread::IsMainThread() {
+    return (syThread::GetThreadId() == syMainThreadId);
+}
+
+// syThread::Create
+// syThread::Delete
+// syThread::Entry
+// syThread::Exit
+// syThread::GetCPUCount
+// syThread::GetCurrentId
+// syThread::GetId
+// syThread::GetPriority
+// syThread::IsAlive
+// syThread::IsDetached
+// syThread::IsMain
+// syThread::IsPaused
+// syThread::IsRunning
+// syThread::Kill
+// syThread::OnExit
+// syThread::Pause
+// syThread::Run
+// syThread::SetPriority
+// syThread::Sleep
+// syThread::Resume
+// syThread::SetConcurrency
+// syThread::TestDestroy
+// syThread::This
+// syThread::Yield
+// syThread::Wait

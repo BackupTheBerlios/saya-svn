@@ -12,7 +12,7 @@
 #define videoinputdevice_h
 
 #include "videocolorformat.h"
-#include "mutex.h"
+#include "sythread.h"
 
 class syBitmap;
 class VideoOutputDevice;
