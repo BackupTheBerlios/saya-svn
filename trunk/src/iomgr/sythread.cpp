@@ -45,18 +45,137 @@
 
 #include "sythread.h"
 
-#ifndef __WIN32__
+#ifdef __WIN32__
+    #include <process.h>
+#else
     #include <unistd.h>
     #include <sys/syscall.h>
     #include <sys/time.h>
     #include <errno.h>
 #endif
 #include <limits.h>
+#include <vector>
+// -----------------------
+// Timing functions (mine)
+// -----------------------
 
 unsigned long syGetTime();
-
 unsigned long syMainThreadId = syThread::GetThreadId();
 unsigned long sySecondsAtInit = syGetTime();
+
+void syMilliSleep(unsigned long msec) {
+    if(!msec) { msec = 1; }
+    #ifdef __WIN32__
+    ::Sleep(msec);
+    #else
+    // The following code was adapted from http://cc.byexamples.com/20070525/nanosleep-is-better-than-sleep-and-usleep/
+    struct timespec req={0};
+    time_t sec=(int)(msec/1000);
+    msec=msec-(sec*1000);
+    req.tv_sec=sec;
+    req.tv_nsec=msec*1000000L;
+    while(nanosleep(&req,&req)==-1) {
+         continue;
+    }
+    #endif
+}
+
+void syMicroSleep(unsigned long usec) {
+    if(!usec) { usec = 1; }
+    #ifdef __WIN32__
+    usec = (usec + 999) / 1000;
+    ::Sleep(usec);
+    #else
+    // The following code was adapted from http://cc.byexamples.com/20070525/nanosleep-is-better-than-sleep-and-usleep/
+    struct timespec req={0};
+    time_t sec=(int)(usec/1000000L);
+    usec=usec-(sec*1000000L);
+    req.tv_sec=sec;
+    req.tv_nsec=usec*1000L;
+    while(nanosleep(&req,&req)==-1) {
+         continue;
+    }
+    #endif
+}
+
+unsigned long syGetTime() {
+    unsigned long result;
+    #ifdef __WIN32__
+        FILETIME ft;
+        GetSystemTimeAsFileTime(&ft);
+        // To obtain the seconds, we divide by 10,000,000
+        // (which is 1 second / 10 nanoseconds used by the WIN API)
+        // But we need to use 64-bit math which C++ lacks!
+        // Luckily, we have algebra on our side :)
+
+        // 2^32 / 10,000,000 = 429.4967296
+        // hi * 2^32 / 10,000,000 =
+        //        = hi * 429.4967296
+        //        = hi * (429 + 0.4967296)
+        //        = hi * 429 + hi*0.496 + hi*.0007296
+        //        = hi*0.0007296 + hi*0.496 + hi*429 // We reverse the order for greater precision
+        //          57/78125 + 62/125 + 419 = 429.4967296. // We're lucky, it's 100% exact!
+        //        = ((hi*57)/78125) + ((hi*62)/125) + (hi* 429)
+        //
+        //        Finally, ((hi << 32) + low) / 10,000,000 =
+        //       (low / 10000000) + ((hi*57)/78125) + ((hi*62)/125) + (hi* 429)
+
+        unsigned long low = ft.dwLowDateTime;
+
+        // We spare the highest 16 bits - we don't want to overflow the calculation.
+        unsigned long hi  = ft.dwHighDateTime & 0x0ffff;
+        result = (low / 10000000) + ((hi*57)/78125) + ((hi*62)/125) + (hi* 429);
+    #else
+        // Here we call the posix function gettimeofday which returns the time in seconds and microseconds.
+        // We're just using the seconds right now.
+        struct timeval mytime;
+        gettimeofday(&mytime, NULL);
+        result = (unsigned long)(mytime.tv_sec);
+    #endif
+    return result;
+}
+
+unsigned long syGetTicks() {
+    unsigned long result;
+    #ifdef __WIN32__
+        // Turns out that Windows already has a function to get the number of milliseconds since the
+        // system was started. It's called GetTickCount.
+        result = GetTickCount();
+    #else
+        // Here we call the posix function gettimeofday which returns the time in seconds and microseconds.
+        // Since we're aiming for milliseconds, we have to multiply and divide by 1,000 the seconds
+        // and microseconds, respectively.
+        struct timeval mytime;
+        gettimeofday(&mytime, NULL);
+        result = (unsigned long)(mytime.tv_sec - sySecondsAtInit)*1000;
+        result += (((unsigned long)(mytime.tv_usec)) / 1000);
+    #endif
+    return result;
+}
+
+// -----------------------------------------
+// Private functions (courtesy of wxWidgets)
+// -----------------------------------------
+
+static void syScheduleThreadForDeletion();
+static void syDeleteThread(syThread *This);
+static int  syThreadStart(syThread* thread);
+
+// --------------------------------------------------------------------
+// Global variables  (courtesy of wxWidgets)
+// --------------------------------------------------------------------
+
+#ifdef __WIN32__
+// TLS index of the slot where we store the pointer to the current thread
+static DWORD gs_tlsThisThread = 0xFFFFFFFF;
+#else
+// the key for the pointer to the associated wxThread object
+static pthread_key_t gs_keySelf;
+#endif
+static size_t gs_nThreadsBeingDeleted = 0;
+static syMutex *gs_mutexDeleteThread = (syMutex *)NULL;
+static syCondition *gs_condAllDeleted = (syCondition *)NULL;
+static std::vector<syThread*> gs_allThreads;
 
 // -------------------
 // Begin syMutex class
@@ -118,25 +237,33 @@ syMutexLocker::~syMutexLocker() {
     Unlock();
 }
 
-// ---------------------------------------
-// Begin syCondition class (POSIX only)
-// This class was almost copied completely
-// From the wxwidgets threadpsx.cpp
-// See the copyright notice for details.
-// ---------------------------------------
+// -----------------
+// End syMutex class
+// -----------------
 
-#ifndef __WIN32__
+// -------------------------------------------------
+// Begin syCondition class
+// This class was almost copied completely
+// From the wxwidgets threadpsx.cpp and thrimpl.cpp
+// ------------------------------------------------
+
 syCondition::syCondition(syMutex& mutex) :
 m_mutex(mutex)
 {
+    #ifdef __WIN32__
+    m_numWaiters = 0;
+    #else
     int err = pthread_cond_init(&m_cond, NULL);
     m_isOk = (err == 0);
+    #endif
 }
 
 syCondition::~syCondition() {
+    #ifndef __WIN32__
     if ( m_isOk ) {
-        /* int err = */ pthread_cond_destroy(&m_cond);
+        pthread_cond_destroy(&m_cond);
     }
+    #endif
 }
 
 bool syCondition::IsOk() const {
@@ -144,14 +271,81 @@ bool syCondition::IsOk() const {
 }
 
 syCondError syCondition::Wait() {
-    int err = pthread_cond_wait(&m_cond, GetPMutex());
-    if (err != 0) {
-        return syCOND_MISC_ERROR;
+    syCondError result = syCOND_MISC_ERROR;
+    #ifdef __WIN32__
+    // increment the number of waiters
+    {
+        syMutexLocker lock(m_csWaiters);
+        ++m_numWaiters;
     }
-    return syCOND_NO_ERROR;
+    m_mutex.Unlock();
+
+    // Explanation courtesy of wxWidgets:
+    // a potential race condition can occur here
+    //
+    // after a thread increments m_numWaiters, and unlocks the mutex and before
+    // the semaphore.Wait() is called, if another thread can cause a signal to
+    // be generated
+    //
+    // this race condition is handled by using a semaphore and incrementing the
+    // semaphore only if m_numWaiters is greater that zero since the semaphore,
+    // can 'remember' signals the race condition will not occur
+
+    // wait ( if necessary ) and decrement semaphore
+    sySemaError err = m_semaphore.Wait();
+    m_mutex.Lock();
+
+    if ( err == sySEMA_NO_ERROR )
+        result = syCOND_NO_ERROR;
+    else if ( err == sySEMA_TIMEOUT )
+        result = syCOND_TIMEOUT;
+    else
+        result = syCOND_MISC_ERROR;
+    #else
+    int err = pthread_cond_wait(&m_cond, GetPMutex());
+    result = (err != 0) ? syCOND_MISC_ERROR : syCOND_NO_ERROR;
+    #endif
+    return result;
 }
 
 syCondError syCondition::WaitTimeout(unsigned long msec) {
+    syCondError result = syCOND_MISC_ERROR;
+    #ifdef __WIN32__
+    {
+        syMutexLocker lock(m_csWaiters);
+        m_numWaiters++;
+    }
+    m_mutex.Unlock();
+
+    // a race condition can occur at this point in the code
+    // please see the comments in Wait(), for details
+
+    sySemaError err = m_semaphore.WaitTimeout(milliseconds);
+
+    if ( err == sySEMA_TIMEOUT ) {
+        // another potential race condition exists here it is caused when a
+        // 'waiting' thread times out, and returns from WaitForSingleObject,
+        // but has not yet decremented m_numWaiters
+        //
+        // at this point if another thread calls signal() then the semaphore
+        // will be incremented, but the waiting thread will miss it.
+        //
+        // to handle this particular case, the waiting thread calls
+        // WaitForSingleObject again with a timeout of 0, after locking
+        // m_csWaiters. This call does not block because of the zero
+        // timeout, but will allow the waiting thread to catch the missed
+        // signals.
+        syMutexLocker lock(m_csWaiters);
+        sySemaError err2 = m_semaphore.WaitTimeout(0);
+
+        if ( err2 != wxSEMA_NO_ERROR ) {
+            m_numWaiters--;
+        }
+    }
+    m_mutex.Lock();
+    result = (err == wxSEMA_NO_ERROR) ? wxCOND_NO_ERROR :
+             ((err == wxSEMA_TIMEOUT) ? wxCOND_TIMEOUT : wxCOND_MISC_ERROR);
+    #else
     unsigned long curtime = syGetTicks() + (sySecondsAtInit*1000);
     curtime += msec;
     unsigned long temp = curtime / 1000;
@@ -166,7 +360,6 @@ syCondError syCondition::WaitTimeout(unsigned long msec) {
     tspec.tv_nsec = millis * 1000L * 1000L;
 
     int err = pthread_cond_timedwait( &m_cond, GetPMutex(), &tspec );
-    syCondError result = syCOND_MISC_ERROR;
     switch (err) {
         case ETIMEDOUT:
             result = syCOND_TIMEOUT;
@@ -178,31 +371,51 @@ syCondError syCondition::WaitTimeout(unsigned long msec) {
             ;
     }
     return result;
+    #endif
 }
 
 syCondError syCondition::Signal() {
+    #ifdef __WIN32__
+    syMutexLocker lock(m_csWaiters);
+    if (m_numWaiters > 0) {
+        // increment the semaphore by 1
+        if ( m_semaphore.Post() != sySEMA_NO_ERROR )
+            return syCOND_MISC_ERROR;
+        m_numWaiters--;
+    }
+    #else
     int err = pthread_cond_signal(&m_cond);
     if (err != 0) {
         return syCOND_MISC_ERROR;
     }
+    #endif
     return syCOND_NO_ERROR;
 }
 
 syCondError syCondition::Broadcast() {
+    #ifdef __WIN32__
+    syMutexLocker lock(m_csWaiters);
+    while (m_numWaiters > 0) {
+        if (m_semaphore.Post() != wxSEMA_NO_ERROR)
+            return wxCOND_MISC_ERROR;
+        m_numWaiters--;
+    }
+    #else
     int err = pthread_cond_broadcast(&m_cond);
     if (err != 0) {
         return syCOND_MISC_ERROR;
     }
+    #endif
     return syCOND_NO_ERROR;
 }
 
-#endif
-
+// ---------------------
 // End syCondition class
+// ---------------------
 
-// -----------------------
-// Begin sySemaphore class
-// -----------------------
+// -----------------------------------------------
+// Begin sySemaphore class (courtesy of wxWidgets)
+// -----------------------------------------------
 
 #ifdef __WIN32__
 sySemaphore::sySemaphore(int initialcount, int maxcount) {
@@ -330,102 +543,69 @@ sySemaError  sySemaphore::WaitTimeout(unsigned long timeout_msec) {
     return result;
 }
 
+// ---------------------
 // End sySemaphore class
+// ---------------------
 
 
-void syMilliSleep(unsigned long msec) {
-    if(!msec) { msec = 1; }
-    #ifdef __WIN32__
-    ::Sleep(msec);
-    #else
-    // The following code was adapted from http://cc.byexamples.com/20070525/nanosleep-is-better-than-sleep-and-usleep/
-    struct timespec req={0};
-    time_t sec=(int)(msec/1000);
-    msec=msec-(sec*1000);
-    req.tv_sec=sec;
-    req.tv_nsec=msec*1000000L;
-    while(nanosleep(&req,&req)==-1) {
-         continue;
+// ---------------------------------------------------------
+// Begin syThread auxiliary functions (courtesy of wxWidgets
+// ---------------------------------------------------------
+
+/** syThreadExiter is a class of mine, an adaptation from wxMutexLocker, but for threads instead.
+ *  It calls OnExit when destroyed.
+ */
+class syThreadExiter {
+    public:
+        syThreadExiter(syThread* thread) : m_Thread(thread) {}
+        ~syThreadExiter() {
+            if(m_Thread) { m_Thread->OnExit(); }
+        }
+    private:
+        syThread* m_Thread;
+};
+
+/** @brief Deletes a thread. */
+static void syDeleteThread(syThread *This) {
+    // gs_mutexDeleteThread should be unlocked before signalling the condition
+    // or syThread::OnExit() would deadlock
+    syMutexLocker lock(*gs_mutexDeleteThread);
+    delete This;
+    if ( !--gs_nThreadsBeingDeleted ) {
+        gs_condAllDeleted->Signal(); // no more threads left, signal it
     }
-    #endif
 }
 
-void syMicroSleep(unsigned long usec) {
-    if(!usec) { usec = 1; }
+/** @brief This static function is the cross-platform entry point for a thread. */
+static int syThreadStart(syThread* thread) {
+
+    // Whether an exception occurs or not while running the thread,
+    // OnExit is still called via the exiter's destructor.
+    // This was adapted from wxWidget's thread.cpp, with the difference that they used macros and C functions.
+    syThreadExiter exiter(thread);
+
+    int rc = -1;
+    // Set up the indexing so that syThread::This() will work.
     #ifdef __WIN32__
-    usec = (usec + 999) / 1000;
-    ::Sleep(usec);
+    rc = (::TlsSetValue(gs_tlsThisThread, thread)) ? 0 : -1;
     #else
-    // The following code was adapted from http://cc.byexamples.com/20070525/nanosleep-is-better-than-sleep-and-usleep/
-    struct timespec req={0};
-    time_t sec=(int)(usec/1000000L);
-    usec=usec-(sec*1000000L);
-    req.tv_sec=sec;
-    req.tv_nsec=usec*1000L;
-    while(nanosleep(&req,&req)==-1) {
-         continue;
+    rc = pthread_setspecific(gs_keySelf, thread);
+    if(rc != 0) { rc = -1; }
+    #endif
+    if(rc == 0) {
+        rc = thread->InternalEntry();
     }
-    #endif
+    return rc;
 }
 
-unsigned long syGetTime() {
-    unsigned long result;
-    #ifdef __WIN32__
-        FILETIME ft;
-        GetSystemTimeAsFileTime(&ft);
-        // To obtain the seconds, we divide by 10,000,000
-        // (which is 1 second / 10 nanoseconds used by the WIN API)
-        // But we need to use 64-bit math which C++ lacks!
-        // Luckily, we have algebra on our side :)
-
-        // 2^32 / 10,000,000 = 429.4967296
-        // hi * 2^32 / 10,000,000 =
-        //        = hi * 429.4967296
-        //        = hi * (429 + 0.4967296)
-        //        = hi * 429 + hi*0.496 + hi*.0007296
-        //        = hi*0.0007296 + hi*0.496 + hi*429 // We reverse the order for greater precision
-        //          57/78125 + 62/125 + 419 = 429.4967296. // We're lucky, it's 100% exact!
-        //        = ((hi*57)/78125) + ((hi*62)/125) + (hi* 429)
-        //
-        //        Finally, ((hi << 32) + low) / 10,000,000 =
-        //       (low / 10000000) + ((hi*57)/78125) + ((hi*62)/125) + (hi* 429)
-
-        unsigned long low = ft.dwLowDateTime;
-
-        // We spare the highest 16 bits - we don't want to overflow the calculation.
-        unsigned long hi  = ft.dwHighDateTime & 0x0ffff;
-        result = (low / 10000000) + ((hi*57)/78125) + ((hi*62)/125) + (hi* 429);
-    #else
-        // Here we call the posix function gettimeofday which returns the time in seconds and microseconds.
-        // We're just using the seconds right now.
-        struct timeval mytime;
-        gettimeofday(&mytime, NULL);
-        result = (unsigned long)(mytime.tv_sec);
-    #endif
-    return result;
+static void syScheduleThreadForDeletion() {
+    syMutexLocker lock(*gs_mutexDeleteThread);
+    gs_nThreadsBeingDeleted++;
 }
 
-unsigned long syGetTicks() {
-    unsigned long result;
-    #ifdef __WIN32__
-        // Turns out that Windows already has a function to get the number of milliseconds since the
-        // system was started. It's called GetTickCount.
-        result = GetTickCount();
-    #else
-        // Here we call the posix function gettimeofday which returns the time in seconds and microseconds.
-        // Since we're aiming for milliseconds, we have to multiply and divide by 1,000 the seconds
-        // and microseconds, respectively.
-        struct timeval mytime;
-        gettimeofday(&mytime, NULL);
-        result = (unsigned long)(mytime.tv_sec - sySecondsAtInit)*1000;
-        result += (((unsigned long)(mytime.tv_usec)) / 1000);
-    #endif
-    return result;
-}
-
-// --------------------
-// Begin syThread class
-// --------------------
+// ---------------------------------------------------
+// Begin syThread class (mostly wxWidgets, a bit mine)
+// ---------------------------------------------------
 
 syThread::syThread(syThreadKind kind) :
 m_ThreadId(0),
@@ -435,11 +615,9 @@ m_PauseRequested(false),
 m_StopRequested(false),
 m_ExitCode(0)
 {
-    m_StatusMutex = new syMutex;
 }
 
 syThread::~syThread() {
-    delete m_StatusMutex;
 }
 
 unsigned long syThread::GetThreadId() {
@@ -480,29 +658,133 @@ unsigned long syThread::GetId() const {
 }
 
 syThreadError syThread::Create(unsigned int stackSize) {
-    // TODO: Implement syThread::Create
-    return syTHREAD_MISC_ERROR;
+    syMutexLocker lock(m_Mutex);
+    if(m_ThreadStatus == syTHREADSTATUS_TERMINATING || m_ThreadStatus == syTHREADSTATUS_EXITED) {
+        lock.Unlock();
+        syMicroSleep(1); // Sleep for 1 uSeconds or more just to let the thread finish its cleanup
+    }
+    lock.Lock();
+    if(m_ThreadStatus == syTHREADSTATUS_EXITED) {
+        m_ThreadStatus = syTHREADSTATUS_NOT_CREATED;
+    }
+    if(m_ThreadStatus != syTHREADSTATUS_NOT_CREATED) {
+        return syTHREAD_RUNNING;
+    }
+    #ifdef __WIN32__
+        // Watcom is reported to not like 0 stack size (which means "use default"
+        // for the other compilers and is also the default value for stackSize)
+        #ifdef __WATCOMC__
+            if ( !stackSize )
+                stackSize = 10240;
+        #endif // __WATCOMC__
+
+        m_hThread = (HANDLE)_beginthreadex(
+                          NULL,             // default security
+                          stackSize,
+                          syWinThreadStart, // entry point
+                          thread,
+                          0, // Create Running (our implementation differs from wx's in that we follow more
+                             // the posix implementation, which IMHO is much cleaner than win32's.
+                             // So we let the thread run and then it'll freeze automatically with our semaphore.
+                          (unsigned int *)&m_ThreadId
+                        );
+
+    if ( m_hThread == NULL ) {
+        return syTHREAD_NO_RESOURCE; // Error creating the thread!
+    }
+    m_ThreadStatus = syTHREADSTATUS_CREATED;
+    lock.Unlock();
+    if (m_Priority != SYTHREAD_DEFAULT_PRIORITY) {
+        SetPriority(m_Priority);
+    }
+    #else
+    // TODO: Implement POSIX version of syThread::Create, and incorporate
+    // thread deletion scheduling into the Windows implementation
+    #endif
+
+    m_StackSize = stackSize;
+    return syTHREAD_NO_ERROR;
 }
 
 
-bool syThread::IsAlive() const {
-    syMutexLocker lock(*m_StatusMutex);
+int syThread::InternalEntry() {
+    bool dontRunAtAll;
+
+    m_StartSemaphore.Wait();
+    syMutexLocker lock(m_Mutex);
+    dontRunAtAll = m_ThreadStatus == syTHREADSTATUS_CREATED && m_StopRequested;
+    lock.Unlock();
+    int result = -1;
+    if (dontRunAtAll) {
+        return -1;
+    }
+    if(!dontRunAtAll) {
+        // call the main entry
+        int exitcode = Entry();
+        lock.Lock();
+        m_ThreadStatus = syTHREADSTATUS_TERMINATING;
+        lock.Unlock();
+        Exit(exitcode); // Note: Exit should terminate the thread and not return at all.
+        #ifdef __WIN32__
+        result = exitcode;
+        #else
+        result = 0; // If the thread didn't exit, return 0. syThreadStart will know what to do with it.
+        #endif
+    }
+    // If everything went fine, OnExit() should already be called and we shouldn't return in the first place.
+    return result;
+
+}
+
+void syThread::Exit(int exitcode) {
+    if(!IsThisThread()) { return; } // Exit() can only be called by the same thread context
+    m_ExitCode = exitcode;
+    if(IsDetached()) {
+        // Comment from the wxWidgets source code:
+        // from the moment we call OnExit(), the main program may terminate at
+        // any moment, so mark this thread as being already in process of being
+        // deleted or wxThreadModule::OnExit() will try to delete it again
+        syScheduleThreadForDeletion();
+    }
+    OnExit();
+    if(IsDetached()) {
+        syDeleteThread(this);
+        #ifndef __WIN32__
+        pthread_setspecific(gs_keySelf, 0);
+        #endif
+    } else {
+        syMutexLocker lock(m_Mutex);
+        m_ThreadStatus = syTHREADSTATUS_EXITED;
+    }
+    // terminate the thread (pthread_exit() never returns)
+    #ifdef __WIN32__
+    _endthreadex((unsigned)exitcode);
+    #else
+    pthread_exit((void*)exitcode);
+    #endif
+}
+
+
+bool syThread::IsAlive() {
+    syMutexLocker lock(m_Mutex);
     return (m_ThreadStatus == syTHREADSTATUS_CREATED) ||
     (m_ThreadStatus == syTHREADSTATUS_PAUSED) ||
     (m_ThreadStatus == syTHREADSTATUS_RUNNING);
 }
 
+
+
 bool syThread::IsDetached() const {
     return (m_ThreadKind == syTHREAD_DETACHED);
 }
 
-bool syThread::IsPaused() const {
-    syMutexLocker lock(*m_StatusMutex);
+bool syThread::IsPaused() {
+    syMutexLocker lock(m_Mutex);
     return (m_ThreadStatus == syTHREADSTATUS_PAUSED);
 }
 
-bool syThread::IsRunning() const {
-    syMutexLocker lock(*m_StatusMutex);
+bool syThread::IsRunning() {
+    syMutexLocker lock(m_Mutex);
     return (m_ThreadStatus == syTHREADSTATUS_RUNNING);
 }
 
@@ -520,11 +802,12 @@ syThreadError syThread::Pause() {
     if(IsThisThread()) { return syTHREAD_WRONG_THREAD_CONTEXT; }
     if(!IsRunning()) { return syTHREAD_NOT_RUNNING; }
 
-    while(m_ThreadStatus == syTHREADSTATUS_RUNNING) {
-        // There might be two threads trying to pause/resume a third thread.
-        // To avoid a race condition, just keep requesting the pause.
-        m_PauseRequested = true;
+    m_PauseRequested = true;
+    while(m_PauseRequested && m_ThreadStatus == syTHREADSTATUS_RUNNING) {
         syMicroSleep(50);
+    }
+    if(!m_PauseRequested) {
+        return syTHREAD_MISC_ERROR; // Could not pause the thread!
     }
     m_PauseRequested = false;
     if(m_ThreadStatus == syTHREADSTATUS_KILLED) {
@@ -537,33 +820,65 @@ syThreadError syThread::Run() {
     if(IsThisThread()) { return syTHREAD_WRONG_THREAD_CONTEXT; }
 
     syThreadError result;
-    m_StatusMutex->Lock();
+    syMutexLocker lock(m_Mutex);
     if(m_ThreadKind == syTHREAD_JOINABLE && m_ThreadStatus == syTHREADSTATUS_EXITED) {
+        lock.Unlock();
+        if(Create(m_StackSize) != syTHREAD_NO_ERROR) {
+            return syTHREAD_NO_RESOURCE;
+        }
+        lock.Lock();
         m_ThreadStatus = syTHREADSTATUS_CREATED;
         m_PauseRequested = false;
         m_StopRequested = false;
     }
     if(m_ThreadStatus != syTHREADSTATUS_CREATED) {
         result = syTHREAD_RUNNING;
-        m_StatusMutex->Unlock();
     } else {
         m_ThreadStatus = syTHREADSTATUS_RUNNING;
         result = syTHREAD_NO_ERROR;
-        m_StatusMutex->Unlock();
+        lock.Unlock();
         m_StartSemaphore.Post();
     }
     return result;
 }
 
 void syThread::SetPriority(int priority) {
-    if(m_ThreadStatus == syTHREADSTATUS_CREATED) {
+    syMutexLocker lock(m_Mutex);
+    if(m_ThreadStatus != syTHREADSTATUS_CREATED) {
         if(priority < 0) { priority = 0; }
         if(priority > 100) { priority = 100; }
         m_Priority = priority;
     }
+    #ifdef __WIN32__
+        int os_priority;
+        if (m_Priority <= 20)
+            os_priority = THREAD_PRIORITY_LOWEST;
+        else if (m_Priority <= 40)
+            os_priority = THREAD_PRIORITY_BELOW_NORMAL;
+        else if (m_Priority <= 60)
+            os_priority = THREAD_PRIORITY_NORMAL;
+        else if (m_Priority <= 80)
+            os_priority = THREAD_PRIORITY_ABOVE_NORMAL;
+        else
+            os_priority = THREAD_PRIORITY_HIGHEST;
+        ::SetThreadPriority(m_hThread, os_priority);
+    #else
+        // TODO: Implement POSIX for SetPriority
+        switch(m_ThreadStatus) {
+            case syTHREADSTATUS_CREATED:
+            case syTHREADSTATUS_PAUSED:
+            case syTHREADSTATUS_RUNNING:
+            // Newer implementations of pthreads ( IEEE Std 1003.1 ) have this function which allows us
+            // to set the threads priority.
+            pthread_setschedprio(m_ThreadId, m_Priority);
+            break;
+            default:; // Couldn't set the priority!
+        }
+    #endif
 }
 
-int syThread::GetPriority() const {
+int syThread::GetPriority() {
+    syMutexLocker lock(m_Mutex);
     return m_Priority;
 }
 
@@ -586,11 +901,12 @@ void syThread::Sleep(unsigned long msec) {
 
 syThreadError syThread::Resume() {
     if(IsThisThread()) { return syTHREAD_WRONG_THREAD_CONTEXT; }
-    m_StatusMutex->Lock();
+    syMutexLocker lock(m_Mutex);
     syThreadError result;
     switch(m_ThreadStatus) {
         case syTHREADSTATUS_PAUSED:
             m_PauseRequested = false;
+            lock.Unlock();
             m_ResumeSemaphore.Post();
             result = syTHREAD_NO_ERROR;
             break;
@@ -608,7 +924,6 @@ syThreadError syThread::Resume() {
         default:
             result = syTHREAD_MISC_ERROR;
     }
-    m_StatusMutex->Unlock();
     return result;
 }
 
@@ -618,26 +933,28 @@ bool syThread::SetConcurrency(size_t level) {
 
 bool syThread::TestDestroy() {
     if(!IsThisThread()) return false;
+    syMutexLocker lock(m_Mutex);
     if(m_ThreadStatus != syTHREADSTATUS_RUNNING) return false;
     if(m_PauseRequested) {
-        {
-            syMutexLocker lock(*m_StatusMutex);
-            if(m_ThreadStatus!= syTHREADSTATUS_RUNNING) return false;
-            m_ThreadStatus = syTHREADSTATUS_PAUSED;
-        }
+        if(m_ThreadStatus!= syTHREADSTATUS_RUNNING) return false;
+        m_ThreadStatus = syTHREADSTATUS_PAUSED;
+        lock.Unlock();
         m_ResumeSemaphore.Wait();
-        {
-            syMutexLocker lock(*m_StatusMutex);
-            m_ThreadStatus = syTHREADSTATUS_RUNNING;
-            m_PauseRequested = false;
-        }
+        lock.Lock();
+        m_ThreadStatus = syTHREADSTATUS_RUNNING;
+        m_PauseRequested = false;
     }
     return m_StopRequested;
 }
 
 syThread* syThread::This() {
-    // TODO: Implement syThread::This()
-    return NULL;
+    syThread* thread;
+    #ifdef __WIN32__
+    thread = (syThread *)::TlsGetValue(gs_tlsThisThread);
+    #else
+    thread = (syThread *)pthread_getspecific(gs_keySelf);
+    #endif
+    return thread;
 }
 
 void syThread::Yield() {
@@ -649,7 +966,7 @@ void syThread::Yield() {
     #endif
 }
 
-int syThread::Wait() const {
+int syThread::Wait() {
     if(IsThisThread()) { return -1; }
     while(IsRunning() || m_ThreadStatus == syTHREADSTATUS_TERMINATING) {
         syMicroSleep(50);
@@ -663,30 +980,25 @@ syThreadError syThread::Delete(int* rc) {
     bool isdetached = false;
     syThreadStatus status;
     // The following logic was adapted from wxWidgets' threadpsx.cpp
-    {
-        // First lock the mutex, and get the status.
-        syMutexLocker lock(*m_StatusMutex);
-        status = m_ThreadStatus;
-        m_PauseRequested = false;
-        m_StopRequested = true;
-        isdetached = (m_ThreadKind == syTHREAD_DETACHED);
-    }
+    syMutexLocker lock(m_Mutex);
 
-    if(status == syTHREADSTATUS_CREATED) { Run(); } // Run the thread (we can't stop it if it keeps waiting)
-    if(status == syTHREADSTATUS_PAUSED) { Resume(); } // Resume the thread for the same reason.
+    status = m_ThreadStatus;
+    m_PauseRequested = false;
+    m_StopRequested = true;
+    isdetached = (m_ThreadKind == syTHREAD_DETACHED);
+    if(status == syTHREADSTATUS_CREATED) { lock.Unlock();Run(); }
+    // Run the thread (we can't stop it if it keeps waiting)
+    if(status == syTHREADSTATUS_PAUSED) { lock.Unlock();Resume(); }
+    // Resume the thread for the same reason.
     if (!isdetached) {
         // For joinable threads, wait until the thread stops;
         // We can't wait for detached threads.
-        if(status != syTHREADSTATUS_EXITED) { Wait(); }
+        if(status != syTHREADSTATUS_EXITED) { lock.Unlock();Wait(); }
         if(rc) { *rc = m_ExitCode; } // return the thread's exit code
     }
     return syTHREAD_NO_ERROR;
 }
 
-void syThread::Exit(int exitcode) {
-    m_ExitCode = exitcode;
-}
-
 bool syThread::IsThisThread() const {
-    return (this == This());
+    return (this && this == This());
 }

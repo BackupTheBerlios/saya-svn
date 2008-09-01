@@ -61,9 +61,7 @@ class syCondition;
   * is much easier than I thought. So I'll wrap the generic mutex class in a single .h and .cpp file.
   */
 class syMutex {
-    #ifndef __WIN32__
     friend class syCondition;
-    #endif
     public:
         /** Initializes the Critical Section */
         syMutex();
@@ -109,8 +107,6 @@ class syMutexLocker {
         bool m_locked;
 };
 
-#ifndef __WIN32__
-
 /** Errors for syCondition */
 enum syCondError {
     syCOND_NO_ERROR = 0,    /** successful completion */
@@ -119,7 +115,11 @@ enum syCondError {
     syCOND_MISC_ERROR       /** Another kind of error */
 };
 
-/** POSIX implementation of Condition variables */
+/** @brief Condition variables - courtesy of wxWidgets
+ *  @note A funny fact is that for Posix, we implement semaphores using conditions and mutexes.
+ *  In windows, we implement conditions using semaphores and mutexes!
+ *
+ */
 class syCondition {
     public:
         /** Constructor. The mutex must be locked by the caller before calling Wait function. */
@@ -156,13 +156,22 @@ class syCondition {
         syCondError WaitTimeout(unsigned long msec);
     private:
         syMutex& m_mutex;
+        #ifdef __WIN32__
+        /** the number of threads currently waiting for this condition */
+        LONG m_numWaiters;
+
+        /** the critical section protecting m_numWaiters */
+        syMutex m_csWaiters;
+        /** The condition's semaphore */
+        sySemaphore m_semaphore;
+        #else
         // get the POSIX mutex associated with us
         pthread_mutex_t *GetPMutex() const { return &(m_mutex.m_mutexobj); }
         pthread_cond_t m_cond;
+        #endif
         bool m_isOk;
 };
 
-#endif
 
 /** Semaphore errors */
 enum sySemaError {
@@ -314,7 +323,6 @@ enum syThreadKind {
  *  a function's stack.
  */
 class syThread {
-
     public:
 
         /** @brief Gets a platform-dependent id for the currently running thread.
@@ -388,10 +396,10 @@ class syThread {
         unsigned long GetId() const;
 
         /** Gets the thread's priority, from 0 to 100 (inclusive). */
-        int GetPriority() const;
+        int GetPriority();
 
         /** @return True if the thread is started and not terminating. */
-        bool IsAlive() const;
+        bool IsAlive();
 
         /** @return True for detached thrads; false for joinable threads. */
         bool IsDetached() const;
@@ -403,12 +411,12 @@ class syThread {
         static bool IsMain();
 
         /** @return true if the thread is paused. */
-        bool IsPaused() const;
+        bool IsPaused();
 
         /** @return true if the thread is running (not paused).
          *  @warning Use only for joinable threads.
          */
-        bool IsRunning() const;
+        bool IsRunning();
 
         /** @brief Kills the thread without performing cleanup.
          *  @warning EXTREMELY DANGEROUS. Use at your own risk.
@@ -490,7 +498,12 @@ class syThread {
          *        as necessary.
          *  @warning You can only Wait() for joinable (not detached) threads.
          */
-        int Wait() const;
+        int Wait();
+
+        /** @brief Internal Entry function for the thread.
+         *  @warning NEVER, EVER call this function directly!
+         */
+        int InternalEntry();
 
     protected:
         /**  This function can only be called from a derived class, and only by the running thread.
@@ -506,6 +519,11 @@ class syThread {
 
         /** The OS-dependent thread ID */
         unsigned long m_ThreadId;
+
+        /** The thread's handle */
+        #ifdef __WIN32__
+        HANDLE m_hThread;
+        #endif
 
         /** The thread kind; syTHREAD_DETACHED or syTHREAD_JOINABLE */
         syThreadKind m_ThreadKind;
@@ -523,13 +541,16 @@ class syThread {
         bool m_StopRequested;
 
         /** Mutex to prevent race conditions on status changing */
-        syMutex* m_StatusMutex;
+        syMutex m_Mutex;
 
         /** The thread's exit code */
         int m_ExitCode;
 
         /** The thread's priority */
         unsigned int m_Priority;
+
+        /** The thread's stack size when it was last created */
+        unsigned int m_StackSize;
 
         sySemaphore m_StartSemaphore;
         sySemaphore m_ResumeSemaphore;
