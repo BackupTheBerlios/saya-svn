@@ -120,7 +120,7 @@ class VideoInputDevice : public syAborter {
          *
          *  @see syAborter
          */
-        virtual bool MustAbort();
+        virtual bool InnerMustAbort();
 
     protected:
 

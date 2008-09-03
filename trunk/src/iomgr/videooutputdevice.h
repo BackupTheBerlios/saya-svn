@@ -77,7 +77,7 @@ class VideoOutputDevice : public syAborter {
           * @note This method MUST be called by LoadDeviceVideoData.
           * @see syAborter::MustAbort
           */
-        virtual bool MustAbort();
+        virtual bool InnerMustAbort();
 
         /** @brief Flag indicating whether it's a playback or an encoding device.
          *  @return true for encoding; false for playback.

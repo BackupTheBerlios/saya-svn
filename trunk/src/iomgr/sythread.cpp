@@ -1,17 +1,29 @@
 /***************************************************************
  * Name:      sythread.cpp
- * Purpose:   Implementation of a Cross-platform Thread class
+ * Purpose:   Reimplementation of the wxWidgets Thread classes
+ *            with some extra functions for multimedia processing
  * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
- * Created:   2008-06-12
- * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
- * License:   WxWindows License
- * Comments:  The syThread class API was modelled after the
- *            wxWidgets thread API. Some functions and enums
- *            were the same, others were rewritten from scratch.
- *            So if there's a bug, don't blame the wxThread authors,
- *            blame me instead.
+ * Date :     2008-06-12
+ * Copyright:
+ *            (c) Wolfram Gloger (1996, 1997),
+ *            (c) Guilhem Lavaux (1998),
+ *            (c) Vadim Zeitlin (1999-2002),
+ *            (c) Robert Roebling (1999),
+ *            (c) K. S. Sreeram (2002),
+ *            (c) Ricardo Garcia (2008)
  *
- * Original wx/thread.h copyright info:
+ * License:   WxWindows License
+ * Comments:  The syThread and related classes are a
+ *            reimplementation and clean-up of the wxWidgets
+ *            wxThread API into one header and one cpp file
+ *            (unlike wxWidgets, which has a .cpp and .h file
+ *            per operating system).
+ *            The majority of functions were the
+ *            same, while others were rewritten from scratch.
+ *            So if there's a bug, don't blame the wxThread
+ *            authors, blame me (Rick) instead.
+ *
+ * Original wxWidgets thread files copyright info:
  *
  *  ///////////////////////////////////////////////////////
  *  // Name:        wx/thread.h
@@ -25,7 +37,6 @@
  *  // Licence:     wxWindows licence
  *  ///////////////////////////////////////////////////////
  *
- * Original threadpsx.cpp copyright info:
  *  /////////////////////////////////////////////////////////////////////////////
  *  // Name:        src/unix/threadpsx.cpp
  *  // Purpose:     wxThread (Posix) Implementation
@@ -40,6 +51,16 @@
  *  // Licence:     wxWindows licence
  *  /////////////////////////////////////////////////////////////////////////////
  *
+ * /////////////////////////////////////////////////////////////////////////////
+ * // Name:        src/msw/thread.cpp
+ * // Purpose:     wxThread Implementation
+ * // Author:      Original from Wolfram Gloger/Guilhem Lavaux
+ * // Modified by: Vadim Zeitlin to make it work :-)
+ * // Created:     04/22/98
+ * // Copyright:   (c) Wolfram Gloger (1996, 1997), Guilhem Lavaux (1998);
+ * //                  Vadim Zeitlin (1999-2002)
+ * // Licence:     wxWindows licence
+ * /////////////////////////////////////////////////////////////////////////////
  *
  **************************************************************/
 
@@ -55,6 +76,30 @@
 #endif
 #include <limits.h>
 #include <vector>
+
+// -----------------------------------------
+// Private functions (courtesy of wxWidgets)
+// -----------------------------------------
+
+static void syScheduleThreadForDeletion();
+static void syDeleteThread(syThread *This);
+static unsigned syThreadStart(syThread* thread);
+
+// --------------------------------------------------------------------
+// Global variables  (courtesy of wxWidgets)
+// --------------------------------------------------------------------
+
+#ifdef __WIN32__
+typedef pthread_key_t DWORD;
+#endif
+
+// TLS index of the slot where we store the pointer to the current thread
+static pthread_key_t gs_keySelf = 0xFFFFFFFF;
+static size_t gs_nThreadsBeingDeleted = 0;
+static syMutex *gs_mutexDeleteThread = (syMutex *)NULL;
+static syCondition *gs_condAllDeleted = (syCondition *)NULL;
+static std::vector<syThread*> gs_allThreads;
+
 // -----------------------
 // Timing functions (mine)
 // -----------------------
@@ -153,29 +198,9 @@ unsigned long syGetTicks() {
     return result;
 }
 
-// -----------------------------------------
-// Private functions (courtesy of wxWidgets)
-// -----------------------------------------
-
-static void syScheduleThreadForDeletion();
-static void syDeleteThread(syThread *This);
-static int  syThreadStart(syThread* thread);
-
-// --------------------------------------------------------------------
-// Global variables  (courtesy of wxWidgets)
-// --------------------------------------------------------------------
-
-#ifdef __WIN32__
-// TLS index of the slot where we store the pointer to the current thread
-static DWORD gs_tlsThisThread = 0xFFFFFFFF;
-#else
-// the key for the pointer to the associated wxThread object
-static pthread_key_t gs_keySelf;
-#endif
-static size_t gs_nThreadsBeingDeleted = 0;
-static syMutex *gs_mutexDeleteThread = (syMutex *)NULL;
-static syCondition *gs_condAllDeleted = (syCondition *)NULL;
-static std::vector<syThread*> gs_allThreads;
+// ---------------------------
+// End timing functions (mine)
+// ---------------------------
 
 // -------------------
 // Begin syMutex class
@@ -252,6 +277,7 @@ m_mutex(mutex)
 {
     #ifdef __WIN32__
     m_numWaiters = 0;
+    m_isOk = true;
     #else
     int err = pthread_cond_init(&m_cond, NULL);
     m_isOk = (err == 0);
@@ -547,10 +573,22 @@ sySemaError  sySemaphore::WaitTimeout(unsigned long timeout_msec) {
 // End sySemaphore class
 // ---------------------
 
+// ---------------------
+// Begin syAborter class
+// ---------------------
 
-// ---------------------------------------------------------
-// Begin syThread auxiliary functions (courtesy of wxWidgets
-// ---------------------------------------------------------
+bool syAborter::MustAbort() {
+    return (syThread::MustAbort() || InternalMustAbort());
+}
+
+// ---------------------
+// End syAborter class
+// ---------------------
+
+
+// ----------------------------------------------------------
+// Begin syThread auxiliary functions (courtesy of wxWidgets)
+// ----------------------------------------------------------
 
 /** syThreadExiter is a class of mine, an adaptation from wxMutexLocker, but for threads instead.
  *  It calls OnExit when destroyed.
@@ -576,8 +614,19 @@ static void syDeleteThread(syThread *This) {
     }
 }
 
+// The platform-specific thread starting functions.
+#ifdef __WIN32__
+unsigned __stdcall syWinThreadStart(void *thread) {
+    return syThreadStart((syThread*)thread);
+}
+#else
+void *syPthreadStart(void *thread) {
+    return (void*)syThreadStart((syThread*)thread);
+}
+#endif
+
 /** @brief This static function is the cross-platform entry point for a thread. */
-static int syThreadStart(syThread* thread) {
+static unsigned syThreadStart(syThread* thread) {
 
     // Whether an exception occurs or not while running the thread,
     // OnExit is still called via the exiter's destructor.
@@ -587,7 +636,7 @@ static int syThreadStart(syThread* thread) {
     int rc = -1;
     // Set up the indexing so that syThread::This() will work.
     #ifdef __WIN32__
-    rc = (::TlsSetValue(gs_tlsThisThread, thread)) ? 0 : -1;
+    rc = (::TlsSetValue(gs_keySelf, thread)) ? 0 : -1;
     #else
     rc = pthread_setspecific(gs_keySelf, thread);
     if(rc != 0) { rc = -1; }
@@ -618,6 +667,7 @@ m_ExitCode(0)
 }
 
 syThread::~syThread() {
+    // TODO: Implement syThread::~syThread
 }
 
 unsigned long syThread::GetThreadId() {
@@ -670,6 +720,7 @@ syThreadError syThread::Create(unsigned int stackSize) {
     if(m_ThreadStatus != syTHREADSTATUS_NOT_CREATED) {
         return syTHREAD_RUNNING;
     }
+    bool success = false;
     #ifdef __WIN32__
         // Watcom is reported to not like 0 stack size (which means "use default"
         // for the other compilers and is also the default value for stackSize)
@@ -683,29 +734,51 @@ syThreadError syThread::Create(unsigned int stackSize) {
                           stackSize,
                           syWinThreadStart, // entry point
                           thread,
-                          0, // Create Running (our implementation differs from wx's in that we follow more
-                             // the posix implementation, which IMHO is much cleaner than win32's.
-                             // So we let the thread run and then it'll freeze automatically with our semaphore.
+                          0,                // Create Running (our implementation differs from wx's in
+                                            // that we follow more the posix implementation, which IMHO
+                                            // is much cleaner than win32's. so we let the thread run
+                                            // and then it'll freeze automatically with our semaphore.
                           (unsigned int *)&m_ThreadId
                         );
 
-    if ( m_hThread == NULL ) {
+        success = ( m_hThread != NULL );
+    #else
+        // For posix, we initialize a pthread attribute variable, and then we create the thread with that.
+        pthread_attr_t attr;
+        pthread_attr_init(&attr);
+        if (stackSize) { pthread_attr_setstacksize(&attr, stackSize); }
+        // Try to set the threads really concurrent.
+        pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
+
+        if (pthread_attr_getschedpolicy(&attr, &m_Policy) != 0) {
+            m_Policy = -1; // Couldn't get the OS' scheduling policy!
+        }
+
+        m_ShouldBeJoined = (m_ThreadKind != syTHREAD_DETACHED);
+        if (!m_ShouldBeJoined) {
+            // Try to create the thread detached
+            pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+        }
+        int rc = pthread_create(&m_ThreadId, &attr, syPthreadStart, (void *)this);
+
+        pthread_attr_destroy(&attr); // Destroy the thread attribute or we'd leak resources.
+        success = (rc == 0);
+    #endif
+    if(!success) {
+        m_ThreadStatus = syTHREADSTATUS_NOT_CREATED;
         return syTHREAD_NO_RESOURCE; // Error creating the thread!
     }
+
     m_ThreadStatus = syTHREADSTATUS_CREATED;
     lock.Unlock();
     if (m_Priority != SYTHREAD_DEFAULT_PRIORITY) {
         SetPriority(m_Priority);
     }
-    #else
-    // TODO: Implement POSIX version of syThread::Create, and incorporate
-    // thread deletion scheduling into the Windows implementation
-    #endif
-
     m_StackSize = stackSize;
     return syTHREAD_NO_ERROR;
 }
 
+// TODO: incorporate thread deletion scheduling (for both posix and Windows)
 
 int syThread::InternalEntry() {
     bool dontRunAtAll;
@@ -794,10 +867,6 @@ syThreadError syThread::Kill() {
     return syTHREAD_MISC_ERROR;
 }
 
-void syThread::OnExit() {
-    // TODO: Implement syThread::OnExit
-}
-
 syThreadError syThread::Pause() {
     if(IsThisThread()) { return syTHREAD_WRONG_THREAD_CONTEXT; }
     if(!IsRunning()) { return syTHREAD_NOT_RUNNING; }
@@ -844,13 +913,19 @@ syThreadError syThread::Run() {
 
 void syThread::SetPriority(int priority) {
     syMutexLocker lock(m_Mutex);
-    if(m_ThreadStatus != syTHREADSTATUS_CREATED) {
-        if(priority < 0) { priority = 0; }
-        if(priority > 100) { priority = 100; }
-        m_Priority = priority;
+    switch(m_ThreadStatus) {
+        case syTHREADSTATUS_CREATED:
+        case syTHREADSTATUS_PAUSED:
+        case syTHREADSTATUS_RUNNING:
+        break;
+        default:
+            return; // Cannot set priority in other cases
     }
+    if(priority < 0) { priority = 0; }
+    if(priority > 100) { priority = 100; }
+    m_Priority = priority;
+    int os_priority;
     #ifdef __WIN32__
-        int os_priority;
         if (m_Priority <= 20)
             os_priority = THREAD_PRIORITY_LOWEST;
         else if (m_Priority <= 40)
@@ -861,19 +936,26 @@ void syThread::SetPriority(int priority) {
             os_priority = THREAD_PRIORITY_ABOVE_NORMAL;
         else
             os_priority = THREAD_PRIORITY_HIGHEST;
+    #else
+        int min_prio = -1;
+        int max_prio = -1;
+        if(m_Policy >= 0) {
+            min_prio = sched_get_priority_min(m_Policy);
+            max_prio = sched_get_priority_max(m_Policy);
+        }
+        if ( min_prio == -1 || max_prio == -1 || max_prio == min_prio) {
+            m_Priority = 50; // Priority setting is being ignored by the OS; Set it to default and return
+            return;
+        }
+        os_priority = min_prio + (m_Priority*(max_prio - min_prio))/100;
+    #endif
+
+    // Now that we have calculated the os-based priority, let's apply it.
+
+    #ifdef __WIN32__
         ::SetThreadPriority(m_hThread, os_priority);
     #else
-        // TODO: Implement POSIX for SetPriority
-        switch(m_ThreadStatus) {
-            case syTHREADSTATUS_CREATED:
-            case syTHREADSTATUS_PAUSED:
-            case syTHREADSTATUS_RUNNING:
-            // Newer implementations of pthreads ( IEEE Std 1003.1 ) have this function which allows us
-            // to set the threads priority.
-            pthread_setschedprio(m_ThreadId, m_Priority);
-            break;
-            default:; // Couldn't set the priority!
-        }
+        pthread_setschedprio(m_ThreadId, os_priority);
     #endif
 }
 
@@ -931,11 +1013,17 @@ bool syThread::SetConcurrency(size_t level) {
     return false; // This function is kept only for wxWidgets API compatibility
 }
 
+bool syThread::MustAbort() {
+    syThread* thread = syThread::This();
+    if(!thread) { return false; }
+    return thread->TestDestroy();
+}
+
 bool syThread::TestDestroy() {
-    if(!IsThisThread()) return false;
+    if(!IsThisThread()) return false; // Not our thread
+    if(m_StopRequested) return true; // No need to lock mutex, must stop.
     syMutexLocker lock(m_Mutex);
-    if(m_ThreadStatus != syTHREADSTATUS_RUNNING) return false;
-    if(m_PauseRequested) {
+    if(m_PauseRequested && (m_ThreadStatus == syTHREADSTATUS_RUNNING)) {
         if(m_ThreadStatus!= syTHREADSTATUS_RUNNING) return false;
         m_ThreadStatus = syTHREADSTATUS_PAUSED;
         lock.Unlock();
@@ -950,7 +1038,7 @@ bool syThread::TestDestroy() {
 syThread* syThread::This() {
     syThread* thread;
     #ifdef __WIN32__
-    thread = (syThread *)::TlsGetValue(gs_tlsThisThread);
+    thread = (syThread *)::TlsGetValue(gs_keySelf);
     #else
     thread = (syThread *)pthread_getspecific(gs_keySelf);
     #endif

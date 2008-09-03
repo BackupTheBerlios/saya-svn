@@ -66,14 +66,14 @@ bool AudioOutputDevice::InitializeOutput() {
     return true;
 }
 
-bool AudioOutputDevice::MustAbort() {
+bool AudioOutputDevice::InternalMustAbort() {
     return (!m_ok || m_shuttingdown || m_changingparams);
 }
 
 void AudioOutputDevice::ShutDown() {
     m_shuttingdown = true;
     while(m_playing) {
-        syMilliSleep(10); // Sleep for 10 milliseconds
+        syMilliSleep(1); // Sleep for 1 millisecond
     }
     Clear();
     DisconnectOutput();

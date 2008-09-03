@@ -327,7 +327,7 @@ bool syBitmap::MustAbort() {
     if(m_Aborter) {
         return m_Aborter->MustAbort();
     }
-    return false;
+    return syThread::MustAbort();
 }
 
 bool syBitmap::Lock(unsigned int tries,unsigned delay) {

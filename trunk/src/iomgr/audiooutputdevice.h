@@ -175,7 +175,7 @@ class AudioOutputDevice : public syAborter {
           * @return true if playback/encoding thread must be aborted; false otherwise.
           * @note This method MUST be called regularly by LoadDeviceAudioData.
           */
-        virtual bool MustAbort();
+        virtual bool InternalMustAbort();
 
     private:
 

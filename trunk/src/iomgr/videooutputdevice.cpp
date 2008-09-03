@@ -45,7 +45,7 @@ bool VideoOutputDevice::IsOk() {
 bool VideoOutputDevice::IsPlaying() {
     return m_playing;
 }
-bool VideoOutputDevice::MustAbort() {
+bool VideoOutputDevice::InnerMustAbort() {
     return (!m_ok || m_shuttingdown || m_changingsize);
 }
 

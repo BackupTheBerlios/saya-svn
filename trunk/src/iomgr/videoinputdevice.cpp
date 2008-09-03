@@ -48,7 +48,7 @@ bool VideoInputDevice::IsOk() {
     return m_IsOk;
 }
 
-bool VideoInputDevice::MustAbort() {
+bool VideoInputDevice::InnerMustAbort() {
     return !m_IsOk || m_IsShuttingDown;
 }
 

@@ -1,17 +1,29 @@
 /***************************************************************
  * Name:      sythread.h
- * Purpose:   Declaration of a Cross-platform Thread class
+ * Purpose:   Reimplementation of the wxWidgets Thread classes
+ *            with some extra functions for multimedia processing
  * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
- * Created:   2008-06-12
- * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
- * License:   WxWindows License
- * Comments:  The syThread class API was modelled after the
- *            wxWidgets thread API. Some functions and enums
- *            were the same, others were rewritten from scratch.
- *            So if there's a bug, don't blame the wxThread authors,
- *            blame me instead.
+ * Date :     2008-06-12
+ * Copyright:
+ *            (c) Wolfram Gloger (1996, 1997),
+ *            (c) Guilhem Lavaux (1998),
+ *            (c) Vadim Zeitlin (1999-2002),
+ *            (c) Robert Roebling (1999),
+ *            (c) K. S. Sreeram (2002),
+ *            (c) Ricardo Garcia (2008)
  *
- * Original wx/thread.h copyright info:
+ * License:   WxWindows License
+ * Comments:  The syThread and related classes are a
+ *            reimplementation and clean-up of the wxWidgets
+ *            wxThread API into one header and one cpp file
+ *            (unlike wxWidgets, which has a .cpp and .h file
+ *            per operating system).
+ *            The majority of functions were the
+ *            same, while others were rewritten from scratch.
+ *            So if there's a bug, don't blame the wxThread
+ *            authors, blame me (Rick) instead.
+ *
+ * Original wxWidgets thread files copyright info:
  *
  *  ///////////////////////////////////////////////////////
  *  // Name:        wx/thread.h
@@ -25,7 +37,6 @@
  *  // Licence:     wxWindows licence
  *  ///////////////////////////////////////////////////////
  *
- * Original threadpsx.cpp copyright info:
  *  /////////////////////////////////////////////////////////////////////////////
  *  // Name:        src/unix/threadpsx.cpp
  *  // Purpose:     wxThread (Posix) Implementation
@@ -39,6 +50,17 @@
  *  //                  K. S. Sreeram (2002)
  *  // Licence:     wxWindows licence
  *  /////////////////////////////////////////////////////////////////////////////
+ *
+ * /////////////////////////////////////////////////////////////////////////////
+ * // Name:        src/msw/thread.cpp
+ * // Purpose:     wxThread Implementation
+ * // Author:      Original from Wolfram Gloger/Guilhem Lavaux
+ * // Modified by: Vadim Zeitlin to make it work :-)
+ * // Created:     04/22/98
+ * // Copyright:   (c) Wolfram Gloger (1996, 1997), Guilhem Lavaux (1998);
+ * //                  Vadim Zeitlin (1999-2002)
+ * // Licence:     wxWindows licence
+ * /////////////////////////////////////////////////////////////////////////////
  *
  **************************************************************/
 
@@ -165,8 +187,10 @@ class syCondition {
         /** The condition's semaphore */
         sySemaphore m_semaphore;
         #else
-        // get the POSIX mutex associated with us
+        /** get the POSIX mutex associated with us */
         pthread_mutex_t *GetPMutex() const { return &(m_mutex.m_mutexobj); }
+
+        /** The pthreads condition variable */
         pthread_cond_t m_cond;
         #endif
         bool m_isOk;
@@ -227,6 +251,7 @@ class sySemaphore {
         #endif
 };
 
+class syAborter;
 /** @brief Base class for classes with long operations that can be aborted.
   *
   * When working in multi-threaded environments, it's common that you must check for a signal flagging to
@@ -239,11 +264,17 @@ class syAborter {
         /** Standard constructor */
         syAborter() {}
 
-        /** Checks if an operation must be aborted. To be overriden by your subclass. */
-        virtual bool MustAbort() { return false; }
+        /** Checks if either an operation must be aborted or if the current thread is going to be closed. */
+        bool MustAbort();
 
         /** Standard destructor */
         virtual ~syAborter() {}
+
+    protected:
+
+        /** Checks if an operation must be aborted. To be overriden by your subclass. */
+        virtual bool InternalMustAbort() { return false; }
+
 };
 
 /** Sleeps for the determinate number of milliseconds */
@@ -337,6 +368,15 @@ class syThread {
          *  @deprecated Use syThread::IsMain() instead.
          */
         static bool IsMainThread();
+
+        /** @brief Must the current thread abort the current operation?
+         *
+         *  Threads must often call the TestDestroy() method, but keeping track
+         *  of thread objects is often complicated. To avoid this, the static method
+         *  syThread::MustAbort() gets the current syThread object, and if not null,
+         *  calls its TestDestroy() method for us.
+         */
+        static bool MustAbort();
 
         /** Constructor */
         syThread(syThreadKind kind = syTHREAD_DETACHED);
@@ -432,7 +472,7 @@ class syThread {
          *  and won't be called if the thread was killed.
          *  @warning Do not try to call this function directly.
          */
-        void OnExit();
+        virtual void OnExit() { }
 
         /** @brief Pauses the thread.
          *
@@ -520,11 +560,6 @@ class syThread {
         /** The OS-dependent thread ID */
         unsigned long m_ThreadId;
 
-        /** The thread's handle */
-        #ifdef __WIN32__
-        HANDLE m_hThread;
-        #endif
-
         /** The thread kind; syTHREAD_DETACHED or syTHREAD_JOINABLE */
         syThreadKind m_ThreadKind;
 
@@ -545,6 +580,17 @@ class syThread {
 
         /** The thread's exit code */
         int m_ExitCode;
+
+        /** The thread's handle */
+        #ifdef __WIN32__
+        HANDLE m_hThread;
+        #else
+        /** Flag for joinable threads */
+        bool m_ShouldBeJoined;
+
+        /** Flag for thread policy */
+        int m_Policy;
+        #endif
 
         /** The thread's priority */
         unsigned int m_Priority;
