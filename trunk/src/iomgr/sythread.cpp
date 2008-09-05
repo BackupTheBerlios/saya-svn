@@ -75,7 +75,7 @@
     #include <errno.h>
 #endif
 #include <limits.h>
-#include <vector>
+#include <set>
 
 // -----------------------------------------
 // Private functions (courtesy of wxWidgets)
@@ -94,18 +94,38 @@ typedef pthread_key_t DWORD;
 #endif
 
 // TLS index of the slot where we store the pointer to the current thread
+static unsigned long syMainThreadId = syThread::GetThreadId();
 static pthread_key_t gs_keySelf = 0xFFFFFFFF;
 static size_t gs_nThreadsBeingDeleted = 0;
+static syMutex *gs_mutexAllThreads = (syMutex *)NULL;
 static syMutex *gs_mutexDeleteThread = (syMutex *)NULL;
 static syCondition *gs_condAllDeleted = (syCondition *)NULL;
-static std::vector<syThread*> gs_allThreads;
+static bool gs_ThreadsOk = false;
+
+struct ltthread
+{
+  bool operator()(const syThread* s1, const syThread* s2) const
+  {
+    return (unsigned long)s1 < (unsigned long)s2;
+  }
+};
+
+// We store the threads being created on a global set.
+// When the program finishes, it deletes all the threads.
+// Why a set?
+// Because on deletion, the thread deletes itself from the set.
+// Using a vector (like wxWidgets does) would require logarithmic
+// time instead of linear time, which makes deleting all the threads
+// terribly inefficient. On top of that, this is a locking operation,
+// which makes things even slower.
+
+static std::set<syThread*,ltthread> gs_allThreads;
 
 // -----------------------
 // Timing functions (mine)
 // -----------------------
 
 unsigned long syGetTime();
-unsigned long syMainThreadId = syThread::GetThreadId();
 unsigned long sySecondsAtInit = syGetTime();
 
 void syMilliSleep(unsigned long msec) {
@@ -247,14 +267,18 @@ m_locked(false)
 
 void syMutexLocker::Lock() {
     if(!m_locked) {
-        m_mutex->Lock();
+        // Since this is *NOT* an atomic operation, first set the flag in case something happens.
+        // This way, the destructor might try to unlock an already unlocked mutex,
+        // where nothing bad happens, unlike not unlocking a locked mutex.
         m_locked = true;
+        m_mutex->Lock();
     }
 }
 void syMutexLocker::Unlock() {
     if(m_locked) {
-        m_locked = false;
+        // To make this non-atomic operation safe, first unlock the mutex and then set the flag to false.
         m_mutex->Unlock();
+        m_locked = false;
     }
 }
 
@@ -664,10 +688,14 @@ m_PauseRequested(false),
 m_StopRequested(false),
 m_ExitCode(0)
 {
+
+    syMutexLocker lock(*gs_mutexAllThreads);
+    gs_allThreads.insert(this);
 }
 
 syThread::~syThread() {
-    // TODO: Implement syThread::~syThread
+    syMutexLocker lock(*gs_mutexAllThreads);
+    gs_allThreads.erase(this);
 }
 
 unsigned long syThread::GetThreadId() {
@@ -708,6 +736,9 @@ unsigned long syThread::GetId() const {
 }
 
 syThreadError syThread::Create(unsigned int stackSize) {
+    if(!gs_ThreadsOk) {
+        return syTHREAD_NO_RESOURCE; // Cannot create threads: Error initializing global variables!
+    }
     syMutexLocker lock(m_Mutex);
     if(m_ThreadStatus == syTHREADSTATUS_TERMINATING || m_ThreadStatus == syTHREADSTATUS_EXITED) {
         lock.Unlock();
@@ -777,8 +808,6 @@ syThreadError syThread::Create(unsigned int stackSize) {
     m_StackSize = stackSize;
     return syTHREAD_NO_ERROR;
 }
-
-// TODO: incorporate thread deletion scheduling (for both posix and Windows)
 
 int syThread::InternalEntry() {
     bool dontRunAtAll;
@@ -1090,3 +1119,99 @@ syThreadError syThread::Delete(int* rc) {
 bool syThread::IsThisThread() const {
     return (this && this == This());
 }
+
+
+// ------------------------------------
+// Begin syThread initialization module
+// ------------------------------------
+
+class syThreadModule {
+    public:
+        syThreadModule();
+        bool OnInit();
+        ~syThreadModule();
+};
+
+syThreadModule::syThreadModule() {
+    // Set a flag indicating that thread variables were initialized correctly. Used by syThread::Create
+    gs_ThreadsOk = OnInit();
+}
+
+bool syThreadModule::OnInit() {
+    bool result;
+    // allocate TLS index for storing the pointer to the current thread
+    #ifdef __WIN32__
+        gs_keySelf = ::TlsAlloc();
+        result = (gs_keySelf != 0xFFFFFFFF);
+        // main thread doesn't have associated wxThread object, so store 0 in the
+        // TLS instead
+        if ( !::TlsSetValue(gs_keySelf, (LPVOID)0) ) {
+            ::TlsFree(gs_keySelf);
+            gs_keySelf = 0xFFFFFFFF;
+            result = false; // Error initializing thread module!!
+        }
+    #else
+        int rc = pthread_key_create(&gs_keySelf, NULL);
+        result = (rc == 0);
+    #endif
+
+    if(result) {
+        // Initialize thread global variables
+        gs_mutexAllThreads = new syMutex();
+        gs_mutexDeleteThread = new syMutex();
+        gs_condAllDeleted = new syCondition(*gs_mutexDeleteThread);
+    }
+    return result;
+}
+
+syThreadModule::~syThreadModule() {
+    {
+        syMutexLocker lock(*gs_mutexAllThreads);
+
+        if(!syThread::IsMain()) { return; }
+        if(!gs_ThreadsOk) { return; } // Thread globals weren't initialized correctly; No threads to delete.
+
+        // Just in case, prevent new threads from being created by currently running threads ;-)
+        gs_ThreadsOk = false;
+    }
+
+    // are there any threads left which are being deleted right now?
+    size_t nThreadsBeingDeleted;
+    {
+        syMutexLocker lock( *gs_mutexDeleteThread );
+        nThreadsBeingDeleted = gs_nThreadsBeingDeleted;
+
+        if (nThreadsBeingDeleted > 0) {
+            gs_condAllDeleted->Wait();
+        }
+    }
+
+    // Now we just delete all the threads.
+    std::set<syThread*>::iterator i = gs_allThreads.begin();
+    while(!gs_allThreads.empty()) {
+        i = gs_allThreads.begin();
+        // We don't actually delete the pointer from gs_allThreads;
+        // that is done by syThread::~syThread().
+        syThread* thread = *i;
+        thread->Delete();
+    }
+
+    delete gs_mutexAllThreads;
+
+    // free TLD slot
+    #ifdef __WIN32__
+        TlsFree(gs_keySelf);
+    #else
+        (void)pthread_key_delete(gs_keySelf);
+    #endif
+
+    delete gs_condAllDeleted;
+    delete gs_mutexDeleteThread;
+}
+
+// ----------------------------------
+// End syThread initialization module
+// ----------------------------------
+
+// Initialize threads module
+syThreadModule StaticThreadModule;
