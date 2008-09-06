@@ -588,6 +588,9 @@ class syThread {
         /** Flag for joinable threads */
         bool m_ShouldBeJoined;
 
+        /** Mutex for setting m_ShouldBeJoined */
+        syMutex m_csJoinFlag;
+
         /** Flag for thread policy */
         int m_Policy;
         #endif

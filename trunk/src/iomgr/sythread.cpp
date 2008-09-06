@@ -784,8 +784,11 @@ syThreadError syThread::Create(unsigned int stackSize) {
         if (pthread_attr_getschedpolicy(&attr, &m_Policy) != 0) {
             m_Policy = -1; // Couldn't get the OS' scheduling policy!
         }
+        {
+            syMutexLocker lock(m_csJoinFlag);
+            m_ShouldBeJoined = (m_ThreadKind != syTHREAD_DETACHED);
+        }
 
-        m_ShouldBeJoined = (m_ThreadKind != syTHREAD_DETACHED);
         if (!m_ShouldBeJoined) {
             // Try to create the thread detached
             pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
@@ -859,10 +862,11 @@ void syThread::Exit(int exitcode) {
         m_ThreadStatus = syTHREADSTATUS_EXITED;
     }
     // terminate the thread (pthread_exit() never returns)
+    // We already set m_ExitCode, so let's just ignore the value.
     #ifdef __WIN32__
-    _endthreadex((unsigned)exitcode);
+    _endthreadex((unsigned)0);
     #else
-    pthread_exit((void*)exitcode);
+    pthread_exit(NULL);
     #endif
 }
 
@@ -892,7 +896,32 @@ bool syThread::IsRunning() {
 
 syThreadError syThread::Kill() {
     if(IsThisThread()) { return syTHREAD_WRONG_THREAD_CONTEXT; }
-    // TODO: Implement syThread::Kill
+
+    switch (m_ThreadStatus) {
+        case syTHREADSTATUS_NOT_CREATED:
+        case syTHREADSTATUS_EXITED:
+        case syTHREADSTATUS_KILLED:
+            return syTHREAD_NOT_RUNNING;
+
+        case syTHREADSTATUS_PAUSED:
+            // resume the thread first
+            Resume();
+
+        default:
+            // Kill thread
+            if (pthread_cancel(m_ThreadId)!= 0) {
+                return syTHREAD_MISC_ERROR;
+            }
+            m_ThreadStatus = syTHREADSTATUS_KILLED;
+
+            if (m_ThreadKind == syTHREAD_DETACHED) {
+                syScheduleThreadForDeletion();
+                syDeleteThread(this); // Delete the thread
+            } else {
+                m_ExitCode = -1;
+            }
+            return syTHREAD_NO_ERROR;
+    }
     return syTHREAD_MISC_ERROR;
 }
 
@@ -1084,10 +1113,70 @@ void syThread::Yield() {
 }
 
 int syThread::Wait() {
+    // Are we opening a rift in the timespace continuum?
     if(IsThisThread()) { return -1; }
-    while(IsRunning() || m_ThreadStatus == syTHREADSTATUS_TERMINATING) {
-        syMicroSleep(50);
+
+    // Waiting for a detached thread is a very stupid thing to do. Even checking the thread kind
+    // might give you a segfault if the thread was already deleted. DOH.
+    if(m_ThreadKind == syTHREAD_DETACHED) {
+        return -1;
     }
+    // First, make sure the thread is running and not paused.
+    {
+        syMutexLocker lock(m_Mutex);
+
+        syThreadStatus status = m_ThreadStatus;
+        m_PauseRequested = false;
+        // NO need to wait for a non created thread.
+        if(status == syTHREADSTATUS_NOT_CREATED) { return m_ExitCode; }
+
+        if(status == syTHREADSTATUS_CREATED) { lock.Unlock();Run(); }
+        // Run the thread (we can't stop it if it keeps waiting)
+        if(status == syTHREADSTATUS_PAUSED) { lock.Unlock();Resume(); }
+    }
+    long int rc = 0;
+    // Now, let's join the threads
+    #ifdef __WIN32__
+        rc = ::WaitForSingleObject(m_hThread, INFINITE);
+        if(rc == 0xFFFFFFFF) {
+            // An error occurred and we must kill the thread.
+            Kill();
+            m_ThreadStatus = syTHREADSTATUS_KILLED;
+        } else {
+            // Windows has this annoying behavior: It doesn't always do what you ask.
+            // Even if you asked to WAIT for the thread to terminate, sometimes it doesn't!
+            // So you have to keep waiting until the thread terminates on its own. Sheesh.
+            for(;;) {
+                if (!::GetExitCodeThread(m_hThread, (LPDWORD)&rc)) {
+                    m_ExitCode = -1;
+                    break;
+                }
+                // From the WinAPI documentation:
+                // ---
+                // Important
+                // The GetExitCodeThread function returns a valid error code defined by the application
+                // only after the thread terminates. Therefore, an application should not use
+                // STILL_ACTIVE (259) as an error code.
+                // ---
+                // Talk about good API design. Pfft.
+                // Fortunately, we already set m_ExitCode so we can ignore this bad api design.
+                //
+                if ((DWORD)rc != STILL_ACTIVE) {
+                    break;
+                }
+                syMilliSleep(1);
+            }
+        }
+    #else
+        {
+            syMutexLocker lock(m_csJoinFlag);
+            if(m_ShouldBeJoined) {
+                pthread_join(GetId(), (void**)&rc); // Wait for the thread to end.
+                // We don't need to get the return value to m_ExitCode because the thread already set it.
+                m_ShouldBeJoined = false;
+            }
+        }
+    #endif
     if(m_ThreadStatus == syTHREADSTATUS_KILLED) { return -1; }
     return m_ExitCode;
 }
