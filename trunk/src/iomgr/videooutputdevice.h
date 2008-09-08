@@ -12,7 +12,7 @@
 #define videooutputdevice_h
 
 #include "sybitmap.h"
-#include "sythread.h"
+#include "aborter.h"
 
 class syMutex;
 class VideoOutputDevice;

@@ -13,75 +13,24 @@
 #include "videooutputdevice.h"
 #include "sythread.h"
 
-VideoInputDevice::VideoInputDevice() :
+VideoInputDevice::VideoInputDevice() : AVDevice(),
 m_Bitmap(NULL),
 m_CurrentTime(0),
 m_Length(0),
 m_Width(0),
 m_Height(0),
 m_ColorFormat(vcfBGR24),
-m_PixelAspect(1.0),
-m_IsOk(false),
-m_IsShuttingDown(false)
+m_PixelAspect(1.0)
 {
-    m_Busy = new sySafeMutex;
+    m_IsVideo = true;
+    m_IsInput = true;
     m_Bitmap = new syBitmap();
     m_Bitmap->SetAborter(this);
 }
 
 VideoInputDevice::~VideoInputDevice() {
     delete m_Bitmap;
-    delete m_Busy;
 }
-
-bool VideoInputDevice::Init() {
-    bool result = ConnectInput();
-    if(result) {
-        AllocateBitmap();
-    }
-    m_IsOk = result;
-    return m_IsOk;
-}
-
-bool VideoInputDevice::IsOk() {
-    return m_IsOk;
-}
-
-bool VideoInputDevice::InnerMustAbort() {
-    return !m_IsOk || m_IsShuttingDown;
-}
-
-
-void VideoInputDevice::ShutDown() {
-    if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
-    m_IsShuttingDown = true;
-    m_Busy->Wait();
-    DisconnectInput();
-    ReleaseBitmap();
-    m_IsOk = false;
-    m_IsShuttingDown = false;
-}
-
-void VideoInputDevice::StartShutDown() {
-    m_IsShuttingDown = true;
-}
-
-void VideoInputDevice::WaitForShutDown() {
-    if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
-    m_IsShuttingDown = true;
-    m_Busy->Wait();
-}
-
-void VideoInputDevice::FinishShutDown() {
-    if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
-    if(m_Busy->IsUnlocked()) {
-        DisconnectInput();
-        ReleaseBitmap();
-        m_IsOk = false;
-        m_IsShuttingDown = false;
-    }
-}
-
 
 unsigned long VideoInputDevice::InternalSeek(unsigned long time, bool fromend) {
     if(fromend) {
@@ -108,7 +57,6 @@ unsigned long VideoInputDevice::InternalSeek(unsigned long time, bool fromend) {
     return result;
 }
 
-
 unsigned long VideoInputDevice::Seek(unsigned long time,bool fromend) {
     sySafeMutexLocker lock(*m_Busy, this);
     bool result = false;
@@ -133,7 +81,6 @@ VideoColorFormat VideoInputDevice::GetColorFormat() {
     return m_ColorFormat;
 }
 
-
 unsigned long VideoInputDevice::GetWidth() {
     return m_Width;
 }
@@ -142,7 +89,6 @@ unsigned long VideoInputDevice::GetWidth() {
 unsigned long VideoInputDevice::GetHeight() {
     return m_Height;
 }
-
 
 float VideoInputDevice::GetPixelAspect() {
     return m_PixelAspect;
@@ -180,11 +126,12 @@ void VideoInputDevice::LoadCurrentFrame() {
 }
 
 
-void VideoInputDevice::AllocateBitmap() {
+bool VideoInputDevice::AllocateResources() {
     m_Bitmap->Realloc(m_Width, m_Height, m_ColorFormat);
+    return true;
 }
 
 
-void VideoInputDevice::ReleaseBitmap() {
+void VideoInputDevice::FreeResources() {
     m_Bitmap->ReleaseBuffer();
 }

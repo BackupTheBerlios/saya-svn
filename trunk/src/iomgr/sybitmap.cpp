@@ -15,6 +15,7 @@
  *            the actual display.
  **************************************************************/
 
+#include "aborter.h"
 #include "sybitmap.h"
 #include "sybitmapcopier.h"
 #include <math.h>

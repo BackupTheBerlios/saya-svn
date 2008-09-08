@@ -12,66 +12,27 @@
 #define videoinputdevice_h
 
 #include "videocolorformat.h"
-#include "sythread.h"
+#include "avdevice.h"
 
+class sySafeMutex;
 class syBitmap;
 class VideoOutputDevice;
 
 /**
  * VideoInputDevice is the base class for video frame providers, be it images or movies (flash animations
- * count as movies). All methods in this class (except the empty constructor) are virtual so you can
- * override them as much as you want.
+ * count as movies). The functions you must override are GetFrameIndex(), LoadCurrentFrame() and SeekResource().
+ * The functions AllocateResources and FreeResources MUST call the parent class' methods.
  */
-class VideoInputDevice : public syAborter {
+class VideoInputDevice : public AVDevice {
 
     public:
 
-        /** @brief Standard constructor.
-         *
-         *  Additionally, VideoInputDevice::VideoInputDevice() will allocate m_Bitmap.
-         */
+        /** Standard constructor. */
         VideoInputDevice();
 
-        /** @brief Standard destructor.
-         *
-         *  Additionally, VideoInputDevice::~VideoInputDevice() will deallocate m_Bitmap.
-         */
+        /** Standard destructor. */
         virtual ~VideoInputDevice();
 
-        /** @brief Initializer.
-         *
-         *  After setting the parameters in your derived class, you can call Init() to open the file /
-         *  memory resource / whatever.
-         *  After calling ConnectInput(), Init() will reallocate the bitmap with the current parameters.
-         *  @warning This function must ONLY be called by the main thread!
-         */
-        bool Init();
-
-        /** @brief Shutdown procedure.
-         *
-         *  Call this function after finishing reading all the data, to free memory and associated resources.
-         *  ShutDown calls DisconnectInput() and then ReleaseBitmap().
-         *  @warning This function must ONLY be called by the main thread!
-         */
-        void ShutDown();
-
-        /** @brief Non-waiting Shutdown procedure.
-         *  This function starts the object shutdown, but does not wait until it's finished.
-         *  This function is safe for calling from any thread.
-         *  @warning If you start shutdown using this procedure, you MUST call WaitForShutDown() and FinishShutDown()!
-         *  @see VideoInputDevice::WaitForShutDown()
-         */
-        void StartShutDown();
-
-        /** @brief Waits for the Shutdown procedure to complete.
-         *  @see VideoInputDevice::ShutDown()
-         */
-        void WaitForShutDown();
-
-        /** @brief Finishes the Shutdown procedure started by StartShutDown().
-         *  @see VideoInputDevice::StartShutDown()
-         */
-        void FinishShutDown();
 
         /** @brief Seeks to a determinate instant in time.
          *
@@ -125,21 +86,6 @@ class VideoInputDevice : public syAborter {
          */
         virtual unsigned long GetFrameIndex(unsigned long time);
 
-        /** Returns the OK status. */
-        bool IsOk();
-
-        /** Returns the value of m_IsBusy.
-         *
-         *  @return true if the object is reading or sending a frame; false otherwise.
-         */
-        bool IsBusy();
-
-        /** @brief If true, all tasks must abort IMMEDIATELY!
-         *
-         *  @see syAborter
-         */
-        virtual bool InnerMustAbort();
-
     protected:
 
         /** @brief Loads the current frame into m_Bitmap.
@@ -168,25 +114,15 @@ class VideoInputDevice : public syAborter {
          */
         virtual unsigned long SeekResource(unsigned long time) { return time; }
 
-        /** @brief Allocates memory for m_Bitmap. Called by Init(). */
-        void AllocateBitmap();
-
-        /** Releases the memory for m_Bitmap. Called by ShutDown(). */
-        void ReleaseBitmap();
-
-        /** @brief Connects to the input resource. Called by Init().
-         *
-         *  @return true on success; false otherwise.
-         *  @note  This is where you will open the required files to decode.
+        /** @brief Allocates memory for m_Bitmap. Called by Init().
+         *  @note If you override this function, remember to call it in your derived class' AllocateResources()
          */
-        virtual bool ConnectInput() { return true; }
+        virtual bool AllocateResources();
 
-        /** @brief Disconnects the input resource.
-         *
-         *  Called by ShutDown().
-         *  @note In this function, you MUST release any sources allocated by ConnectInput().
+        /** @brief Releases the memory for m_Bitmap. Called by ShutDown().
+         *  @note If you override this function, remember to call it in your derived class' FreeResources().
          */
-        virtual void DisconnectInput() {}
+        virtual void FreeResources();
 
         /** @brief The bitmap for the current frame.
          *
@@ -216,17 +152,8 @@ class VideoInputDevice : public syAborter {
 
         /** The pixel aspect ratio for the current resource. */
         float m_PixelAspect;
-
-        /** Safe mutex for the busy operations. */
-        sySafeMutex* m_Busy;
-private:
-        /** The current OK status. */
-        bool m_IsOk;
-
-        /** The current Shutting-down status. */
-        bool m_IsShuttingDown;
 };
 
-// TODO: Implement the following functions for all input/oputput device classes: StartShutDown(), WaitForShutDown() and FinishShutDown()
+// TODO: Make all the I/O Device classes derivatives of AVDevice
 
 #endif

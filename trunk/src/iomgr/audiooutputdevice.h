@@ -10,7 +10,9 @@
 #ifndef audiooutputdevice_h
 #define audiooutputdevice_h
 
-#include "sythread.h"
+#include "aborter.h"
+
+class syMutex;
 
 /** @brief Generic class for Audio Output
   *

@@ -68,6 +68,8 @@
 		<Unit filename="drafts/undoredo.txt">
 			<Option target="Debug" />
 		</Unit>
+		<Unit filename="iomgr/aborter.cpp" />
+		<Unit filename="iomgr/aborter.h" />
 		<Unit filename="iomgr/audioinputdevice.cpp" />
 		<Unit filename="iomgr/audioinputdevice.h" />
 		<Unit filename="iomgr/audiooutputdevice.cpp" />

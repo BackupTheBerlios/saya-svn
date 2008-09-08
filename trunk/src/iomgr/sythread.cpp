@@ -65,6 +65,7 @@
  **************************************************************/
 
 #include "sythread.h"
+#include "aborter.h"
 
 #ifdef __WIN32__
     #include <process.h>
@@ -807,19 +808,6 @@ sySemaError  sySemaphore::WaitTimeout(unsigned long timeout_msec) {
 // ---------------------
 // End sySemaphore class
 // ---------------------
-
-// ---------------------
-// Begin syAborter class
-// ---------------------
-
-bool syAborter::MustAbort() {
-    return (syThread::MustAbort() || InternalMustAbort());
-}
-
-// ---------------------
-// End syAborter class
-// ---------------------
-
 
 // ----------------------------------------------------------
 // Begin syThread auxiliary functions (courtesy of wxWidgets)
