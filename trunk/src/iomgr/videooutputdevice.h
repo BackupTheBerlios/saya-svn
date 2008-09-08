@@ -12,7 +12,7 @@
 #define videooutputdevice_h
 
 #include "sybitmap.h"
-#include "aborter.h"
+#include "avdevice.h"
 
 class syMutex;
 class VideoOutputDevice;
@@ -20,29 +20,17 @@ class VideoOutputDevice;
 /**
  * @brief Generic wrapper for a Video Output device.
  */
-class VideoOutputDevice : public syAborter {
+class VideoOutputDevice : public AVDevice {
     public:
-        /** Standard Constructor */
+
+        /** Standard constructor. */
         VideoOutputDevice();
 
-        /** @brief Initializes the output device and sets the m_ok flag.
-         *
-         *  @note This is a wrapper for the InitializeOutput() virtual method.
-         *  @return True on success; false otherwise.
-         */
-        bool Init();
-
-         /** Returns the OK status for the output device. */
-        bool IsOk();
+        /** Standard destructor. */
+        virtual ~VideoOutputDevice();
 
         /** Returns the value of the m_playing flag */
         bool IsPlaying();
-
-        /** @brief Clears and disconnects the output device. Sets m_ok to false.
-          *
-          * @note This method can be called ONLY by the main thread!
-          */
-        void ShutDown();
 
         /** Returns the output color format. */
         VideoColorFormat GetColorFormat();
@@ -84,25 +72,18 @@ class VideoOutputDevice : public syAborter {
          */
         virtual bool IsEncoder();
 
-        /** Standard destructor. */
-        virtual ~VideoOutputDevice();
-
-
     protected:
 
         /** @brief Initializes the output device.
-          *
-          * @note The m_ok flag is set to this method's return value.
-          * @return True on success; false otherwise.
-          * @note This method MUST set the m_Width, m_Height and m_ColorFormat variables.
-          */
-        virtual bool InitializeOutput();
+         *
+         *  @note The m_ok flag is set to this method's return value.
+         *  @return True on success; false otherwise.
+         *  @note This method MUST set the m_Width, m_Height and m_ColorFormat variables.
+         */
+        virtual bool Connect();
 
         /** Clears the video output device (i.e. sets it all to black). Called by ShutDown(). */
         virtual void Clear();
-
-        /** Disconnects the video output device or memory resource. Called by ShutDown(). */
-        virtual void DisconnectOutput();
 
         /** @brief Called by ChangeSize whenever the output screen size is changed.
           *
@@ -141,19 +122,16 @@ class VideoOutputDevice : public syAborter {
     private:
 
         /** flag that indicates that playing is ACTUALLY taking place. */
-        bool m_playing;
+        bool m_Playing;
 
         /** flag that forbids playback when changing the device size */
-        bool m_changingsize;
+        bool m_ChangingSize;
 
         /** flag that forbids playback when shutting down the device */
         bool m_shuttingdown;
 
         /** Tells whether the output device was initialized correctly. */
         bool m_ok;
-
-        /** Mutex for multithreading */
-        syMutex* m_mutex;
 };
 
 #endif

@@ -47,13 +47,16 @@ class wxVideoOutputDevice : public VideoOutputDevice {
           * m_colorformat will be set to vcfRGB24 by default, since that's the color format used by wxWidgets' wxImage.
           * @return True on success; false otherwise.
           */
-        virtual bool InitializeOutput();
+        virtual bool Connect();
+
+        /** @brief Allocates the Bitmap's memory */
+        virtual bool AllocateResources();
 
         /** Clears the panel (i.e. sets it all to black). Called by ShutDown(). */
         virtual void Clear();
 
         /** Disconnects the video output device or memory resource. Called by ShutDown(). */
-        virtual void DisconnectOutput();
+        virtual void FreeResources();
 
         /** @brief ChangeDeviceSize will be called by the Panel's Resize event.
           *

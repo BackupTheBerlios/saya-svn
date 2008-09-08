@@ -41,13 +41,17 @@ wxVideoOutputDevice::~wxVideoOutputDevice() {
     delete m_Bitmap;
 }
 
-bool wxVideoOutputDevice::InitializeOutput() {
+bool wxVideoOutputDevice::Connect() {
     // First, let's set the width and height according to the panel's data
     wxSize tmpsize = m_Panel->GetSize();
 
     m_ColorFormat = vcfBGR24;
     m_Width = tmpsize.GetWidth();
     m_Height = tmpsize.GetHeight();
+    return true;
+}
+
+bool wxVideoOutputDevice::AllocateResources() {
     m_Bitmap->Realloc(m_Width,m_Height,m_ColorFormat);
     return true;
 }
@@ -58,7 +62,7 @@ void wxVideoOutputDevice::Clear() {
     RenderData();
 }
 
-void wxVideoOutputDevice::DisconnectOutput() {
+void wxVideoOutputDevice::FreeResources() {
     m_Bitmap->ReleaseBuffer(false);
 }
 

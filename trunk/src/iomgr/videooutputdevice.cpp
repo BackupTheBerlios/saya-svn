@@ -14,51 +14,26 @@
 const unsigned int MaxVideoOutputDeviceWidth = 10240;
 const unsigned int MaxVideoOutputDeviceHeight = 10240;
 
-VideoOutputDevice::VideoOutputDevice() :
+VideoOutputDevice::VideoOutputDevice() : AVDevice(),
 m_ColorFormat(vcfRGB32),
 m_Width(0),
 m_Height(0),
-m_playing(false),
-m_changingsize(false),
-m_shuttingdown(false),
-m_ok(false)
+m_Playing(false),
+m_ChangingSize(false)
 {
-    m_mutex = new syMutex;
+    m_IsVideo = true;
+    m_IsOutput = true;
 }
 
 VideoOutputDevice::~VideoOutputDevice() {
-    ShutDown();
-    delete m_mutex;
-}
-
-bool VideoOutputDevice::Init() {
-    if(!m_ok) {
-        m_ok = InitializeOutput();
-    }
-    return m_ok;
-}
-
-bool VideoOutputDevice::IsOk() {
-    return m_ok;
 }
 
 bool VideoOutputDevice::IsPlaying() {
-    return m_playing;
-}
-bool VideoOutputDevice::InnerMustAbort() {
-    return (!m_ok || m_shuttingdown || m_changingsize);
+    return m_Playing;
 }
 
-void VideoOutputDevice::ShutDown() {
-    if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
-    m_shuttingdown = true;
-    while(m_playing) {
-        syMilliSleep(10); // Sleep for 10 milliseconds
-    }
-    Clear();
-    DisconnectOutput();
-    m_ok = false;
-    m_shuttingdown = false;
+bool VideoOutputDevice::InnerMustAbort() {
+    return (AVDevice::InnerMustAbort() || m_ChangingSize);
 }
 
 unsigned int VideoOutputDevice::GetWidth() {
@@ -71,25 +46,20 @@ unsigned int VideoOutputDevice::GetHeight() {
 
 bool VideoOutputDevice::ChangeSize(unsigned int newwidth,unsigned int newheight) {
     if(!syThread::IsMain()) { return false; } // Can only be called from the main thread!
-    bool result = true;
-    {
-        syMutexLocker mylocker(*m_mutex);
-        if(m_shuttingdown || m_changingsize || m_playing || newwidth > MaxVideoOutputDeviceWidth || newheight > MaxVideoOutputDeviceHeight) {
-            result = false;
-        } else {
-            m_changingsize = true;
+    if(!IsOk()) { return false; }
+    syBoolSetter setter(m_ChangingSize, true);
+    sySafeMutexLocker lock(*m_Busy);
+    bool result = false;
+    if(lock.IsLocked()) {
+        if(newwidth > MaxVideoOutputDeviceWidth || newheight > MaxVideoOutputDeviceHeight) {
+            return false;
         }
-    }
-
-    if(result) {
         result = ChangeDeviceSize(newwidth, newheight);
         if(result) {
             m_Width = newwidth;
             m_Height = newheight;
         }
-        m_changingsize = false;
     }
-
     return result;
 }
 
@@ -99,20 +69,10 @@ bool VideoOutputDevice::ChangeDeviceSize(unsigned int newwidth,unsigned int newh
 }
 
 void VideoOutputDevice::LoadVideoData(syBitmap* bitmap) {
-    bool result = true;
-
-    {
-        syMutexLocker mylocker(*m_mutex);
-        if(m_playing || MustAbort()) {
-            result = false;
-        } else {
-            m_playing = true;
-        }
-    }
-
-    if(result) {
+    sySafeMutexLocker lock(*m_Busy, this);
+    if(lock.IsLocked()) {
+        syBoolSetter setter(m_Playing, true);
         LoadDeviceVideoData(bitmap);
-        m_playing = false;
     }
 }
 
@@ -120,19 +80,15 @@ void VideoOutputDevice::LoadDeviceVideoData(syBitmap* bitmap) {
     // This is a stub
 }
 
-bool VideoOutputDevice::InitializeOutput() {
+bool VideoOutputDevice::Connect() {
     // This is a stub
     m_Width = 640;
     m_Height = 480;
     m_ColorFormat = vcfRGB32;
-    return false;
+    return true;
 }
 
 void VideoOutputDevice::Clear() {
-    // This is a stub
-}
-
-void VideoOutputDevice::DisconnectOutput() {
     // This is a stub
 }
 
