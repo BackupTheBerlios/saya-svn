@@ -13,7 +13,7 @@
 class AudioOutputDevice;
 
 class AudioInputDevice {
-    //(TODO: Design and implement the Audio Input Device. (This is a partial stub)
+    //TODO: Design and implement the Audio Input Device. (This is a partial stub)
 
     public:
         unsigned long GetLength();

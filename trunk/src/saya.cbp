@@ -31,6 +31,7 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-march=i486" />
 			<Add option="-Wall" />
 			<Add option="-pipe" />
 			<Add option='[[if (PLATFORM == PLATFORM_MSW) print(_T(&quot;-mthreads -D__GNUWIN32__ -D__WXMSW__&quot;));;]]' />
@@ -73,6 +74,8 @@
 		<Unit filename="iomgr/audiooutputdevice.h" />
 		<Unit filename="iomgr/avcontroller.cpp" />
 		<Unit filename="iomgr/avcontroller.h" />
+		<Unit filename="iomgr/avdevice.cpp" />
+		<Unit filename="iomgr/avdevice.h" />
 		<Unit filename="iomgr/iocommon.cpp" />
 		<Unit filename="iomgr/iocommon.h" />
 		<Unit filename="iomgr/sybitmap.cpp" />

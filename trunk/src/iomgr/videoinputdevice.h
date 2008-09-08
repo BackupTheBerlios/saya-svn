@@ -55,6 +55,24 @@ class VideoInputDevice : public syAborter {
          */
         void ShutDown();
 
+        /** @brief Non-waiting Shutdown procedure.
+         *  This function starts the object shutdown, but does not wait until it's finished.
+         *  This function is safe for calling from any thread.
+         *  @warning If you start shutdown using this procedure, you MUST call WaitForShutDown() and FinishShutDown()!
+         *  @see VideoInputDevice::WaitForShutDown()
+         */
+        void StartShutDown();
+
+        /** @brief Waits for the Shutdown procedure to complete.
+         *  @see VideoInputDevice::ShutDown()
+         */
+        void WaitForShutDown();
+
+        /** @brief Finishes the Shutdown procedure started by StartShutDown().
+         *  @see VideoInputDevice::StartShutDown()
+         */
+        void FinishShutDown();
+
         /** @brief Seeks to a determinate instant in time.
          *
          *  @param time The time, in milliseconds, to seek to.
@@ -199,17 +217,16 @@ class VideoInputDevice : public syAborter {
         /** The pixel aspect ratio for the current resource. */
         float m_PixelAspect;
 
+        /** Safe mutex for the busy operations. */
+        sySafeMutex* m_Busy;
 private:
         /** The current OK status. */
         bool m_IsOk;
 
-        /** The current Busy status. */
-        bool m_IsBusy;
-
         /** The current Shutting-down status. */
         bool m_IsShuttingDown;
-
-        syMutex* m_Mutex;
 };
+
+// TODO: Implement the following functions for all input/oputput device classes: StartShutDown(), WaitForShutDown() and FinishShutDown()
 
 #endif

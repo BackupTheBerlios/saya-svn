@@ -73,6 +73,46 @@
     #include <pthread.h>
 #endif
 
+#ifdef __GNUC__
+
+/** @brief Atomic primitives for multithreading. Available only for GCC.
+ *
+ *  Here we implement an interface to the atomic primitives for lock-free and wait-free programming.
+ *  Compare-and-exchange (CAS) compares a pointer with an old value, and if it's the same,
+ *  set it to a new value.
+ *  @see http://gcc.gnu.org/onlinedocs/gcc-4.1.1/gcc/Atomic-Builtins.html#Atomic-Builtins
+ *
+ *  @warning lock-free programming is very difficult to debug; Use with care.
+ *  @see http://en.wikipedia.org/wiki/Lock-free_and_wait-free_algorithms
+ *  @see http://en.wikipedia.org/wiki/ABA_problem
+ *
+ */
+class syAtomic {
+    public:
+
+        /** @brief Returns true on success. Curval obtains the current value of *ptr.
+         *  We add an additional parameter to hold the old value because both the value and the return are boolean.
+         */
+        static bool bool_CAS(bool* ptr, bool oldval, bool newval);
+        static bool bool_CAS(int* ptr, int oldval, int newval);
+        static bool bool_CAS(unsigned int* ptr, unsigned int oldval, unsigned int newval);
+        static bool bool_CAS(long* ptr, long oldval, long newval);
+        static bool bool_CAS(unsigned long* ptr, unsigned long oldval, unsigned long newval);
+        static bool bool_CAS(char* ptr, char oldval, char newval);
+        static bool bool_CAS(unsigned char* ptr, unsigned char oldval, unsigned char newval);
+        static bool bool_CAS(void** ptr, void* oldval, void* newval);
+
+        static bool val_CAS(bool* ptr, bool oldval, bool newval);
+        static int val_CAS(int* ptr, int oldval, int newval);
+        static unsigned int val_CAS(unsigned int* ptr, unsigned int oldval, unsigned int newval);
+        static long val_CAS(long* ptr, long oldval, long newval);
+        static unsigned long val_CAS(unsigned long* ptr, unsigned long oldval, unsigned long newval);
+        static char val_CAS(char* ptr, char oldval, char newval);
+        static char val_CAS(unsigned char* ptr, unsigned char oldval, unsigned char newval);
+        static void* val_CAS(void** ptr, void* oldval, void* newval);
+};
+#endif
+
 class syCondition;
 
 /** @brief Generic Critical Section (a.k.a. intraprocess Mutex)
@@ -277,6 +317,92 @@ class syAborter {
 
 };
 
+class sySafeMutexLocker;
+
+/** @brief An abort-safe mutex.
+ *  Normal mutexes force a thread to sleep until the mutex is available. Unfortunately,
+ *  in the event of the thread receiving an abort request, a sleeping thread will not
+ *  be able to abort the operation.
+ *  Our SafeMutex works by waking up at regular intervals (1 usec on posix, 1 msec on windows),
+ *  and checking for an abort signal, returning false if the signal was sent.
+ *  The signal is tested through an syAborter class.
+ *  Additionally, for faster locks you can set the dontsleep flag to true, which does a tight loop
+ *  for the first 2 milliseconds instead of sleeping (use with care).
+ */
+class sySafeMutex {
+    friend class sySafeMutexLocker;
+    public:
+        /** Standard constructor. */
+        sySafeMutex();
+
+        /** Standard destructor. */
+        ~sySafeMutex();
+
+        /** @brief Locks the mutex, unless an abort signal is detected.
+         *  @param aborter an syAborter object to test the abort signal. If null, no signal will be waited for
+         *         and the mutex will behave as a standard mutex.
+         *  @param dontsleep Used when you must require low-latency modifications of a variable.
+         *  @warning dontsleep makes the thread run a tight loop; Don't use it unless you know what you're doing!
+         */
+        bool Lock(syAborter* aborter = NULL, bool dontsleep = false);
+
+        /** @brief Locks the mutex, aborting if the current thread is being closed.
+         *  @return true if the mutex was locked; false if the thread is being closed.
+         *  @note If there's no syAborter object available, you should use this function
+         *  unless you already know the thread's being aborter and need to lock a safe mutex.
+         */
+        bool SafeLock(bool dontsleep = false);
+
+        /** Tries to lock the mutex once, and returns false on failure. */
+        bool TryLock(syAborter* aborter);
+
+        /** Waits for the mutex to be unlocked */
+        bool Wait(syAborter* aborter = NULL);
+
+        /** @Checks if the mutex is unlocked. Useful for when you want to use the mutex as a "busy" flag.
+         *
+         */
+        bool IsUnlocked();
+
+        /** Unlocks the mutex. */
+        void Unlock();
+
+        /** Gets the owner thread at the current time. Note that the value might be obsolete right away. */
+        unsigned long GetOwner();
+    private:
+        /** Is the mutex locked? */
+        bool m_Locked;
+        /** The thread owning the mutex. */
+        unsigned long m_Owner;
+
+};
+
+/** Locks a safe mutex during its existence. */
+class sySafeMutexLocker {
+    public:
+        /** Constructor */
+        sySafeMutexLocker(sySafeMutex& mutex,syAborter* aborter = NULL, bool dontsleep = false);
+
+        /** Destructor */
+        ~sySafeMutexLocker();
+
+        /** (re)Locks the mutex */
+        bool Lock();
+
+        /** (re)Locks the mutex checking for current thread abortion (use if there's no syAborter available) */
+        bool SafeLock(bool dontsleep = false);
+
+        /** Unlocks the mutex */
+        void Unlock();
+
+        bool IsLocked();
+    private:
+        sySafeMutex& m_Mutex;
+        syAborter* m_Aborter;
+        bool m_DontSleep;
+
+};
+
 /** Sleeps for the determinate number of milliseconds */
 void syMilliSleep(unsigned long msec);
 
@@ -363,11 +489,6 @@ class syThread {
 
         /** @brief Gets a platform-dependent id for the main thread. */
         static unsigned long GetMainThreadId();
-
-        /** @brief Is the current thread the main thread?
-         *  @deprecated Use syThread::IsMain() instead.
-         */
-        static bool IsMainThread();
 
         /** @brief Must the current thread abort the current operation?
          *

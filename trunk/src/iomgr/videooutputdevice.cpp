@@ -50,7 +50,7 @@ bool VideoOutputDevice::InnerMustAbort() {
 }
 
 void VideoOutputDevice::ShutDown() {
-    if(!syThread::IsMainThread()) { return; } // Can only be called from the main thread!
+    if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
     m_shuttingdown = true;
     while(m_playing) {
         syMilliSleep(10); // Sleep for 10 milliseconds
@@ -70,7 +70,7 @@ unsigned int VideoOutputDevice::GetHeight() {
 }
 
 bool VideoOutputDevice::ChangeSize(unsigned int newwidth,unsigned int newheight) {
-    if(!syThread::IsMainThread()) { return false; } // Can only be called from the main thread!
+    if(!syThread::IsMain()) { return false; } // Can only be called from the main thread!
     bool result = true;
     {
         syMutexLocker mylocker(*m_mutex);

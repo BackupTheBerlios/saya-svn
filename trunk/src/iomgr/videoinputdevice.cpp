@@ -22,17 +22,16 @@ m_Height(0),
 m_ColorFormat(vcfBGR24),
 m_PixelAspect(1.0),
 m_IsOk(false),
-m_IsBusy(false),
 m_IsShuttingDown(false)
 {
-    m_Mutex = new syMutex;
+    m_Busy = new sySafeMutex;
     m_Bitmap = new syBitmap();
     m_Bitmap->SetAborter(this);
 }
 
 VideoInputDevice::~VideoInputDevice() {
     delete m_Bitmap;
-    delete m_Mutex;
+    delete m_Busy;
 }
 
 bool VideoInputDevice::Init() {
@@ -52,17 +51,37 @@ bool VideoInputDevice::InnerMustAbort() {
     return !m_IsOk || m_IsShuttingDown;
 }
 
+
 void VideoInputDevice::ShutDown() {
-    if(!syThread::IsMainThread()) { return; } // Can only be called from the main thread!
+    if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
     m_IsShuttingDown = true;
-    while(m_IsBusy) {
-        syMilliSleep(1); // Sleep for 1 millisecond at least
-    }
+    m_Busy->Wait();
     DisconnectInput();
     ReleaseBitmap();
     m_IsOk = false;
     m_IsShuttingDown = false;
 }
+
+void VideoInputDevice::StartShutDown() {
+    m_IsShuttingDown = true;
+}
+
+void VideoInputDevice::WaitForShutDown() {
+    if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
+    m_IsShuttingDown = true;
+    m_Busy->Wait();
+}
+
+void VideoInputDevice::FinishShutDown() {
+    if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
+    if(m_Busy->IsUnlocked()) {
+        DisconnectInput();
+        ReleaseBitmap();
+        m_IsOk = false;
+        m_IsShuttingDown = false;
+    }
+}
+
 
 unsigned long VideoInputDevice::InternalSeek(unsigned long time, bool fromend) {
     if(fromend) {
@@ -91,33 +110,12 @@ unsigned long VideoInputDevice::InternalSeek(unsigned long time, bool fromend) {
 
 
 unsigned long VideoInputDevice::Seek(unsigned long time,bool fromend) {
-    bool result,abort,oldbusy,ok;
-    ok = false;
-    abort = false;
-    while(!ok) {
-        {
-            syMutexLocker locker(*m_Mutex);
-            oldbusy = m_IsBusy;
-            if(!oldbusy) {
-                ok = true;
-                m_IsBusy = true;
-            }
-        }
-        if(MustAbort()) {
-            break;
-        }
-        if(!ok) {
-            syMilliSleep(1);
-        }
-    }
-    if(!MustAbort()) {
-        return InternalSeek(time, fromend);
+    sySafeMutexLocker lock(*m_Busy, this);
+    bool result = false;
+    if(lock.IsLocked()) {
+        result = InternalSeek(time, fromend);
     } else {
         result = m_CurrentTime;
-    }
-    {
-        syMutexLocker locker(*m_Mutex);
-        m_IsBusy = oldbusy;
     }
     return result;
 }
@@ -152,65 +150,21 @@ float VideoInputDevice::GetPixelAspect() {
 
 
 void VideoInputDevice::SendCurrentFrame(VideoOutputDevice* device) {
-    bool abort,oldbusy,ok;
-    ok = false;
-    abort = false;
-    while(!ok) {
-        {
-            syMutexLocker locker(*m_Mutex);
-            oldbusy = m_IsBusy;
-            if(!oldbusy) {
-                ok = true;
-                m_IsBusy = true;
-            }
-        }
-        if(MustAbort()) {
-            break;
-        }
-        if(!ok) {
-            syMilliSleep(1);
-        }
-    }
-    if(!MustAbort()) {
+    sySafeMutexLocker lock(*m_Busy, this);
+    if(lock.IsLocked()) {
         LoadCurrentFrame();
         if(device) {
             device->LoadVideoData(this->m_Bitmap);
-        }
-        {
-            syMutexLocker locker(*m_Mutex);
-            m_IsBusy = oldbusy;
         }
     }
 }
 
 void VideoInputDevice::SendCurrentFrame(syBitmap* bitmap) {
-    bool abort,oldbusy,ok;
-    ok = false;
-    abort = false;
-    while(!ok) {
-        {   // Lock the mutex to try to get the Busy status.
-            syMutexLocker locker(*m_Mutex);
-            oldbusy = m_IsBusy;
-            if(!oldbusy) {
-                ok = true;
-                m_IsBusy = true;
-            }
-        }
-        if(MustAbort()) {
-            break;
-        }
-        if(!ok) {
-            syMilliSleep(1); // Sleep until we get it.
-        }
-    }
-    if(!MustAbort()) { // Always check the MustAbort() flag.
-        LoadCurrentFrame(); // Loads frame from the input resouce
+    sySafeMutexLocker lock(*m_Busy, this);
+    if(lock.IsLocked()) {
+        LoadCurrentFrame();
         if(bitmap) {
             bitmap->CopyFrom(this->m_Bitmap); // And copy to the destination bitmap
-        }
-        {
-            syMutexLocker locker(*m_Mutex);
-            m_IsBusy = oldbusy;
         }
     }
 }

@@ -17,7 +17,7 @@
   * The AudioOutputDevice class is a generic output class that will connect an audio output device driver (or file encoder)
   * with a data source. This class is only a wrapper;
   * It can be an MP3 decoder, a sound generator, or in our case, the audio output for our project.
-  * The A/Vsyncrhonization and optional frame skipping needs to be handled by a streaming class.
+  * The A/V syncrhonization and optional frame skipping needs to be handled by a streaming class.
   * This class has the following virtual methods (not including the destructor) that must be implemented by derived classes:
   *
   * InitializeOutput()          - Initializes the output device.

@@ -50,7 +50,7 @@ void AVController::Init(VideoInputDevice* videoin,AudioInputDevice* audioin,
 }
 
 void AVController::ShutDown() {
-    if(!syThread::IsMainThread()) { return; }
+    if(!syThread::IsMain()) { return; }
     Stop();
 
     if(m_VideoOut) {
@@ -148,7 +148,7 @@ void AVController::EncodeAudio(float speed,unsigned long duration) {
 
 // IMPORTANT! Before this function returns, all threads must have already been stopped!
 void AVController::Pause() {
-    if(!syThread::IsMainThread()) { return; } // This function must be called by the main thread ONLY!
+    if(!syThread::IsMain()) { return; } // This function must be called by the main thread ONLY!
     m_Pause = true;
     // IMPORTANT! If m_Pause is true, the playing thread MUST consider per-frame operations as atomic, as to not corrupt
     // the data being sent to the Output Devices.
@@ -164,7 +164,7 @@ void AVController::Pause() {
 }
 
 void AVController::Stop() {
-    if(!syThread::IsMainThread()) { return; } // This function must be called by the main thread ONLY!
+    if(!syThread::IsMain()) { return; } // This function must be called by the main thread ONLY!
     m_Stop = true;
     while(m_IsPlaying) {
         syMilliSleep(1);
@@ -174,7 +174,7 @@ void AVController::Stop() {
 unsigned long AVController::Seek(unsigned long time,bool fromend) {
     if(IsEncoder()) { return 0; }
     unsigned long videoresult = 0, audioresult = 0;
-    if(syThread::IsMainThread()) {
+    if(syThread::IsMain()) {
         Pause();
     }
     if(m_VideoIn) {
@@ -195,7 +195,7 @@ unsigned long AVController::Seek(unsigned long time,bool fromend) {
 unsigned long AVController::SeekVideo(unsigned long time,bool fromend) {
     if(IsEncoder()) { return 0; }
     unsigned long result = 0;
-    if(syThread::IsMainThread()) {
+    if(syThread::IsMain()) {
         Pause();
     }
     if(m_VideoIn) {
@@ -207,7 +207,7 @@ unsigned long AVController::SeekVideo(unsigned long time,bool fromend) {
 unsigned long AVController::SeekAudio(unsigned long time,bool fromend) {
     if(IsEncoder()) { return 0; }
     unsigned long result = 0;
-    if(syThread::IsMainThread()) {
+    if(syThread::IsMain()) {
         Pause();
     }
     if(m_AudioIn) {
@@ -421,7 +421,7 @@ void AVController::SetAudioGranularity(unsigned long granularity) {
 }
 
 bool AVController::StartWorkerThread() {
-    if(!syThread::IsMainThread()) { return false; }
+    if(!syThread::IsMain()) { return false; }
     bool result = false;
     // TODO: Implement AVController::StartWorkerThread
     return result;

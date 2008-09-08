@@ -22,7 +22,7 @@ AVTransition::~AVTransition() {
 }
 
 bool AVTransition::unserialize(const std::string& data) {
-// FIXME (rick#1#): Implement me!
+// TODO: Implement AVTransition::unserialize
     return false;
 }
 
@@ -31,7 +31,7 @@ std::string AVTransition::serialize() {
 }
 
 bool AVEffect::unserialize(const std::string& data) {
-// FIXME (rick#1#): Implement me!
+// TODO: Implement AVEffect::unserialize
     return false;
 }
 

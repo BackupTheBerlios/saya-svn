@@ -222,6 +222,217 @@ unsigned long syGetTicks() {
 // End timing functions (mine)
 // ---------------------------
 
+
+// --------------------
+// Begin syAtomic class
+// --------------------
+
+bool syAtomic::bool_CAS(bool* ptr, bool oldval, bool newval) {
+    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+}
+
+bool syAtomic::bool_CAS(int* ptr, int oldval, int newval) {
+    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+}
+
+bool syAtomic::bool_CAS(unsigned int* ptr, unsigned int oldval, unsigned int newval) {
+    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+}
+
+bool syAtomic::bool_CAS(long* ptr, long oldval, long newval) {
+    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+}
+
+bool syAtomic::bool_CAS(unsigned long* ptr, unsigned long oldval, unsigned long newval) {
+    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+}
+
+bool syAtomic::bool_CAS(char* ptr, char oldval, char newval) {
+    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+}
+
+bool syAtomic::bool_CAS(unsigned char* ptr, unsigned char oldval, unsigned char newval) {
+    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+}
+
+bool syAtomic::bool_CAS(void** ptr, void* oldval, void* newval) {
+    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+}
+
+bool syAtomic::val_CAS(bool* ptr, bool oldval, bool newval) {
+    return __sync_val_compare_and_swap(ptr, oldval, newval);
+}
+
+int syAtomic::val_CAS(int* ptr, int oldval, int newval) {
+    return __sync_val_compare_and_swap(ptr, oldval, newval);
+}
+
+unsigned int syAtomic::val_CAS(unsigned int* ptr, unsigned int oldval, unsigned int newval) {
+    return __sync_val_compare_and_swap(ptr, oldval, newval);
+}
+
+long syAtomic::val_CAS(long* ptr, long oldval, long newval) {
+    return __sync_val_compare_and_swap(ptr, oldval, newval);
+}
+
+unsigned long syAtomic::val_CAS(unsigned long* ptr, unsigned long oldval, unsigned long newval) {
+    return __sync_val_compare_and_swap(ptr, oldval, newval);
+}
+
+char syAtomic::val_CAS(char* ptr, char oldval, char newval) {
+    return __sync_val_compare_and_swap(ptr, oldval, newval);
+}
+
+char syAtomic::val_CAS(unsigned char* ptr, unsigned char oldval, unsigned char newval) {
+    return __sync_val_compare_and_swap(ptr, oldval, newval);
+}
+
+void* syAtomic::val_CAS(void** ptr, void* oldval, void* newval) {
+    return __sync_val_compare_and_swap(ptr, oldval, newval);
+}
+
+// -----------------------
+// Begin sySafeMutex class
+// -----------------------
+
+sySafeMutex::sySafeMutex() :
+m_Locked(false),
+m_Owner(0xFFFFFFFF)
+{
+}
+
+sySafeMutex::~sySafeMutex() {
+    m_Locked = false;
+}
+
+bool sySafeMutex::TryLock(syAborter* aborter) {
+    bool result = syAtomic::bool_CAS(&m_Locked, false, true);
+    if(result) {
+        m_Owner = syThread::GetCurrentId();
+    }
+    return result;
+}
+
+bool sySafeMutex::Wait(syAborter* aborter) {
+    while(m_Locked) {
+        if(aborter && aborter->MustAbort()) {
+            return false;
+        }
+        syMicroSleep(1); // Sleep for 1 microsecond (or whatever the OS allows)
+    }
+    return true;
+}
+
+bool sySafeMutex::Lock(syAborter* aborter, bool dontsleep) {
+    bool result = false;
+    unsigned long initime = syGetTicks();
+    bool abort = false;
+    while(!abort && !result) {
+        if(!m_Locked) {
+            result = syAtomic::bool_CAS(&m_Locked, false, true);
+        }
+        if(result) {
+            m_Owner = syThread::GetCurrentId();
+        } else {
+            if(aborter != NULL) {
+                abort = aborter->MustAbort();
+                if(!abort) {
+                    if(dontsleep) {
+                        if(syGetTicks() >= initime + 3) {
+                            dontsleep = false;
+                        }
+                    } else {
+                        syMicroSleep(1);
+                    }
+                }
+            }
+        }
+    }
+    return result;
+}
+
+bool sySafeMutex::SafeLock(bool dontsleep)
+{
+    bool result = false;
+    unsigned long initime = syGetTicks();
+    bool abort = false;
+    while(!abort && !result) {
+        result = syAtomic::bool_CAS(&m_Locked, false, true);
+        if(result) {
+            m_Owner = syThread::GetCurrentId();
+        } else {
+            abort = syThread::MustAbort();
+            if(!abort) {
+                if(dontsleep) {
+                    if(syGetTicks() >= initime + 3) {
+                        dontsleep = false;
+                    }
+                } else {
+                    syMicroSleep(1);
+                }
+            }
+    }
+    }
+    return result;
+}
+
+void sySafeMutex::Unlock() {
+    if(m_Locked && m_Owner == syThread::GetCurrentId()) {
+        m_Owner = 0xFFFFFFFF;
+        m_Locked = false;
+    }
+}
+
+bool sySafeMutex::IsUnlocked() {
+    return !m_Locked;
+}
+
+unsigned long sySafeMutex::GetOwner() {
+    return m_Locked ? m_Owner : 0xFFFFFFFF;
+}
+
+// ---------------------
+// End sySafeMutex class
+// ---------------------
+
+// -----------------------------
+// Begin sySafeMutexLocker class
+// -----------------------------
+
+/** Constructor */
+sySafeMutexLocker::sySafeMutexLocker(sySafeMutex& mutex, syAborter* aborter,bool dontsleep) :
+m_Mutex(mutex),
+m_Aborter(aborter),
+m_DontSleep(dontsleep) {
+    Lock();
+}
+
+sySafeMutexLocker::~sySafeMutexLocker() {
+    Unlock();
+}
+
+bool sySafeMutexLocker::Lock() {
+    if(IsLocked()) {
+        return true;
+    }
+    return m_Mutex.Lock(m_Aborter, m_DontSleep);
+}
+
+bool sySafeMutexLocker::SafeLock(bool dontsleep) {
+    if(IsLocked()) {
+        return true;
+    }
+    return m_Mutex.SafeLock(dontsleep);
+}
+
+void sySafeMutexLocker::Unlock() {
+    if(IsLocked()) m_Mutex.Unlock();
+}
+
+bool sySafeMutexLocker::IsLocked() {
+    return (m_Mutex.m_Locked && m_Mutex.m_Owner == syThread::GetCurrentId());
+}
+
 // -------------------
 // Begin syMutex class
 // -------------------
@@ -715,16 +926,12 @@ unsigned long syThread::GetCurrentId() {
 }
 
 int syThread::GetCPUCount() {
-    // TODO: Implement syThread::GetCPUCount
+    // NOTE: syThread::GetCPUCount needs to be implemented
     return -1;
 }
 
 unsigned long syThread::GetMainThreadId() {
     return syMainThreadId;
-}
-
-bool syThread::IsMainThread() {
-    return (syThread::GetCurrentId() == syMainThreadId);
 }
 
 bool syThread::IsMain() {

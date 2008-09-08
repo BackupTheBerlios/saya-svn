@@ -34,13 +34,13 @@ void AVSettings::ResetToDefaults() {
 }
 
 bool VidProject::unserialize(const std::string& data) {
-    // FIXME (rick#1#): Implement me!
+    // TODO: Implement VidProject::unserialize
     Clear();
     return true;
 }
 
 std::string VidProject::serialize() {
-    // FIXME (rick#1#): Implement me!
+    // TODO: Implement VidProject::serialize
     std::string data;
     data = "<?xml version=\"1.0\"?>\n<xvidproject version=\"1.0\">\n</xvidproject>\n";
     return data;
@@ -144,11 +144,11 @@ bool VidProject::Reload() {
 
 void VidProject::SaveState(std::string& data) {
     data = "";
-// TODO (rick#1#): Implement project State saving
+// TODO: Implement project State saving
 }
 
 bool VidProject::LoadState(const std::string& data) {
-// TODO (rick#1#): Implement project State loading
+// TODO: Implement project State loading
     SetModified();
     return true;
 }
