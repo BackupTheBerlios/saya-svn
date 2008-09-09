@@ -299,7 +299,9 @@ void* syAtomic::val_CAS(void** ptr, void* oldval, void* newval) {
 sySafeMutex::sySafeMutex(bool recursive) :
 m_Recursive(recursive),
 m_LockCount(0),
-m_Owner(0xFFFFFFFF) // 0xFFFFFFFF means the mutex is unlocked.
+m_Owner(0xFFFFFFFF), // 0xFFFFFFFF means the mutex is unlocked.
+m_LastOwner(0xFFFFFFFF),
+m_LastOwner2(0xFFFFFFFF)
 {
 }
 
@@ -323,6 +325,7 @@ bool sySafeMutex::TryLock(syAborter* aborter) {
         if(aborter && aborter->MustAbort()) {
             return false;
         }
+
         result = syAtomic::bool_CAS(&m_Owner, 0xFFFFFFFF, id);
         if(result) {
             m_LockCount = 1;
@@ -332,7 +335,7 @@ bool sySafeMutex::TryLock(syAborter* aborter) {
 }
 
 bool sySafeMutex::Wait(syAborter* aborter) {
-    unsigned int id = syThread::GetCurrentId();
+    unsigned long id = syThread::GetCurrentId();
     while(m_Owner != id && m_Owner != 0xFFFFFFFF) {
         if(aborter && aborter->MustAbort()) {
             return false;
@@ -345,14 +348,19 @@ bool sySafeMutex::Wait(syAborter* aborter) {
 bool sySafeMutex::Lock(syAborter* aborter) {
     bool result = false;
     unsigned int i = 0;
+    unsigned long id = syThread::GetCurrentId();
     for(;;) {
         result = TryLock(aborter);
         if(result) { break; }
         if(aborter && aborter->MustAbort()) { break; }
-        // Act as a spinlock for the first 30 iterations; If the lock's still busy, Yield.
-        if(++i >= 30) {
-            i = 0;
+        // Scheduling strategy:
+        // After the first try, the last owner loses its chance of winning;
+        // After the 5th try, the previous-to-last owner loses its chance of winning;
+        // After the 50th try, all threads get the same chance of winning.
+        if((i >= 50) || (id==m_LastOwner) || (id==m_LastOwner2 && i >= 5)) {
             syThread::Yield();
+        } else {
+            ++i;
         }
     }
     return result;
@@ -361,13 +369,15 @@ bool sySafeMutex::Lock(syAborter* aborter) {
 bool sySafeMutex::SafeLock() {
     bool result = false;
     unsigned int i = 0;
+    unsigned long id = syThread::GetCurrentId();
     for(;;) {
         result = TryLock(NULL);
         if(result) { break; }
         if(syThread::MustAbort()) { break; }
-        if(++i >= 30) {
-            i = 0;
+        if((i >= 50) || (id==m_LastOwner) || (id==m_LastOwner2 && i >= 5)) {
             syThread::Yield();
+        } else {
+            ++i;
         }
     }
     return result;
@@ -381,6 +391,8 @@ void sySafeMutex::Unlock() {
         } else {
             // Set m_LockCount to 0.
             m_LockCount = 0;
+            m_LastOwner2 = m_LastOwner;
+            m_LastOwner = id;
             m_Owner = 0xFFFFFFFF;
         }
     }

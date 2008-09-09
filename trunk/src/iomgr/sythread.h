@@ -353,6 +353,12 @@ class sySafeMutex {
 
         /** The thread owning the mutex. */
         unsigned long m_Owner;
+
+        /** The last thread that owned the mutex. */
+        unsigned long m_LastOwner;
+
+        /** The before-last thread that owned the mutex. */
+        unsigned long m_LastOwner2;
 };
 
 /** Locks a safe mutex during its existence. */
