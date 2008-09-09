@@ -148,7 +148,7 @@ class syBitmap {
           * @param delay The delay in milliseconds between each locking attempt
           * @return true on success; false otherwise.
           */
-        bool Lock(unsigned int tries = 1,unsigned delay = 10);
+        bool Lock(unsigned int tries = 1,unsigned int delay = 1);
 
         /** @brief Unlocks the Video Buffer (if the current thread is the owner)
           * @return true if the Buffer's owner was either 0 or the current thread; false otherwise.
@@ -218,6 +218,17 @@ class syBitmap {
 
         /** Contains the current size used by m_XOffsets */
         unsigned long m_XOffsetsSize;
+};
+
+/** @brief Sentry class for locking the bitmap */
+class syBitmapLocker {
+    public:
+        syBitmapLocker(syBitmap* bitmap,unsigned int tries,unsigned int delay);
+        ~syBitmapLocker();
+        bool IsLocked();
+    private:
+        bool m_IsLocked;
+        syBitmap* m_Bitmap;
 };
 
 #endif

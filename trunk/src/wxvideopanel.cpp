@@ -216,15 +216,17 @@ void wxVideoPanel::Demo() {
 
 void wxVideoPanel::OnSize(wxSizeEvent& event) {
     bool result = false;
-    m_SizeChanging = true;
-    wxSize newsize = event.GetSize();
-    if(m_Video && m_Video->IsOk()) {
-        result = m_Video->ChangeSize(newsize.GetWidth(),newsize.GetHeight());
+    {
+        syBoolSetter setter(m_SizeChanging, true);
+        wxSize newsize = event.GetSize();
+        if(m_Video && m_Video->IsOk()) {
+            result = m_Video->ChangeSize(newsize.GetWidth(),newsize.GetHeight());
+        }
+        syBitmapLocker lock(m_Bitmap, 0, 1);
+        if(lock.IsLocked()) {
+            m_Bitmap->Realloc(newsize.GetWidth(),newsize.GetHeight(),m_NativeFormat);
+        }
     }
-    m_Bitmap->Lock(0,1);
-    m_Bitmap->Realloc(newsize.GetWidth(),newsize.GetHeight(),m_NativeFormat);
-    m_Bitmap->Unlock();
-    m_SizeChanging = false;
     if(result) {
         Refresh();
     }

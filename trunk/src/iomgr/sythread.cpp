@@ -296,100 +296,102 @@ void* syAtomic::val_CAS(void** ptr, void* oldval, void* newval) {
 // Begin sySafeMutex class
 // -----------------------
 
-sySafeMutex::sySafeMutex() :
-m_Locked(false),
-m_Owner(0xFFFFFFFF)
+sySafeMutex::sySafeMutex(bool recursive) :
+m_Recursive(recursive),
+m_LockCount(0),
+m_Owner(0xFFFFFFFF) // 0xFFFFFFFF means the mutex is unlocked.
 {
 }
 
 sySafeMutex::~sySafeMutex() {
-    m_Locked = false;
+    m_LockCount = 0;
 }
 
 bool sySafeMutex::TryLock(syAborter* aborter) {
-    bool result = syAtomic::bool_CAS(&m_Locked, false, true);
+    unsigned long id = syThread::GetCurrentId();
+
+    bool result = (m_Owner == id);
+
     if(result) {
-        m_Owner = syThread::GetCurrentId();
+        // Yay, we own the lock!
+        if(m_Recursive) {
+            // Increment the lock count if it's a recursive mutex.
+            ++m_LockCount;
+        }
+    } else {
+        // Try to acquire the lock.
+        if(aborter && aborter->MustAbort()) {
+            return false;
+        }
+        result = syAtomic::bool_CAS(&m_Owner, 0xFFFFFFFF, id);
+        if(result) {
+            m_LockCount = 1;
+        }
     }
     return result;
 }
 
 bool sySafeMutex::Wait(syAborter* aborter) {
-    while(m_Locked) {
+    unsigned int id = syThread::GetCurrentId();
+    while(m_Owner != id && m_Owner != 0xFFFFFFFF) {
         if(aborter && aborter->MustAbort()) {
             return false;
         }
-        syMicroSleep(1); // Sleep for 1 microsecond (or whatever the OS allows)
+        syThread::Yield();
     }
     return true;
 }
 
-bool sySafeMutex::Lock(syAborter* aborter, bool dontsleep) {
+bool sySafeMutex::Lock(syAborter* aborter) {
     bool result = false;
-    unsigned long initime = syGetTicks();
-    bool abort = false;
-    while(!abort && !result) {
-        if(!m_Locked) {
-            result = syAtomic::bool_CAS(&m_Locked, false, true);
-        }
-        if(result) {
-            m_Owner = syThread::GetCurrentId();
-        } else {
-            if(aborter != NULL) {
-                abort = aborter->MustAbort();
-                if(!abort) {
-                    if(dontsleep) {
-                        if(syGetTicks() >= initime + 3) {
-                            dontsleep = false;
-                        }
-                    } else {
-                        syMicroSleep(1);
-                    }
-                }
-            }
+    unsigned int i = 0;
+    for(;;) {
+        result = TryLock(aborter);
+        if(result) { break; }
+        if(aborter && aborter->MustAbort()) { break; }
+        // Act as a spinlock for the first 30 iterations; If the lock's still busy, Yield.
+        if(++i >= 30) {
+            i = 0;
+            syThread::Yield();
         }
     }
     return result;
 }
 
-bool sySafeMutex::SafeLock(bool dontsleep)
-{
+bool sySafeMutex::SafeLock() {
     bool result = false;
-    unsigned long initime = syGetTicks();
-    bool abort = false;
-    while(!abort && !result) {
-        result = syAtomic::bool_CAS(&m_Locked, false, true);
-        if(result) {
-            m_Owner = syThread::GetCurrentId();
-        } else {
-            abort = syThread::MustAbort();
-            if(!abort) {
-                if(dontsleep) {
-                    if(syGetTicks() >= initime + 3) {
-                        dontsleep = false;
-                    }
-                } else {
-                    syMicroSleep(1);
-                }
-            }
-    }
+    unsigned int i = 0;
+    for(;;) {
+        result = TryLock(NULL);
+        if(result) { break; }
+        if(syThread::MustAbort()) { break; }
+        if(++i >= 30) {
+            i = 0;
+            syThread::Yield();
+        }
     }
     return result;
 }
 
 void sySafeMutex::Unlock() {
-    if(m_Locked && m_Owner == syThread::GetCurrentId()) {
-        m_Owner = 0xFFFFFFFF;
-        m_Locked = false;
+    unsigned int id = syThread::GetCurrentId();
+    if(m_Owner == id) {
+        if(m_Recursive && m_LockCount > 1) {
+            --m_LockCount;
+        } else {
+            // Set m_LockCount to 0.
+            m_LockCount = 0;
+            m_Owner = 0xFFFFFFFF;
+        }
     }
 }
 
 bool sySafeMutex::IsUnlocked() {
-    return !m_Locked;
+    return (m_Owner == 0xFFFFFFFF);
 }
 
 unsigned long sySafeMutex::GetOwner() {
-    return m_Locked ? m_Owner : 0xFFFFFFFF;
+    return m_Owner;
 }
 
 // ---------------------
@@ -401,10 +403,10 @@ unsigned long sySafeMutex::GetOwner() {
 // -----------------------------
 
 /** Constructor */
-sySafeMutexLocker::sySafeMutexLocker(sySafeMutex& mutex, syAborter* aborter,bool dontsleep) :
+sySafeMutexLocker::sySafeMutexLocker(sySafeMutex& mutex, syAborter* aborter) :
 m_Mutex(mutex),
-m_Aborter(aborter),
-m_DontSleep(dontsleep) {
+m_Aborter(aborter)
+{
     Lock();
 }
 
@@ -416,14 +418,14 @@ bool sySafeMutexLocker::Lock() {
     if(IsLocked()) {
         return true;
     }
-    return m_Mutex.Lock(m_Aborter, m_DontSleep);
+    return m_Mutex.Lock(m_Aborter);
 }
 
-bool sySafeMutexLocker::SafeLock(bool dontsleep) {
-    if(IsLocked()) {
+bool sySafeMutexLocker::SafeLock() {
+    if(IsLocked()) { // Returns true if the mutex is locked by us
         return true;
     }
-    return m_Mutex.SafeLock(dontsleep);
+    return m_Mutex.SafeLock();
 }
 
 void sySafeMutexLocker::Unlock() {
@@ -431,7 +433,7 @@ void sySafeMutexLocker::Unlock() {
 }
 
 bool sySafeMutexLocker::IsLocked() {
-    return (m_Mutex.m_Locked && m_Mutex.m_Owner == syThread::GetCurrentId());
+    return (m_Mutex.m_Owner == syThread::GetCurrentId());
 }
 
 // -------------------
@@ -1126,7 +1128,7 @@ syThreadError syThread::Pause() {
 
     m_PauseRequested = true;
     while(m_PauseRequested && m_ThreadStatus == syTHREADSTATUS_RUNNING) {
-        syMicroSleep(50);
+        Yield();
     }
     if(!m_PauseRequested) {
         return syTHREAD_MISC_ERROR; // Could not pause the thread!
@@ -1299,7 +1301,6 @@ syThread* syThread::This() {
 }
 
 void syThread::Yield() {
-    if(!IsThisThread() || IsMain()) { return; }
     #ifdef __WIN32__
     ::SwitchToThread();
     #else

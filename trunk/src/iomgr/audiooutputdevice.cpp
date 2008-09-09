@@ -73,7 +73,7 @@ bool AudioOutputDevice::InternalMustAbort() {
 void AudioOutputDevice::ShutDown() {
     m_shuttingdown = true;
     while(m_playing) {
-        syMilliSleep(1); // Sleep for 1 millisecond
+        syThread::Yield(); // Wait
     }
     Clear();
     DisconnectOutput();

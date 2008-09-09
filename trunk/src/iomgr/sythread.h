@@ -298,17 +298,15 @@ class sySafeMutexLocker;
  *  Normal mutexes force a thread to sleep until the mutex is available. Unfortunately,
  *  in the event of the thread receiving an abort request, a sleeping thread will not
  *  be able to abort the operation.
- *  Our SafeMutex works by waking up at regular intervals (1 usec on posix, 1 msec on windows),
- *  and checking for an abort signal, returning false if the signal was sent.
- *  The signal is tested through an syAborter class.
- *  Additionally, for faster locks you can set the dontsleep flag to true, which does a tight loop
- *  for the first 2 milliseconds instead of sleeping (use with care).
+ *  Our SafeMutex works by waking up at regular intervals, checking for an abort signal,
+ *  and returning false if the signal was sent.
+ *  The signal is tested through an syAborter class, and the sleep is done via syThread::Yield().
  */
 class sySafeMutex {
     friend class sySafeMutexLocker;
     public:
         /** Standard constructor. */
-        sySafeMutex();
+        sySafeMutex(bool recursive = false);
 
         /** Standard destructor. */
         ~sySafeMutex();
@@ -319,14 +317,14 @@ class sySafeMutex {
          *  @param dontsleep Used when you must require low-latency modifications of a variable.
          *  @warning dontsleep makes the thread run a tight loop; Don't use it unless you know what you're doing!
          */
-        bool Lock(syAborter* aborter = NULL, bool dontsleep = false);
+        bool Lock(syAborter* aborter = NULL);
 
         /** @brief Locks the mutex, aborting if the current thread is being closed.
          *  @return true if the mutex was locked; false if the thread is being closed.
          *  @note If there's no syAborter object available, you should use this function
          *  unless you already know the thread's being aborter and need to lock a safe mutex.
          */
-        bool SafeLock(bool dontsleep = false);
+        bool SafeLock();
 
         /** Tries to lock the mutex once, and returns false on failure. */
         bool TryLock(syAborter* aborter);
@@ -344,19 +342,24 @@ class sySafeMutex {
 
         /** Gets the owner thread at the current time. Note that the value might be obsolete right away. */
         unsigned long GetOwner();
+
     private:
-        /** Is the mutex locked? */
-        bool m_Locked;
+
+        /** Is the mutex recursive? */
+        bool m_Recursive;
+
+        /** Count for recursive mutex */
+        unsigned int m_LockCount;
+
         /** The thread owning the mutex. */
         unsigned long m_Owner;
-
 };
 
 /** Locks a safe mutex during its existence. */
 class sySafeMutexLocker {
     public:
         /** Constructor */
-        sySafeMutexLocker(sySafeMutex& mutex,syAborter* aborter = NULL, bool dontsleep = false);
+        sySafeMutexLocker(sySafeMutex& mutex,syAborter* aborter = NULL);
 
         /** Destructor */
         ~sySafeMutexLocker();
@@ -365,7 +368,7 @@ class sySafeMutexLocker {
         bool Lock();
 
         /** (re)Locks the mutex checking for current thread abortion (use if there's no syAborter available) */
-        bool SafeLock(bool dontsleep = false);
+        bool SafeLock();
 
         /** Unlocks the mutex */
         void Unlock();
@@ -374,8 +377,6 @@ class sySafeMutexLocker {
     private:
         sySafeMutex& m_Mutex;
         syAborter* m_Aborter;
-        bool m_DontSleep;
-
 };
 
 /** Sleeps for the determinate number of milliseconds */
@@ -623,8 +624,8 @@ class syThread {
          */
         static syThread* This();
 
-        /** Gives the rest of the thread time slice to the system allowing the other threads to run. */
-        void Yield();
+        /** Gives the rest of the current thread time slice to the system allowing the other threads to run. */
+        static void Yield();
 
         /** @brief Waits for a joinable thread to terminate and gets the exit code obtained from Entry().
          *

@@ -153,7 +153,7 @@ void AVController::Pause() {
     // IMPORTANT! If m_Pause is true, the playing thread MUST consider per-frame operations as atomic, as to not corrupt
     // the data being sent to the Output Devices.
     while(m_IsPlaying) {
-        syMilliSleep(1);
+        syThread::Yield();
     }
     if(!IsVideoEncoder()) {
         if(m_VideoIn && m_VideoOut) {
@@ -167,7 +167,7 @@ void AVController::Stop() {
     if(!syThread::IsMain()) { return; } // This function must be called by the main thread ONLY!
     m_Stop = true;
     while(m_IsPlaying) {
-        syMilliSleep(1);
+        syThread::Yield();
     }
 }
 

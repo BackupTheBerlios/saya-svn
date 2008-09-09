@@ -331,7 +331,7 @@ bool syBitmap::MustAbort() {
     return syThread::MustAbort();
 }
 
-bool syBitmap::Lock(unsigned int tries,unsigned delay) {
+bool syBitmap::Lock(unsigned int tries,unsigned int delay) {
     bool result = false;
     unsigned i = 0;
     if(delay < 1) {
@@ -339,6 +339,8 @@ bool syBitmap::Lock(unsigned int tries,unsigned delay) {
     }
     do {
         {   // The extra braces are a stack spaceholder for tmplock
+            // FIXME: syBitmap::Lock code is hideous. Replace with a recursive sySafeMutex.
+            // NOTE: We might need to implement a recursive mutex in here.
             syMutexLocker tmplock(*m_BufferMutex);
             result = (m_BufferOwner == 0 || (m_BufferOwner == syThread::GetThreadId()));
             if(result) {
@@ -347,7 +349,7 @@ bool syBitmap::Lock(unsigned int tries,unsigned delay) {
                 }
                 ++m_BufferLockCount;
             }
-        }   // After closing this brace, the mutexlocker is released from the stack, and the mutex is unlocked.
+        }
         if(!result) {
             if(tries > 0) {
                 ++i;
@@ -503,3 +505,22 @@ unsigned long syBitmap::ConvertPixel(unsigned long pixel,VideoColorFormat source
     return pixel;
 }
 
+syBitmapLocker::syBitmapLocker(syBitmap* bitmap,unsigned int tries,unsigned int delay) :
+m_IsLocked(false),
+m_Bitmap(NULL)
+{
+    m_Bitmap = bitmap;
+    if(m_Bitmap) {
+        m_IsLocked = bitmap->Lock(tries, delay);
+    }
+}
+
+syBitmapLocker::~syBitmapLocker() {
+    if(m_IsLocked) {
+        m_Bitmap->Unlock();
+    }
+}
+
+bool syBitmapLocker::IsLocked() {
+    return m_IsLocked;
+}
