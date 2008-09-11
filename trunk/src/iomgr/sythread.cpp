@@ -1182,8 +1182,9 @@ syThreadError syThread::Kill() {
         default:
             // Kill thread
             #ifdef __WIN32__
-            #warning TODO: Implement win32 version of pthread_cancel
-            // TODO: Implement win32 version of pthread_cancel
+            if(!::TerminateThread(m_Data->m_hThread, 0xFFFFFFFF)) {
+                return syTHREAD_MISC_ERROR;
+            }
             #else
             if (pthread_cancel(m_Data->m_ThreadId)!= 0) {
                 return syTHREAD_MISC_ERROR;
