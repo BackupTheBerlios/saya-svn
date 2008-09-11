@@ -67,13 +67,104 @@
 #ifndef sythread_h
 #define sythread_h
 
-#ifdef __WIN32__
-    #include <windows.h>
-#else
-    #include <pthread.h>
-#endif
+#include <cstddef>
 
-#ifdef __GNUC__
+// --------------------------
+// Begin forward declarations
+// --------------------------
+
+class syMutexData;
+class syCondData;
+class sySemData;
+class sySafeMutexData;
+class syThreadData;
+class syAborter;
+
+// ------------------------
+// End forward declarations
+// ------------------------
+
+// -----------
+// Begin enums
+// -----------
+
+/** Errors for syCondition */
+enum syCondError {
+    syCOND_NO_ERROR = 0,    /** successful completion */
+    syCOND_INVALID,         /** object hasn't been initialized successfully */
+    syCOND_TIMEOUT,         /** WaitTimeout() has timed out */
+    syCOND_MISC_ERROR       /** Another kind of error */
+};
+
+/** @brief Enum for thread kinds. Blatantly copied from the wxWidgets documentation.
+ *
+ *  @warning Values might actually differ from wxWidgets'.
+ */
+enum syThreadKind {
+    /** @brief Detached threads are independent from the main thread and can't be polled.
+     *
+     *  Think of a detached thread as a Lemming: It does it work, and then jumps right onto a cliff
+     *  without you having to worry about it. Unfortunately, you can't control it. Good luck.
+     */
+    syTHREAD_DETACHED = 0,
+    /** @brief Joinable threads must be destroyed by the main thread (Recommended).
+     *
+     *  A joinable thread doesn't destroy itself after it's done its job. The main thread must delete the object.
+     *  Joinable threads, of course, can be polled as you have much more control over them.
+     */
+    syTHREAD_JOINABLE
+};
+
+/** Semaphore errors */
+enum sySemaError {
+    sySEMA_NO_ERROR,    /** There was no error. */
+    sySEMA_INVALID,     /** Semaphore hasn't been initialized successfully. */
+    sySEMA_OVERFLOW,    /** Post() would increase counter past the max. */
+    sySEMA_BUSY,        /** Returned by TryWait() if Wait() would block, i.e. the count is zero. */
+    sySEMA_TIMEOUT,     /** Timeout occurred without receiving semaphore. */
+    sySEMA_MISC_ERROR   /** Miscellaneous error. */
+};
+
+/** @brief Enum for thread errors. Some copied from the wxWidgets documentation.
+ *
+ *  @warning Values might actually differ from wxWidgets'.
+ */
+enum syThreadError {
+    syTHREAD_NO_ERROR = 0,          /** No error. */
+    syTHREAD_NO_RESOURCE,           /** Not enough resources. */
+    syTHREAD_RUNNING,               /** Thread already running. */
+    syTHREAD_NOT_RUNNING,           /** Thread is not running. */
+    syTHREAD_KILLED,                /** The Thread we waited for had to be killed */
+    syTHREAD_MISC_ERROR,            /** Some other error */
+    syTHREAD_WRONG_THREAD_CONTEXT   /** Wrong thread context */
+};
+
+/** @brief Enum for thread status. */
+enum syThreadStatus {
+    syTHREADSTATUS_NOT_CREATED = 0,
+    syTHREADSTATUS_CREATED,
+    syTHREADSTATUS_PAUSED,
+    syTHREADSTATUS_RUNNING,
+    syTHREADSTATUS_TERMINATING,
+    syTHREADSTATUS_EXITED,
+    syTHREADSTATUS_KILLED
+};
+
+/** @brief Enum for thread priority. */
+enum
+{
+    SYTHREAD_MIN_PRIORITY      = 0u,
+    SYTHREAD_DEFAULT_PRIORITY  = 50u,
+    SYTHREAD_MAX_PRIORITY      = 100u
+};
+
+// ---------
+// End enums
+// ---------
+
+// --------------------
+// Begin syAtomic class
+// --------------------
 
 /** @brief Atomic primitives for multithreading. Available only for GCC.
  *
@@ -111,12 +202,8 @@ class syAtomic {
         static char val_CAS(unsigned char* ptr, unsigned char oldval, unsigned char newval);
         static void* val_CAS(void** ptr, void* oldval, void* newval);
 };
-#endif
 
-// --------------------
-// Begin syAtomic class
-// --------------------
-
+#ifdef __GNUC__
 inline bool syAtomic::bool_CAS(bool* ptr, bool oldval, bool newval) {
     return __sync_bool_compare_and_swap(ptr, oldval, newval);
 }
@@ -180,13 +267,13 @@ inline char syAtomic::val_CAS(unsigned char* ptr, unsigned char oldval, unsigned
 inline void* syAtomic::val_CAS(void** ptr, void* oldval, void* newval) {
     return __sync_val_compare_and_swap(ptr, oldval, newval);
 }
+#else
+    #error sythread.h needs a GCC-compatible compiler; otherwise insert atomic operations here.
+#endif
 
 // ------------------
 // End syAtomic class
 // ------------------
-
-
-class syCondition;
 
 /** @brief Generic Critical Section (a.k.a. intraprocess Mutex)
   *
@@ -196,7 +283,7 @@ class syCondition;
   * is much easier than I thought. So I'll wrap the generic mutex class in a single .h and .cpp file.
   */
 class syMutex {
-    friend class syCondition;
+    friend class syCondData;
     public:
         /** Initializes the Critical Section */
         syMutex();
@@ -208,11 +295,7 @@ class syMutex {
         void Unlock();
 
     private:
-        #ifdef __WIN32__
-            CRITICAL_SECTION m_mutexobj;
-        #else
-            pthread_mutex_t m_mutexobj;
-        #endif
+        syMutexData* m_Data;
 };
 
 /** @brief Implements a cross-platform Mutex Locker.
@@ -240,14 +323,6 @@ class syMutexLocker {
     private:
         syMutex* m_mutex;
         bool m_locked;
-};
-
-/** Errors for syCondition */
-enum syCondError {
-    syCOND_NO_ERROR = 0,    /** successful completion */
-    syCOND_INVALID,         /** object hasn't been initialized successfully */
-    syCOND_TIMEOUT,         /** WaitTimeout() has timed out */
-    syCOND_MISC_ERROR       /** Another kind of error */
 };
 
 /** @brief Condition variables - courtesy of wxWidgets
@@ -290,34 +365,7 @@ class syCondition {
         /** Same as Wait, but returns syCOND_TIMEOUT after the timeout has ellapsed. */
         syCondError WaitTimeout(unsigned long msec);
     private:
-        syMutex& m_mutex;
-        #ifdef __WIN32__
-        /** the number of threads currently waiting for this condition */
-        LONG m_numWaiters;
-
-        /** the critical section protecting m_numWaiters */
-        syMutex m_csWaiters;
-        /** The condition's semaphore */
-        sySemaphore m_semaphore;
-        #else
-        /** get the POSIX mutex associated with us */
-        pthread_mutex_t *GetPMutex() const { return &(m_mutex.m_mutexobj); }
-
-        /** The pthreads condition variable */
-        pthread_cond_t m_cond;
-        #endif
-        bool m_isOk;
-};
-
-
-/** Semaphore errors */
-enum sySemaError {
-    sySEMA_NO_ERROR,    /** There was no error. */
-    sySEMA_INVALID,     /** Semaphore hasn't been initialized successfully. */
-    sySEMA_OVERFLOW,    /** Post() would increase counter past the max. */
-    sySEMA_BUSY,        /** Returned by TryWait() if Wait() would block, i.e. the count is zero. */
-    sySEMA_TIMEOUT,     /** Timeout occurred without receiving semaphore. */
-    sySEMA_MISC_ERROR   /** Miscellaneous error. */
+        syCondData* m_Data;
 };
 
 /** @brief Generic cross-platform implementation of a Semaphore.
@@ -353,19 +401,8 @@ class sySemaphore {
         /** Same as Wait(), but with a timeout limit. */
         sySemaError  WaitTimeout(unsigned long timeout_msec);
     private:
-        #ifdef __WIN32__
-        HANDLE m_semaphore;
-        #else
-        syMutex m_mutex;
-        syCondition m_cond;
-        int m_Count;
-        int m_MaxCount;
-        bool m_isOk;
-        #endif
+        sySemData* m_Data;
 };
-
-class syAborter;
-class sySafeMutexLocker;
 
 /** @brief An abort-safe mutex.
  *  Normal mutexes force a thread to sleep until the mutex is available. Unfortunately,
@@ -417,18 +454,7 @@ class sySafeMutex {
         unsigned long GetOwner();
 
     private:
-
-        /** Is the mutex recursive? */
-        bool m_Recursive;
-
-        /** Count for recursive mutex */
-        unsigned int m_LockCount;
-
-        /** The thread owning the mutex. */
-        unsigned long m_Owner;
-
-        /** A semaphore for the waits */
-        sySemaphore m_Semaphore;
+        sySafeMutexData* m_Data;
 };
 
 /** Locks a safe mutex during its existence. */
@@ -469,58 +495,6 @@ void syMicroSleep(unsigned long usec);
  */
 unsigned long syGetTicks();
 
-/** @brief Enum for thread errors. Some copied from the wxWidgets documentation.
- *
- *  @warning Values might actually differ from wxWidgets'.
- */
-enum syThreadError {
-    syTHREAD_NO_ERROR = 0,          /** No error. */
-    syTHREAD_NO_RESOURCE,           /** Not enough resources. */
-    syTHREAD_RUNNING,               /** Thread already running. */
-    syTHREAD_NOT_RUNNING,           /** Thread is not running. */
-    syTHREAD_KILLED,                /** The Thread we waited for had to be killed */
-    syTHREAD_MISC_ERROR,            /** Some other error */
-    syTHREAD_WRONG_THREAD_CONTEXT   /** Wrong thread context */
-};
-
-/** @brief Enum for thread status. */
-enum syThreadStatus {
-    syTHREADSTATUS_NOT_CREATED = 0,
-    syTHREADSTATUS_CREATED,
-    syTHREADSTATUS_PAUSED,
-    syTHREADSTATUS_RUNNING,
-    syTHREADSTATUS_TERMINATING,
-    syTHREADSTATUS_EXITED,
-    syTHREADSTATUS_KILLED
-};
-
-/** @brief Enum for thread priority. */
-enum
-{
-    SYTHREAD_MIN_PRIORITY      = 0u,
-    SYTHREAD_DEFAULT_PRIORITY  = 50u,
-    SYTHREAD_MAX_PRIORITY      = 100u
-};
-
-
-/** @brief Enum for thread kinds. Blatantly copied from the wxWidgets documentation.
- *
- *  @warning Values might actually differ from wxWidgets'.
- */
-enum syThreadKind {
-    /** @brief Detached threads are independent from the main thread and can't be polled.
-     *
-     *  Think of a detached thread as a Lemming: It does it work, and then jumps right onto a cliff
-     *  without you having to worry about it. Unfortunately, you can't control it. Good luck.
-     */
-    syTHREAD_DETACHED = 0,
-    /** @brief Joinable threads must be destroyed by the main thread (Recommended).
-     *
-     *  A joinable thread doesn't destroy itself after it's done its job. The main thread must delete the object.
-     *  Joinable threads, of course, can be polled as you have much more control over them.
-     */
-    syTHREAD_JOINABLE
-};
 
 /** The syThread class is a reimplementation of the wxWidgets wxThread class
  *  using unix pthreads (we avoid STL 3rd party implementations on purpose).
@@ -729,56 +703,8 @@ class syThread {
         bool IsThisThread() const;
 
     private:
-
-        /** The OS-dependent thread ID */
-        unsigned long m_ThreadId;
-
-        /** The thread kind; syTHREAD_DETACHED or syTHREAD_JOINABLE */
-        syThreadKind m_ThreadKind;
-
-        /** The thread's current status */
-        syThreadStatus m_ThreadStatus;
-
-        /** Indicates if another thread requested a pause */
-        bool m_PauseRequested;
-
-        /** Indicates if another thread requested a stop */
-        bool m_StopRequested;
-
-        /** Mutex to prevent race conditions on status changing */
+        syThreadData* m_Data;
         syMutex m_Mutex;
-
-        /** The thread's exit code */
-        int m_ExitCode;
-
-        /** The thread's handle */
-        #ifdef __WIN32__
-        HANDLE m_hThread;
-        #else
-        /** Flag for joinable threads */
-        bool m_ShouldBeJoined;
-
-        /** Mutex for setting m_ShouldBeJoined */
-        syMutex m_csJoinFlag;
-
-        /** Flag for thread policy */
-        int m_Policy;
-        #endif
-
-        /** The thread's priority */
-        unsigned int m_Priority;
-
-        /** The thread's stack size when it was last created */
-        unsigned int m_StackSize;
-
-        /** Semaphore for starting the thread. */
-        sySemaphore m_StartSemaphore;
-
-        /** Condition that signals that this thread has been paused. */
-        syCondition m_PausedCondition;
-
-        /** Condition that signals that this thread needs to be resumed. */
-        syCondition m_ResumeCondition;
 };
 
 #endif

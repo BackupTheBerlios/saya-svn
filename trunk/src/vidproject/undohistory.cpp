@@ -59,13 +59,13 @@ void UndoHistoryClass::SaveIntoCurrentSlot(const std::string Opname, const std::
         m_queue[m_State] = tmpstate;
     } else {
         m_queue.push_back(tmpstate);
-        m_UsedSize +=  data.length()* sizeof(wxChar);
+        m_UsedSize +=  data.length()*2*sizeof(char);
     }
 }
 
 void UndoHistoryClass::PopBack() {
     unsigned long freedmemory;
-    freedmemory = m_queue[m_queue.size() - 1].data.length() * sizeof(wxChar);
+    freedmemory = m_queue[m_queue.size() - 1].data.length()*2*sizeof(char);
     m_queue.pop_back();
     if(m_UsedSize <= freedmemory) {
         m_UsedSize = 0;
@@ -78,7 +78,7 @@ void UndoHistoryClass::PopFront() {
     if(!m_queue.size())
         return;
     unsigned long freedmemory;
-    freedmemory = m_queue[0].data.length() * sizeof(wxChar);
+    freedmemory = m_queue[0].data.length() * 2*sizeof(char);
     m_queue.pop_front();
     if(m_State) {
         m_State--; // Shift state index, too!

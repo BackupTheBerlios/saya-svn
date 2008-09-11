@@ -10,7 +10,7 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
-#include <wx/string.h>
+#include <string>
 #include <deque>
 
 /** @class UndoState

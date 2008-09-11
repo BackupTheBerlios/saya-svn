@@ -68,15 +68,158 @@
 #include "aborter.h"
 
 #ifdef __WIN32__
+    #include <windows.h>
     #include <process.h>
 #else
     #include <unistd.h>
     #include <sys/syscall.h>
     #include <sys/time.h>
     #include <errno.h>
+    #include <pthread.h>
+    #include <semaphore.h>
 #endif
 #include <limits.h>
 #include <set>
+
+// ----------------------------------
+// Begin Private classes declarations
+// ----------------------------------
+
+class syMutexData {
+    public:
+        #ifdef __WIN32__
+            CRITICAL_SECTION m_mutexobj;
+        #else
+            pthread_mutex_t m_mutexobj;
+        #endif
+};
+
+class syCondData {
+    public:
+        syCondData(syMutex& mutex) : m_mutex(mutex) {}
+
+        syMutex& m_mutex;
+        #ifdef __WIN32__
+        /** the number of threads currently waiting for this condition */
+        LONG m_numWaiters;
+
+        /** the critical section protecting m_numWaiters */
+        syMutex m_csWaiters;
+        /** The condition's semaphore */
+        sySemaphore m_semaphore;
+        #else
+        /** get the POSIX mutex associated with us */
+        pthread_mutex_t* GetPMutex() const { return &(m_mutex.m_Data->m_mutexobj); }
+
+        /** The pthreads condition variable */
+        pthread_cond_t m_cond;
+        #endif
+        bool m_isOk;
+};
+
+class sySemData {
+    public:
+        #ifdef __WIN32__
+        HANDLE m_semaphore;
+        #else
+        sem_t m_semaphore;
+        syMutex m_mutex;
+        syCondition* m_cond;
+        int m_Count;
+        int m_MaxCount;
+        bool m_isOk;
+        #endif
+};
+
+class sySafeMutexData {
+    public:
+        sySafeMutexData(bool recursive) :
+        m_Recursive(recursive),
+        m_LockCount(0),
+        m_Owner(0xFFFFFFFF) // 0xFFFFFFFF means the mutex is unlocked.
+        {}
+
+        /** Is the mutex recursive? */
+        bool m_Recursive;
+
+        /** Count for recursive mutex */
+        unsigned int m_LockCount;
+
+        /** The thread owning the mutex. */
+        unsigned long m_Owner;
+
+        /** A semaphore for the waits */
+        sySemaphore m_Semaphore;
+};
+
+class syThreadData {
+    public:
+
+        syThreadData(syThreadKind kind) :
+            m_ThreadId(0),
+            m_ThreadKind(kind),
+            m_ThreadStatus(syTHREADSTATUS_NOT_CREATED),
+            m_PauseRequested(false),
+            m_StopRequested(false),
+            m_ExitCode(0),
+            m_PausedCondition(m_Mutex),
+            m_ResumeCondition(m_Mutex)
+            {}
+
+        /** The OS-dependent thread ID */
+        unsigned long m_ThreadId;
+
+        /** The thread kind; syTHREAD_DETACHED or syTHREAD_JOINABLE */
+        syThreadKind m_ThreadKind;
+
+        /** The thread's current status */
+        syThreadStatus m_ThreadStatus;
+
+        /** Indicates if another thread requested a pause */
+        bool m_PauseRequested;
+
+        /** Indicates if another thread requested a stop */
+        bool m_StopRequested;
+
+        /** Mutex to prevent race conditions on status changing */
+        syMutex m_Mutex;
+
+        /** The thread's exit code */
+        int m_ExitCode;
+
+        /** The thread's handle */
+        #ifdef __WIN32__
+        HANDLE m_hThread;
+        #else
+        /** Flag for joinable threads */
+        bool m_ShouldBeJoined;
+
+        /** Mutex for setting m_ShouldBeJoined */
+        syMutex m_csJoinFlag;
+
+        /** Flag for thread policy */
+        int m_Policy;
+        #endif
+
+        /** The thread's priority */
+        unsigned int m_Priority;
+
+        /** The thread's stack size when it was last created */
+        unsigned int m_StackSize;
+
+        /** Semaphore for starting the thread. */
+        sySemaphore m_StartSemaphore;
+
+        /** Condition that signals that this thread has been paused. */
+        syCondition m_PausedCondition;
+
+        /** Condition that signals that this thread needs to be resumed. */
+        syCondition m_ResumeCondition;
+};
+
+// --------------------------------
+// End Private classes declarations
+// --------------------------------
 
 // -----------------------------------------
 // Private functions (courtesy of wxWidgets)
@@ -227,23 +370,21 @@ unsigned long syGetTicks() {
 // Begin sySafeMutex class
 // -----------------------
 
-sySafeMutex::sySafeMutex(bool recursive) :
-m_Recursive(recursive),
-m_LockCount(0),
-m_Owner(0xFFFFFFFF) // 0xFFFFFFFF means the mutex is unlocked.
+sySafeMutex::sySafeMutex(bool recursive)
 {
+    m_Data = new sySafeMutexData(recursive);
 }
 
 sySafeMutex::~sySafeMutex() {
-    m_LockCount = 0;
+    delete m_Data;
 }
 
 bool sySafeMutex::TryLock(syAborter* aborter) {
     unsigned long id = syThread::GetCurrentId();
 
-    if(m_Owner == id) {
-        if(m_Recursive) {
-            ++m_LockCount;
+    if(m_Data->m_Owner == id) {
+        if(m_Data->m_Recursive) {
+            ++(m_Data->m_LockCount);
         }
         return true;
     }
@@ -253,20 +394,20 @@ bool sySafeMutex::TryLock(syAborter* aborter) {
     }
 
     // Try to acquire the lock.
-    if(!syAtomic::bool_CAS(&m_Owner, 0xFFFFFFFF, id)) {
+    if(!syAtomic::bool_CAS(&m_Data->m_Owner, 0xFFFFFFFF, id)) {
         return false;
     }
-    m_LockCount = 1;
+    m_Data->m_LockCount = 1;
     return true;
 }
 
 bool sySafeMutex::Wait(syAborter* aborter) {
     unsigned long id = syThread::GetCurrentId();
-    while(m_Owner != id && m_Owner != 0xFFFFFFFF) {
+    while(m_Data->m_Owner != id && m_Data->m_Owner != 0xFFFFFFFF) {
         if(aborter && aborter->MustAbort()) {
             return false;
         }
-        m_Semaphore.WaitTimeout(1);
+        m_Data->m_Semaphore.WaitTimeout(1);
     }
     return true;
 }
@@ -276,7 +417,7 @@ bool sySafeMutex::Lock(syAborter* aborter) {
         if(TryLock(aborter)) break;
         if(aborter && aborter->MustAbort()) { return false; }
         // wait for the lock to be unlocked, or 1 millisecond. Whatever comes first.
-        m_Semaphore.WaitTimeout(1);
+        m_Data->m_Semaphore.WaitTimeout(1);
     }
     return true;
 }
@@ -286,31 +427,31 @@ bool sySafeMutex::SafeLock() {
         if(TryLock(NULL)) break;
         if(syThread::MustAbort()) { return false; }
         // wait for the lock to be unlocked, or 1 millisecond. Whatever comes first.
-        m_Semaphore.WaitTimeout(1);
+        m_Data->m_Semaphore.WaitTimeout(1);
     }
     return true;
 }
 
 void sySafeMutex::Unlock() {
     unsigned int id = syThread::GetCurrentId();
-    if(m_Owner == id) {
-        if(m_Recursive && m_LockCount > 1) {
-            --m_LockCount;
+    if(m_Data->m_Owner == id) {
+        if(m_Data->m_Recursive && m_Data->m_LockCount > 1) {
+            --(m_Data->m_LockCount);
         } else {
             // Set m_LockCount to 0.
-            m_LockCount = 0;
-            m_Owner = 0xFFFFFFFF;
-            m_Semaphore.Post();
+            m_Data->m_LockCount = 0;
+            m_Data->m_Owner = 0xFFFFFFFF;
+            m_Data->m_Semaphore.Post();
         }
     }
 }
 
 bool sySafeMutex::IsUnlocked() {
-    return (m_Owner == 0xFFFFFFFF);
+    return (m_Data->m_Owner == 0xFFFFFFFF);
 }
 
 unsigned long sySafeMutex::GetOwner() {
-    return m_Owner;
+    return m_Data->m_Owner;
 }
 
 // ---------------------
@@ -352,7 +493,7 @@ void sySafeMutexLocker::Unlock() {
 }
 
 bool sySafeMutexLocker::IsLocked() {
-    return (m_Mutex.m_Owner == syThread::GetCurrentId());
+    return (m_Mutex.m_Data->m_Owner == syThread::GetCurrentId());
 }
 
 // -------------------
@@ -360,34 +501,36 @@ bool sySafeMutexLocker::IsLocked() {
 // -------------------
 
 syMutex::syMutex() {
+    m_Data = new syMutexData;
     #ifdef __WIN32__
-        InitializeCriticalSection(&m_mutexobj);
+        InitializeCriticalSection(&m_Data->m_mutexobj);
     #else
-        pthread_mutex_init(&m_mutexobj,NULL);
+        pthread_mutex_init(&m_Data->m_mutexobj,NULL);
     #endif
 }
 
 syMutex::~syMutex() {
     #ifdef __WIN32__
-        DeleteCriticalSection(&m_mutexobj);
+        DeleteCriticalSection(&m_Data->m_mutexobj);
     #else
-        pthread_mutex_destroy(&m_mutexobj);
+        pthread_mutex_destroy(&m_Data->m_mutexobj);
     #endif
+    delete m_Data;
 }
 
 void syMutex::Lock() {
     #ifdef __WIN32__
-        EnterCriticalSection(&m_mutexobj);
+        EnterCriticalSection(&m_Data->m_mutexobj);
     #else
-        pthread_mutex_lock(&m_mutexobj);
+        pthread_mutex_lock(&m_Data->m_mutexobj);
     #endif
 }
 
 void syMutex::Unlock() {
     #ifdef __WIN32__
-        LeaveCriticalSection(&m_mutexobj);
+        LeaveCriticalSection(&m_Data->m_mutexobj);
     #else
-        pthread_mutex_unlock(&m_mutexobj);
+        pthread_mutex_unlock(&m_Data->m_mutexobj);
     #endif
 }
 
@@ -429,28 +572,29 @@ syMutexLocker::~syMutexLocker() {
 // From the wxwidgets threadpsx.cpp and thrimpl.cpp
 // ------------------------------------------------
 
-syCondition::syCondition(syMutex& mutex) :
-m_mutex(mutex)
+syCondition::syCondition(syMutex& mutex)
 {
+    m_Data = new syCondData(mutex);
     #ifdef __WIN32__
-    m_numWaiters = 0;
-    m_isOk = true;
+    m_Data->m_numWaiters = 0;
+    m_Data->m_isOk = true;
     #else
-    int err = pthread_cond_init(&m_cond, NULL);
-    m_isOk = (err == 0);
+    int err = pthread_cond_init(&m_Data->m_cond, NULL);
+    m_Data->m_isOk = (err == 0);
     #endif
 }
 
 syCondition::~syCondition() {
     #ifndef __WIN32__
-    if ( m_isOk ) {
-        pthread_cond_destroy(&m_cond);
+    if ( m_Data->m_isOk ) {
+        pthread_cond_destroy(&m_Data->m_cond);
     }
     #endif
+    delete m_Data;
 }
 
 bool syCondition::IsOk() const {
-    return m_isOk;
+    return m_Data->m_isOk;
 }
 
 syCondError syCondition::Wait() {
@@ -458,10 +602,10 @@ syCondError syCondition::Wait() {
     #ifdef __WIN32__
     // increment the number of waiters
     {
-        syMutexLocker lock(m_csWaiters);
-        ++m_numWaiters;
+        syMutexLocker lock(m_Data->m_csWaiters);
+        ++(m_Data->m_numWaiters);
     }
-    m_mutex.Unlock();
+    m_Data->m_mutex.Unlock();
 
     // Explanation courtesy of wxWidgets:
     // a potential race condition can occur here
@@ -475,8 +619,8 @@ syCondError syCondition::Wait() {
     // can 'remember' signals the race condition will not occur
 
     // wait ( if necessary ) and decrement semaphore
-    sySemaError err = m_semaphore.Wait();
-    m_mutex.Lock();
+    sySemaError err = m_Data->m_semaphore.Wait();
+    m_Data->m_mutex.Lock();
 
     if ( err == sySEMA_NO_ERROR )
         result = syCOND_NO_ERROR;
@@ -485,7 +629,7 @@ syCondError syCondition::Wait() {
     else
         result = syCOND_MISC_ERROR;
     #else
-    int err = pthread_cond_wait(&m_cond, GetPMutex());
+    int err = pthread_cond_wait(&m_Data->m_cond, m_Data->GetPMutex());
     result = (err != 0) ? syCOND_MISC_ERROR : syCOND_NO_ERROR;
     #endif
     return result;
@@ -495,15 +639,15 @@ syCondError syCondition::WaitTimeout(unsigned long msec) {
     syCondError result = syCOND_MISC_ERROR;
     #ifdef __WIN32__
     {
-        syMutexLocker lock(m_csWaiters);
-        m_numWaiters++;
+        syMutexLocker lock(m_Data->m_csWaiters);
+        m_Data->m_numWaiters++;
     }
-    m_mutex.Unlock();
+    m_Data->m_mutex.Unlock();
 
     // a race condition can occur at this point in the code
     // please see the comments in Wait(), for details
 
-    sySemaError err = m_semaphore.WaitTimeout(milliseconds);
+    sySemaError err = m_Data->m_semaphore.WaitTimeout(milliseconds);
 
     if ( err == sySEMA_TIMEOUT ) {
         // another potential race condition exists here it is caused when a
@@ -518,14 +662,14 @@ syCondError syCondition::WaitTimeout(unsigned long msec) {
         // m_csWaiters. This call does not block because of the zero
         // timeout, but will allow the waiting thread to catch the missed
         // signals.
-        syMutexLocker lock(m_csWaiters);
-        sySemaError err2 = m_semaphore.WaitTimeout(0);
+        syMutexLocker lock(m_Data->m_csWaiters);
+        sySemaError err2 = m_Data->m_semaphore.WaitTimeout(0);
 
         if ( err2 != wxSEMA_NO_ERROR ) {
-            m_numWaiters--;
+            m_Data->m_numWaiters--;
         }
     }
-    m_mutex.Lock();
+    m_Data->m_mutex.Lock();
     result = (err == wxSEMA_NO_ERROR) ? wxCOND_NO_ERROR :
              ((err == wxSEMA_TIMEOUT) ? wxCOND_TIMEOUT : wxCOND_MISC_ERROR);
     #else
@@ -542,7 +686,7 @@ syCondError syCondition::WaitTimeout(unsigned long msec) {
     tspec.tv_sec = sec;
     tspec.tv_nsec = millis * 1000L * 1000L;
 
-    int err = pthread_cond_timedwait( &m_cond, GetPMutex(), &tspec );
+    int err = pthread_cond_timedwait( &m_Data->m_cond, m_Data->GetPMutex(), &tspec );
     switch (err) {
         case ETIMEDOUT:
             result = syCOND_TIMEOUT;
@@ -559,15 +703,15 @@ syCondError syCondition::WaitTimeout(unsigned long msec) {
 
 syCondError syCondition::Signal() {
     #ifdef __WIN32__
-    syMutexLocker lock(m_csWaiters);
-    if (m_numWaiters > 0) {
+    syMutexLocker lock(m_Data->m_csWaiters);
+    if (m_Data->m_numWaiters > 0) {
         // increment the semaphore by 1
-        if ( m_semaphore.Post() != sySEMA_NO_ERROR )
+        if ( m_Data->m_semaphore.Post() != sySEMA_NO_ERROR )
             return syCOND_MISC_ERROR;
-        m_numWaiters--;
+        m_Data->m_numWaiters--;
     }
     #else
-    int err = pthread_cond_signal(&m_cond);
+    int err = pthread_cond_signal(&m_Data->m_cond);
     if (err != 0) {
         return syCOND_MISC_ERROR;
     }
@@ -577,14 +721,14 @@ syCondError syCondition::Signal() {
 
 syCondError syCondition::Broadcast() {
     #ifdef __WIN32__
-    syMutexLocker lock(m_csWaiters);
-    while (m_numWaiters > 0) {
-        if (m_semaphore.Post() != wxSEMA_NO_ERROR)
+    syMutexLocker lock(m_Data->m_csWaiters);
+    while (m_Data->m_numWaiters > 0) {
+        if (m_Data->m_semaphore.Post() != wxSEMA_NO_ERROR)
             return wxCOND_MISC_ERROR;
-        m_numWaiters--;
+        m_Data->m_numWaiters--;
     }
     #else
-    int err = pthread_cond_broadcast(&m_cond);
+    int err = pthread_cond_broadcast(&m_Data->m_cond);
     if (err != 0) {
         return syCOND_MISC_ERROR;
     }
@@ -600,45 +744,44 @@ syCondError syCondition::Broadcast() {
 // Begin sySemaphore class (courtesy of wxWidgets)
 // -----------------------------------------------
 
-#ifdef __WIN32__
 sySemaphore::sySemaphore(int initialcount, int maxcount) {
-    if ( maxcount == 0 ) {
-        // make it practically infinite
-        maxcount = INT_MAX;
-    }
-    m_semaphore = ::CreateSemaphore(NULL, initialcount, maxcount, NULL);
-}
-#else
-sySemaphore::sySemaphore(int initialcount, int maxcount)
-: m_cond(m_mutex)
-{
-    if ( maxcount == 0 ) {
-        // make it practically infinite
-        maxcount = INT_MAX;
-    }
-    if ( (initialcount < 0 || maxcount < 0) ||
-            ((maxcount > 0) && (initialcount > maxcount)) ) {
-        m_isOk = false; // Invalid initial counts
-    } else {
-        m_MaxCount = (size_t)maxcount;
-        m_Count = (size_t)initialcount;
-    }
+    m_Data = new sySemData;
+    #ifdef __WIN32__
+        if ( maxcount == 0 ) {
+            // make it practically infinite
+            maxcount = INT_MAX;
+        }
+        m_Data->m_semaphore = ::CreateSemaphore(NULL, initialcount, maxcount, NULL);
+    #else
+        m_Data->m_cond = new syCondition(m_Data->m_mutex);
+        if ( maxcount == 0 ) {
+            // make it practically infinite
+            maxcount = INT_MAX;
+        }
+        if ( (initialcount < 0 || maxcount < 0) ||
+                ((maxcount > 0) && (initialcount > maxcount)) ) {
+            m_Data->m_isOk = false; // Invalid initial counts
+        } else {
+            m_Data->m_MaxCount = (size_t)maxcount;
+            m_Data->m_Count = (size_t)initialcount;
+        }
 
-    m_isOk = m_cond.IsOk();
+        m_Data->m_isOk = m_Data->m_cond->IsOk();
+    #endif
 }
-#endif
-
 
 sySemaphore::~sySemaphore() {
     #ifdef __WIN32__
-    if (m_semaphore) { ::CloseHandle(m_semaphore); }
+        if (m_Data->m_semaphore) { ::CloseHandle(m_Data->m_semaphore); }
+    #else
     #endif
+    delete m_Data;
 }
 
 sySemaError sySemaphore::Post() {
     sySemaError result = sySEMA_NO_ERROR;
     #ifdef __WIN32__
-    if (!::ReleaseSemaphore(m_semaphore, 1, NULL)) {
+    if (!::ReleaseSemaphore(m_Data->m_semaphore, 1, NULL)) {
         if (::GetLastError() == ERROR_TOO_MANY_POSTS) {
             result = sySEMA_OVERFLOW;
         } else {
@@ -646,13 +789,13 @@ sySemaError sySemaphore::Post() {
         }
     }
     #else
-    syMutexLocker lock(m_mutex);
+    syMutexLocker lock(m_Data->m_mutex);
 
-    if ( m_MaxCount > 0 && m_Count == m_MaxCount ) {
+    if ( m_Data->m_MaxCount > 0 && m_Data->m_Count == m_Data->m_MaxCount ) {
         result = sySEMA_OVERFLOW;
     } else {
-        ++m_Count;
-        result = (m_cond.Signal() == syCOND_NO_ERROR) ? sySEMA_NO_ERROR : sySEMA_MISC_ERROR;
+        ++(m_Data->m_Count);
+        result = (m_Data->m_cond->Signal() == syCOND_NO_ERROR) ? sySEMA_NO_ERROR : sySEMA_MISC_ERROR;
     }
     #endif
     return result;
@@ -664,9 +807,9 @@ sySemaError sySemaphore::TryWait() {
     if (rc == sySEMA_TIMEOUT) { rc = sySEMA_BUSY; }
     return rc;
     #else
-    syMutexLocker locker(m_mutex);
-    if (m_Count == 0) { return sySEMA_BUSY; }
-    m_Count--;
+    syMutexLocker locker(m_Data->m_mutex);
+    if (m_Data->m_Count == 0) { return sySEMA_BUSY; }
+    m_Data->m_Count--;
     return sySEMA_NO_ERROR;
     #endif
 }
@@ -675,13 +818,13 @@ sySemaError sySemaphore::Wait() {
     #ifdef __WIN32__
     return WaitTimeout(INFINITE);
     #else
-    syMutexLocker locker(m_mutex);
+    syMutexLocker locker(m_Data->m_mutex);
 
-    while ( m_Count == 0 ) {
-        if ( m_cond.Wait() != syCOND_NO_ERROR )
+    while ( m_Data->m_Count == 0 ) {
+        if ( m_Data->m_cond->Wait() != syCOND_NO_ERROR )
             return sySEMA_MISC_ERROR;
     }
-    m_Count--;
+    m_Data->m_Count--;
     return sySEMA_NO_ERROR;
     #endif
 }
@@ -690,7 +833,7 @@ sySemaError  sySemaphore::WaitTimeout(unsigned long timeout_msec) {
     sySemaError result;
     #ifdef __WIN32__
     DWORD rc;
-    rc = ::WaitForSingleObject(m_semaphore, timeout_msec);
+    rc = ::WaitForSingleObject(m_Data->m_semaphore, timeout_msec);
     switch (rc) {
         case WAIT_OBJECT_0:
            result = sySEMA_NO_ERROR;
@@ -702,16 +845,16 @@ sySemaError  sySemaphore::WaitTimeout(unsigned long timeout_msec) {
             result = sySEMA_MISC_ERROR;
     }
     #else
-    syMutexLocker locker(m_mutex);
+    syMutexLocker locker(m_Data->m_mutex);
     unsigned long startTime = syGetTicks();
     result = sySEMA_NO_ERROR;
-    while(m_Count == 0) {
+    while(m_Data->m_Count == 0) {
         unsigned long elapsed = syGetTicks() - startTime;
         long remainingTime = (long)timeout_msec - (long)elapsed;
         if (remainingTime <= 0) {
             return sySEMA_TIMEOUT;
         }
-        switch (m_cond.WaitTimeout(remainingTime)) {
+        switch (m_Data->m_cond->WaitTimeout(remainingTime)) {
             case syCOND_TIMEOUT:
                 result = sySEMA_TIMEOUT;
                 break;
@@ -721,7 +864,7 @@ sySemaError  sySemaphore::WaitTimeout(unsigned long timeout_msec) {
                 ;
         }
     }
-    m_Count--;
+    m_Data->m_Count--;
     #endif
     return result;
 }
@@ -798,22 +941,14 @@ static void syScheduleThreadForDeletion() {
 // Begin syThread class (mostly wxWidgets, a bit mine)
 // ---------------------------------------------------
 
-syThread::syThread(syThreadKind kind) :
-m_ThreadId(0),
-m_ThreadKind(kind),
-m_ThreadStatus(syTHREADSTATUS_NOT_CREATED),
-m_PauseRequested(false),
-m_StopRequested(false),
-m_ExitCode(0),
-m_PausedCondition(m_Mutex),
-m_ResumeCondition(m_Mutex)
-{
-
+syThread::syThread(syThreadKind kind) {
+    m_Data = new syThreadData(kind);
     syMutexLocker lock(*gs_mutexAllThreads);
     gs_allThreads.insert(this);
 }
 
 syThread::~syThread() {
+    delete m_Data;
     syMutexLocker lock(*gs_mutexAllThreads);
     gs_allThreads.erase(this);
 }
@@ -848,7 +983,7 @@ bool syThread::IsMain() {
 }
 
 unsigned long syThread::GetId() const {
-    return m_ThreadId;
+    return m_Data->m_ThreadId;
 }
 
 syThreadError syThread::Create(unsigned int stackSize) {
@@ -856,15 +991,15 @@ syThreadError syThread::Create(unsigned int stackSize) {
         return syTHREAD_NO_RESOURCE; // Cannot create threads: Error initializing global variables!
     }
     syMutexLocker lock(m_Mutex);
-    if(m_ThreadStatus == syTHREADSTATUS_TERMINATING || m_ThreadStatus == syTHREADSTATUS_EXITED) {
+    if(m_Data->m_ThreadStatus == syTHREADSTATUS_TERMINATING || m_Data->m_ThreadStatus == syTHREADSTATUS_EXITED) {
         lock.Unlock();
         syMicroSleep(1); // Sleep for 1 uSeconds or more just to let the thread finish its cleanup
     }
     lock.Lock();
-    if(m_ThreadStatus == syTHREADSTATUS_EXITED) {
-        m_ThreadStatus = syTHREADSTATUS_NOT_CREATED;
+    if(m_Data->m_ThreadStatus == syTHREADSTATUS_EXITED) {
+        m_Data->m_ThreadStatus = syTHREADSTATUS_NOT_CREATED;
     }
-    if(m_ThreadStatus != syTHREADSTATUS_NOT_CREATED) {
+    if(m_Data->m_ThreadStatus != syTHREADSTATUS_NOT_CREATED) {
         return syTHREAD_RUNNING;
     }
     bool success = false;
@@ -876,7 +1011,7 @@ syThreadError syThread::Create(unsigned int stackSize) {
                 stackSize = 10240;
         #endif // __WATCOMC__
 
-        m_hThread = (HANDLE)_beginthreadex(
+        m_Data->m_hThread = (HANDLE)_beginthreadex(
                           NULL,             // default security
                           stackSize,
                           syWinThreadStart, // entry point
@@ -897,44 +1032,44 @@ syThreadError syThread::Create(unsigned int stackSize) {
         // Try to set the threads really concurrent.
         pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
 
-        if (pthread_attr_getschedpolicy(&attr, &m_Policy) != 0) {
-            m_Policy = -1; // Couldn't get the OS' scheduling policy!
+        if (pthread_attr_getschedpolicy(&attr, &m_Data->m_Policy) != 0) {
+            m_Data->m_Policy = -1; // Couldn't get the OS' scheduling policy!
         }
         {
-            syMutexLocker lock(m_csJoinFlag);
-            m_ShouldBeJoined = (m_ThreadKind != syTHREAD_DETACHED);
+            syMutexLocker lock(m_Data->m_csJoinFlag);
+            m_Data->m_ShouldBeJoined = (m_Data->m_ThreadKind != syTHREAD_DETACHED);
         }
 
-        if (!m_ShouldBeJoined) {
+        if (!m_Data->m_ShouldBeJoined) {
             // Try to create the thread detached
             pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
         }
-        int rc = pthread_create(&m_ThreadId, &attr, syPthreadStart, (void *)this);
+        int rc = pthread_create(&m_Data->m_ThreadId, &attr, syPthreadStart, (void *)this);
 
         pthread_attr_destroy(&attr); // Destroy the thread attribute or we'd leak resources.
         success = (rc == 0);
     #endif
     if(!success) {
-        m_ThreadStatus = syTHREADSTATUS_NOT_CREATED;
+        m_Data->m_ThreadStatus = syTHREADSTATUS_NOT_CREATED;
         return syTHREAD_NO_RESOURCE; // Error creating the thread!
     }
 
-    m_ThreadStatus = syTHREADSTATUS_CREATED;
+    m_Data->m_ThreadStatus = syTHREADSTATUS_CREATED;
     lock.Unlock();
-    if (m_Priority != SYTHREAD_DEFAULT_PRIORITY) {
-        SetPriority(m_Priority);
+    if (m_Data->m_Priority != SYTHREAD_DEFAULT_PRIORITY) {
+        SetPriority(m_Data->m_Priority);
     }
-    m_StackSize = stackSize;
+    m_Data->m_StackSize = stackSize;
     return syTHREAD_NO_ERROR;
 }
 
 int syThread::InternalEntry() {
     bool dontRunAtAll;
 
-    m_StartSemaphore.Wait();
+    m_Data->m_StartSemaphore.Wait();
     {
         syMutexLocker lock(m_Mutex);
-        dontRunAtAll = m_ThreadStatus == syTHREADSTATUS_CREATED && m_StopRequested;
+        dontRunAtAll = (m_Data->m_ThreadStatus == syTHREADSTATUS_CREATED) && m_Data->m_StopRequested;
     }
     int result = -1;
     if (dontRunAtAll) {
@@ -945,8 +1080,8 @@ int syThread::InternalEntry() {
         int exitcode = Entry();
         {
             syMutexLocker lock(m_Mutex);
-            m_ThreadStatus = syTHREADSTATUS_TERMINATING;
-            m_PausedCondition.Signal(); // Just in case someone's waiting for us
+            m_Data->m_ThreadStatus = syTHREADSTATUS_TERMINATING;
+            m_Data->m_PausedCondition.Signal(); // Just in case someone's waiting for us
         }
 
         Exit(exitcode); // Note: Exit should terminate the thread and not return at all.
@@ -963,7 +1098,7 @@ int syThread::InternalEntry() {
 
 void syThread::Exit(int exitcode) {
     if(!IsThisThread()) { return; } // Exit() can only be called by the same thread context
-    m_ExitCode = exitcode;
+    m_Data->m_ExitCode = exitcode;
     if(IsDetached()) {
         // Comment from the wxWidgets source code:
         // from the moment we call OnExit(), the main program may terminate at
@@ -979,7 +1114,7 @@ void syThread::Exit(int exitcode) {
         #endif
     } else {
         syMutexLocker lock(m_Mutex);
-        m_ThreadStatus = syTHREADSTATUS_EXITED;
+        m_Data->m_ThreadStatus = syTHREADSTATUS_EXITED;
     }
 
     // terminate the thread (pthread_exit() never returns)
@@ -994,31 +1129,31 @@ void syThread::Exit(int exitcode) {
 
 bool syThread::IsAlive() {
     syMutexLocker lock(m_Mutex);
-    return (m_ThreadStatus == syTHREADSTATUS_CREATED) ||
-    (m_ThreadStatus == syTHREADSTATUS_PAUSED) ||
-    (m_ThreadStatus == syTHREADSTATUS_RUNNING);
+    return (m_Data->m_ThreadStatus == syTHREADSTATUS_CREATED) ||
+    (m_Data->m_ThreadStatus == syTHREADSTATUS_PAUSED) ||
+    (m_Data->m_ThreadStatus == syTHREADSTATUS_RUNNING);
 }
 
 
 
 bool syThread::IsDetached() const {
-    return (m_ThreadKind == syTHREAD_DETACHED);
+    return (m_Data->m_ThreadKind == syTHREAD_DETACHED);
 }
 
 bool syThread::IsPaused() {
     syMutexLocker lock(m_Mutex);
-    return (m_ThreadStatus == syTHREADSTATUS_PAUSED);
+    return (m_Data->m_ThreadStatus == syTHREADSTATUS_PAUSED);
 }
 
 bool syThread::IsRunning() {
     syMutexLocker lock(m_Mutex);
-    return (m_ThreadStatus == syTHREADSTATUS_RUNNING);
+    return (m_Data->m_ThreadStatus == syTHREADSTATUS_RUNNING);
 }
 
 syThreadError syThread::Kill() {
     if(IsThisThread()) { return syTHREAD_WRONG_THREAD_CONTEXT; }
 
-    switch (m_ThreadStatus) {
+    switch (m_Data->m_ThreadStatus) {
         case syTHREADSTATUS_NOT_CREATED:
         case syTHREADSTATUS_EXITED:
         case syTHREADSTATUS_KILLED:
@@ -1030,16 +1165,16 @@ syThreadError syThread::Kill() {
 
         default:
             // Kill thread
-            if (pthread_cancel(m_ThreadId)!= 0) {
+            if (pthread_cancel(m_Data->m_ThreadId)!= 0) {
                 return syTHREAD_MISC_ERROR;
             }
-            m_ThreadStatus = syTHREADSTATUS_KILLED;
+            m_Data->m_ThreadStatus = syTHREADSTATUS_KILLED;
 
-            if (m_ThreadKind == syTHREAD_DETACHED) {
+            if (m_Data->m_ThreadKind == syTHREAD_DETACHED) {
                 syScheduleThreadForDeletion();
                 syDeleteThread(this); // Delete the thread
             } else {
-                m_ExitCode = -1;
+                m_Data->m_ExitCode = -1;
             }
             return syTHREAD_NO_ERROR;
     }
@@ -1051,14 +1186,14 @@ syThreadError syThread::Pause() {
     if(!IsRunning()) { return syTHREAD_NOT_RUNNING; }
 
     syMutexLocker lock(m_Mutex);
-    syBoolSetter(m_PauseRequested,true);
-    if(m_ThreadStatus == syTHREADSTATUS_RUNNING) {
+    syBoolSetter(m_Data->m_PauseRequested,true);
+    if(m_Data->m_ThreadStatus == syTHREADSTATUS_RUNNING) {
         // Wait unlocks our mutex before waiting, and locks it on exit.
         // This saves us a lot of trouble and allows us to simplify our code.
-        m_PausedCondition.Wait();
+        m_Data->m_PausedCondition.Wait();
     }
-    if(m_ThreadStatus == syTHREADSTATUS_KILLED) return syTHREAD_KILLED;
-    if(m_ThreadStatus == syTHREADSTATUS_PAUSED) return syTHREAD_NO_ERROR;
+    if(m_Data->m_ThreadStatus == syTHREADSTATUS_KILLED) return syTHREAD_KILLED;
+    if(m_Data->m_ThreadStatus == syTHREADSTATUS_PAUSED) return syTHREAD_NO_ERROR;
     return syTHREAD_MISC_ERROR; // Could not pause the thread!
 }
 
@@ -1067,30 +1202,30 @@ syThreadError syThread::Run() {
 
     syThreadError result;
     syMutexLocker lock(m_Mutex);
-    if(m_ThreadKind == syTHREAD_JOINABLE && m_ThreadStatus == syTHREADSTATUS_EXITED) {
+    if(m_Data->m_ThreadKind == syTHREAD_JOINABLE && m_Data->m_ThreadStatus == syTHREADSTATUS_EXITED) {
         lock.Unlock();
-        if(Create(m_StackSize) != syTHREAD_NO_ERROR) {
+        if(Create(m_Data->m_StackSize) != syTHREAD_NO_ERROR) {
             return syTHREAD_NO_RESOURCE;
         }
         lock.Lock();
-        m_ThreadStatus = syTHREADSTATUS_CREATED;
-        m_PauseRequested = false;
-        m_StopRequested = false;
+        m_Data->m_ThreadStatus = syTHREADSTATUS_CREATED;
+        m_Data->m_PauseRequested = false;
+        m_Data->m_StopRequested = false;
     }
-    if(m_ThreadStatus != syTHREADSTATUS_CREATED) {
+    if(m_Data->m_ThreadStatus != syTHREADSTATUS_CREATED) {
         result = syTHREAD_RUNNING;
     } else {
-        m_ThreadStatus = syTHREADSTATUS_RUNNING;
+        m_Data->m_ThreadStatus = syTHREADSTATUS_RUNNING;
         result = syTHREAD_NO_ERROR;
         lock.Unlock();
-        m_StartSemaphore.Post();
+        m_Data->m_StartSemaphore.Post();
     }
     return result;
 }
 
 void syThread::SetPriority(int priority) {
     syMutexLocker lock(m_Mutex);
-    switch(m_ThreadStatus) {
+    switch(m_Data->m_ThreadStatus) {
         case syTHREADSTATUS_CREATED:
         case syTHREADSTATUS_PAUSED:
         case syTHREADSTATUS_RUNNING:
@@ -1100,45 +1235,46 @@ void syThread::SetPriority(int priority) {
     }
     if(priority < 0) { priority = 0; }
     if(priority > 100) { priority = 100; }
-    m_Priority = priority;
+    m_Data->m_Priority = priority;
     int os_priority;
     #ifdef __WIN32__
-        if (m_Priority <= 20)
+        if (m_Data->m_Priority <= 20)
             os_priority = THREAD_PRIORITY_LOWEST;
-        else if (m_Priority <= 40)
+        else if (m_Data->m_Priority <= 40)
             os_priority = THREAD_PRIORITY_BELOW_NORMAL;
-        else if (m_Priority <= 60)
+        else if (m_Data->m_Priority <= 60)
             os_priority = THREAD_PRIORITY_NORMAL;
-        else if (m_Priority <= 80)
+        else if (m_Data->m_Priority <= 80)
             os_priority = THREAD_PRIORITY_ABOVE_NORMAL;
         else
             os_priority = THREAD_PRIORITY_HIGHEST;
     #else
         int min_prio = -1;
         int max_prio = -1;
-        if(m_Policy >= 0) {
-            min_prio = sched_get_priority_min(m_Policy);
-            max_prio = sched_get_priority_max(m_Policy);
+        if(m_Data->m_Policy >= 0) {
+            min_prio = sched_get_priority_min(m_Data->m_Policy);
+            max_prio = sched_get_priority_max(m_Data->m_Policy);
         }
         if ( min_prio == -1 || max_prio == -1 || max_prio == min_prio) {
-            m_Priority = 50; // Priority setting is being ignored by the OS; Set it to default and return
+            // Priority setting is being ignored by the OS; Set it to default and return
+            m_Data->m_Priority = 50;
             return;
         }
-        os_priority = min_prio + (m_Priority*(max_prio - min_prio))/100;
+        os_priority = min_prio + (m_Data->m_Priority*(max_prio - min_prio))/100;
     #endif
 
     // Now that we have calculated the os-based priority, let's apply it.
 
     #ifdef __WIN32__
-        ::SetThreadPriority(m_hThread, os_priority);
+        ::SetThreadPriority(m_Data->m_hThread, os_priority);
     #else
-        pthread_setschedprio(m_ThreadId, os_priority);
+        pthread_setschedprio(m_Data->m_ThreadId, os_priority);
     #endif
 }
 
 int syThread::GetPriority() {
     syMutexLocker lock(m_Mutex);
-    return m_Priority;
+    return m_Data->m_Priority;
 }
 
 void syThread::Sleep(unsigned long msec) {
@@ -1162,10 +1298,10 @@ syThreadError syThread::Resume() {
     if(IsThisThread()) { return syTHREAD_WRONG_THREAD_CONTEXT; }
     syMutexLocker lock(m_Mutex);
     syThreadError result;
-    switch(m_ThreadStatus) {
+    switch(m_Data->m_ThreadStatus) {
         case syTHREADSTATUS_PAUSED:
-            m_PauseRequested = false;
-            m_ResumeCondition.Signal();
+            m_Data->m_PauseRequested = false;
+            m_Data->m_ResumeCondition.Signal();
             result = syTHREAD_NO_ERROR;
             break;
         case syTHREADSTATUS_RUNNING:
@@ -1197,18 +1333,18 @@ bool syThread::MustAbort() {
 
 bool syThread::TestDestroy() {
     if(!IsThisThread()) return false; // Not our thread
-    if(m_StopRequested) {
+    if(m_Data->m_StopRequested) {
         return true; // No need to lock mutex, must stop.
     }
     syMutexLocker lock(m_Mutex);
-    if(m_PauseRequested && (m_ThreadStatus == syTHREADSTATUS_RUNNING)) {
-        if(m_ThreadStatus!= syTHREADSTATUS_RUNNING) return false;
-        m_ThreadStatus = syTHREADSTATUS_PAUSED;
-        m_PausedCondition.Signal();
-        m_ResumeCondition.Wait();
-        m_ThreadStatus = syTHREADSTATUS_RUNNING;
+    if(m_Data->m_PauseRequested && (m_Data->m_ThreadStatus == syTHREADSTATUS_RUNNING)) {
+        if(m_Data->m_ThreadStatus!= syTHREADSTATUS_RUNNING) return false;
+        m_Data->m_ThreadStatus = syTHREADSTATUS_PAUSED;
+        m_Data->m_PausedCondition.Signal();
+        m_Data->m_ResumeCondition.Wait();
+        m_Data->m_ThreadStatus = syTHREADSTATUS_RUNNING;
     }
-    return m_StopRequested;
+    return m_Data->m_StopRequested;
 }
 
 syThread* syThread::This() {
@@ -1235,17 +1371,17 @@ int syThread::Wait() {
 
     // Waiting for a detached thread is a very stupid thing to do. Even checking the thread kind
     // might give you a segfault if the thread was already deleted. DOH.
-    if(m_ThreadKind == syTHREAD_DETACHED) {
+    if(m_Data->m_ThreadKind == syTHREAD_DETACHED) {
         return -1;
     }
     // First, make sure the thread is running and not paused.
     {
         syMutexLocker lock(m_Mutex);
 
-        syThreadStatus status = m_ThreadStatus;
-        m_PauseRequested = false;
+        syThreadStatus status = m_Data->m_ThreadStatus;
+        m_Data->m_PauseRequested = false;
         // NO need to wait for a non created thread.
-        if(status == syTHREADSTATUS_NOT_CREATED) { return m_ExitCode; }
+        if(status == syTHREADSTATUS_NOT_CREATED) { return m_Data->m_ExitCode; }
 
         if(status == syTHREADSTATUS_CREATED) { lock.Unlock();Run(); }
         // Run the thread (we can't stop it if it keeps waiting)
@@ -1254,17 +1390,17 @@ int syThread::Wait() {
     long int rc = 0;
     // Now, let's join the threads
     #ifdef __WIN32__
-        rc = ::WaitForSingleObject(m_hThread, INFINITE);
+        rc = ::WaitForSingleObject(m_Data->m_hThread, INFINITE);
         if(rc == 0xFFFFFFFF) {
             // An error occurred and we must kill the thread.
             Kill();
-            m_ThreadStatus = syTHREADSTATUS_KILLED;
+            m_Data->m_ThreadStatus = syTHREADSTATUS_KILLED;
         } else {
             // Windows has this annoying behavior: It doesn't always do what you ask.
             // Even if you asked to WAIT for the thread to terminate, sometimes it doesn't!
             // So you have to keep waiting until the thread terminates on its own. Sheesh.
             for(;;) {
-                if (!::GetExitCodeThread(m_hThread, (LPDWORD)&rc)) {
+                if (!::GetExitCodeThread(m_Data->m_hThread, (LPDWORD)&rc)) {
                     m_ExitCode = -1;
                     break;
                 }
@@ -1286,16 +1422,16 @@ int syThread::Wait() {
         }
     #else
         {
-            syMutexLocker lock(m_csJoinFlag);
-            if(m_ShouldBeJoined) {
+            syMutexLocker lock(m_Data->m_csJoinFlag);
+            if(m_Data->m_ShouldBeJoined) {
                 pthread_join(GetId(), (void**)&rc); // Wait for the thread to end.
                 // We don't need to get the return value to m_ExitCode because the thread already set it.
-                m_ShouldBeJoined = false;
+                m_Data->m_ShouldBeJoined = false;
             }
         }
     #endif
-    if(m_ThreadStatus == syTHREADSTATUS_KILLED) { return -1; }
-    return m_ExitCode;
+    if(m_Data->m_ThreadStatus == syTHREADSTATUS_KILLED) { return -1; }
+    return m_Data->m_ExitCode;
 }
 
 syThreadError syThread::Delete(int* rc) {
@@ -1305,10 +1441,10 @@ syThreadError syThread::Delete(int* rc) {
     // The following logic was adapted from wxWidgets' threadpsx.cpp
     syMutexLocker lock(m_Mutex);
 
-    status = m_ThreadStatus;
-    m_PauseRequested = false;
-    m_StopRequested = true;
-    isdetached = (m_ThreadKind == syTHREAD_DETACHED);
+    status = m_Data->m_ThreadStatus;
+    m_Data->m_PauseRequested = false;
+    m_Data->m_StopRequested = true;
+    isdetached = (m_Data->m_ThreadKind == syTHREAD_DETACHED);
     if(status == syTHREADSTATUS_CREATED) { lock.Unlock();Run(); }
     // Run the thread (we can't stop it if it keeps waiting)
     if(status == syTHREADSTATUS_PAUSED) { lock.Unlock();Resume(); }
@@ -1317,7 +1453,7 @@ syThreadError syThread::Delete(int* rc) {
         // For joinable threads, wait until the thread stops;
         // We can't wait for detached threads.
         if(status != syTHREADSTATUS_EXITED) { lock.Unlock();Wait(); }
-        if(rc) { *rc = m_ExitCode; } // return the thread's exit code
+        if(rc) { *rc = m_Data->m_ExitCode; } // return the thread's exit code
     }
     return syTHREAD_NO_ERROR;
 }
