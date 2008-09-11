@@ -70,6 +70,8 @@
 #ifdef __WIN32__
     #include <windows.h>
     #include <process.h>
+    #undef Yield
+    // Now I wonder who on this planet could define a macro instead of defining a global function!
 #else
     #include <unistd.h>
     #include <sys/syscall.h>
@@ -249,7 +251,7 @@ static unsigned syThreadStart(syThread* thread);
 // --------------------------------------------------------------------
 
 #ifdef __WIN32__
-typedef pthread_key_t DWORD;
+typedef DWORD pthread_key_t;
 #endif
 
 // TLS index of the slot where we store the pointer to the current thread
@@ -662,7 +664,7 @@ syCondError syCondition::WaitTimeout(unsigned long msec) {
     // a race condition can occur at this point in the code
     // please see the comments in Wait(), for details
 
-    sySemaError err = m_Data->m_semaphore.WaitTimeout(milliseconds);
+    sySemaError err = m_Data->m_semaphore.WaitTimeout(msec);
 
     if ( err == sySEMA_TIMEOUT ) {
         // another potential race condition exists here it is caused when a
@@ -680,13 +682,13 @@ syCondError syCondition::WaitTimeout(unsigned long msec) {
         syMutexLocker lock(m_Data->m_csWaiters);
         sySemaError err2 = m_Data->m_semaphore.WaitTimeout(0);
 
-        if ( err2 != wxSEMA_NO_ERROR ) {
+        if ( err2 != sySEMA_NO_ERROR ) {
             m_Data->m_numWaiters--;
         }
     }
     m_Data->m_mutex.Lock();
-    result = (err == wxSEMA_NO_ERROR) ? wxCOND_NO_ERROR :
-             ((err == wxSEMA_TIMEOUT) ? wxCOND_TIMEOUT : wxCOND_MISC_ERROR);
+    result = (err == sySEMA_NO_ERROR) ? syCOND_NO_ERROR :
+             ((err == sySEMA_TIMEOUT) ? syCOND_TIMEOUT : syCOND_MISC_ERROR);
     #else
     unsigned long curtime = syGetTicks() + (sySecondsAtInit*1000);
     curtime += msec;
@@ -712,8 +714,8 @@ syCondError syCondition::WaitTimeout(unsigned long msec) {
         default:
             ;
     }
-    return result;
     #endif
+    return result;
 }
 
 syCondError syCondition::Signal() {
@@ -738,8 +740,8 @@ syCondError syCondition::Broadcast() {
     #ifdef __WIN32__
     syMutexLocker lock(m_Data->m_csWaiters);
     while (m_Data->m_numWaiters > 0) {
-        if (m_Data->m_semaphore.Post() != wxSEMA_NO_ERROR)
-            return wxCOND_MISC_ERROR;
+        if (m_Data->m_semaphore.Post() != sySEMA_NO_ERROR)
+            return syCOND_MISC_ERROR;
         m_Data->m_numWaiters--;
     }
     #else
@@ -1030,15 +1032,15 @@ syThreadError syThread::Create(unsigned int stackSize) {
                           NULL,             // default security
                           stackSize,
                           syWinThreadStart, // entry point
-                          thread,
+                          (void *)this,     // Parameter (this) for syWinThreadStart
                           0,                // Create as Running. Our implementation differs from wx's in
                                             // that we follow more the posix implementation, which IMHO
                                             // is much cleaner than wxmsw. So we let the thread run
                                             // and then it'll freeze automatically with our semaphore.
-                          (unsigned int *)&m_ThreadId
+                          (unsigned int *)&m_Data->m_ThreadId
                         );
 
-        success = ( m_hThread != NULL );
+        success = ( m_Data->m_hThread != NULL );
     #else
         // For posix, we initialize a pthread attribute variable, and then we create the thread with that.
         pthread_attr_t attr;
@@ -1179,9 +1181,14 @@ syThreadError syThread::Kill() {
 
         default:
             // Kill thread
+            #ifdef __WIN32__
+            #warning TODO: Implement win32 version of pthread_cancel
+            // TODO: Implement win32 version of pthread_cancel
+            #else
             if (pthread_cancel(m_Data->m_ThreadId)!= 0) {
                 return syTHREAD_MISC_ERROR;
             }
+            #endif
             m_Data->m_ThreadStatus = syTHREADSTATUS_KILLED;
 
             if (m_Data->m_ThreadKind == syTHREAD_DETACHED) {
@@ -1379,6 +1386,14 @@ void syThread::Yield() {
     #endif
 }
 
+//void syThread::Yield() {
+//    #ifdef __WIN32__
+//    ::SwitchToThread();
+//    #else
+//    ::sched_yield();
+//    #endif
+//}
+
 int syThread::Wait() {
     // Are we opening a rift in the timespace continuum?
     if(IsThisThread()) { return -1; }
@@ -1405,7 +1420,7 @@ int syThread::Wait() {
     // Now, let's join the threads
     #ifdef __WIN32__
         rc = ::WaitForSingleObject(m_Data->m_hThread, INFINITE);
-        if(rc == 0xFFFFFFFF) {
+        if((unsigned long)rc == 0xFFFFFFFF) {
             // An error occurred and we must kill the thread.
             Kill();
             m_Data->m_ThreadStatus = syTHREADSTATUS_KILLED;
@@ -1415,7 +1430,7 @@ int syThread::Wait() {
             // So you have to keep waiting until the thread terminates on its own. Sheesh.
             for(;;) {
                 if (!::GetExitCodeThread(m_Data->m_hThread, (LPDWORD)&rc)) {
-                    m_ExitCode = -1;
+                    m_Data->m_ExitCode = -1;
                     break;
                 }
                 // From the WinAPI documentation:

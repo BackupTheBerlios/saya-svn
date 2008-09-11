@@ -15,6 +15,13 @@
 
 #include "qprof/atomic_ops.h"
 
+#ifdef _GNUC_
+#if HAVE_GCC_VERSION(4,1)
+    #define AO_USE_GCC
+    // For GCC < 4.1.0, we'll use qprof's atomic operations
+#endif
+#endif
+
 /** @brief Atomic primitives for multithreading. Currently available only for GCC.
  *
  *  Here we implement an interface to the atomic primitives for lock-free and wait-free programming.
@@ -52,72 +59,132 @@ class syAtomic {
         static void* val_CAS(void** ptr, void* oldval, void* newval);
 };
 
-#ifdef __GNUC__
 inline bool syAtomic::bool_CAS(bool* ptr, bool oldval, bool newval) {
+    #ifdef AO_USE_GCC
     return __sync_bool_compare_and_swap(ptr, oldval, newval);
+    #else
+    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
+    #endif
 }
 
 inline bool syAtomic::bool_CAS(int* ptr, int oldval, int newval) {
+    #ifdef AO_USE_GCC
     return __sync_bool_compare_and_swap(ptr, oldval, newval);
+    #else
+    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
+    #endif
 }
 
 inline bool syAtomic::bool_CAS(unsigned int* ptr, unsigned int oldval, unsigned int newval) {
+    #ifdef AO_USE_GCC
     return __sync_bool_compare_and_swap(ptr, oldval, newval);
+    #else
+    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
+    #endif
 }
 
 inline bool syAtomic::bool_CAS(long* ptr, long oldval, long newval) {
+    #ifdef AO_USE_GCC
     return __sync_bool_compare_and_swap(ptr, oldval, newval);
+    #else
+    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
+    #endif
 }
 
 inline bool syAtomic::bool_CAS(unsigned long* ptr, unsigned long oldval, unsigned long newval) {
+    #ifdef AO_USE_GCC
     return __sync_bool_compare_and_swap(ptr, oldval, newval);
+    #else
+    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
+    #endif
 }
 
 inline bool syAtomic::bool_CAS(char* ptr, char oldval, char newval) {
+    #ifdef AO_USE_GCC
     return __sync_bool_compare_and_swap(ptr, oldval, newval);
+    #else
+    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
+    #endif
 }
 
 inline bool syAtomic::bool_CAS(unsigned char* ptr, unsigned char oldval, unsigned char newval) {
+    #ifdef AO_USE_GCC
     return __sync_bool_compare_and_swap(ptr, oldval, newval);
+    #else
+    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
+    #endif
 }
 
 inline bool syAtomic::bool_CAS(void** ptr, void* oldval, void* newval) {
+    #ifdef AO_USE_GCC
     return __sync_bool_compare_and_swap(ptr, oldval, newval);
+    #else
+    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
+    #endif
 }
 
 inline bool syAtomic::val_CAS(bool* ptr, bool oldval, bool newval) {
+    #ifdef AO_USE_GCC
     return __sync_val_compare_and_swap(ptr, oldval, newval);
+    #else
+    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr;
+    #endif
 }
 
 inline int syAtomic::val_CAS(int* ptr, int oldval, int newval) {
+    #ifdef AO_USE_GCC
     return __sync_val_compare_and_swap(ptr, oldval, newval);
+    #else
+    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr;
+    #endif
 }
 
 inline unsigned int syAtomic::val_CAS(unsigned int* ptr, unsigned int oldval, unsigned int newval) {
+    #ifdef AO_USE_GCC
     return __sync_val_compare_and_swap(ptr, oldval, newval);
+    #else
+    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr;
+    #endif
 }
 
 inline long syAtomic::val_CAS(long* ptr, long oldval, long newval) {
+    #ifdef AO_USE_GCC
     return __sync_val_compare_and_swap(ptr, oldval, newval);
+    #else
+    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr;
+    #endif
 }
 
 inline unsigned long syAtomic::val_CAS(unsigned long* ptr, unsigned long oldval, unsigned long newval) {
+    #ifdef AO_USE_GCC
     return __sync_val_compare_and_swap(ptr, oldval, newval);
+    #else
+    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr;
+    #endif
 }
 
 inline char syAtomic::val_CAS(char* ptr, char oldval, char newval) {
+    #ifdef AO_USE_GCC
     return __sync_val_compare_and_swap(ptr, oldval, newval);
+    #else
+    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr;
+    #endif
 }
 
 inline char syAtomic::val_CAS(unsigned char* ptr, unsigned char oldval, unsigned char newval) {
+    #ifdef AO_USE_GCC
     return __sync_val_compare_and_swap(ptr, oldval, newval);
+    #else
+    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr;
+    #endif
 }
 
 inline void* syAtomic::val_CAS(void** ptr, void* oldval, void* newval) {
+    #ifdef AO_USE_GCC
     return __sync_val_compare_and_swap(ptr, oldval, newval);
+    #else
+    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr;
+    #endif
 }
-#else
-    #error sythread.h needs a GCC-compatible compiler; otherwise insert atomic operations here.
-#endif
 
 #endif
