@@ -66,7 +66,7 @@
 
 #include "sythread.h"
 #include "aborter.h"
-
+#include "atomic.h"
 #ifdef __WIN32__
     #include <windows.h>
     #include <process.h>
