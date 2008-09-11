@@ -11,9 +11,10 @@
 #ifndef videooutputdevice_h
 #define videooutputdevice_h
 
-#include "sybitmap.h"
+#include "videocolorformat.h"
 #include "avdevice.h"
 
+class syBitmap;
 class syMutex;
 class VideoOutputDevice;
 

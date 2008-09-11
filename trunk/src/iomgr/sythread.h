@@ -67,8 +67,6 @@
 #ifndef sythread_h
 #define sythread_h
 
-#include <cstddef>
-
 // --------------------------
 // Begin forward declarations
 // --------------------------
@@ -317,7 +315,7 @@ class sySafeMutex {
          *  @param dontsleep Used when you must require low-latency modifications of a variable.
          *  @warning dontsleep makes the thread run a tight loop; Don't use it unless you know what you're doing!
          */
-        bool Lock(syAborter* aborter = NULL);
+        bool Lock(syAborter* aborter = 0);
 
         /** @brief Locks the mutex, aborting if the current thread is being closed.
          *  @return true if the mutex was locked; false if the thread is being closed.
@@ -330,7 +328,7 @@ class sySafeMutex {
         bool TryLock(syAborter* aborter);
 
         /** Waits for the mutex to be unlocked */
-        bool Wait(syAborter* aborter = NULL);
+        bool Wait(syAborter* aborter = 0);
 
         /** @Checks if the mutex is unlocked. Useful for when you want to use the mutex as a "busy" flag.
          *
@@ -351,7 +349,7 @@ class sySafeMutex {
 class sySafeMutexLocker {
     public:
         /** Constructor */
-        sySafeMutexLocker(sySafeMutex& mutex,syAborter* aborter = NULL);
+        sySafeMutexLocker(sySafeMutex& mutex,syAborter* aborter = 0);
 
         /** Destructor */
         ~sySafeMutexLocker();
@@ -449,7 +447,7 @@ class syThread {
          *  @note For detached threads, this is the only authorized way to delete a thread, so
          *  do not try to use the C++ delete operator to delete a detached thread.
          */
-        syThreadError Delete(int* rc = NULL);
+        syThreadError Delete(int* rc = 0);
 
         /** Gets the number of CPUs in the system; -1 if the number can't be determined. */
         static int GetCPUCount();
@@ -539,7 +537,7 @@ class syThread {
          *  @deprecated This function is only provided for wxWidgets API compatibility, and is not
          *  implemented. It will always return false.
          */
-        static bool SetConcurrency(size_t level);
+        static bool SetConcurrency(unsigned int level);
 
         /** @brief Suspends the thread if necessary and returns the "must abort" flag.
          *  @return true if the thread must abort immediately, false otherwise.

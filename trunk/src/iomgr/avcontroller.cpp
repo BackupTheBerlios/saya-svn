@@ -14,6 +14,8 @@
 #include "audioinputdevice.h"
 #include "audiooutputdevice.h"
 
+#include <cstddef>
+
 const float MinimumPlaybackSpeed = 0.01;
 const float MinimumFramerate = 1.0;
 const unsigned long DefaultAudioGranularity = 100;

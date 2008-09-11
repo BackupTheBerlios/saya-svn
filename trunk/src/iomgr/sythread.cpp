@@ -67,6 +67,8 @@
 #include "sythread.h"
 #include "aborter.h"
 #include "atomic.h"
+#include "sentryfuncs.h"
+
 #ifdef __WIN32__
     #include <windows.h>
     #include <process.h>
@@ -1343,7 +1345,7 @@ syThreadError syThread::Resume() {
     return result;
 }
 
-bool syThread::SetConcurrency(size_t level) {
+bool syThread::SetConcurrency(unsigned int level) {
     return false; // This function is kept only for wxWidgets API compatibility
 }
 

@@ -16,6 +16,8 @@
 
 #include "wxvideopanel.h"
 #include "iomgr/sythread.h"
+#include "iomgr/sybitmap.h"
+#include "iomgr/sentryfuncs.h"
 
 IMPLEMENT_CLASS(wxVideoPanel, wxPanel)
 

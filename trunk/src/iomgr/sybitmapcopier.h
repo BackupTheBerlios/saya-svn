@@ -12,7 +12,9 @@
 #ifndef sybitmapcopier_h
 #define sybitmapcopier_h
 
-#include "sybitmap.h"
+#include "videocolorformat.h"
+
+class syBitmap;
 
 /** @brief Optimized bitmap pixel copier.
   *
@@ -137,6 +139,14 @@ class syBitmapCopier {
 
         /** Destination buffer length (not size) in bytes */
         unsigned int m_DestBufferLength;
+
+        /** @brief Converts a pixel between two color formats.
+         *  @param pixel The original pixel
+         *  @param sourcefmt The color format of the original pixel
+         *  @param destfmt The desired color format of the result
+         *  @return The pixel converted to the new color format
+         */
+        static unsigned long ConvertPixel(unsigned long pixel,VideoColorFormat sourcefmt,VideoColorFormat destfmt);
 };
 
 inline void syBitmapCopier::CopyPixel() {
@@ -150,7 +160,7 @@ inline void syBitmapCopier::CopyPixel() {
         for(i = 0; i < m_SourceBypp; ++i) {
             pixel = (pixel << 8) | (m_Src[i] & 255);
         }
-        pixel = syBitmap::ConvertPixel(pixel, m_SourceFmt, m_DestFmt);
+        pixel = syBitmapCopier::ConvertPixel(pixel, m_SourceFmt, m_DestFmt);
         for(i = 0; i < m_DestBypp; ++i) {
             m_Dst[i] = pixel & 255;
             pixel >>= 8;
@@ -196,7 +206,7 @@ inline void syBitmapCopier::CopyRow() {
             for(i = 0; i < m_SourceBypp; ++i) {
                 pixel = (pixel << 8) | (sourceptr[i] & 255);
             }
-            pixel = syBitmap::ConvertPixel(pixel, m_SourceFmt, m_DestFmt);
+            pixel = syBitmapCopier::ConvertPixel(pixel, m_SourceFmt, m_DestFmt);
             for(i = 0; i < m_DestBypp; ++i) {
                 destptr[i] = pixel & 255;
                 pixel >>= 8;

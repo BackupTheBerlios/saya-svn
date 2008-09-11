@@ -16,9 +16,11 @@
  **************************************************************/
 
 #include "aborter.h"
+#include "sythread.h"
 #include "sybitmap.h"
 #include "sybitmapcopier.h"
 #include <math.h>
+#include <cstddef>
 
 syBitmap::syBitmap() :
 m_Width(0),
@@ -316,7 +318,7 @@ void syBitmap::PasteFrom(syBitmap* source,syStretchMode stretchmode) {
                     if((srcx < 0) || ((unsigned int)srcx >= copier.m_SourceRowLength)) {
                         copier.ClearPixelAt(xoffset);
                     } else {
-                        copier.SetPixelAt(xoffset,ConvertPixel(copier.GetPixelAt(srcy+srcx), srcfmt, m_ColorFormat));
+                        copier.SetPixelAt(xoffset,syBitmapCopier::ConvertPixel(copier.GetPixelAt(srcy+srcx), srcfmt, m_ColorFormat));
                     }
                 }
             }
@@ -472,7 +474,7 @@ void syBitmap::CopyPixel(unsigned char* src,unsigned char* dst,VideoColorFormat 
         for(i = 0; i < srcbypp; ++i, ++src) {
             pixel = (pixel << 8) | (*src & 255);
         }
-        pixel = syBitmap::ConvertPixel(pixel, sourcefmt, destfmt);
+        pixel = syBitmapCopier::ConvertPixel(pixel, sourcefmt, destfmt);
         for(i = 0; i < dstbypp; ++i, ++dst) {
             *dst = pixel & 255;
             pixel >>= 8;
@@ -481,28 +483,7 @@ void syBitmap::CopyPixel(unsigned char* src,unsigned char* dst,VideoColorFormat 
 }
 
 unsigned long syBitmap::ConvertPixel(unsigned long pixel,VideoColorFormat sourcefmt,VideoColorFormat destfmt) {
-    if(sourcefmt == destfmt) { // Trivial case: Formats are the same
-        return pixel;
-    }
-
-    // Near trivial case: Swap B and R components in the pixel.
-    if(
-       (sourcefmt == vcfRGB24 && destfmt == vcfBGR24) ||
-       (sourcefmt == vcfBGR24 && destfmt == vcfRGB24) ||
-       (sourcefmt == vcfRGB32 && destfmt == vcfBGR32) ||
-       (sourcefmt == vcfBGR32 && destfmt == vcfRGB32)
-      ) {
-        // Swap first and third bytes
-        unsigned char c0, c1, c2, c3;
-        c0 = pixel & 0xFF;
-        c1 = (pixel >> 8) & 0xFF;
-        c2 = (pixel >> 16) & 0xFF;
-        c3 = (pixel >> 24) & 0xFF;
-        pixel = (c3 << 24) | (c0 << 16) | (c1 << 8) | c2;
-    }
-
-    // TODO: Implement non-trivial cases in syBitmap::ConvertPixel
-    return pixel;
+    return syBitmapCopier::ConvertPixel(pixel,sourcefmt,destfmt);
 }
 
 syBitmapLocker::syBitmapLocker(syBitmap* bitmap,unsigned int tries,unsigned int delay) :

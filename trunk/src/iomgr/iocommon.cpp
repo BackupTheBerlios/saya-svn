@@ -15,6 +15,7 @@
 #include "iocommon.h"
 #include <cstdio>
 #include <cstdarg>
+
 using namespace std;
 
 // The following string functions were taken from a personal string library of mine - Rick.
@@ -205,14 +206,14 @@ FFile::~FFile() {
     Close();
 }
 
-void FFile::Attach(FILE* fp) {
+void FFile::Attach(void* fp) {
     m_file = fp;
 }
 
 bool FFile::Close() {
     int result = 0;
     if(m_file != NULL) {
-        result = fclose(m_file);
+        result = fclose((FILE*)m_file);
         m_file = NULL;
     }
     return (result == 0);
@@ -222,22 +223,22 @@ void FFile::Detach() {
     m_file = NULL;
 }
 
-FILE* FFile::fp() {
+void* FFile::fp() {
     return m_file;
 }
 
 bool FFile::Eof() {
     if(m_file == NULL)
         return true;
-    return feof(m_file);
+    return feof((FILE*)m_file);
 }
 
 bool FFile::Error() {
     if(m_file == NULL) {
         return false;
     }
-    bool result = (ferror(m_file) != 0);
-    clearerr(m_file);
+    bool result = (ferror((FILE*)m_file) != 0);
+    clearerr((FILE*)m_file);
     return result;
 }
 
@@ -245,7 +246,7 @@ bool FFile::Flush() {
     if(m_file == NULL) {
         return false;
     }
-    int result = fflush(m_file);
+    int result = fflush((FILE*)m_file);
     return (result == 0);
 }
 
@@ -265,12 +266,12 @@ long FFile::Length() {
 }
 
 bool FFile::Open(const char* filename, const char* mode) {
-    m_file = fopen(filename, mode);
+    m_file = (void*)fopen(filename, mode);
     return IsOpened();
 }
 
 bool FFile::Open(const string& filename, const char* mode) {
-    m_file = fopen(filename.c_str(), mode);
+    m_file = (void*)fopen(filename.c_str(), mode);
     return IsOpened();
 }
 
@@ -278,7 +279,7 @@ size_t FFile::Read(void* buffer, size_t count) {
     if(m_file == NULL) {
         return 0;
     }
-    return fread(buffer, 1, count, m_file);
+    return fread(buffer, 1, count, (FILE*)m_file);
 }
 
 bool FFile::ReadAll(string* str) {
@@ -317,7 +318,7 @@ bool FFile::Seek(long ofs, ioCommon::SeekType mode) {
         default:
             origin = SEEK_SET;
     }
-    int result = fseek(m_file, ofs, origin);
+    int result = fseek((FILE*)m_file, ofs, origin);
     return (result == 0);
 }
 
@@ -328,13 +329,13 @@ bool FFile::SeekEnd(long ofs)  {
 long FFile::Tell() {
     if(m_file == NULL)
         return 0;
-    return ftell(m_file);
+    return ftell((FILE*)m_file);
 }
 
 size_t FFile::Write(const void* buffer, size_t count) {
     if(m_file == NULL)
         return 0;
-    return fwrite(buffer,1,count,m_file);
+    return fwrite(buffer,1,count,(FILE*)m_file);
 }
 
 bool FFile::Write(const string& s) {

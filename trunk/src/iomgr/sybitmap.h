@@ -18,9 +18,10 @@
 #ifndef sybitmap_h
 #define sybitmap_h
 
-#include <cstdlib>
-#include "sythread.h"
+#include "aborter.h"
 #include "videocolorformat.h"
+
+class syMutex;
 
 /** Stretching strategy for pasting bitmaps */
 enum syStretchMode {
@@ -103,8 +104,8 @@ class syBitmap {
          */
         void SetPixel(int x, int y, unsigned long pixel);
 
-        /** @brief Converts a pixel between two color formats
-         *
+        /** @brief Converts a pixel between two color formats. It's a wrapper for syBitmapCopier::ConvertPixel()
+         *  @see syBitmapCopier::ConvertPixel
          *  @param pixel The original pixel
          *  @param sourcefmt The color format of the original pixel
          *  @param destfmt The desired color format of the result

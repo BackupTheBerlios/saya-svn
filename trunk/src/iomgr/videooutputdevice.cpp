@@ -9,6 +9,7 @@
 
 #include "sythread.h"
 #include "videooutputdevice.h"
+#include "sentryfuncs.h"
 
 /** Maximum size for the rendered window. 100 megapixels ought to be enough for anyone. */
 const unsigned int MaxVideoOutputDeviceWidth = 10240;

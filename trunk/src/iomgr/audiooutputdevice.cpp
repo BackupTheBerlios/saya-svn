@@ -9,6 +9,7 @@
 
 #include "audiooutputdevice.h"
 #include "sythread.h"
+#include <cstddef>
 /* #include "audiosourcedevie.h" */
 
 AudioOutputDevice::AudioOutputDevice(bool usedefaultbuffers) :

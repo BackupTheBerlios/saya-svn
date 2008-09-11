@@ -12,6 +12,7 @@
 #include "videoinputdevice.h"
 #include "videooutputdevice.h"
 #include "sythread.h"
+#include <cstddef>
 
 VideoInputDevice::VideoInputDevice() : AVDevice(),
 m_Bitmap(NULL),

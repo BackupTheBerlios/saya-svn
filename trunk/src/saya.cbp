@@ -103,6 +103,8 @@
 		<Unit filename="iomgr/qprof/atomic_ops/sysdeps/msftc/x86.h" />
 		<Unit filename="iomgr/qprof/atomic_ops/sysdeps/ordered.h" />
 		<Unit filename="iomgr/qprof/atomic_ops/sysdeps/ordered_except_wr.h" />
+		<Unit filename="iomgr/sentryfuncs.cpp" />
+		<Unit filename="iomgr/sentryfuncs.h" />
 		<Unit filename="iomgr/sybitmap.cpp" />
 		<Unit filename="iomgr/sybitmap.h" />
 		<Unit filename="iomgr/sybitmapcopier.cpp" />

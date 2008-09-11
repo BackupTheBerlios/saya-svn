@@ -12,6 +12,7 @@
 
 #include "avdevice.h"
 #include "sythread.h"
+#include <cstddef>
 
 AVDevice::AVDevice() :
 m_Busy(NULL),

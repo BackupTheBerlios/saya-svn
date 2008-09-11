@@ -16,6 +16,8 @@
 #include "avclip.h"
 #include "undohistory.h"
 
+// TODO: Simplify the vidproject API by using private classes and forward declarations
+
 class VidProject;
 class ExportSettings;
 

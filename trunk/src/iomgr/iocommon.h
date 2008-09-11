@@ -16,7 +16,6 @@
 #define iocommon_h
 
 #include <string>
-#include <cstdio>
 
 /** @brief Class for File handling functions
   *
@@ -148,8 +147,8 @@ class FFile {
         /** Standard destructor. */
         ~FFile();
 
-        /** Attachs an existing FILE handle to the object. */
-        void Attach(FILE* fp);
+        /** Attachs an existing FILE handle to the object. We use (void*) for compilation speedup purposes. */
+        void Attach(void* fp);
 
         /** Closes the file. */
         bool Close();
@@ -157,8 +156,8 @@ class FFile {
         /** Detachs the FILE handle from the object. */
         void Detach();
 
-        /** Gets the FILE handle. */
-        FILE * fp();
+        /** Gets the FILE handle. We use (void*) for compilation speedup purposes. */
+        void* fp();
 
         /** Have we reached the End of File? */
         bool Eof();
@@ -238,7 +237,7 @@ class FFile {
           */
         bool Write(const std::string& s);
     private:
-        FILE* m_file;
+        void* m_file;
         std::string m_filename;
 };
 
