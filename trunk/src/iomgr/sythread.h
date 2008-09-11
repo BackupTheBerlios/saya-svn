@@ -506,6 +506,7 @@ unsigned long syGetTicks();
  *  a function's stack.
  */
 class syThread {
+    friend class syThreadData;
     public:
 
         /** @brief Gets a platform-dependent id for the currently running thread.
@@ -559,15 +560,6 @@ class syThread {
          *  do not try to use the C++ delete operator to delete a detached thread.
          */
         syThreadError Delete(int* rc = NULL);
-
-        /** @brief Pure virtual function which belongs to your thread class.
-         *
-         *  This function is the thread's "main" routine, and is called by Run().
-         *  Its return value is the one returned by Wait().
-         *
-         *  @warning NEVER, EVER call this function directly!
-         */
-        virtual int Entry() = 0;
 
         /** Gets the number of CPUs in the system; -1 if the number can't be determined. */
         static int GetCPUCount();
@@ -687,12 +679,17 @@ class syThread {
          */
         int Wait();
 
-        /** @brief Internal Entry function for the thread.
+    protected:
+
+        /** @brief Pure virtual function which belongs to your thread class.
+         *
+         *  This function is the thread's "main" routine, and is called by Run().
+         *  Its return value is the one returned by Wait().
+         *
          *  @warning NEVER, EVER call this function directly!
          */
-        int InternalEntry();
+        virtual int Entry() = 0;
 
-    protected:
         /**  This function can only be called from a derived class, and only by the running thread.
          *   It will terminate the thread and, for detached threads, delete the syThread object.
          *   Just before exiting, syThread::OnExit will be called.

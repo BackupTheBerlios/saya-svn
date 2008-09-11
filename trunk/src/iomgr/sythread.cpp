@@ -166,6 +166,8 @@ class syThreadData {
             m_ResumeCondition(m_Mutex)
             {}
 
+        static int InternalEntry(syThread* thread);
+
         /** The OS-dependent thread ID */
         unsigned long m_ThreadId;
 
@@ -927,7 +929,7 @@ static unsigned syThreadStart(syThread* thread) {
     if(rc != 0) { rc = -1; }
     #endif
     if(rc == 0) {
-        rc = thread->InternalEntry();
+        rc = syThreadData::InternalEntry(thread);
     }
     return rc;
 }
@@ -1063,13 +1065,13 @@ syThreadError syThread::Create(unsigned int stackSize) {
     return syTHREAD_NO_ERROR;
 }
 
-int syThread::InternalEntry() {
+int syThreadData::InternalEntry(syThread* thread) {
     bool dontRunAtAll;
 
-    m_Data->m_StartSemaphore.Wait();
+    thread->m_Data->m_StartSemaphore.Wait();
     {
-        syMutexLocker lock(m_Mutex);
-        dontRunAtAll = (m_Data->m_ThreadStatus == syTHREADSTATUS_CREATED) && m_Data->m_StopRequested;
+        syMutexLocker lock(thread->m_Mutex);
+        dontRunAtAll = (thread->m_Data->m_ThreadStatus == syTHREADSTATUS_CREATED) && thread->m_Data->m_StopRequested;
     }
     int result = -1;
     if (dontRunAtAll) {
@@ -1077,14 +1079,14 @@ int syThread::InternalEntry() {
     }
     if(!dontRunAtAll) {
         // call the main entry
-        int exitcode = Entry();
+        int exitcode = thread->Entry();
         {
-            syMutexLocker lock(m_Mutex);
-            m_Data->m_ThreadStatus = syTHREADSTATUS_TERMINATING;
-            m_Data->m_PausedCondition.Signal(); // Just in case someone's waiting for us
+            syMutexLocker lock(thread->m_Mutex);
+            thread->m_Data->m_ThreadStatus = syTHREADSTATUS_TERMINATING;
+            thread->m_Data->m_PausedCondition.Signal(); // Just in case someone's waiting for us
         }
 
-        Exit(exitcode); // Note: Exit should terminate the thread and not return at all.
+        thread->Exit(exitcode); // Note: Exit should terminate the thread and not return at all.
         #ifdef __WIN32__
         result = exitcode;
         #else
@@ -1093,7 +1095,6 @@ int syThread::InternalEntry() {
     }
     // If everything went fine, OnExit() should already be called and we shouldn't return in the first place.
     return result;
-
 }
 
 void syThread::Exit(int exitcode) {
