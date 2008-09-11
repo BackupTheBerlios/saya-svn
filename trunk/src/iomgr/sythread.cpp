@@ -122,7 +122,6 @@ class sySemData {
         #ifdef __WIN32__
         HANDLE m_semaphore;
         #else
-        sem_t m_semaphore;
         syMutex m_mutex;
         syCondition* m_cond;
         int m_Count;
@@ -133,11 +132,6 @@ class sySemData {
 
 class sySafeMutexData {
     public:
-        sySafeMutexData(bool recursive) :
-        m_Recursive(recursive),
-        m_LockCount(0),
-        m_Owner(0xFFFFFFFF) // 0xFFFFFFFF means the mutex is unlocked.
-        {}
 
         /** Is the mutex recursive? */
         bool m_Recursive;
@@ -148,8 +142,27 @@ class sySafeMutexData {
         /** The thread owning the mutex. */
         unsigned long m_Owner;
 
-        /** A semaphore for the waits */
-        sySemaphore m_Semaphore;
+        /** A condition for the waits */
+        syCondition m_Condition;
+
+        /** A mutex for the condition */
+        syMutex m_Mutex;
+
+        sySafeMutexData(bool recursive) :
+        m_Recursive(recursive),
+        m_LockCount(0),
+        m_Owner(0xFFFFFFFF), // 0xFFFFFFFF means the mutex is unlocked.
+        m_Condition(m_Mutex)
+        {}
+
+        void Wait(unsigned long ms) {
+            syMutexLocker lock(m_Mutex);
+            m_Condition.WaitTimeout(ms);
+        }
+        void Signal() {
+            syMutexLocker lock(m_Mutex);
+            m_Condition.Signal();
+        }
 };
 
 class syThreadData {
@@ -409,7 +422,7 @@ bool sySafeMutex::Wait(syAborter* aborter) {
         if(aborter && aborter->MustAbort()) {
             return false;
         }
-        m_Data->m_Semaphore.WaitTimeout(1);
+        m_Data->Wait(1);
     }
     return true;
 }
@@ -419,7 +432,7 @@ bool sySafeMutex::Lock(syAborter* aborter) {
         if(TryLock(aborter)) break;
         if(aborter && aborter->MustAbort()) { return false; }
         // wait for the lock to be unlocked, or 1 millisecond. Whatever comes first.
-        m_Data->m_Semaphore.WaitTimeout(1);
+        m_Data->Wait(1);
     }
     return true;
 }
@@ -429,7 +442,7 @@ bool sySafeMutex::SafeLock() {
         if(TryLock(NULL)) break;
         if(syThread::MustAbort()) { return false; }
         // wait for the lock to be unlocked, or 1 millisecond. Whatever comes first.
-        m_Data->m_Semaphore.WaitTimeout(1);
+        m_Data->Wait(1);
     }
     return true;
 }
@@ -443,7 +456,7 @@ void sySafeMutex::Unlock() {
             // Set m_LockCount to 0.
             m_Data->m_LockCount = 0;
             m_Data->m_Owner = 0xFFFFFFFF;
-            m_Data->m_Semaphore.Post();
+            m_Data->Signal();
         }
     }
 }
@@ -1018,9 +1031,9 @@ syThreadError syThread::Create(unsigned int stackSize) {
                           stackSize,
                           syWinThreadStart, // entry point
                           thread,
-                          0,                // Create Running (our implementation differs from wx's in
+                          0,                // Create as Running. Our implementation differs from wx's in
                                             // that we follow more the posix implementation, which IMHO
-                                            // is much cleaner than win32's. so we let the thread run
+                                            // is much cleaner than wxmsw. So we let the thread run
                                             // and then it'll freeze automatically with our semaphore.
                           (unsigned int *)&m_ThreadId
                         );

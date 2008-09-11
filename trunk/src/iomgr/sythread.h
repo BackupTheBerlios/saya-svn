@@ -257,8 +257,11 @@ class syCondition {
 
 /** @brief Generic cross-platform implementation of a Semaphore.
  *
- *  A semaphore lets a thread wait until a signal is sent to it, as if it was a car on the street
- *  waiting for the green light.
+ *  A semaphore lets one or many threads wait until the semaphore is "green". The number of allowed threads
+ *  to pass through the semaphore is specified by initialcount.
+ *  @warning Do NOT use semaphores to send "signals" to a waiting thread if those signals come from varied
+ *  sources - that increments the counter and your next thread won't sleep when it needs to.
+ *  For that kind of synchronization, use condition variables instead.
  *  This class was copied nearly verbatim from the wxWidgets wxInternalSemaphore class.
  */
 class sySemaphore {
