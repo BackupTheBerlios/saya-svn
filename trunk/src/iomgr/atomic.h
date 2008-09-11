@@ -12,7 +12,10 @@
 
 #ifndef sy_atomic_h
 #define sy_atomic_h
-/** @brief Atomic primitives for multithreading. Available only for GCC.
+
+#include "qprof/atomic_ops.h"
+
+/** @brief Atomic primitives for multithreading. Currently available only for GCC.
  *
  *  Here we implement an interface to the atomic primitives for lock-free and wait-free programming.
  *  Compare-and-exchange (CAS) compares a pointer with an old value, and if it's the same,
