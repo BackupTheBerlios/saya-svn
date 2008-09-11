@@ -1,0 +1,137 @@
+<HTML>
+<HEAD>
+<TITLE>Installing and using qprof</title>
+<BODY>
+<H1>Installing qprof</h1>
+To install qprof, unpack the distribution and change to the resulting
+qprof-<version> directory.  Then:
+<OL>
+<LI>(Optional)
+Make sure that the PREFIX variable in Makefile is set to the
+appropriate installation directory.  Files will be installed in
+$(PREFIX)/lib/qprof-<I>version</i>, $(PREFIX)/include/qprof-<I>version</i>,
+and $(PREFIX)/doc/qprof-<I>version</i>.  The above directories will
+be linked to
+$(PREFIX)/lib/qprof, $(PREFIX)/include/qprof, and $(PREFIX)/doc/qprof.
+
+<LI>(Optional)
+Unpack a copy of <A HREF="http://www.hpl.hp.com/research/linux/libunwind/">
+libunwind</a> in the source directory, or create a
+symbolic link from libunwind-<version> to the identically named
+source directory elsewhere.  (You will need at least version 0.93.
+For version 0.93 on x86, apply the included libunwind-0.93.patch.)
+If this step is performed, a very
+basic version of call-stack profiling will become available.
+
+<LI>(Optional)
+Type "make" (or "make check" to also run tests).
+
+<LI>(Needs permission to write to PREFIX directory, if set.)
+Type "make install".
+</ol>
+
+<H1>To start profiling all programs run from a particular shell:</h1>
+<OL>
+<LI>Run "source <I>&lt;PREFIX from above&gt;</i>/lib/qprof/alias.csh" or
+".  <I>&lt;PREFIX from above&gt;</i>/lib/qprof/alias.sh",
+depending on your shell.
+If you skipped step one above, PREFIX is
+<I>&lt;build directory from above&gt;</i>/installed.
+Or you can run the identical
+scripts from the build directory.  For regular use, put one of the
+above commands into your <TT>.bashrc</tt> or <TT>.cshrc</tt> files.
+<LI>(Optional)In an ANSI color-capable terminal window (<I>e.g.</i> most
+<TT>xterm</tt> variants), set the environment variable QPROF_COLOR to,
+for example, "green" to distinguish profiling output from normal command
+output.
+<LI>Run <TT>qprof_start</tt> to start profiling.
+<LI>Run commands to be profiled. 
+<LI>Run <TT>qprof_stop</tt> to stop profiling.
+</ol>
+
+<H2>Assumptions made by the above:</h2>
+
+<OL>
+<LI> The LD_PRELOAD environment variable is not already
+set for other reasons.  (If you don't know what it's used for, you're
+probably OK.  If you do know what this means, you can probably fix up the
+qprof_start and qprof_stop aliases to make things work with another preload
+library.)
+
+<LI> You are running only dynamically linked executables.  If you don't
+know what this means, you can ignore it.  (Statically
+linked programs can be profiled by calling the prof_utils.h routines
+directly from the application to be profiled.)
+
+<LI>There are no doubt some library version dependencies.  RedHat 7, 8, and 9
+should work, as should other Linux distributions from the same era.
+
+<LI>Nothing done by the process interferes with profiling.  Empirically,
+this works fine for nearly all applications.  But since the profiler
+runs as part of the application process, obscure kinds of interference
+are probably possible.
+</ol>
+
+<H2>Interpreting the results:</h2>
+
+<UL>
+<LI>Each line in the output reflects a range of program addresses
+(by default a line), and lists the number of times a program counter
+in that range was sampled.  Lines containing large count values consumed
+more processor time.
+<LI>The output is usually far less informative if the program did not
+contain debug information.  You can still get fully precise output from
+such programs by setting the environment variable <TT>QPROF_GRANULARITY</tt>
+to <TT>instruction</tt> (see below).
+But it may be difficult to make sense out of the
+hexadecimal addresses which will be printed as a result.
+<LI>If you prefer to see "hot" regions of the program first, save the
+output and pipe it through <TT>sort -n -k2 -r</tt>.  By default, profiling
+output is written to stderr.  But see QPROF_FILE
+<A HREF="environment_variables.txt">here</a>.
+<LI>For multithreaded processes, each thread is sampled separately, and
+the reported results are the sum of all samples.  Thus a process with
+4 always runnable threads running on a 4 processor machine with the
+default sampling frequency of 100 samples a second would report 400 samples
+per second.
+</ul>
+
+<H2>Adjusting profiling output:</h2>
+
+The output produced by qprof depends on several environment variables.
+In particular, <TT>QPROF_GRANULARITY</tt> can be set to one of
+<TT>function</tt>, <TT>line</tt>, or <TT>instruction</tt> to control
+whether samples should summed for each function, line, or instruction.
+Setting <TT>QPROF_REAL</tt> will cause the profiler to sample based on
+wall clock time, and should thus point out where processes are waiting.
+If libunwind was available during installation, setting
+<TT>QPROF_STACK</tt> will effectively include time spent in called
+functions to be included in the caller's (parent's) counts.
+Other relevant environment variables are described
+<A HREF="environment_variables.txt">here</a>.
+
+<H1>To profile using hardware event counters:</h1>
+(This currently works only on Itanium.)
+
+<OL>
+<LI>Install a supported underlying event counter library.  (Currently this is
+Itanium <A HREF="http://www.hpl.hp.com/research/linux/perfmon/">perfmon</a>).
+<LI>Add -DHW_EVENT_SUPPORT to CFLAGS in Makefile; Build as above.
+(Perfmon must be installed for the profiler to build.  If it is missing
+at runtime, qprof will still run, but without hardware event support.
+If you are using libpfm3 on a 2.6 kernel, replace prof_utils.c in the
+distribution with prof_utils.c.libpfm3.)
+<LI>Run <TT>pfmon -l</tt> to find the appropriate event name.
+<LI>Set the environment variable <TT>QPROF_HW_EVENT</tt> to the event
+name.  Profile as above.  (<TT>QPROF_INTERVAL</tt> can be set to a
+number <I>n</i> to indicate that the program counter should be sampled
+every <I>n</i>th event.  By default <I>n</i> is 10,000.)
+<LI>Note that the program counter is sampled when the process is notified of
+the event.  This may be a few cycles after the event occurred.  For example,
+cache miss events are likely to be attributed to an instruction that uses
+the resulting value, or even a slightly later instruction.  You should be able
+to determine which loop is causing cache misses, but it will take a little
+bit of guess work to identify the actual load or store instruction.
+</ol>
+</body>
+</html>

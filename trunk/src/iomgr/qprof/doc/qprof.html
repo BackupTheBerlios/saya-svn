@@ -1,0 +1,109 @@
+<HTML>
+<HEAD>
+<TITLE>Qprof and atomic_ops</title>
+<BODY>
+<H1>Qprof</h1>
+This is a set of profiling utilities, currently targeting only linux.
+It includes a simple command line profiling tool, with the following
+characteristics:
+<UL>
+<LI>It is intended to be easy to install and use.  No kernel modules or changes
+are required for basic use.  It can be installed and used without root access.
+<LI>It supports profiling of dynamically linked code and includes information
+on time spent in dynamic libraries.
+<LI>It supports profiling of multithreaded applications.
+<LI>It generates profiles for all subprocesses started from a shell.
+Thus it easily can be used to profile application with multiple processes.
+<LI>It tries to generate symbolic output.  This is usually successful for
+the main program, if that has debug information, i.e. was compiled with -g.
+If not, you may need a debugger to fully interpret the results.  However
+the raw output will often give you a rough idea of where processor time
+is spent.
+<LI>It currently generates "flat" profiles.  The output tells you roughly
+how much time was spent in a given instruction, line, or function <I>f</i>.
+By default this does not include time spent in functions called by <I>f</i>,
+but on platforms supported by
+<A HREF="http://www.hpl.hp.com/research/linux/libunwind/">libunwind</a>
+a possible alternative is to include callees in profile counts, thus
+recovering some gprof-like functionality.
+<LI>Linux kernel functions are not profiled separately.  By default, time spent
+in the kernel is credited to the library function which made the kernel call.
+<LI>On Itanium, it can be used to generate hardware-event-based profiles.
+For example, it can tell you were most of the cache misses occur.
+</ul>
+Instructions for installing and using the profiler are given
+<A HREF="using_qprof.html">here</a>.
+A sample session is presented <A HREF="exampl.html">here</a>.
+The package can be downloaded
+from <A HREF="http://www.hpl.hp.com/research/linux/qprof/download.php4">here</a>.
+<P>
+The profiler is licensed under several different GPL-compatible licenses.
+In many cases, reuse of the library components in proprietary applications
+is allowed.  See the <A HREF="LICENSING.txt">LICENSING.txt</a> file
+in the distribution for more details.
+<H2>Other included packages</h2>
+The distribution includes three other facilities which may be useful
+outside of a profiling context:
+<DL>
+<DT><B>Atomic_ops</b>
+<DD>
+Provides implementations for atomic memory update operations on a number of
+architectures.  This allows direct use of these in reasonably portable code.
+Unlike earlier similar packages, this one explicitly considers memory
+barrier semantics, and allows the construction of code that involves
+minimum overhead across a variety of architectures.  The plan is to
+generalize this to non-Linux platforms soon.  It is also available
+as a separate distribution from
+<A HREF="http://www.hpl.hp.com/research/linux/qprof/download.php4">here</a>.
+<P>
+It should be useful both for high performance multi-threaded code which
+can't afford to use the standard locking primitives, or for code that
+has to access shared data structures from signal handlers.  For details, see
+<A HREF=README_atomic_ops.txt>README_atomic_ops.txt</a> in the distribution.
+<DT><B>Some lock-free data structures</b>
+<DD>
+Handler_safe_data.h describes some interfaces that, for example, support
+simple memory allocation from signal handlers.  These are based on
+the atomic_ops package.
+<DT><B>Wrap.h</b>
+<DD>
+Provides a reasonably general purpose facility for wrapping library
+functions (i.e. forcing user-specified code to be executed before
+and after a call to a standard library function) by redefining them and
+then using <TT>dlopen</tt> and <TT>dlsym</tt>.  This is probably viable
+only on Linux/Unix platforms.  The profiler uses it to intercept
+thread creation.  See <A HREF=README_wrap.txt>README_wrap.txt</a>
+for details.
+</dl>
+Some more details can be found in the <A HREF="README.txt">README.txt</a> file.
+<H2>Related packages</h2>
+We are aware of the following open source packages that are either related to,
+or perform sampled profiling on Linux.
+<DL>
+<DT><A HREF="http://www.gnu.org/manual/gprof-2.9.1/gprof.html">Gprof</a>
+<DD>
+This is the standard Linux profiler.  It can generate approximate call-graph
+profiles.  It doesn't appear to interact well with threads or dynamic libraries.
+Requires relinking for flat profile and recompilation for call-graph profile.
+<DT>Sprof
+<DD>An analogous but separate facility for displaying shared library profiles.
+<DT><A CLASS="udrline" HREF="http://sourceforge.net/projects/cprof">Cprof</a>
+<DD>A thread-aware profiler for Linux based on gcc-based code
+instrumentation.
+A while ago we found it nontrivial
+to get running on many Linux platforms, but its maintenance status
+has recently improved.
+<DT><A HREF="http://oprofile.sourceforge.net">Oprofile</a>
+<DD>
+A system wide profiling tool.  Requires a kernel module.
+<DT><A HREF="http://sourceforge.net/projects/prospect">Prospect</a>
+<DD>
+Another system-wide profiler.  Based on the Oprofile kernel module.
+<DT><A HREF="http://www.hpl.hp.com/research/linux/perfmon/">Perfmon and pfmon tool</a>
+<DD>A library and command to access hardware profile counters on Itanium.
+We rely on this for hardware event support.  By itself, it can be used to
+count hardware events in a program region, etc.
+</dl>
+</body>
+</html
+
