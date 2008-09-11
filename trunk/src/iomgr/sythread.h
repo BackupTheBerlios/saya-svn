@@ -113,6 +113,79 @@ class syAtomic {
 };
 #endif
 
+// --------------------
+// Begin syAtomic class
+// --------------------
+
+inline bool syAtomic::bool_CAS(bool* ptr, bool oldval, bool newval) {
+    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+}
+
+inline bool syAtomic::bool_CAS(int* ptr, int oldval, int newval) {
+    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+}
+
+inline bool syAtomic::bool_CAS(unsigned int* ptr, unsigned int oldval, unsigned int newval) {
+    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+}
+
+inline bool syAtomic::bool_CAS(long* ptr, long oldval, long newval) {
+    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+}
+
+inline bool syAtomic::bool_CAS(unsigned long* ptr, unsigned long oldval, unsigned long newval) {
+    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+}
+
+inline bool syAtomic::bool_CAS(char* ptr, char oldval, char newval) {
+    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+}
+
+inline bool syAtomic::bool_CAS(unsigned char* ptr, unsigned char oldval, unsigned char newval) {
+    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+}
+
+inline bool syAtomic::bool_CAS(void** ptr, void* oldval, void* newval) {
+    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+}
+
+inline bool syAtomic::val_CAS(bool* ptr, bool oldval, bool newval) {
+    return __sync_val_compare_and_swap(ptr, oldval, newval);
+}
+
+inline int syAtomic::val_CAS(int* ptr, int oldval, int newval) {
+    return __sync_val_compare_and_swap(ptr, oldval, newval);
+}
+
+inline unsigned int syAtomic::val_CAS(unsigned int* ptr, unsigned int oldval, unsigned int newval) {
+    return __sync_val_compare_and_swap(ptr, oldval, newval);
+}
+
+inline long syAtomic::val_CAS(long* ptr, long oldval, long newval) {
+    return __sync_val_compare_and_swap(ptr, oldval, newval);
+}
+
+inline unsigned long syAtomic::val_CAS(unsigned long* ptr, unsigned long oldval, unsigned long newval) {
+    return __sync_val_compare_and_swap(ptr, oldval, newval);
+}
+
+inline char syAtomic::val_CAS(char* ptr, char oldval, char newval) {
+    return __sync_val_compare_and_swap(ptr, oldval, newval);
+}
+
+inline char syAtomic::val_CAS(unsigned char* ptr, unsigned char oldval, unsigned char newval) {
+    return __sync_val_compare_and_swap(ptr, oldval, newval);
+}
+
+inline void* syAtomic::val_CAS(void** ptr, void* oldval, void* newval) {
+    return __sync_val_compare_and_swap(ptr, oldval, newval);
+}
+
+// ------------------
+// End syAtomic class
+// ------------------
+
+
 class syCondition;
 
 /** @brief Generic Critical Section (a.k.a. intraprocess Mutex)
@@ -300,7 +373,7 @@ class sySafeMutexLocker;
  *  be able to abort the operation.
  *  Our SafeMutex works by waking up at regular intervals, checking for an abort signal,
  *  and returning false if the signal was sent.
- *  The signal is tested through an syAborter class, and the sleep is done via syThread::Yield().
+ *  The signal is tested through an syAborter class, and the sleep is done via a m_Semaphore.WaitTimeout(1)
  */
 class sySafeMutex {
     friend class sySafeMutexLocker;
@@ -354,11 +427,8 @@ class sySafeMutex {
         /** The thread owning the mutex. */
         unsigned long m_Owner;
 
-        /** The last thread that owned the mutex. */
-        unsigned long m_LastOwner;
-
-        /** The before-last thread that owned the mutex. */
-        unsigned long m_LastOwner2;
+        /** A semaphore for the waits */
+        sySemaphore m_Semaphore;
 };
 
 /** Locks a safe mutex during its existence. */
@@ -672,9 +742,6 @@ class syThread {
         /** Indicates if another thread requested a pause */
         bool m_PauseRequested;
 
-        /** Indicates if another thread requested a resume */
-        bool m_ResumeRequested;
-
         /** Indicates if another thread requested a stop */
         bool m_StopRequested;
 
@@ -704,8 +771,14 @@ class syThread {
         /** The thread's stack size when it was last created */
         unsigned int m_StackSize;
 
+        /** Semaphore for starting the thread. */
         sySemaphore m_StartSemaphore;
-        sySemaphore m_ResumeSemaphore;
+
+        /** Condition that signals that this thread has been paused. */
+        syCondition m_PausedCondition;
+
+        /** Condition that signals that this thread needs to be resumed. */
+        syCondition m_ResumeCondition;
 };
 
 #endif

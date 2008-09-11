@@ -223,75 +223,6 @@ unsigned long syGetTicks() {
 // End timing functions (mine)
 // ---------------------------
 
-
-// --------------------
-// Begin syAtomic class
-// --------------------
-
-bool syAtomic::bool_CAS(bool* ptr, bool oldval, bool newval) {
-    return __sync_bool_compare_and_swap(ptr, oldval, newval);
-}
-
-bool syAtomic::bool_CAS(int* ptr, int oldval, int newval) {
-    return __sync_bool_compare_and_swap(ptr, oldval, newval);
-}
-
-bool syAtomic::bool_CAS(unsigned int* ptr, unsigned int oldval, unsigned int newval) {
-    return __sync_bool_compare_and_swap(ptr, oldval, newval);
-}
-
-bool syAtomic::bool_CAS(long* ptr, long oldval, long newval) {
-    return __sync_bool_compare_and_swap(ptr, oldval, newval);
-}
-
-bool syAtomic::bool_CAS(unsigned long* ptr, unsigned long oldval, unsigned long newval) {
-    return __sync_bool_compare_and_swap(ptr, oldval, newval);
-}
-
-bool syAtomic::bool_CAS(char* ptr, char oldval, char newval) {
-    return __sync_bool_compare_and_swap(ptr, oldval, newval);
-}
-
-bool syAtomic::bool_CAS(unsigned char* ptr, unsigned char oldval, unsigned char newval) {
-    return __sync_bool_compare_and_swap(ptr, oldval, newval);
-}
-
-bool syAtomic::bool_CAS(void** ptr, void* oldval, void* newval) {
-    return __sync_bool_compare_and_swap(ptr, oldval, newval);
-}
-
-bool syAtomic::val_CAS(bool* ptr, bool oldval, bool newval) {
-    return __sync_val_compare_and_swap(ptr, oldval, newval);
-}
-
-int syAtomic::val_CAS(int* ptr, int oldval, int newval) {
-    return __sync_val_compare_and_swap(ptr, oldval, newval);
-}
-
-unsigned int syAtomic::val_CAS(unsigned int* ptr, unsigned int oldval, unsigned int newval) {
-    return __sync_val_compare_and_swap(ptr, oldval, newval);
-}
-
-long syAtomic::val_CAS(long* ptr, long oldval, long newval) {
-    return __sync_val_compare_and_swap(ptr, oldval, newval);
-}
-
-unsigned long syAtomic::val_CAS(unsigned long* ptr, unsigned long oldval, unsigned long newval) {
-    return __sync_val_compare_and_swap(ptr, oldval, newval);
-}
-
-char syAtomic::val_CAS(char* ptr, char oldval, char newval) {
-    return __sync_val_compare_and_swap(ptr, oldval, newval);
-}
-
-char syAtomic::val_CAS(unsigned char* ptr, unsigned char oldval, unsigned char newval) {
-    return __sync_val_compare_and_swap(ptr, oldval, newval);
-}
-
-void* syAtomic::val_CAS(void** ptr, void* oldval, void* newval) {
-    return __sync_val_compare_and_swap(ptr, oldval, newval);
-}
-
 // -----------------------
 // Begin sySafeMutex class
 // -----------------------
@@ -299,9 +230,7 @@ void* syAtomic::val_CAS(void** ptr, void* oldval, void* newval) {
 sySafeMutex::sySafeMutex(bool recursive) :
 m_Recursive(recursive),
 m_LockCount(0),
-m_Owner(0xFFFFFFFF), // 0xFFFFFFFF means the mutex is unlocked.
-m_LastOwner(0xFFFFFFFF),
-m_LastOwner2(0xFFFFFFFF)
+m_Owner(0xFFFFFFFF) // 0xFFFFFFFF means the mutex is unlocked.
 {
 }
 
@@ -312,26 +241,23 @@ sySafeMutex::~sySafeMutex() {
 bool sySafeMutex::TryLock(syAborter* aborter) {
     unsigned long id = syThread::GetCurrentId();
 
-    bool result = (m_Owner == id);
-
-    if(result) {
-        // Yay, we own the lock!
+    if(m_Owner == id) {
         if(m_Recursive) {
-            // Increment the lock count if it's a recursive mutex.
             ++m_LockCount;
         }
-    } else {
-        // Try to acquire the lock.
-        if(aborter && aborter->MustAbort()) {
-            return false;
-        }
-
-        result = syAtomic::bool_CAS(&m_Owner, 0xFFFFFFFF, id);
-        if(result) {
-            m_LockCount = 1;
-        }
+        return true;
     }
-    return result;
+
+    if(aborter && aborter->MustAbort()) {
+        return false;
+    }
+
+    // Try to acquire the lock.
+    if(!syAtomic::bool_CAS(&m_Owner, 0xFFFFFFFF, id)) {
+        return false;
+    }
+    m_LockCount = 1;
+    return true;
 }
 
 bool sySafeMutex::Wait(syAborter* aborter) {
@@ -340,47 +266,29 @@ bool sySafeMutex::Wait(syAborter* aborter) {
         if(aborter && aborter->MustAbort()) {
             return false;
         }
-        syThread::Yield();
+        m_Semaphore.WaitTimeout(1);
     }
     return true;
 }
 
 bool sySafeMutex::Lock(syAborter* aborter) {
-    bool result = false;
-    unsigned int i = 0;
-    unsigned long id = syThread::GetCurrentId();
     for(;;) {
-        result = TryLock(aborter);
-        if(result) { break; }
-        if(aborter && aborter->MustAbort()) { break; }
-        // Scheduling strategy:
-        // After the first try, the last owner loses its chance of winning;
-        // After the 5th try, the previous-to-last owner loses its chance of winning;
-        // After the 50th try, all threads get the same chance of winning.
-        if((i >= 50) || (id==m_LastOwner) || (id==m_LastOwner2 && i >= 5)) {
-            syThread::Yield();
-        } else {
-            ++i;
-        }
+        if(TryLock(aborter)) break;
+        if(aborter && aborter->MustAbort()) { return false; }
+        // wait for the lock to be unlocked, or 1 millisecond. Whatever comes first.
+        m_Semaphore.WaitTimeout(1);
     }
-    return result;
+    return true;
 }
 
 bool sySafeMutex::SafeLock() {
-    bool result = false;
-    unsigned int i = 0;
-    unsigned long id = syThread::GetCurrentId();
     for(;;) {
-        result = TryLock(NULL);
-        if(result) { break; }
-        if(syThread::MustAbort()) { break; }
-        if((i >= 50) || (id==m_LastOwner) || (id==m_LastOwner2 && i >= 5)) {
-            syThread::Yield();
-        } else {
-            ++i;
-        }
+        if(TryLock(NULL)) break;
+        if(syThread::MustAbort()) { return false; }
+        // wait for the lock to be unlocked, or 1 millisecond. Whatever comes first.
+        m_Semaphore.WaitTimeout(1);
     }
-    return result;
+    return true;
 }
 
 void sySafeMutex::Unlock() {
@@ -391,9 +299,8 @@ void sySafeMutex::Unlock() {
         } else {
             // Set m_LockCount to 0.
             m_LockCount = 0;
-            m_LastOwner2 = m_LastOwner;
-            m_LastOwner = id;
             m_Owner = 0xFFFFFFFF;
+            m_Semaphore.Post();
         }
     }
 }
@@ -842,8 +749,6 @@ class syThreadExiter {
 
 /** @brief Deletes a thread. */
 static void syDeleteThread(syThread *This) {
-    // gs_mutexDeleteThread should be unlocked before signalling the condition
-    // or syThread::OnExit() would deadlock
     syMutexLocker lock(*gs_mutexDeleteThread);
     delete This;
     if ( !--gs_nThreadsBeingDeleted ) {
@@ -899,7 +804,9 @@ m_ThreadKind(kind),
 m_ThreadStatus(syTHREADSTATUS_NOT_CREATED),
 m_PauseRequested(false),
 m_StopRequested(false),
-m_ExitCode(0)
+m_ExitCode(0),
+m_PausedCondition(m_Mutex),
+m_ResumeCondition(m_Mutex)
 {
 
     syMutexLocker lock(*gs_mutexAllThreads);
@@ -1025,9 +932,10 @@ int syThread::InternalEntry() {
     bool dontRunAtAll;
 
     m_StartSemaphore.Wait();
-    syMutexLocker lock(m_Mutex);
-    dontRunAtAll = m_ThreadStatus == syTHREADSTATUS_CREATED && m_StopRequested;
-    lock.Unlock();
+    {
+        syMutexLocker lock(m_Mutex);
+        dontRunAtAll = m_ThreadStatus == syTHREADSTATUS_CREATED && m_StopRequested;
+    }
     int result = -1;
     if (dontRunAtAll) {
         return -1;
@@ -1035,9 +943,12 @@ int syThread::InternalEntry() {
     if(!dontRunAtAll) {
         // call the main entry
         int exitcode = Entry();
-        lock.Lock();
-        m_ThreadStatus = syTHREADSTATUS_TERMINATING;
-        lock.Unlock();
+        {
+            syMutexLocker lock(m_Mutex);
+            m_ThreadStatus = syTHREADSTATUS_TERMINATING;
+            m_PausedCondition.Signal(); // Just in case someone's waiting for us
+        }
+
         Exit(exitcode); // Note: Exit should terminate the thread and not return at all.
         #ifdef __WIN32__
         result = exitcode;
@@ -1070,6 +981,7 @@ void syThread::Exit(int exitcode) {
         syMutexLocker lock(m_Mutex);
         m_ThreadStatus = syTHREADSTATUS_EXITED;
     }
+
     // terminate the thread (pthread_exit() never returns)
     // We already set m_ExitCode, so let's just ignore the value.
     #ifdef __WIN32__
@@ -1138,18 +1050,16 @@ syThreadError syThread::Pause() {
     if(IsThisThread()) { return syTHREAD_WRONG_THREAD_CONTEXT; }
     if(!IsRunning()) { return syTHREAD_NOT_RUNNING; }
 
-    m_PauseRequested = true;
-    while(m_PauseRequested && m_ThreadStatus == syTHREADSTATUS_RUNNING) {
-        Yield();
+    syMutexLocker lock(m_Mutex);
+    syBoolSetter(m_PauseRequested,true);
+    if(m_ThreadStatus == syTHREADSTATUS_RUNNING) {
+        // Wait unlocks our mutex before waiting, and locks it on exit.
+        // This saves us a lot of trouble and allows us to simplify our code.
+        m_PausedCondition.Wait();
     }
-    if(!m_PauseRequested) {
-        return syTHREAD_MISC_ERROR; // Could not pause the thread!
-    }
-    m_PauseRequested = false;
-    if(m_ThreadStatus == syTHREADSTATUS_KILLED) {
-        return syTHREAD_KILLED;
-    }
-    return syTHREAD_NO_ERROR;
+    if(m_ThreadStatus == syTHREADSTATUS_KILLED) return syTHREAD_KILLED;
+    if(m_ThreadStatus == syTHREADSTATUS_PAUSED) return syTHREAD_NO_ERROR;
+    return syTHREAD_MISC_ERROR; // Could not pause the thread!
 }
 
 syThreadError syThread::Run() {
@@ -1255,8 +1165,7 @@ syThreadError syThread::Resume() {
     switch(m_ThreadStatus) {
         case syTHREADSTATUS_PAUSED:
             m_PauseRequested = false;
-            lock.Unlock();
-            m_ResumeSemaphore.Post();
+            m_ResumeCondition.Signal();
             result = syTHREAD_NO_ERROR;
             break;
         case syTHREADSTATUS_RUNNING:
@@ -1288,16 +1197,16 @@ bool syThread::MustAbort() {
 
 bool syThread::TestDestroy() {
     if(!IsThisThread()) return false; // Not our thread
-    if(m_StopRequested) return true; // No need to lock mutex, must stop.
+    if(m_StopRequested) {
+        return true; // No need to lock mutex, must stop.
+    }
     syMutexLocker lock(m_Mutex);
     if(m_PauseRequested && (m_ThreadStatus == syTHREADSTATUS_RUNNING)) {
         if(m_ThreadStatus!= syTHREADSTATUS_RUNNING) return false;
         m_ThreadStatus = syTHREADSTATUS_PAUSED;
-        lock.Unlock();
-        m_ResumeSemaphore.Wait();
-        lock.Lock();
+        m_PausedCondition.Signal();
+        m_ResumeCondition.Wait();
         m_ThreadStatus = syTHREADSTATUS_RUNNING;
-        m_PauseRequested = false;
     }
     return m_StopRequested;
 }

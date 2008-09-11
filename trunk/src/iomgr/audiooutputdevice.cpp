@@ -18,6 +18,7 @@ m_changingparams(false),
 m_shuttingdown(false),
 m_ok(false),
 m_mutex(NULL),
+m_StopSemaphore(NULL),
 m_bytespersample(2),
 m_freq(44100),
 m_numchannels(2),
@@ -30,6 +31,7 @@ m_defaultbuflen(88200)
     for(i = 0; i < 256; i++) {
         m_buffers[i] = NULL;
     }
+    m_StopSemaphore = new sySemaphore;
 
 
 }
@@ -37,7 +39,9 @@ m_defaultbuflen(88200)
 AudioOutputDevice::~AudioOutputDevice() {
     ShutDown();
     delete m_mutex;
+    delete m_StopSemaphore;
     m_mutex = NULL; // Clear memory
+    m_StopSemaphore = NULL;
 }
 
 bool AudioOutputDevice::Init() {
@@ -73,7 +77,7 @@ bool AudioOutputDevice::InternalMustAbort() {
 void AudioOutputDevice::ShutDown() {
     m_shuttingdown = true;
     while(m_playing) {
-        syThread::Yield(); // Wait
+        m_StopSemaphore->WaitTimeout(1); // Wait
     }
     Clear();
     DisconnectOutput();
@@ -220,6 +224,7 @@ void AudioOutputDevice::LoadAudioData(unsigned int channel,unsigned int bytesper
     if(result) {
         LoadDeviceAudioData(channel, bytespersample, freq, buf, buflen);
         m_playing = false;
+        m_StopSemaphore->Post();
     }
 }
 

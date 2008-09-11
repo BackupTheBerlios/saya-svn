@@ -13,6 +13,7 @@
 #include "aborter.h"
 
 class syMutex;
+class sySemaphore;
 
 /** @brief Generic class for Audio Output
   *
@@ -204,6 +205,8 @@ class AudioOutputDevice : public syAborter {
 
         /** Mutex for thread safety */
         syMutex* m_mutex;
+
+        sySemaphore* m_StopSemaphore;
 
         unsigned int m_bytespersample;  /** Current setting of bytes per sample */
         unsigned int m_freq;            /** Current sample frequency */
