@@ -35,7 +35,7 @@ BEGIN_EVENT_TABLE( App, wxApp )
     EVT_MENU(idExitApp, App::OnExitApp)
 END_EVENT_TABLE()
 
-AppConfig::AppConfig(std::string application_name) : sayaConfig(application_name) {
+AppConfig::AppConfig(std::string application_name) : SayaConfig(application_name) {
     m_config = new wxConfig(wxString(application_name.c_str(),wxConvUTF8));
 }
 
@@ -56,7 +56,7 @@ AppConfig::~AppConfig() {
     m_config = NULL;
 }
 
-sayaConfig* AppConfigProvider::Create(const std::string application_name) {
+SayaConfig* AppConfigProvider::Create(const std::string application_name) {
     return new AppConfig(application_name);
 }
 

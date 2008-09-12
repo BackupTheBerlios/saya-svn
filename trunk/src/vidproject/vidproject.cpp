@@ -8,30 +8,16 @@
  **************************************************************/
 
 #include "../iomgr/iocommon.h"
+
+#include "avclip.h"
+#include "avcommon.h"
+#include "avsettings.h"
+#include "undohistory.h"
 #include "vidproject.h"
 #include "projectmanager.h"
+
 #include "tinyxml/tinyxml.h"
 #include <libintl.h>
-
-AVSettings::AVSettings() {
-    ResetToDefaults();
-}
-
-AVSettings::~AVSettings() {
-}
-
-void AVSettings::ResetToDefaults() {
-    width = 720;
-    height = 480;
-    fps = 29.997;
-    pixelaspect = 1.0;
-    vidformat = "avi";
-    videocodec = "";
-    audiocodec = "";
-    videocodecsettings.clear();
-    audiocodecsettings.clear();
-    formatsettings.clear();
-}
 
 bool VidProject::unserialize(const std::string& data) {
     // TODO: Implement VidProject::unserialize
@@ -48,20 +34,28 @@ std::string VidProject::serialize() {
 
 VidProject::VidProject()
 {
-    //ctor
+    m_ExportSettings = new AVSettings;
+    m_UndoHistory = new UndoHistoryClass;
+    m_Timeline = new AVTimeline;
+    m_Resources = new AVResources;
+
     m_Title = "";
-    m_ExportSettings.ResetToDefaults();
+    m_ExportSettings->ResetToDefaults();
     m_NeedsExportSettings = true;
     m_Filename = "";
 }
 
 VidProject::~VidProject()
 {
-    //dtor
+    // dtor
+    delete m_ExportSettings;
+    delete m_UndoHistory;
+    delete m_Timeline;
+    delete m_Resources;
 }
 
 void VidProject::Clear() {
-    m_ExportSettings.ResetToDefaults();
+    m_ExportSettings->ResetToDefaults();
 }
 
 const std::string VidProject::GetOfflineProjectTitle(const std::string& filename) {
@@ -154,33 +148,33 @@ bool VidProject::LoadState(const std::string& data) {
 }
 
 void VidProject::ClearUndoHistory() {
-    m_UndoHistory.Clear();
+    m_UndoHistory->Clear();
 }
 
 bool VidProject::CanUndo() {
-    return m_UndoHistory.CanUndo();
+    return m_UndoHistory->CanUndo();
 }
 
 bool VidProject::CanRedo() {
-    return m_UndoHistory.CanRedo();
+    return m_UndoHistory->CanRedo();
 }
 
 
 void VidProject::Undo() {
     std::string data,curdata;
     curdata = "";
-    if(m_UndoHistory.IsEof()) {
+    if(m_UndoHistory->IsEof()) {
         SaveState(curdata); // If there's no redo available, make one.
     }
 
-    if(m_UndoHistory.Undo(data,curdata)) {
+    if(m_UndoHistory->Undo(data,curdata)) {
         LoadState(data);
     }
 }
 
 void VidProject::Redo() {
     std::string data;
-    if(m_UndoHistory.Redo(data)) {
+    if(m_UndoHistory->Redo(data)) {
         LoadState(data);
     }
 }
@@ -188,26 +182,26 @@ void VidProject::Redo() {
 void VidProject::PushUndo(const std::string OpName) {
     std::string data;
     SaveState(data);
-    m_UndoHistory.PushUndo(OpName,data);
-    if(m_UndoHistory.Redo(data)) {
+    m_UndoHistory->PushUndo(OpName,data);
+    if(m_UndoHistory->Redo(data)) {
         LoadState(data);
     }
 }
 
 const std::string VidProject::GetUndoOpname() {
-    return m_UndoHistory.GetUndoOpname();
+    return m_UndoHistory->GetUndoOpname();
 }
 
 const std::string VidProject::GetRedoOpname() {
-    return m_UndoHistory.GetRedoOpname();
+    return m_UndoHistory->GetRedoOpname();
 }
 
 const std::string VidProject::GetUndoHistoryOpName(unsigned int idx) {
-    return m_UndoHistory.GetOpname(idx);
+    return m_UndoHistory->GetOpname(idx);
 }
 
 unsigned int VidProject::GetUndoIdx() {
-    return m_UndoHistory.CurState();
+    return m_UndoHistory->CurState();
 }
 
 bool VidProject::IsModified() {

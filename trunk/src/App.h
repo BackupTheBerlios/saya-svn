@@ -13,23 +13,26 @@
 #include <wx/app.h>
 #include <string>
 #include "vidproject/projectmanager.h"
+#include "vidproject/configprovider.h"
+#include "vidproject/sayaconfig.h"
+#include "vidproject/sayadebuglogger.h"
 
 class AppDebugLog;
 
-/** Our Implementation of sayaConfig with wxWidgets. @see sayaConfig */
-class AppConfig : public sayaConfig {
+/** Our Implementation of SayaConfig with wxWidgets. @see SayaConfig */
+class AppConfig : public SayaConfig {
     public:
 
         /** Standard constructor. */
         AppConfig(std::string application_name);
 
-        /** Reads configuration. @see sayaConfig::Read */
+        /** Reads configuration. @see SayaConfig::Read */
         virtual std::string Read(const std::string& key, const std::string& defaultvalue);
 
-        /** Writes configuration. @see sayaConfig::Read */
+        /** Writes configuration. @see SayaConfig::Read */
         virtual bool Write(const std::string& key, const std::string& value);
 
-        /** Checks whether a configuration key exists. @see sayaConfig::Read */
+        /** Checks whether a configuration key exists. @see SayaConfig::Read */
         virtual bool Exists(const std::string& key);
 
         /** Standard destructor. */
@@ -39,11 +42,11 @@ class AppConfig : public sayaConfig {
         wxConfig* m_config;
 };
 
-/** Our Configuration object provider. @see sayaConfigProvider */
-class AppConfigProvider : public sayaConfigProvider {
+/** Our Configuration object provider. @see SayaConfigProvider */
+class AppConfigProvider : public SayaConfigProvider {
     public:
-        /** Creates a sayaConfig object */
-        virtual sayaConfig* Create(const std::string application_name);
+        /** Creates a SayaConfig object */
+        virtual SayaConfig* Create(const std::string application_name);
 
         /** Virtual destructor. */
         virtual ~AppConfigProvider() {}

@@ -18,6 +18,8 @@
 
 #include "App.h"
 #include "vidproject/projectmanager.h"
+#include "vidproject/sayaevthandler.h"
+
 #include <string>
 
 class WelcomeDialog;

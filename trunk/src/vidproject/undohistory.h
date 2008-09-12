@@ -1,6 +1,3 @@
-#ifndef UNDOHISTORY_H
-#define UNDOHISTORY_H
-
 /***************************************************************
  * Name:      undohistory.h
  * Purpose:   Definition of a generic Undo History class
@@ -10,29 +7,12 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
+#ifndef UNDOHISTORY_H
+#define UNDOHISTORY_H
+
 #include <string>
-#include <deque>
 
-/** @class UndoState
- *
- *  Undo states store your classes' serialized data. Together they form a history stack.
- */
-class UndoState {
-    public:
-        UndoState() {};
-        UndoState(std::string theOp,std::string thedata) {
-            nextOp = theOp;
-            data = thedata;
-        }
-        /** Brief description of the transition to the next state */
-        std::string nextOp; // transition to the NEXT state
-        /** The project's serialized data */
-        std::string data;
-        ~UndoState() {};
-};
-
-
-typedef std::deque<UndoState>  UndoHistoryQueue;
+class UndoHistoryQueue;
 
 class UndoHistoryClass {
     public:
@@ -139,7 +119,7 @@ class UndoHistoryClass {
         unsigned int m_State;
 
         /** The Undo queue */
-        UndoHistoryQueue m_queue;
+        UndoHistoryQueue* m_queue;
 
         /** The Maximum size allowed (in bytes) for the undo stack. */
         unsigned long m_MaxSize;

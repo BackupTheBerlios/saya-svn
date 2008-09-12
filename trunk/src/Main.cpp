@@ -25,6 +25,9 @@
     #include <wx/treectrl.h>
     #include <wx/sizer.h>
 #endif
+
+#include "vidproject/vidproject.h"
+
 #include "App.h"
 #include "Main.h"
 #include "welcomedlg.h"
@@ -32,6 +35,8 @@
 #include "sdlpanel.h"
 #include "wxvideopanel.h"
 #include <deque>
+
+
 using namespace std;
 
 //helper functions

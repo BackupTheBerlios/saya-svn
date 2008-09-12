@@ -10,10 +10,15 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
-#include "vidproject.h"
 #include <deque>
 #include <list>
 #include <map>
+#include <string>
+
+class VidProject;
+class SayaConfigProvider;
+class sayaEvtHandler;
+class sayaDebugLogger;
 
 /** Tells whether the application is shutting down. */
 bool IsAppShuttingDown();
@@ -25,124 +30,6 @@ extern const std::string APP_NAME; /** The application's name. */
 extern const std::string APP_VENDOR; /** The application vendor's name (that would be moi) */
 extern const std::string APP_SHOWNAME; /** The application's official name */
 extern const std::string APP_SHOWOFFNAME; /** The application's name and tagline for showing off */
-
-/** Used for UI-toolkit-independent event handling */
-enum sayaEventType {
-    sayaevt_DoNothing = 0,
-    sayaevt_ProjectStatusChanged
-};
-
-/** Used for Yes/No/Cancel dialogs */
-enum sayaYesNoCancel {
-    sayaYes = 0,
-    sayaNo,
-    sayaCancel
-};
-
-/** @brief Abstract UI-toolkit-independent Event Handler.
-  *
-  * In an effort to make Saya as independent as possible regarding UI Toolkits, we're using
-  * a wrapper class for your main event handler to deal with user interaction.
-  * All strings passed and received are ANSI strings in multibyte format.
-  * @note To receive project-related events, you must call ProjectMananger::SetEventHandler.
-  */
-class sayaEvtHandler {
-    public:
-        /** Standard constructor */
-        sayaEvtHandler() {}
-
-        /** Standard destructor */
-        virtual ~sayaEvtHandler() {}
-
-        /** Event processing function */
-        virtual void ProcessSayaEvent(sayaEventType id, void* data = NULL) = 0;
-
-        /** Shows an Error message box */
-        virtual void ErrorMessageBox(const char* msg,const char* caption) = 0;
-
-        /** Shows a yes/no message box and returns the answer (true = yes, false = no) */
-        virtual bool YesNoMessageBox(const char* msg,const char* caption,bool exclamation) = 0;
-
-        /** Shows a yes/no/cancel message box and returns the answer */
-        virtual sayaYesNoCancel YesNoCancelMessageBox(const char* msg,const char* caption,bool exclamation) = 0;
-
-        /** Shows the "Save Project As" dialog */
-        virtual std::string ShowDialogSaveProjectAs() = 0;
-
-        /** Shows the "Save Project Copy As" dialog */
-        virtual std::string ShowDialogSaveProjectCopyAs() = 0;
-
-};
-
-class sayaDebugLogger {
-    public:
-
-        /** Adds a message to the debug log */
-        virtual void DebugLog(const char* msg) = 0;
-
-        /** Adds a message to the debug log (std::string version) */
-        virtual void DebugLog(const std::string& msg) = 0;
-
-        /** Standard constructor */
-        sayaDebugLogger() {}
-
-        /** Standard destructor */
-        virtual ~sayaDebugLogger() {}
-};
-
-/** Abstract Cross-platform Configuration class.
-  *
-  * @note All strings passed and received are ANSI strings in multibyte format.
-  */
-class sayaConfig {
-    public:
-
-        /** Standard constructor */
-        sayaConfig(std::string application_name) {}
-
-        /** Standard destructor */
-        virtual ~sayaConfig() {};
-
-        /** @brief Reads a string configuration value.
-          *
-          * @param key The key to read the configuration value from.
-          * @param defaultvalue The default value to return, if the value is not found.
-          * @return The value of the read configuration.
-          */
-        virtual std::string Read(const std::string& key, const std::string& defaultvalue) = 0;
-
-        /** @brief Writes a string configuration value.
-          *
-          * @param key The key to write the configuration value into.
-          * @param value The value to write.
-          * @return true on success; false otherwise.
-          */
-        virtual bool Write(const std::string& key, const std::string& value) = 0;
-
-        /** @brief Checks if a configuration key exists.
-          *
-          * @param key The key to search in the config.
-          * @return true if the key exists; false otherwise.
-          */
-        virtual bool Exists(const std::string& key) = 0;
-};
-
-/** Abstract Cross-platform Configuration Provider class.
-  *
-  * This class creates a Configuration object for you to use.
-  * @note All strings passed and received are ANSI strings in multibyte format.
-  */
-class sayaConfigProvider {
-    public:
-        /** Standard Constructor */
-        sayaConfigProvider() {};
-
-        /** Standard Destructor */
-        virtual ~sayaConfigProvider() {};
-
-        virtual sayaConfig* Create(const std::string application_name) = 0;
-};
-
 
 /** @class ProjectManager
   * @brief The main class that handles project loading and saving.
@@ -255,7 +142,7 @@ class ProjectManager
           *
           * @note You MUST call this method from your program after creating the project manager.
           */
-        void SetConfigProvider(sayaConfigProvider* provider);
+        void SetConfigProvider(SayaConfigProvider* provider);
 
         /** Gets the last used project directory */
         const std::string GetLastProjectDir();
@@ -378,7 +265,7 @@ class ProjectManager
         sayaDebugLogger* m_logger;
 
         /** A pointer to the program's config provider */
-        sayaConfigProvider* m_configprovider;
+        SayaConfigProvider* m_configprovider;
 
         /** Counter for the Recent Projects List revision */
         unsigned int m_recentfilesmodcounter;

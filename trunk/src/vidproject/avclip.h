@@ -1,6 +1,3 @@
-#ifndef AVCLIP_H
-#define AVCLIP_H
-
 /***************************************************************
  * Name:      avclip.cpp
  * Purpose:   Definition for Timeline clips and tracks
@@ -10,19 +7,24 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
-#include <string>
-#include <vector>
-#include <map>
-#include <deque>
+#ifndef avclip_h
+#define avclip_h
+
 #include "avcommon.h"
 #include "aveffect.h"
+
+#include <vector>
+#include <map>
 
 class AVSequence;
 class AVTrack;
 class AVTimeline;
 class AVClip;
 class AVClipboard;
+class AVTransition;
+class AVSettings;
 class AVResource;
+class SerializableUIntMap;
 
 enum ClipType   /** Used for clips in the timeline
                   *  For now I don't know how subtitle tracks work, so this may not be implemented */
@@ -65,7 +67,7 @@ class AVClip: public serializable {
         virtual ~AVClip();
 
         /** @brief Loads serialized data. @see serializable::unserialize() */
-        virtual bool unserialize(const std::string& data);
+        virtual bool unserialize(const std::string& src);
 
         /** @brief Saves serialized data. @see serializable::serialize() */
         virtual std::string serialize();
@@ -186,7 +188,7 @@ class AVClip: public serializable {
           * It's an STL vector, so whenever you copy / paste into another clip, the original effects
           * are unmodified.
           */
-        std::vector<AVEffect> m_Effects;
+        AVEffects* m_Effects;
 
         /** @brief Sets the ending transition for the next clip.
           *
@@ -195,7 +197,7 @@ class AVClip: public serializable {
           * properties. For this reason, transitions are needed to be stored only in the ending track.
           * When clips don't overlap, no transition is applied.
           */
-        AVTransition m_EndingTransition;
+        AVTransition* m_EndingTransition;
 
         /** @brief Hides the clip from the rendering.
           *
@@ -216,7 +218,7 @@ class AVClip: public serializable {
           * Markers are stored as an STL map of strings. The index corresponds to a moment in time,
           * while the string is the desired marker.
           */
-        std::map<unsigned int,std::string> m_Markers; // A map that goes time => marker_id.
+        SerializableUIntMap* m_Markers; // A map that goes time => marker_id.
 
         /** @brief Links to the synchronized video/audio clip. Use 0 for no link.
           *
@@ -268,6 +270,39 @@ class AVClip: public serializable {
     private:
 };
 
+class AVTrack:public serializable {
+    public:
+        AVType m_AVType; /// Indicates which type of Track we're handling (video or audio).
+        bool m_Readonly; /// Set it to lock the track and prevent any operation.
+        bool m_Hidden;   /// Set it to hide/mute the track
+        bool m_Collapsed; /// Set it to true to collapse the track
+
+        /** @brief The set of clips in the timeline.
+          *
+          * The Track keeps the clips in an STL map. The index is the clip's id, the data is the clip itself.
+          */
+        std::map<unsigned int,AVClip> m_Clips;
+
+        /** @brief Stores the clips' positions in the timeline.
+          *
+          * The index is the clip's ID; the value is the clip's position in time.
+          * This map is updated on every clip operation.
+          */
+        std::map<unsigned int,unsigned int> m_TimeIndex;
+
+        /** Standard constructor. */
+        AVTrack();
+
+        /** Standard destructor. */
+        virtual ~AVTrack();
+
+        /** @see serializable::unserialize */
+        virtual bool unserialize(const std::string& src);
+
+        /** @see serializable::serialize */
+        virtual std::string serialize();
+};
+
 class AVSequence: public serializable {
     public:
         /** Standard constructor. */
@@ -306,7 +341,7 @@ class AVSequence: public serializable {
         unsigned int m_EndWorkArea;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& data);
+        virtual bool unserialize(const std::string& src);
 
         /** @see serializable::serialize */
         virtual std::string serialize();
@@ -322,38 +357,6 @@ class AVClipboard: public AVSequence {
         virtual ~AVClipboard() {}
 };
 
-class AVTrack:public serializable {
-    public:
-        AVType m_AVType; /// Indicates which type of Track we're handling (video or audio).
-        bool m_Readonly; /// Set it to lock the track and prevent any operation.
-        bool m_Hidden;   /// Set it to hide/mute the track
-        bool m_Collapsed; /// Set it to true to collapse the track
-
-        /** @brief The set of clips in the timeline.
-          *
-          * The Track keeps the clips in an STL map. The index is the clip's id, the data is the clip itself.
-          */
-        std::map<unsigned int,AVClip> m_Clips;
-
-        /** @brief Stores the clips' positions in the timeline.
-          *
-          * The index is the clip's ID; the value is the clip's position in time.
-          * This map is updated on every clip operation.
-          */
-        std::map<unsigned int,unsigned int> m_TimeIndex;
-
-        /** Standard constructor. */
-        AVTrack();
-
-        /** Standard destructor. */
-        virtual ~AVTrack();
-
-        /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& data);
-
-        /** @see serializable::serialize */
-        virtual std::string serialize();
-};
 
 class AVTimeline:public serializable {
     public:
@@ -366,7 +369,7 @@ class AVTimeline:public serializable {
         std::vector<AVSequence> m_Sequences;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& data);
+        virtual bool unserialize(const std::string& src);
 
         /** @see serializable::serialize */
         virtual std::string serialize();
@@ -411,15 +414,31 @@ class AVResource:public serializable {
           *
           * @see AVSettings
           */
-        AVSettings m_AVSettings;
+        AVSettings* m_AVSettings;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& data);
+        virtual bool unserialize(const std::string& src);
 
         /** @see serializable::serialize */
         virtual std::string serialize();
 };
 
-typedef std::map<unsigned int, AVResource> AVResources;
+class AVResources : public serializable {
+    public:
+
+        /** Standard constructor. */
+        AVResources();
+
+        /** Standard destructor. */
+        virtual ~AVResources();
+
+        /** @see serializable::unserialize */
+        virtual bool unserialize(const std::string& src);
+
+        /** @see serializable::serialize */
+        virtual std::string serialize();
+
+        std::map<unsigned int, AVResource> data;
+};
 
 #endif // AVCLIP_H

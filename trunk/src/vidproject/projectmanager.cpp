@@ -18,6 +18,11 @@
 #include <list>
 #include <map>
 
+#include "sayaconfig.h"
+#include "configprovider.h"
+#include "sayadebuglogger.h"
+#include "sayaevthandler.h"
+
 // For internationalization
 #include <libintl.h>
 //
@@ -28,7 +33,7 @@ static bool s_IsAppShuttingDown = false;
 const std::string APP_NAME = "SayaVideoEditor";
 const std::string APP_VENDOR = "Rick Garcia";
 const std::string APP_SHOWNAME = "Saya";
-const std::string APP_SHOWOFFNAME = "Saya - Swift audiovisual Authoring for You and Anyone";
+const std::string APP_SHOWOFFNAME = "SayaVE Ain't Yet Another Video Editor";
 
 bool IsAppShuttingDown() {
     return s_IsAppShuttingDown;
@@ -53,7 +58,7 @@ ProjectManager::ProjectManager() {
 
 }
 
-void ProjectManager::SetConfigProvider(sayaConfigProvider* provider) {
+void ProjectManager::SetConfigProvider(SayaConfigProvider* provider) {
     m_configprovider = provider;
 }
 
@@ -186,7 +191,7 @@ bool ProjectManager::LoadConfig() {
     if(!m_configprovider) {
         return false; // ERROR!
     }
-    sayaConfig* cfg = m_configprovider->Create(APP_NAME);
+    SayaConfig* cfg = m_configprovider->Create(APP_NAME);
     std::string key;
     std::string tmpname;
 
@@ -215,7 +220,7 @@ bool ProjectManager::SaveConfig() {
     if(!m_configprovider) {
         return false; // ERROR!
     }
-    sayaConfig* cfg = m_configprovider->Create(APP_NAME);
+    SayaConfig* cfg = m_configprovider->Create(APP_NAME);
     std::string key;
 
     // Save last used directory

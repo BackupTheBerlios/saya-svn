@@ -8,26 +8,14 @@
  **************************************************************/
 
 #include "aveffect.h"
+#include "fxparameterlist.h"
 
 AVEffect::AVEffect() {
+    m_Parameters = new FXParameterList;
 }
 
 AVEffect::~AVEffect() {
-}
-
-AVTransition::AVTransition() {
-}
-
-AVTransition::~AVTransition() {
-}
-
-bool AVTransition::unserialize(const std::string& data) {
-// TODO: Implement AVTransition::unserialize
-    return false;
-}
-
-std::string AVTransition::serialize() {
-    return "";
+    delete m_Parameters;
 }
 
 bool AVEffect::unserialize(const std::string& data) {
@@ -36,12 +24,22 @@ bool AVEffect::unserialize(const std::string& data) {
 }
 
 std::string AVEffect::serialize() {
+    // TODO: Implement AVEffect::serialize
     return "";
 }
 
-
-FXParamKeyFrame::FXParamKeyFrame() {
+AVEffects::AVEffects() {
 }
 
-FXParamKeyFrame::~FXParamKeyFrame() {
+AVEffects::~AVEffects() {
+}
+
+bool AVEffects::unserialize(const std::string& data) {
+// TODO: Implement AVEffects::unserialize
+    return false;
+}
+
+std::string AVEffects::serialize() {
+    // TODO: Implement AVEffect::serialize
+    return "";
 }
