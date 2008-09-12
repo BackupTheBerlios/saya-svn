@@ -1,6 +1,3 @@
-#ifndef VIDPROJECT_H
-#define VIDPROJECT_H
-
 /***************************************************************
  * Name:      vidproject.h
  * Purpose:   Definition of the VidProject class
@@ -10,9 +7,9 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
-#include <map>
-#include <deque>
-#include <string>
+#ifndef VIDPROJECT_H
+#define VIDPROJECT_H
+
 #include "serializable.h"
 
 // TODO: Simplify the vidproject API by using private classes and forward declarations

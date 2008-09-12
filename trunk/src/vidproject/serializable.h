@@ -28,6 +28,9 @@ class serializable {
          */
         virtual std::string serialize();
 
+        /** Gets the tag name for (de)serialization */
+        virtual std::string GetTagName() { return "null"; }
+
         /** Serializes a string into an xml-compatible string */
         static std::string serializestring(const std::string& s);
 

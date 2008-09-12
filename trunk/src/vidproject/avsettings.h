@@ -13,7 +13,7 @@
 #include "avcommon.h"
 #include "serializable.h"
 
-class PropertyMap;
+class SMapStrStr;
 
 class AVSettings: public serializable {
 
@@ -65,13 +65,13 @@ class AVSettings: public serializable {
         std::string audiocodec;
 
         /** Specifies the settings for the video codec. */
-        PropertyMap* videocodecsettings;
+        SMapStrStr* videocodecsettings;
 
         /** Specifies the settings for the audio codec. */
-        PropertyMap* audiocodecsettings;
+        SMapStrStr* audiocodecsettings;
 
         /** Specifies the settings for the container format. */
-        PropertyMap* formatsettings;
+        SMapStrStr* formatsettings;
 
         /** @see serializable::unserialize */
         virtual bool unserialize(const std::string& src);

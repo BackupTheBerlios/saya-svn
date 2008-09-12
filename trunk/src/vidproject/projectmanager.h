@@ -1,6 +1,3 @@
-#ifndef PROJECTMANAGER_H
-#define PROJECTMANAGER_H
-
 /***************************************************************
  * Name:      projectmanager.h
  * Purpose:   Definition for the Project Manager class
@@ -9,6 +6,9 @@
  * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * License:   GPL version 3 or later
  **************************************************************/
+
+#ifndef PROJECTMANAGER_H
+#define PROJECTMANAGER_H
 
 #include <deque>
 #include <list>

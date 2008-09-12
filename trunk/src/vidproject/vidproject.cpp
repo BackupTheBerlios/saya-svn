@@ -1,5 +1,5 @@
 /***************************************************************
- * Name:      vidproject.h
+ * Name:      vidproject.cpp
  * Purpose:   Implementation of the VidProject class
  * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * Created:   2008-04-30
@@ -9,11 +9,15 @@
 
 #include "../iomgr/iocommon.h"
 
-#include "avclip.h"
 #include "avcommon.h"
+#include "vidproject.h"
 #include "avsettings.h"
 #include "undohistory.h"
-#include "vidproject.h"
+#include "avresource.h"
+#include "avresources.h"
+#include "avsequence.h"
+#include "avtimeline.h"
+
 #include "projectmanager.h"
 
 #include "tinyxml/tinyxml.h"
@@ -314,4 +318,3 @@ bool VidProject::SaveToFile(const std::string &filename) {
     }while(false);
     return result;
 }
-

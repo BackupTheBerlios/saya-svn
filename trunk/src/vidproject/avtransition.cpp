@@ -8,10 +8,10 @@
  **************************************************************/
 
 #include "avtransition.h"
-#include "propertymap.h"
+#include "smap.h"
 
 AVTransition::AVTransition() {
-    m_Parameters = new PropertyMap;
+    m_Parameters = new SMapStrStr;
 }
 
 AVTransition::~AVTransition() {

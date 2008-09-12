@@ -10,29 +10,20 @@
 #ifndef fxparameterlist_h
 #define fxparameterlist_h
 
-#include "serializable.h"
-#include "propertymap.h"
+#include "smap.h"
 
 /** @brief Defines a parameter list for effects.
   *
   * Each parameter has its own timeline, so we'll be able to play with the curves and modify keyframes as
   * we please.
   */
-class FXParameterList : public serializable {
+class FXParameterList : public SMapStr<SMapUintStr> {
     public:
         /** Standard constructor. */
-        FXParameterList();
+        FXParameterList() {}
 
         /** Standard destructor. */
-        virtual ~FXParameterList();
-
-        /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
-
-        /** @see serializable::serialize */
-        virtual std::string serialize();
-
-        std::map<std::string,SerializableUIntMap> data;
+        virtual ~FXParameterList() {}
 };
 
 #endif

@@ -12,7 +12,6 @@
 
 #include "avcommon.h"
 #include "serializable.h"
-#include <vector>
 
 class FXParameterList;
 
@@ -55,25 +54,6 @@ class AVEffect : public serializable {
 
         /** @see serializable::serialize */
         virtual std::string serialize();
-};
-
-class AVEffects : public serializable {
-
-    public:
-
-        /** standard constructor */
-        AVEffects();
-
-        /** standard destructor */
-        virtual ~AVEffects();
-
-        /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
-
-        /** @see serializable::serialize */
-        virtual std::string serialize();
-
-        std::vector<AVEffect> data;
 };
 
 #endif

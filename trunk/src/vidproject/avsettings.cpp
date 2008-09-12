@@ -10,14 +10,14 @@
 #include "../iomgr/iocommon.h"
 
 #include "avsettings.h"
-#include "propertymap.h"
+#include "smap.h"
 
 using namespace std;
 
 AVSettings::AVSettings() {
-    videocodecsettings = new PropertyMap;
-    audiocodecsettings = new PropertyMap;
-    formatsettings = new PropertyMap;
+    videocodecsettings = new SMapStrStr;
+    audiocodecsettings = new SMapStrStr;
+    formatsettings = new SMapStrStr;
     ResetToDefaults();
 }
 

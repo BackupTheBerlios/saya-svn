@@ -13,7 +13,7 @@
 #include "avcommon.h"
 #include "serializable.h"
 
-class PropertyMap;
+class SMapStrStr;
 
 class AVTransition : public serializable {
     public:
@@ -37,7 +37,7 @@ class AVTransition : public serializable {
         std::string TransitionId; // Transition's ID
 
         /** parameters for the transition */
-        PropertyMap* m_Parameters;
+        SMapStrStr* m_Parameters;
 
         /** Enables or disables the transition */
         bool m_Enabled;

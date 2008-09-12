@@ -1,6 +1,6 @@
 /***************************************************************
  * Name:      avclip.cpp
- * Purpose:   Definition for Timeline clips and tracks
+ * Purpose:   Declaration for the Timeline clips class
  * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * Created:   2008-04-30
  * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
@@ -11,20 +11,12 @@
 #define avclip_h
 
 #include "avcommon.h"
-#include "aveffect.h"
+#include "serializable.h"
 
-#include <vector>
-#include <map>
-
-class AVSequence;
-class AVTrack;
-class AVTimeline;
-class AVClip;
 class AVClipboard;
 class AVTransition;
-class AVSettings;
-class AVResource;
-class SerializableUIntMap;
+class AVEffects;
+class SMapUintUint;
 
 enum ClipType   /** Used for clips in the timeline
                   *  For now I don't know how subtitle tracks work, so this may not be implemented */
@@ -32,20 +24,6 @@ enum ClipType   /** Used for clips in the timeline
     CTVideo = 0, /**<Enum value CTVideo. */
     CTAudio,     /**<Enum value CTAudio. */
     CTSubtitle   /**<Enum value CTSubtitle. */
-};
-
-enum ResourceType   /** Used for the video resources. */
-{
-    RTSequence = 0, /**<Enum value RTSequence. */
-    RTVideoFile,    /**<Enum value RTVideoFile. */
-    RTAudioFile,    /**<Enum value RTAudioFile. */
-    RTImageFile,    /**<Enum value RTImageFile. */
-    RTOfflineFile,  /**<Enum value RTOfflineFile. */
-    RTTitle,        /**<Enum value RTTitle. */
-    RTBarsAndTone,  /**<Enum value RTBarsAndTone. */
-    RTBlackVideo,   /**<Enum value RTBlackVideo. */
-    RTColorMatte,   /**<Enum value RTColorMatte. */
-    RTUCLeader      /**<Enum value RTUCLeader. */
 };
 
 /*! @class AVClip avclip.h
@@ -218,7 +196,7 @@ class AVClip: public serializable {
           * Markers are stored as an STL map of strings. The index corresponds to a moment in time,
           * while the string is the desired marker.
           */
-        SerializableUIntMap* m_Markers; // A map that goes time => marker_id.
+        SMapUintUint* m_Markers; // A map that goes time => marker_id.
 
         /** @brief Links to the synchronized video/audio clip. Use 0 for no link.
           *
@@ -270,175 +248,4 @@ class AVClip: public serializable {
     private:
 };
 
-class AVTrack:public serializable {
-    public:
-        AVType m_AVType; /// Indicates which type of Track we're handling (video or audio).
-        bool m_Readonly; /// Set it to lock the track and prevent any operation.
-        bool m_Hidden;   /// Set it to hide/mute the track
-        bool m_Collapsed; /// Set it to true to collapse the track
-
-        /** @brief The set of clips in the timeline.
-          *
-          * The Track keeps the clips in an STL map. The index is the clip's id, the data is the clip itself.
-          */
-        std::map<unsigned int,AVClip> m_Clips;
-
-        /** @brief Stores the clips' positions in the timeline.
-          *
-          * The index is the clip's ID; the value is the clip's position in time.
-          * This map is updated on every clip operation.
-          */
-        std::map<unsigned int,unsigned int> m_TimeIndex;
-
-        /** Standard constructor. */
-        AVTrack();
-
-        /** Standard destructor. */
-        virtual ~AVTrack();
-
-        /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
-
-        /** @see serializable::serialize */
-        virtual std::string serialize();
-};
-
-class AVSequence: public serializable {
-    public:
-        /** Standard constructor. */
-        AVSequence();
-
-        std::string m_SeqName; /// User-friendly name for the sequence.
-
-        /** @brief Resource Id for the sequence.
-          *
-          * Sequences are their own resources, they can be inserted into clips and handled like any video
-          * or audio file.
-          */
-
-        unsigned int m_ResourceId;
-
-        /** The collection of Video Tracks that belong to the sequence */
-        std::vector<AVTrack> m_VideoTracks;
-
-        /** The collection of Audio Tracks that belong to the sequence */
-        std::vector<AVTrack> m_AudioTracks;
-
-        /** @brief Current cursor position in the timeline.
-          *
-          * Each sequence has its own cursor, which is used for editing purposes only.
-        */
-        unsigned int m_CursorPosition;
-
-        /** @brief Sets the Beginning of the Work Area.
-          *
-          * The Work Area determines which parts of a clip will be rendered.
-          * In case of nested sequences, they determine the original length of a clip.
-        */
-        unsigned int m_BeginWorkArea;
-
-        /** Sets the End of the Work Area. */
-        unsigned int m_EndWorkArea;
-
-        /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
-
-        /** @see serializable::serialize */
-        virtual std::string serialize();
-
-        /** Standard destructor. */
-        virtual ~AVSequence() {}
-};
-
-class AVClipboard: public AVSequence {
-        AVClipboard() {}
-
-        bool m_Singleclip; /// Set it to indicate it's a single clip you're copying.
-        virtual ~AVClipboard() {}
-};
-
-
-class AVTimeline:public serializable {
-    public:
-        /** Standard constructor. */
-        AVTimeline();
-        /** Standard destructor. */
-        virtual ~AVTimeline();
-
-        /** Contains all the sequences in the video project. */
-        std::vector<AVSequence> m_Sequences;
-
-        /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
-
-        /** @see serializable::serialize */
-        virtual std::string serialize();
-};
-
-class AVResource:public serializable {
-    public:
-        /** Standard constructor. */
-        AVResource();
-
-        /** Standard destructor. */
-        virtual ~AVResource();
-
-        /** The Resource id. */
-        unsigned int m_ResourceId;
-
-        /** The resource type. @see ResourceType */
-        ResourceType m_ResourceType;
-
-        /** @brief The filename (if applicable) used by the resource.
-          *
-          * This is the resource's full pathname. It is calculated on
-          * startup based on m_RelativeFilename and the project's
-          * path.
-          */
-        std::string m_Filename;
-
-        /** @brief The relative filename for the resource.
-          *
-          * Resources are stored in a directory below the project's path.
-          * This way they can easily be located and transported.
-          */
-        std::string m_RelativeFilename;
-
-        /** @brief Resource's icon.
-          *
-          * The icon is stored in 64x64 JPEG, encoded in base64.
-          */
-        std::string m_Icon; // 64x64 JPEG icon encoded with base64
-
-        /** @brief Video Settings for the clip.
-          *
-          * @see AVSettings
-          */
-        AVSettings* m_AVSettings;
-
-        /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
-
-        /** @see serializable::serialize */
-        virtual std::string serialize();
-};
-
-class AVResources : public serializable {
-    public:
-
-        /** Standard constructor. */
-        AVResources();
-
-        /** Standard destructor. */
-        virtual ~AVResources();
-
-        /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
-
-        /** @see serializable::serialize */
-        virtual std::string serialize();
-
-        std::map<unsigned int, AVResource> data;
-};
-
-#endif // AVCLIP_H
+#endif

@@ -9,6 +9,7 @@
 
 #include "aveffect.h"
 #include "fxparameterlist.h"
+#include <map>
 
 AVEffect::AVEffect() {
     m_Parameters = new FXParameterList;
@@ -24,22 +25,6 @@ bool AVEffect::unserialize(const std::string& data) {
 }
 
 std::string AVEffect::serialize() {
-    // TODO: Implement AVEffect::serialize
-    return "";
-}
-
-AVEffects::AVEffects() {
-}
-
-AVEffects::~AVEffects() {
-}
-
-bool AVEffects::unserialize(const std::string& data) {
-// TODO: Implement AVEffects::unserialize
-    return false;
-}
-
-std::string AVEffects::serialize() {
     // TODO: Implement AVEffect::serialize
     return "";
 }
