@@ -38,6 +38,7 @@
 			<Add option="`wx-config --cflags`" />
 			<Add option="-DWXUSINGDLL" />
 			<Add option="-DwxUSE_UNICODE" />
+			<Add option="-DTIXML_USE_STL" />
 			<Add directory="$(#wx.include)" />
 			<Add directory="$(#wx)/contrib/include" />
 			<Add directory="$(#wx)/lib/gcc_dll/mswu" />
@@ -177,8 +178,6 @@
 		<Unit filename="vidproject/smap.h" />
 		<Unit filename="vidproject/svector.cpp" />
 		<Unit filename="vidproject/svector.h" />
-		<Unit filename="vidproject/tinyxml/tinystr.cpp" />
-		<Unit filename="vidproject/tinyxml/tinystr.h" />
 		<Unit filename="vidproject/tinyxml/tinyxml.cpp" />
 		<Unit filename="vidproject/tinyxml/tinyxml.h" />
 		<Unit filename="vidproject/tinyxml/tinyxmlerror.cpp" />
