@@ -43,6 +43,14 @@ template <class T> class SMapUint : public serializable {
             return result;
         }
 
+        T& operator[](unsigned int i) {
+            return data[i];
+        }
+
+        void clear() {
+            data.clear();
+        }
+
         std::map<unsigned int,T> data;
 };
 
@@ -76,6 +84,14 @@ template <class T> class SMapStr : public serializable {
             return result;
         }
 
+        T& operator[](const std::string& s) {
+            return data[s];
+        }
+
+        void clear() {
+            data.clear();
+        }
+
         std::map<std::string,T> data;
 };
 
@@ -95,6 +111,10 @@ class SMapUintUint : public serializable {
 
         /** @see serializable::serialize */
         virtual std::string serialize();
+
+        unsigned int& operator[](unsigned int i);
+
+        void clear();
 
         std::map<unsigned int,unsigned int> data;
 };
@@ -116,6 +136,10 @@ class SMapUintStr : public serializable {
         /** @see serializable::serialize */
         virtual std::string serialize();
 
+        std::string& operator[](unsigned int i);
+
+        void clear();
+
         std::map<unsigned int,std::string> data;
 };
 
@@ -136,6 +160,10 @@ class SMapIntStr : public serializable {
 
         virtual std::string GetTagName() { return "SMapIntStr"; }
 
+        std::string& operator[](int i);
+
+        void clear();
+
         std::map<int,std::string> data;
 };
 
@@ -155,6 +183,10 @@ class SMapStrStr : public serializable {
         virtual std::string serialize();
 
         virtual std::string GetTagName() { return "SMapStrStr"; }
+
+        std::string& operator[](const std::string& s);
+
+        void clear();
 
         std::map<std::string,std::string> data;
 };

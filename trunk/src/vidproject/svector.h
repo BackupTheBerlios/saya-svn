@@ -43,6 +43,14 @@ template <class T> class SVector : public serializable {
             return result;
         }
 
+        T& operator[](unsigned int i) {
+            return data[i];
+        }
+
+        void clear() {
+            data.clear();
+        };
+
         std::vector<T> data;
 };
 
@@ -63,6 +71,14 @@ class SStringVector : public serializable {
 
         /** @see serializable::serialize */
         virtual std::string serialize();
+
+        std::string& operator[](unsigned int i) {
+            return data[i];
+        }
+
+        void clear() {
+            data.clear();
+        };
 
         std::vector<std::string> data;
 };

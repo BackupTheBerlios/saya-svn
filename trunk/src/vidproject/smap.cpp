@@ -25,6 +25,15 @@ string SMapUintUint::serialize() {
     return result;
 }
 
+
+unsigned int& SMapUintUint::operator[](unsigned int i) {
+    return data[i];
+}
+
+void SMapUintUint::clear() {
+    data.clear();
+}
+
 bool SMapUintStr::unserialize(const string& src) {
     // TODO: Implement SMapUintStr::unserialize
     return false;
@@ -40,6 +49,13 @@ string SMapUintStr::serialize() {
     return result;
 }
 
+std::string& SMapUintStr::operator[](unsigned int i) {
+    return data[i];
+}
+
+void SMapUintStr::clear() {
+    data.clear();
+}
 
 bool SMapIntStr::unserialize(const string& src) {
     // TODO: Implement SMapIntStr::unserialize
@@ -56,6 +72,15 @@ string SMapIntStr::serialize() {
     return result;
 }
 
+std::string& SMapIntStr::operator[](int i) {
+    return data[i];
+}
+
+void SMapIntStr::clear() {
+    data.clear();
+}
+
+
 bool SMapStrStr::unserialize(const string& src) {
     // TODO: Implement SMapIntStr::unserialize
     return false;
@@ -69,4 +94,12 @@ string SMapStrStr::serialize() {
     }
     result += "</" + GetTagName() + ">\n";
     return result;
+}
+
+std::string& SMapStrStr::operator[](const std::string& s) {
+    return data[s];
+}
+
+void SMapStrStr::clear() {
+    data.clear();
 }
