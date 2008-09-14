@@ -12,6 +12,12 @@
 
 #include <string>
 
+/** Adds a message to the currently-assigned debug log */
+void DebugLog(const char* msg);
+
+/** Adds a message to the currently-assigned debug log (std::string version) */
+void DebugLog(const std::string& msg);
+
 class sayaDebugLogger {
     public:
 
@@ -21,11 +27,18 @@ class sayaDebugLogger {
         /** Adds a message to the debug log (std::string version) */
         virtual void DebugLog(const std::string& msg) = 0;
 
+        /** @brief sets the pointer for the program's debug logger
+          *
+          * Call this from your main program to specify an object which will do the
+          * debug logging.
+          */
+        static void SetDebugLogger(sayaDebugLogger* logger);
+
         /** Standard constructor */
         sayaDebugLogger() {}
 
         /** Standard destructor */
-        virtual ~sayaDebugLogger() {}
+        virtual ~sayaDebugLogger();
 };
 
 #endif

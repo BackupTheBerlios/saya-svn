@@ -22,6 +22,8 @@
 #include "configprovider.h"
 #include "sayadebuglogger.h"
 #include "sayaevthandler.h"
+#include "recentfileslist.h"
+#include "presetmanager.h"
 
 // For internationalization
 #include <libintl.h>
@@ -48,37 +50,31 @@ static ProjectManager* TheProjectManager = NULL;
 ProjectManager::ProjectManager() {
     //ctor
     m_project = 0;
-    m_recentfiles.clear();
+    m_RecentFiles = new RecentFilesList(9);
+    m_RecentImports = new RecentFilesList(9);
+    m_Presets = new PresetManager;
     m_evthandler = NULL;
-    m_logger = NULL;
     m_configprovider = NULL;
-    m_clearundohistoryonsave = true;
-    m_recentfilesmodcounter = 1;
-    m_recentimportsmodcounter = 1;
+    m_ClearUndoHistoryOnSave = true;
 
+}
+
+ProjectManager::~ProjectManager() {
+    //dtor
+    SaveConfig();
+    CloseProject(true);
+    delete m_Presets;
+    delete m_RecentImports;
+    delete m_RecentFiles;
 }
 
 void ProjectManager::SetConfigProvider(SayaConfigProvider* provider) {
     m_configprovider = provider;
 }
 
-bool ProjectManager::GetClearUndoHistoryOnSave() {
-    return m_clearundohistoryonsave;
-}
-
-void ProjectManager::SetClearUndoHistoryOnSave(bool flag) {
-    m_clearundohistoryonsave = flag;
-}
-
-
 void ProjectManager::SetEventHandler(sayaEvtHandler* handler) {
     m_evthandler = handler;
 }
-
-void ProjectManager::SetDebugLogger(sayaDebugLogger* logger) {
-    m_logger = logger;
-}
-
 
 ProjectManager* ProjectManager::Get() {
     if(TheProjectManager == NULL && !IsAppShuttingDown()) {
@@ -106,86 +102,6 @@ const std::string ProjectManager::GetLastProjectDir() {
     return m_lastprojectdir;
 }
 
-void ProjectManager::AddToRecentFiles(const std::string& s,bool fromthebeginning) {
-
-    if(s.empty())
-        return;
-
-    if(!fromthebeginning && m_recentfiles.size() >= 9) {
-        return; // Queue full
-    }
-
-    // First, check if it's in the list
-    size_t i;
-    for(i = 0; i < m_recentfiles.size(); i++) {
-        if(s == m_recentfiles[i]) {
-            return; // Found
-        }
-    }
-
-    // Finally, add it
-    if(fromthebeginning) {
-        m_recentfiles.push_front(s); // Add to the beginning
-        if(m_recentfiles.size() > 9) {
-            m_recentfiles.pop_back();
-        }
-    } else {
-        m_recentfiles.push_back(s); // Add to the end
-    }
-    m_recentfilesmodcounter = (m_recentfilesmodcounter + 1) & 0x3FFFFFFF;
-}
-
-void ProjectManager::AddToRecentImports(const std::string& s,bool fromthebeginning) {
-
-    if(s.empty())
-        return;
-
-    if(!fromthebeginning && m_recentimports.size() >= 9) {
-        return; // Queue full
-    }
-
-    // First, check if it's in the list
-    size_t i;
-    for(i = 0; i < m_recentimports.size(); i++) {
-        if(s == m_recentimports[i]) {
-            return; // Found
-        }
-    }
-
-    // Finally, add it
-    if(fromthebeginning) {
-        m_recentimports.push_front(s); // Add to the beginning
-        if(m_recentimports.size() > 9) {
-            m_recentimports.pop_back();
-        }
-    } else {
-        m_recentimports.push_back(s); // Add to the end
-    }
-    m_recentimportsmodcounter = (m_recentimportsmodcounter + 1) & 0x3FFFFFFF;
-}
-
-
-void ProjectManager::ClearRecentFiles() {
-    m_recentfiles.clear();
-    m_recentfilesmodcounter = (m_recentfilesmodcounter + 1) & 0x3FFFFFFF;
-}
-
-void ProjectManager::ClearRecentImports() {
-    m_recentimports.clear();
-    m_recentimportsmodcounter = (m_recentimportsmodcounter + 1) & 0x3FFFFFFF;
-}
-
-unsigned int ProjectManager::GetRecentFilesModCounter() {
-    return m_recentfilesmodcounter;
-}
-
-unsigned int ProjectManager::GetRecentImportsModCounter() {
-    return m_recentimportsmodcounter;
-
-}
-
-
-
 bool ProjectManager::LoadConfig() {
     // TODO (rick#1#): Load configuration for the project manager
     if(!m_configprovider) {
@@ -202,12 +118,10 @@ bool ProjectManager::LoadConfig() {
     unsigned int i;
     for(i = 1; i <= 9; i++) {
         key = ioCommon::Printf("RecentProjects/File%u",i);
-        if(m_logger != NULL) {
-            m_logger->DebugLog(string("Reading key: ") + key);
-        }
+        DebugLog(string("Reading key: ") + key);
         if(cfg->Exists(key)) {
             tmpname = cfg->Read(key,"");
-            AddToRecentFiles(tmpname,false);
+            m_RecentFiles->Add(tmpname,false);
         }
     }
 
@@ -230,15 +144,13 @@ bool ProjectManager::SaveConfig() {
 
     key = "";
     unsigned int i;
-    for(i = 0; i < 9; i++) {
-        key = ioCommon::Printf("RecentProjects/File%u",i+1);
-        if(m_logger) {
-            m_logger->DebugLog(key.c_str());
-        }
-        if(i>=m_recentfiles.size()) {
+    for(i = 1; i <= 9; ++i) {
+        key = ioCommon::Printf("RecentProjects/File%u",i);
+        DebugLog(key.c_str());
+        if(i>m_RecentFiles->size()) {
             cfg->Write(key,"");
         } else {
-            cfg->Write(key,m_recentfiles[i]);
+            cfg->Write(key,m_RecentFiles->item(i));
         }
     }
 
@@ -252,7 +164,7 @@ bool ProjectManager::LoadProject(const std::string filename) {
     CloseProject(true); // Close any project we have in memory
     VidProject* prj = VidProject::Load(filename,m_lasterror);
     if(prj != NULL) {
-        AddToRecentFiles(filename);
+        m_RecentFiles->Add(filename);
         m_lastprojectdir = ioCommon::GetPathname(filename); // Extract last project directory from opened file path
         m_project = prj;
         result = true;
@@ -265,18 +177,6 @@ bool ProjectManager::LoadProject(const std::string filename) {
     return result;
 }
 
-const std::string ProjectManager::GetRecentProjectName(int fileno) {
-    int maxfileno = m_recentfiles.size();
-    if(fileno < 1)
-        fileno = 1;
-    if(fileno >= maxfileno)
-        fileno = maxfileno;
-    if(!fileno)
-        return ""; //
-    fileno--; // Zero based now
-    return m_recentfiles[fileno];
-}
-
 const std::string ProjectManager::GetOfflineProjectTitle(const std::string& filename) {
     return VidProject::GetOfflineProjectTitle(filename);
 }
@@ -285,20 +185,9 @@ const std::string ProjectManager::GetOfflineProjectTitle(const char* filename) {
     return VidProject::GetOfflineProjectTitle(std::string(filename));
 }
 
-std::string ProjectManager::GetRecentImportName(int fileno) {
-    int maxfileno = m_recentimports.size();
-    if(fileno < 1)
-        fileno = 1;
-    if(fileno >= maxfileno)
-        fileno = maxfileno;
-    if(!fileno)
-        return ""; //
-    fileno--; // Zero based now
-    return m_recentimports[fileno];
-}
-
 bool ProjectManager::LoadRecentProject(int fileno) {
-    std::string filename = GetRecentProjectName(fileno);
+    if(fileno <= 0 || fileno > (int)m_RecentFiles->size()) { return false; }
+    string filename = m_RecentFiles->item(fileno);
     if(filename.empty())
         return false;
     bool result = LoadProject(filename);
@@ -411,41 +300,4 @@ void ProjectManager::OnProjectStatusModified() {
     if(m_evthandler) {
         m_evthandler->ProcessSayaEvent(sayaevt_ProjectStatusChanged);
     }
-}
-
-std::list<std::string> ProjectManager::GetPresets(){
-    std::list<std::string> presets;
-    presets.push_back("Predef 1");
-    presets.push_back("Predef 2");
-    presets.push_back("Predef 3");
-    presets.push_back("Predef 4");
-    presets.push_back("Predef 5");
-    return presets;
-}
-
-std::map<std::string, std::string> ProjectManager::GetPresetData(std::string preset){
-
-    map<std::string, std::string> configs;
-    configs["idNewPrjAVSettings_width"] = "600";
-    configs["idNewPrjAVSettings_height"] = "400";
-    configs["idNewPrjAVSettings_fps"] = "24";
-    configs["idNewPrjAVSettings_interlacing"] = "Progressive (non interlaced)";
-    configs["idNewPrjAVSettings_pixelaspect"] = "1.0";
-    configs["idNewPrjAVSettings_samplerate"] = "44100";
-    configs["idNewPrjAVSettings_samplesize"] = "8 bit";
-    configs["idNewPrjAVSettings_surround"] = "Stereo";
-    configs["idNewPrjAVSettings_channels"] = "2";
-    configs["idNewPrjAVSettings_description"] = "some description for the preset";
-
-    return configs;
-}
-
-bool ProjectManager::SaveNewPreset(std::string preset, std::map<std::string, std::string>){
-    return true;
-}
-
-ProjectManager::~ProjectManager() {
-    //dtor
-    SaveConfig();
-    CloseProject(true);
 }

@@ -15,7 +15,6 @@
 #include "vidproject/projectmanager.h"
 #include "vidproject/configprovider.h"
 #include "vidproject/sayaconfig.h"
-#include "vidproject/sayadebuglogger.h"
 
 class AppDebugLog;
 
@@ -53,7 +52,7 @@ class AppConfigProvider : public SayaConfigProvider {
 };
 
 // *** Our App ***
-class App : public wxApp, public sayaDebugLogger
+class App : public wxApp
 {
     public:
         virtual bool OnInit();
@@ -61,8 +60,6 @@ class App : public wxApp, public sayaDebugLogger
         bool LoadConfig();
         bool LoadXRCResources();
         void InitManagers();
-        virtual void DebugLog(const char* msg);
-        virtual void DebugLog(const std::string& msg);
         DECLARE_EVENT_TABLE()
         virtual ~App();
     private:

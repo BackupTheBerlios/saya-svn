@@ -27,12 +27,14 @@
 #endif
 
 #include "vidproject/vidproject.h"
+#include "vidproject/recentfileslist.h"
 
+#include "s2wx.h"
 #include "App.h"
 #include "Main.h"
 #include "welcomedlg.h"
 #include "newprojectdlg.h"
-#include "sdlpanel.h"
+
 #include "wxvideopanel.h"
 #include <deque>
 
@@ -75,16 +77,6 @@ int main_RegisterId(int id)
     wxRegisterId(id);
     return id;
 }
-
-const wxString std2wx(const std::string& str) {
-    return wxString(str.c_str(), wxConvUTF8);
-}
-
-const wxString std2wx(const char* str) {
-    return wxString(str, wxConvUTF8);
-}
-
-
 
 const wxString CFG_LAYOUTS = _T("Layouts");
 const wxString CFG_LAYOUT_DEFAULT = CFG_LAYOUTS + _T("/Default");
@@ -472,7 +464,7 @@ m_recentimportsmodcounter(0)
 {
     bool result = false;
     do {
-        m_cfg = new wxConfig(std2wx(APP_NAME));
+        m_cfg = new wxConfig(s2wx(APP_NAME));
         if(!CreateMenuBar()) break;
         if(!CreateDialogs()) break;
         CreateStatusBar(2);
@@ -486,7 +478,7 @@ m_recentimportsmodcounter(0)
 
         // Update Status bar
         SetStatusText(wxbuildinfo(short_f), 1);
-        g_statustext = _("Welcome to ") + std2wx(APP_SHOWNAME) + _T("! ^_^");
+        g_statustext = _("Welcome to ") + s2wx(APP_SHOWNAME) + _T("! ^_^");
         UpdateStatustext();
 
 
@@ -531,7 +523,6 @@ bool AppFrame::CreatePanels() {
     do {
         m_projectpanel = CreateProjectPane(); // wxXmlResource::Get()->LoadPanel(this,wxT("project_panel"));
         if(!m_projectpanel) { LoadFail(_T("project_panel")); break; }
-//           m_monitorpanel = new SDLPanel(this);
            m_monitorpanel = new wxVideoPanel(this);
            m_effectspanel = new wxVideoPanel(this);
 //         m_monitorpanel = wxXmlResource::Get()->LoadPanel(this,wxT("monitor_panel"));
@@ -790,12 +781,12 @@ void AppFrame::OnNewProject(wxCommandEvent& event) {
 void AppFrame::OnFileOpen(wxCommandEvent& event) {
     if(IsAppShuttingDown())
         return;
-    wxString lastdir(ProjectManager::Get()->GetLastProjectDir().c_str(),wxConvUTF8);
+    wxString lastdir = s2wx(ProjectManager::Get()->GetLastProjectDir());
     wxFileDialog myDialog(this, _("Choose a project"), lastdir, _T(""), _T("*.saya"), wxFD_DEFAULT_STYLE, wxDefaultPosition, wxDefaultSize, _T("opendlg"));
     int dialogresult = myDialog.ShowModal();
     if(dialogresult == wxID_OK) {
         if(ProjectManager::Get()->CloseProject(false)) { // First close current project, ask to save, etc.
-            bool result = ProjectManager::Get()->LoadProject(std::string(myDialog.GetPath().mb_str()));
+            bool result = ProjectManager::Get()->LoadProject(wx2s(myDialog.GetPath()));
             if(!result) {
                 wxString msg;
                 msg.Printf(_("Error opening file '%s'!"),myDialog.GetPath().c_str());
@@ -810,11 +801,15 @@ void AppFrame::OnOpenRecentFile(wxCommandEvent &event) {
     if(IsAppShuttingDown())
         return;
     if(ProjectManager::Get()->CloseProject(false)) { // First close current project, ask to save, etc.
+
+        // event.GetId() - wxID_FILE1 would give zero for wxID_FILE1;
+        // but the list is one-based so we add 1.
         int fileno = (event.GetId() - wxID_FILE1) + 1;
+
         bool result = ProjectManager::Get()->LoadRecentProject(fileno);
         if(!result) {
             wxString msg;
-            msg.Printf(_("Error opening file '%s'!"),ProjectManager::Get()->GetRecentProjectName(fileno).c_str());
+            msg.Printf(_("Error opening file '%s'!"),ProjectManager::Get()->m_RecentFiles->item(fileno).c_str());
             wxMessageBox(msg,_("Error"),wxCANCEL | wxICON_ERROR,this);
         }
         DoUpdateAppTitle();
@@ -824,7 +819,7 @@ void AppFrame::OnOpenRecentFile(wxCommandEvent &event) {
 void AppFrame::OnClearRecentProjectList(wxCommandEvent &event) {
     if(IsAppShuttingDown())
         return;
-    ProjectManager::Get()->ClearRecentFiles();
+    ProjectManager::Get()->m_RecentFiles->clear();
 }
 
 void AppFrame::OnFileClose(wxCommandEvent& event) {
@@ -952,9 +947,7 @@ void AppFrame::OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event) {
     ProjectManager* pmgr = ProjectManager::Get();
     if(!pmgr)
         return;
-    unsigned int tmpcounter = pmgr->GetRecentImportsModCounter();
-    if(tmpcounter != m_recentimportsmodcounter) {
-        m_recentimportsmodcounter = tmpcounter;
+    if(pmgr->m_RecentFiles->UpdateCounter(m_recentfilesmodcounter)) {
         wxMenuItem* myItem = GetMenuBar()-> FindItem(idFileOpenRecentProject);
         if(myItem) {
             wxMenu* mySubMenu = myItem->GetSubMenu();
@@ -973,13 +966,12 @@ void AppFrame::OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event) {
             size_t i = 0;
             mySubMenu->Append(idFileClearRecentProjectList,_T("&Clear"),_("Clears Recent Projects List"));
             mySubMenu->AppendSeparator();
-            for(i = 0; i < pmgr->m_recentfiles.size(); i++) {
+            for(i = 1; i <= pmgr->m_RecentFiles->size(); ++i) {
                 wxString tmptext;
-                tmptext.Printf(_T("&%d ") + std2wx(pmgr->m_recentfiles[i]),i+1);
-                mySubMenu->Append(wxID_FILE1+i,tmptext,wxEmptyString);
+                tmptext.Printf(_T("&%d ") + s2wx(pmgr->m_RecentFiles->item(i)),i);
+                mySubMenu->Append(wxID_FILE1 + i - 1,tmptext,wxEmptyString);
             }
-            // wxID_FILE1
-            myItem->Enable(pmgr->m_recentfiles.size() > 0);
+            myItem->Enable(pmgr->m_RecentFiles->size() > 0);
         }
     }
 }
@@ -989,9 +981,7 @@ void AppFrame::OnRecentImportsMenuUpdateUI(wxUpdateUIEvent& event) {
     ProjectManager* pmgr = ProjectManager::Get();
     if(!pmgr)
         return;
-    unsigned int tmpcounter = pmgr->GetRecentFilesModCounter();
-    if(tmpcounter != m_recentfilesmodcounter) {
-        m_recentfilesmodcounter = tmpcounter;
+    if(pmgr->m_RecentImports->UpdateCounter(m_recentimportsmodcounter)) {
         wxMenuItem* myItem = GetMenuBar()-> FindItem(idFileImportRecent);
         if(myItem) {
             wxMenu* mySubMenu = myItem->GetSubMenu();
@@ -1010,15 +1000,15 @@ void AppFrame::OnRecentImportsMenuUpdateUI(wxUpdateUIEvent& event) {
             size_t i = 0;
             mySubMenu->Append(idFileClearRecentImportList,_T("&Clear"),_("Clears Recent Imported Files List"));
             mySubMenu->AppendSeparator();
-            for(i = 0; i < pmgr->m_recentimports.size(); i++) {
+            for(i = 1; i <= pmgr->m_RecentImports->size(); ++i) {
                 wxString tmptext;
-                tmptext.Printf(_T("&%d ") + std2wx(pmgr->m_recentimports[i]),i+1);
-                mySubMenu->Append(wxID_IMPORT1+i,tmptext,wxEmptyString);
+                tmptext.Printf(_T("&%d ") + s2wx(pmgr->m_RecentImports->item(i)),i);
+                mySubMenu->Append(wxID_IMPORT1 + i -1,tmptext,wxEmptyString);
             }
         }
     }
     wxMenuBar* mbar = GetMenuBar();
-    mbar->Enable(idFileImportRecent,pmgr->m_recentimports.size() > 0 && (pmgr->HasProject()));
+    mbar->Enable(idFileImportRecent,pmgr->m_RecentImports->size() > 0 && (pmgr->HasProject()));
 }
 
 void AppFrame::OnEditMenuUpdateUI(wxUpdateUIEvent& event) {
@@ -1280,19 +1270,19 @@ void AppFrame::DoUpdateAppTitle() {
         if(prj->IsModified()) {
             modified_str = _T("* ");
         }
-        title = modified_str + std2wx(prj->m_Title);
+        title = modified_str + s2wx(prj->m_Title);
 
         if(!prj->m_Filename.empty()) {
-            wxFileName fname(std2wx(prj->m_Filename));
+            wxFileName fname(s2wx(prj->m_Filename));
             fname.GetFullName();
             title += _T(" [") + fname.GetFullName() + _T("]");
         } else {
             title += wxString(_T(" [")) + _("untitled") + _T("]");
         }
         title += _T(" - ");
-        title += std2wx(APP_SHOWNAME);
+        title += s2wx(APP_SHOWNAME);
     } else {
-        title = std2wx(APP_SHOWOFFNAME);
+        title = s2wx(APP_SHOWOFFNAME);
     }
     SetTitle(title);
 }
@@ -1333,7 +1323,7 @@ void AppFrame::ProcessSayaEvent(sayaEventType id, void* data) {
 }
 
 void AppFrame::ErrorMessageBox(const char* msg,const char* caption) {
-    wxMessageBox(std2wx(msg), std2wx(caption), wxCANCEL | wxICON_ERROR, this);
+    wxMessageBox(s2wx(msg), s2wx(caption), wxCANCEL | wxICON_ERROR, this);
 }
 
 bool AppFrame::YesNoMessageBox(const char* msg,const char* caption,bool exclamation) {
@@ -1343,7 +1333,7 @@ bool AppFrame::YesNoMessageBox(const char* msg,const char* caption,bool exclamat
     } else {
         style = wxICON_QUESTION;
     }
-    int result = wxMessageBox(std2wx(msg), std2wx(caption), wxYES_NO | style, this);
+    int result = wxMessageBox(s2wx(msg), s2wx(caption), wxYES_NO | style, this);
     return (result == wxYES);
 }
 
@@ -1355,7 +1345,7 @@ sayaYesNoCancel AppFrame::YesNoCancelMessageBox(const char* msg,const char* capt
     } else {
         style = wxICON_QUESTION;
     }
-    int answer = wxMessageBox(std2wx(msg), std2wx(caption), wxYES_NO | wxCANCEL | style, this);
+    int answer = wxMessageBox(s2wx(msg), s2wx(caption), wxYES_NO | wxCANCEL | style, this);
     if(answer == wxYES) {
         result = sayaYes;
     } else if(result == wxNO) {
@@ -1370,8 +1360,7 @@ std::string AppFrame::ShowDialogSaveProjectAs() {
     wxFileDialog mydialog(this,_("Save file as..."),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
     std::string result = "";
     if(mydialog.ShowModal() == wxID_OK) {
-        std::string filename(mydialog.GetPath().mb_str()); // Gets full path including filename
-        result = filename;
+        result = wx2s(mydialog.GetPath());
     }
     return result;
 }
@@ -1380,8 +1369,7 @@ std::string AppFrame::ShowDialogSaveProjectCopyAs() {
     wxFileDialog mydialog(this,_("Save Copy as..."),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
     std::string result = "";
     if(mydialog.ShowModal() == wxID_OK) {
-        std::string filename(mydialog.GetPath().mb_str()); // Gets full path including filename
-        result = filename;
+        result = wx2s(mydialog.GetPath()); // Gets full path including filename
     }
     return result;
 }

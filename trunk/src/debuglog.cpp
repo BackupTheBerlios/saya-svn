@@ -26,6 +26,7 @@
     #include <wx/sizer.h>
 #endif
 
+#include "s2wx.h"
 #include "debuglog.h"
 #include <wx/datetime.h>
 
@@ -50,11 +51,15 @@ wxFrame( parent, id, title, pos, size, style )
 }
 
 
-void AppDebugLog::Log(const char* msg) {
-    Log(wxString(msg,wxConvUTF8));
+void AppDebugLog::DebugLog(const char* msg) {
+    DebugLog(s2wx(msg));
 }
 
-void AppDebugLog::Log(const wxString& msg) {
+void AppDebugLog::DebugLog(const std::string& msg) {
+    DebugLog(s2wx(msg));
+}
+
+void AppDebugLog::DebugLog(const wxString& msg) {
     wxDateTime t = wxDateTime::Now();
     wxString s;
     s = wxString(_T("[")) + t.Format(_T("%Y-%m-%d %H:%M:%S")) + _T("] : ") + msg + _T("\n");

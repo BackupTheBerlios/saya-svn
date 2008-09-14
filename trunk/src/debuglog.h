@@ -17,14 +17,24 @@
 #include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/frame.h>
-class AppDebugLog : public wxFrame {
+
+#include "vidproject/sayadebuglogger.h"
+
+class AppDebugLog : public wxFrame, public sayaDebugLogger {
+
     protected:
 		wxTextCtrl* m_log;
 
     public:
+
         AppDebugLog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Debug Log"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 539,399 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
-        void Log(const char* msg);
-        void Log(const wxString& msg);
+
+        virtual void DebugLog(const char* msg);
+
+        virtual void DebugLog(const std::string& msg);
+
+        void DebugLog(const wxString& msg);
+
         virtual ~AppDebugLog();
     private:
         void OnClose(wxCloseEvent& event);

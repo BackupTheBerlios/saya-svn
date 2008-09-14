@@ -151,7 +151,4 @@ class AppFrame: public wxFrame, public sayaEvtHandler
         DECLARE_EVENT_TABLE()
 };
 
-const wxString std2wx(const std::string& str);
-const wxString std2wx(const char* str);
-
 #endif // SAYAMAIN_H

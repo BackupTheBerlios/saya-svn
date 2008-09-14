@@ -17,7 +17,11 @@
     #include <wx/sizer.h>
     #include <wx/html/htmlwin.h>
 #endif
+
 #include "vidproject/projectmanager.h"
+#include "vidproject/recentfileslist.h"
+
+#include "s2wx.h"
 #include "App.h"
 #include "welcomedlg.h"
 
@@ -74,11 +78,13 @@ void WelcomeDialog::RefreshRecentFilesList() {
     if(IsAppShuttingDown()) return;
     wxString tmps = wxEmptyString;
     wxString curfile;
+
+    RecentFilesList& items = *ProjectManager::Get()->m_RecentFiles;
     size_t i;
-    for(i = 1; i <=9 && (i<= ProjectManager::Get()->m_recentfiles.size()); ++i) {
-        curfile = wxString(ProjectManager::Get()->GetRecentProjectName(i).c_str(),wxConvUTF8);
+    for(i = 1; i <=9 && (i<= items.size()); ++i) {
+        curfile = s2wx(items.item(i));
         if(!curfile.IsEmpty()) {
-            wxString prjtitle(ProjectManager::Get()->GetOfflineProjectTitle(curfile.mb_str()).c_str(),wxConvUTF8);
+            wxString prjtitle = s2wx(ProjectManager::Get()->GetOfflineProjectTitle(wx2s(curfile)));
             if(prjtitle.IsEmpty()) {
                 prjtitle = _("(Untitled)");
             }

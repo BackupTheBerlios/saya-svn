@@ -140,6 +140,8 @@
 			<Option target="Debug" />
 		</Unit>
 		<Unit filename="resources/welcome.xrc" />
+		<Unit filename="s2wx.cpp" />
+		<Unit filename="s2wx.h" />
 		<Unit filename="todo.txt" />
 		<Unit filename="vidproject/avclip.cpp" />
 		<Unit filename="vidproject/avclip.h" />
@@ -151,6 +153,7 @@
 		<Unit filename="vidproject/aveffectdeclaration.h" />
 		<Unit filename="vidproject/aveffectparamdeclaration.cpp" />
 		<Unit filename="vidproject/aveffectparamdeclaration.h" />
+		<Unit filename="vidproject/aveffectparamdeclarations.h" />
 		<Unit filename="vidproject/aveffects.h" />
 		<Unit filename="vidproject/avresource.cpp" />
 		<Unit filename="vidproject/avresource.h" />
@@ -167,9 +170,14 @@
 		<Unit filename="vidproject/avtransition.h" />
 		<Unit filename="vidproject/configprovider.h" />
 		<Unit filename="vidproject/fxparameterlist.h" />
+		<Unit filename="vidproject/presetmanager.cpp" />
+		<Unit filename="vidproject/presetmanager.h" />
 		<Unit filename="vidproject/projectmanager.cpp" />
 		<Unit filename="vidproject/projectmanager.h" />
+		<Unit filename="vidproject/recentfileslist.cpp" />
+		<Unit filename="vidproject/recentfileslist.h" />
 		<Unit filename="vidproject/sayaconfig.h" />
+		<Unit filename="vidproject/sayadebuglogger.cpp" />
 		<Unit filename="vidproject/sayadebuglogger.h" />
 		<Unit filename="vidproject/sayaevthandler.h" />
 		<Unit filename="vidproject/serializable.cpp" />

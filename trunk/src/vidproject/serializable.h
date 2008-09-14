@@ -67,6 +67,15 @@ class serializable {
         /** Unserializes a boolean */
         static bool unserializeboolean(const std::string& s);
 
+        /** Unserializes a serializable */
+        static bool unserialize_object(serializable* obj, const std::string& src) {
+            return obj->unserialize(src);
+        }
+
+        static std::string serialize_object(serializable* obj) {
+            return obj->serialize();
+        }
+
         virtual ~serializable() {}
 };
 

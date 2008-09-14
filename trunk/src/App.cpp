@@ -20,6 +20,7 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/config.h>
 
+#include "s2wx.h"
 #include "App.h"
 #include "Main.h"
 #include "debuglog.h"
@@ -36,19 +37,19 @@ BEGIN_EVENT_TABLE( App, wxApp )
 END_EVENT_TABLE()
 
 AppConfig::AppConfig(std::string application_name) : SayaConfig(application_name) {
-    m_config = new wxConfig(wxString(application_name.c_str(),wxConvUTF8));
+    m_config = new wxConfig(s2wx(application_name));
 }
 
 std::string AppConfig::Read(const std::string& key, const std::string& defaultvalue) {
-    return std::string(m_config->Read(wxString(key.c_str(),wxConvUTF8),wxString(defaultvalue.c_str(),wxConvUTF8)).mb_str());
+    return wx2s(m_config->Read(s2wx(key),s2wx(defaultvalue)));
 }
 
 bool AppConfig::Write(const std::string& key, const std::string& value) {
-    return m_config->Write(wxString(key.c_str(),wxConvUTF8),wxString(value.c_str(),wxConvUTF8));
+    return m_config->Write(s2wx(key),s2wx(value));
 }
 
 bool AppConfig::Exists(const std::string& key) {
-    return m_config->Exists(wxString(key.c_str(),wxConvUTF8));
+    return m_config->Exists(s2wx(key));
 }
 
 AppConfig::~AppConfig() {
@@ -70,7 +71,6 @@ bool App::LoadConfig()
 void App::InitManagers() {
     ProjectManager::Get();
     ProjectManager::Get()->SetConfigProvider(&m_configprovider);
-    ProjectManager::Get()->SetDebugLogger(this);
 }
 
 bool App::LoadXRCResources() {
@@ -90,40 +90,42 @@ bool App::LoadXRCResources() {
 bool App::OnInit()
 {
     m_debuglog = new AppDebugLog(NULL);
-    m_debuglog->Log(_T("Debug log initialized."));
+    sayaDebugLogger::SetDebugLogger(m_debuglog);
 
-    m_debuglog->Log(_T("Initializing File system handlers..."));
+    DebugLog("Debug log initialized.");
+
+    DebugLog("Initializing File system handlers...");
     wxFileSystem::AddHandler(new wxZipFSHandler);
     wxFileSystem::AddHandler(new wxMemoryFSHandler);
-    m_debuglog->Log(_T("Initializing XML Resource handlers..."));
+    DebugLog("Initializing XML Resource handlers...");
     wxXmlResource::Get()->InitAllHandlers();
 	//(*AppInitialize
 	bool wxsOK = true;
 	wxInitAllImageHandlers();
 	//*)
-    m_debuglog->Log(_T("Initializing Image handlers..."));
+    DebugLog("Initializing Image handlers...");
 	wxInitAllImageHandlers();
 
-    m_debuglog->Log(_T("Loading resources..."));
+    DebugLog("Loading resources...");
     if(!LoadXRCResources()) {
         return false;
     }
 
-    m_debuglog->Log(_T("Initializing Project Manager..."));
+    DebugLog("Initializing Project Manager...");
     InitManagers();
 
 
     if(!LoadConfig()) {
         wxLogError(_("WARNING: Could not read configuration!"));
-        m_debuglog->Log(_T("WARNING: Could not read configuration!"));
+        DebugLog("WARNING: Could not read configuration!");
     }
 
-    m_debuglog->Log(_T("Creating main frame..."));
+    DebugLog("Creating main frame...");
     AppFrame* frame = new AppFrame(NULL, _("Saya - Unsheathe your Creativity"));
     ProjectManager::Get()->SetEventHandler(frame);
     SetTopWindow(frame);
 
-    m_debuglog->Log(_T("Initialization finished."));
+    DebugLog("Initialization finished.");
 	return wxsOK;
 }
 
@@ -134,21 +136,9 @@ int App::OnExit() {
 App::~App() {
 }
 
-void App::DebugLog(const std::string&msg) {
-    if(m_debuglog) {
-        m_debuglog->Log(msg.c_str());
-    }
-}
-
-void App::DebugLog(const char* msg) {
-    if(m_debuglog) {
-        m_debuglog->Log(msg);
-    }
-}
-
 void App::OnExitApp(wxCommandEvent& event) {
     if(m_debuglog) {
-        m_debuglog->Log(_T("Good bye."));
+        DebugLog("Good bye.");
         delete m_debuglog;
     }
     m_debuglog = NULL;

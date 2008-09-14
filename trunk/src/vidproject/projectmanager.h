@@ -10,15 +10,12 @@
 #ifndef PROJECTMANAGER_H
 #define PROJECTMANAGER_H
 
-#include <deque>
-#include <list>
-#include <map>
-#include <string>
-
 class VidProject;
 class SayaConfigProvider;
 class sayaEvtHandler;
 class sayaDebugLogger;
+class RecentFilesList;
+class PresetManager;
 
 /** Tells whether the application is shutting down. */
 bool IsAppShuttingDown();
@@ -118,25 +115,12 @@ class ProjectManager
           */
         bool SaveConfig();
 
-        /** Gets the value of the "Clear Undo History on Save" flag. */
-        bool GetClearUndoHistoryOnSave();
-
-        /** Sets the value of the "Clear Undo History on Save" flag. */
-        void SetClearUndoHistoryOnSave(bool flag);
-
         /** @brief sets the pointer for the program's main frame (window)
           *
           * Call this from your main program to specify which frame will
           * receive the events.
           */
         void SetEventHandler(sayaEvtHandler* handler);
-
-        /** @brief sets the pointer for the program's debug logger
-          *
-          * Call this from your main program to specify an object which will do the
-          * debug logging.
-          */
-        void SetDebugLogger(sayaDebugLogger* logger);
 
         /** Sets the Configuration provider.
           *
@@ -149,66 +133,18 @@ class ProjectManager
 
         // Recent Projects and Imported files
 
-        /** @brief Adds a filename to the Recent Projects list.
-          *
-          * @param s The filename to be added to the list.
-          * @param fromthebeginning Tells whether to prepend the file at the beginning, or append it to the end.
-          */
-        void AddToRecentFiles(const std::string& s,bool fromthebeginning = true);
-
-        /** @brief Adds a filename to the Recently Imported files list.
-          *
-          * @param s The filename to be added to the list.
-          * @param fromthebeginning Tells whether to prepend the file at the beginning, or append it to the end.
-          */
-        void AddToRecentImports(const std::string& s,bool fromthebeginning = true);
-
-        /** @brief Gets the filename for the nth recently opened project.
-          *
-          * @param fileno The index of the filename to retrieve (from 1 to 9)
-          * @return The filename corresponding to the nth entry in the Recent Projects list.
-          */
-        const std::string GetRecentProjectName(int fileno);
-
-        /** @brief Gets an offline project's Title
-          * A proxy for VidProject::GetOfflineProjectTitle
-          * @param filename The filename of the project
-          * @return The project's title
-          */
         const std::string GetOfflineProjectTitle(const std::string& filename);
 
         const std::string GetOfflineProjectTitle(const char* filename);
 
-        /** @brief Gets the filename for the nth recently imported file.
-          *
-          * @param fileno The index of the filename to retrieve (from 1 to 9)
-          * @return The filename corresponding to the nth entry in the Recently Imported files list.
-          */
-        std::string GetRecentImportName(int filenmo);
-
-        /** Clears the Recent Projects file list. */
-        void ClearRecentFiles();
-
-        /** Clears the Recent Imports file list. */
-        void ClearRecentImports();
-
-        /** @brief Counter telling the revision of the Recent Opened projects list.
-          *
-          * Whenever the Recent Opened Files list changes, the number is increased by one.
-          */
-        unsigned int GetRecentFilesModCounter();
-
-        /** @brief Counter telling the revision of the recently imported files list.
-          *
-          * Whenever the Recent Imported Files list changes, the number is increased by one.
-          */
-        unsigned int GetRecentImportsModCounter();
-
         /** A list of the most recently opened project files. */
-        std::deque<std::string> m_recentfiles;
+        RecentFilesList* m_RecentFiles;
 
         /** A list of the most recently imported clips. */
-        std::deque<std::string> m_recentimports;
+        RecentFilesList* m_RecentImports;
+
+        /** The object to access the current video presets */
+        PresetManager* m_Presets;
 
         /** @brief Gets the current project manager instance, or creates one.
           *
@@ -233,20 +169,10 @@ class ProjectManager
         std::string m_lasterror;
 
         /** Tells whether to clear the Undo History after the project's successfully saved. */
-        bool m_clearundohistoryonsave;
+        bool m_ClearUndoHistoryOnSave;
 
         /** Called whenever the project's status or filename have changed. */
         void OnProjectStatusModified();
-
-        /** Gets (only names) all predefined settings saved by user (not include custom)  */
-        std::list<std::string> GetPresets();
-
-        /** Returns the info for the specified preset. The map contains the id of the component and the value.
-        The value is a string, but it is well formed for every value type of every widget */
-        std::map<std::string, std::string> GetPresetData(std::string preset);
-
-        /** Save new predefined setting */
-        bool SaveNewPreset(std::string preset, std::map<std::string, std::string>);
 
     protected:
 
@@ -261,18 +187,8 @@ class ProjectManager
         /** A pointer to the program's event handler */
         sayaEvtHandler* m_evthandler;
 
-        /** A pointer to the program's debug logger */
-        sayaDebugLogger* m_logger;
-
         /** A pointer to the program's config provider */
         SayaConfigProvider* m_configprovider;
-
-        /** Counter for the Recent Projects List revision */
-        unsigned int m_recentfilesmodcounter;
-
-        /** Counter for the Recent Imports List revision */
-        unsigned int m_recentimportsmodcounter;
-
 };
 
 #endif // PROJECTMANAGER_H

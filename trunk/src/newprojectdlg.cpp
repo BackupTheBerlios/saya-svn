@@ -27,7 +27,10 @@
     #include <wx/sizer.h>
     #include <wx/html/htmlwin.h>
 #endif
+
+#include "s2wx.h"
 #include "vidproject/projectmanager.h"
+#include "vidproject/presetmanager.h"
 #include "App.h"
 #include "newprojectdlg.h"
 #include "picknamedlg.h"
@@ -126,49 +129,49 @@ void NewProjectDlg::OnPjrPresetsChanged(wxCommandEvent& event) {
     }
     //disable all and put values
     else{
-        std::string selPreset = std::string(idNewPrjPresetsChoice->GetStringSelection().mb_str(wxConvUTF8));
-        map<std::string, std::string> values = ProjectManager::Get()->GetPresetData(selPreset);
+        string selPreset = wx2s(idNewPrjPresetsChoice->GetStringSelection());
+        map<string, string> values = ProjectManager::Get()->m_Presets->GetPresetData(selPreset);
 
-        map<std::string, std::string>::iterator iter;
+        map<string, string>::iterator iter;
 
         iter = values.find("idNewPrjAVSettings_width");
-        if(iter != values.end()){idNewPrjAVSettings_widthTextCtrl->SetValue(wxString(iter->second.c_str(), wxConvUTF8));}
+        if(iter != values.end()){idNewPrjAVSettings_widthTextCtrl->SetValue(s2wx(iter->second));}
         idNewPrjAVSettings_widthTextCtrl->Disable();
 
         iter = values.find("idNewPrjAVSettings_height");
-        if(iter != values.end()){idNewPrjAVSettings_heightTextCtrl->SetValue(wxString(iter->second.c_str(), wxConvUTF8));}
+        if(iter != values.end()){idNewPrjAVSettings_heightTextCtrl->SetValue(s2wx(iter->second));}
         idNewPrjAVSettings_heightTextCtrl->Disable();
 
         iter = values.find("idNewPrjAVSettings_fps");
-        if(iter != values.end()){idNewPrjAVSettings_fpsComboBox->SetValue(wxString(iter->second.c_str(), wxConvUTF8));}
+        if(iter != values.end()){idNewPrjAVSettings_fpsComboBox->SetValue(s2wx(iter->second));}
         idNewPrjAVSettings_fpsComboBox->Disable();
 
         iter = values.find("idNewPrjAVSettings_interlacing");
-        if(iter != values.end()){idNewPrjAVSettings_interlacingChoice->SetStringSelection(wxString(iter->second.c_str(), wxConvUTF8));}
+        if(iter != values.end()){idNewPrjAVSettings_interlacingChoice->SetStringSelection(s2wx(iter->second));}
         idNewPrjAVSettings_interlacingChoice->Disable();
 
         iter = values.find("idNewPrjAVSettings_pixelaspect");
-        if(iter != values.end()){idNewPrjAVSettings_pixelaspectTextCtrl->SetValue(wxString(iter->second.c_str(), wxConvUTF8));}
+        if(iter != values.end()){idNewPrjAVSettings_pixelaspectTextCtrl->SetValue(s2wx(iter->second));}
         idNewPrjAVSettings_pixelaspectTextCtrl->Disable();
 
         iter = values.find("idNewPrjAVSettings_samplerate");
-        if(iter != values.end()){idNewPrjAVSettings_samplerateComboBox->SetValue(wxString(iter->second.c_str(), wxConvUTF8));}
+        if(iter != values.end()){idNewPrjAVSettings_samplerateComboBox->SetValue(s2wx(iter->second));}
         idNewPrjAVSettings_samplerateComboBox->Disable();
 
         iter = values.find("idNewPrjAVSettings_samplesize");
-        if(iter != values.end()){idNewPrjAVSettings_samplesizeChoice->SetStringSelection(wxString(iter->second.c_str(), wxConvUTF8));}
+        if(iter != values.end()){idNewPrjAVSettings_samplesizeChoice->SetStringSelection(s2wx(iter->second));}
         idNewPrjAVSettings_samplesizeChoice->Disable();
 
         iter = values.find("idNewPrjAVSettings_surround");
-        if(iter != values.end()){idNewPrjAVSettings_surroundChoice->SetStringSelection(wxString(iter->second.c_str(), wxConvUTF8));}
+        if(iter != values.end()){idNewPrjAVSettings_surroundChoice->SetStringSelection(s2wx(iter->second));}
         idNewPrjAVSettings_surroundChoice->Disable();
 
         //iter = values.find("idNewPrjAVSettings_channels");
-        //if(iter != values.end()){idNewPrjAVSettings_channels->SetValue(wxString(iter->second.c_str(), wxConvUTF8));}
+        //if(iter != values.end()){idNewPrjAVSettings_channels->SetValue(s2wx(iter->second));}
         //idNewPrjAVSettings_channelsSpinCtrl->Disable();
 
         iter = values.find("idNewPrjAVSettings_description");
-        if(iter != values.end()){idNewPrjAVSettings_descriptionTextCtrl->SetValue(wxString(iter->second.c_str(), wxConvUTF8));}
+        if(iter != values.end()){idNewPrjAVSettings_descriptionTextCtrl->SetValue(s2wx(iter->second));}
         idNewPrjAVSettings_descriptionTextCtrl->Disable();
     }
 }
@@ -181,20 +184,20 @@ void NewProjectDlg::OnPrjSaveSettingsAsClicked(wxCommandEvent& event) {
 
     if(dlg->ShowModal() == wxID_OK){
         //save preset (veirification not neede)
-        map<std::string, std::string> configs;
-        configs["idNewPrjAVSettings_width"] = std::string(idNewPrjAVSettings_widthTextCtrl->GetValue().mb_str(wxConvUTF8));
-        configs["idNewPrjAVSettings_height"] = std::string(idNewPrjAVSettings_heightTextCtrl->GetValue().mb_str(wxConvUTF8));
-        configs["idNewPrjAVSettings_fps"] = std::string(idNewPrjAVSettings_fpsComboBox->GetValue().mb_str(wxConvUTF8));
-        configs["idNewPrjAVSettings_interlacing"] = std::string(idNewPrjAVSettings_interlacingChoice->GetStringSelection().mb_str(wxConvUTF8));
-        configs["idNewPrjAVSettings_pixelaspect"] = std::string(idNewPrjAVSettings_pixelaspectTextCtrl->GetValue().mb_str(wxConvUTF8));
-        configs["idNewPrjAVSettings_samplerate"] = std::string(idNewPrjAVSettings_samplerateComboBox->GetValue().mb_str(wxConvUTF8));
-        configs["idNewPrjAVSettings_samplesize"] = std::string(idNewPrjAVSettings_samplesizeChoice->GetStringSelection().mb_str(wxConvUTF8));
-        configs["idNewPrjAVSettings_surround"] = std::string(idNewPrjAVSettings_surroundChoice->GetStringSelection().mb_str(wxConvUTF8));
-        //configs["idNewPrjAVSettings_channels"] = std::string(idNewPrjAVSettings_channelsSpinCtrl->GetValue().mb_str(wxConvUTF8));
-        configs["idNewPrjAVSettings_description"] = std::string(idNewPrjAVSettings_descriptionTextCtrl->GetValue().mb_str(wxConvUTF8));
+        map<string, string> configs;
+        configs["idNewPrjAVSettings_width"] = wx2s(idNewPrjAVSettings_widthTextCtrl->GetValue());
+        configs["idNewPrjAVSettings_height"] = wx2s(idNewPrjAVSettings_heightTextCtrl->GetValue());
+        configs["idNewPrjAVSettings_fps"] = wx2s(idNewPrjAVSettings_fpsComboBox->GetValue());
+        configs["idNewPrjAVSettings_interlacing"] = wx2s(idNewPrjAVSettings_interlacingChoice->GetStringSelection());
+        configs["idNewPrjAVSettings_pixelaspect"] = wx2s(idNewPrjAVSettings_pixelaspectTextCtrl->GetValue());
+        configs["idNewPrjAVSettings_samplerate"] = wx2s(idNewPrjAVSettings_samplerateComboBox->GetValue());
+        configs["idNewPrjAVSettings_samplesize"] = wx2s(idNewPrjAVSettings_samplesizeChoice->GetStringSelection());
+        configs["idNewPrjAVSettings_surround"] = wx2s(idNewPrjAVSettings_surroundChoice->GetStringSelection());
+        //configs["idNewPrjAVSettings_channels"] = wx2s(idNewPrjAVSettings_channelsSpinCtrl->GetValue());
+        configs["idNewPrjAVSettings_description"] = wx2s(idNewPrjAVSettings_descriptionTextCtrl->GetValue());
 
 
-        ProjectManager::Get()->SaveNewPreset(std::string(dlg->GetName().mb_str(wxConvUTF8)), configs);
+        ProjectManager::Get()->m_Presets->SaveNewPreset(wx2s(dlg->GetName()), configs);
         int columns = idNewPrjPresetsChoice->GetCount();
         idNewPrjPresetsChoice->Append(dlg->GetName());
         idNewPrjPresetsChoice->Select(columns);
@@ -202,13 +205,13 @@ void NewProjectDlg::OnPrjSaveSettingsAsClicked(wxCommandEvent& event) {
 }
 
 bool NewProjectDlg::LoadPresets(){
-    std::list<std::string> presets = ProjectManager::Get()->GetPresets();
+    std::list<string> presets = ProjectManager::Get()->m_Presets->GetPresets();
 
     idNewPrjPresetsChoice->Append(wxString(_T("<Custom>")));
-    list<std::string>::iterator i;
+    list<string>::iterator i;
 
     for(i=presets.begin(); i != presets.end(); ++i){
-        idNewPrjPresetsChoice->Append(wxString(i->c_str(), wxConvUTF8));
+        idNewPrjPresetsChoice->Append(s2wx(*i));
     }
 
     //select custom preset by default

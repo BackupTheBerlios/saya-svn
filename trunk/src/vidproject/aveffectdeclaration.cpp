@@ -8,12 +8,17 @@
  ***********************************************************/
 
 #include "aveffectdeclaration.h"
+#include "aveffectparamdeclaration.h"
+#include "aveffectparamdeclarations.h"
+
 using namespace std;
 
 AVEffectDeclaration::AVEffectDeclaration() {
+    ParametersInfo = new AVEffectParamDeclarations;
 }
 
 AVEffectDeclaration::~AVEffectDeclaration() {
+    delete ParametersInfo;
 }
 
 bool AVEffectDeclaration::unserialize(const string& src) {

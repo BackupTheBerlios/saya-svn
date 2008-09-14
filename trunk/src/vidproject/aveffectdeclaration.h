@@ -10,10 +10,10 @@
 #ifndef aveffectdeclaration_h
 #define aveffectdeclaration_h
 
-#include <map>
 #include "avcommon.h"
 #include "serializable.h"
-#include "aveffectparamdeclaration.h"
+
+class AVEffectParamDeclarations;
 
 class AVEffectDeclaration : public serializable {
     public:
@@ -44,7 +44,7 @@ class AVEffectDeclaration : public serializable {
           *
           * @see AVEffectParamDeclaration
           */
-        std::map<std::string,AVEffectParamDeclaration> ParametersInfo;
+        AVEffectParamDeclarations* ParametersInfo;
 
         /** @see serializable::unserialize */
         virtual bool unserialize(const std::string& src);
