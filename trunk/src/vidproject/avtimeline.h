@@ -11,8 +11,7 @@
 #define avtimeline_h
 
 #include "svector.h"
-
-class AVSequence;
+#include "avsequence.h"
 
 class AVTimeline : public SVector<AVSequence> {
 

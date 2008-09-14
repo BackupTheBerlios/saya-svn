@@ -11,8 +11,7 @@
 #define avtracks_h
 
 #include "svector.h"
-
-class AVTrack;
+#include "avtrack.h"
 
 class AVTracks : public SVector<AVTrack> {
 

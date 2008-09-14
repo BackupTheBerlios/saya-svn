@@ -11,8 +11,7 @@
 #define aveffects_h
 
 #include "svector.h"
-
-class AVEffect;
+#include "aveffect.h"
 
 class AVEffects : public SVector<AVEffect> {
 

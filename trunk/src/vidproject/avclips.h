@@ -11,8 +11,7 @@
 #define avclips_h
 
 #include "smap.h"
-
-class AVClip;
+#include "avclip.h"
 
 class AVClips : public SMapUint<AVClip> {
 

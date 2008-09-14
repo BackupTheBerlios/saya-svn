@@ -11,8 +11,7 @@
 #define aveffectparamdeclarations_h
 
 #include "smap.h"
-
-class AVEffect;
+#include "aveffectparamdeclaration.h"
 
 class AVEffectParamDeclarations : public SMapStr<AVEffectParamDeclaration> {
 

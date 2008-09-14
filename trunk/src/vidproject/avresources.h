@@ -11,8 +11,7 @@
 #define avresources_h
 
 #include "svector.h"
-
-class AVResource;
+#include "avresource.h"
 
 class AVResources : public SVector<AVResource> {
 
