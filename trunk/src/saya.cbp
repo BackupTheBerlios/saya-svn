@@ -72,6 +72,8 @@
 		<Unit filename="iomgr/aborter.cpp" />
 		<Unit filename="iomgr/aborter.h" />
 		<Unit filename="iomgr/atomic.h" />
+		<Unit filename="iomgr/audiobuffer.cpp" />
+		<Unit filename="iomgr/audiobuffer.h" />
 		<Unit filename="iomgr/audioinputdevice.cpp" />
 		<Unit filename="iomgr/audioinputdevice.h" />
 		<Unit filename="iomgr/audiooutputdevice.cpp" />
