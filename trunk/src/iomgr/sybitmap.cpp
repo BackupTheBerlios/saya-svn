@@ -22,58 +22,97 @@
 #include <math.h>
 #include <cstddef>
 
-syBitmap::syBitmap() :
-m_Width(0),
-m_Height(0),
-m_ColorFormat(vcfBGR32),
-m_Buffer(NULL),
-m_BufferLength(0),
-m_BufferSize(0),
-m_bypp(4),
-m_BufferMutex(NULL),
-m_BufferOwner(0),
-m_BufferLockCount(0),
-m_Aborter(NULL),
-m_YOffsets(NULL),
-m_XOffsets(NULL),
-m_YOffsetsSize(0),
-m_XOffsetsSize(0)
-{
-    m_BufferMutex = new syMutex();
+class syBitmapData {
 
+    public:
+        syBitmapData();
+
+        /** Width in pixels */
+        unsigned int m_Width;
+
+        /** Height in pixels */
+        unsigned int m_Height;
+
+        /** The Buffer's Color Format */
+        VideoColorFormat m_ColorFormat;
+
+        /** The actual memory buffer for the operations */
+        unsigned char* m_Buffer;
+
+        /** Length in bytes of the current buffer's workable area */
+        unsigned long m_BufferLength;
+
+        /** Length in bytes of the whole buffer */
+        unsigned long m_BufferSize;
+
+        /** Bytes per pixel of the current color format */
+        unsigned int m_bypp;
+
+        /** @brief Placeholder for an syAborter object.
+          *
+          * @see syBitmap::MustAbort
+          */
+        mutable syAborter* m_Aborter;
+
+        /** @brief For use by PasteFrom when scaling bitmaps.
+         *
+         *  Contains the source bitmap's y offsets (in bytes) corresponding to our nth row.
+         */
+        mutable int* m_YOffsets;
+
+        /** @brief For use by PasteFrom when scaling bitmaps.
+         *
+         *  Contains the source bitmap's x offsets (in bytes) corresponding to our nth column.
+         */
+        mutable int* m_XOffsets;
+
+        /** Contains the current size used by m_YOffsets */
+        mutable unsigned long m_YOffsetsSize;
+
+        /** Contains the current size used by m_XOffsets */
+        mutable unsigned long m_XOffsetsSize;
+};
+
+syBitmapData::syBitmapData() :
+    m_Width(0),
+    m_Height(0),
+    m_ColorFormat(vcfBGR32),
+    m_Buffer(NULL),
+    m_BufferLength(0),
+    m_BufferSize(0),
+    m_bypp(4),
+    m_Aborter(NULL),
+    m_YOffsets(NULL),
+    m_XOffsets(NULL),
+    m_YOffsetsSize(0),
+    m_XOffsetsSize(0)
+{}
+
+syBitmap::syBitmap() :
+m_Mutex(NULL)
+{
+    m_Data = new syBitmapData;
+    m_Mutex = new sySafeMutex(true);
 }
 
 syBitmap::syBitmap(unsigned int width,unsigned int height,VideoColorFormat colorformat) :
-m_Width(0),
-m_Height(0),
-m_ColorFormat(vcfBGR32),
-m_Buffer(NULL),
-m_BufferLength(0),
-m_BufferSize(0),
-m_bypp(4),
-m_BufferMutex(NULL),
-m_BufferOwner(0),
-m_BufferLockCount(0),
-m_Aborter(NULL),
-m_YOffsets(NULL),
-m_XOffsets(NULL),
-m_YOffsetsSize(0),
-m_XOffsetsSize(0)
-
+m_Mutex(NULL)
 {
-    m_BufferMutex = new syMutex();
+    m_Data = new syBitmapData;
+    m_Mutex = new sySafeMutex(true);
     Realloc(width, height, colorformat);
 }
 
 syBitmap::~syBitmap() {
-    ReleaseBuffer(true);
-    if(m_XOffsets != NULL) {
-        delete[] m_XOffsets;
+    if(m_Data->m_XOffsets != NULL) {
+        delete[] m_Data->m_XOffsets;
     }
-    if(m_YOffsets != NULL) {
-        delete[] m_YOffsets;
+
+    if(m_Data->m_YOffsets != NULL) {
+        delete[] m_Data->m_YOffsets;
     }
-    delete m_BufferMutex;
+    delete m_Mutex;
+    delete m_Data;
 }
 
 void syBitmap::Create(unsigned int width,unsigned int height,VideoColorFormat colorformat) {
@@ -87,65 +126,85 @@ void syBitmap::Realloc(unsigned int newwidth,unsigned int newheight,VideoColorFo
     unsigned int bypp = syBitmap::CalculateBytesperPixel(newformat);
     unsigned int rowlen = bypp * newwidth;
     unsigned int newsize = rowlen * newheight;
-
-    if(newsize > m_BufferSize) {
-
-        if(m_Buffer != NULL) {
-            delete[] m_Buffer;
-            m_Buffer = NULL;
-        }
-        m_Buffer = new unsigned char[newsize];
-        m_BufferSize = newsize;
+    if(newsize & 3 || newsize < 4) {
+        newsize = (newsize + 4) & 3; // Round up the buffer size to 4 bytes.
     }
 
-    if(newheight > m_YOffsetsSize) {
-        if(m_YOffsets != NULL) {
-            delete[] m_YOffsets;
-            m_YOffsets = NULL;
+    if(newsize > m_Data->m_BufferSize) {
+
+        if(m_Data->m_Buffer != NULL) {
+            delete[] m_Data->m_Buffer;
+            m_Data->m_Buffer = NULL;
         }
-        m_YOffsets = new int[newheight];
-        m_YOffsetsSize = newheight;
+        m_Data->m_Buffer = new unsigned char[newsize];
+        m_Data->m_BufferSize = newsize;
     }
 
-    if(newwidth > m_XOffsetsSize) {
-        if(m_XOffsets != NULL) {
-            delete[] m_XOffsets;
-            m_XOffsets = NULL;
+    if(newheight > m_Data->m_YOffsetsSize) {
+        if(m_Data->m_YOffsets != NULL) {
+            delete[] m_Data->m_YOffsets;
+            m_Data->m_YOffsets = NULL;
         }
-        m_XOffsets = new int[newwidth];
-        m_XOffsetsSize = newwidth;
+        m_Data->m_YOffsets = new int[newheight];
+        m_Data->m_YOffsetsSize = newheight;
     }
 
-    m_BufferLength = newsize;
-    m_ColorFormat = newformat;
-    m_bypp = CalculateBytesperPixel(newformat);
-    m_Width = newwidth;
-    m_Height = newheight;
+    if(newwidth > m_Data->m_XOffsetsSize) {
+        if(m_Data->m_XOffsets != NULL) {
+            delete[] m_Data->m_XOffsets;
+            m_Data->m_XOffsets = NULL;
+        }
+        m_Data->m_XOffsets = new int[newwidth];
+        m_Data->m_XOffsetsSize = newwidth;
+    }
+
+    m_Data->m_BufferLength = newsize;
+    m_Data->m_ColorFormat = newformat;
+    m_Data->m_bypp = CalculateBytesperPixel(newformat);
+    m_Data->m_Width = newwidth;
+    m_Data->m_Height = newheight;
 }
 
+bool syBitmap::ReleaseBuffer(bool force) {
+     sySafeMutexLocker lock(*m_Mutex);
+     bool isLockedNow = lock.IsLocked();
+     bool result = isLockedNow;
+     if(isLockedNow || force) {
+         delete[] m_Data->m_Buffer;
+         m_Data->m_Buffer = NULL;
+         m_Data->m_BufferLength = 0;
+         m_Data->m_BufferSize = 0;
+         result = true;
+    }
+    return result;
+}
 
 unsigned char* syBitmap::GetBuffer() {
-    return m_Buffer;
+    return m_Data->m_Buffer;
 }
 
-unsigned int syBitmap::GetWidth() {
-    return m_Width;
+const unsigned char* syBitmap::GetReadOnlyBuffer() const {
+    return m_Data->m_Buffer;
 }
 
-unsigned int syBitmap::GetHeight() {
-    return m_Height;
+unsigned int syBitmap::GetWidth() const {
+    return m_Data->m_Width;
 }
 
-VideoColorFormat syBitmap::GetColorFormat() {
-    return m_ColorFormat;
+unsigned int syBitmap::GetHeight() const {
+    return m_Data->m_Height;
 }
 
-unsigned long syBitmap::GetBufferLength() {
-    return m_BufferLength;
+VideoColorFormat syBitmap::GetColorFormat() const {
+    return m_Data->m_ColorFormat;
 }
 
-unsigned long syBitmap::GetBufferSize() {
-    return m_BufferSize;
+unsigned long syBitmap::GetBufferLength() const {
+    return m_Data->m_BufferLength;
+}
+
+unsigned long syBitmap::GetBufferSize() const {
+    return m_Data->m_BufferSize;
 }
 
 unsigned int syBitmap::CalculateBytesperPixel(VideoColorFormat format) {
@@ -189,38 +248,49 @@ unsigned int syBitmap::CalculateBytesperPixel(VideoColorFormat format) {
     return result;
 }
 
-void syBitmap::CopyFrom(syBitmap* source) {
+void syBitmap::CopyFrom(const syBitmap* source) {
     if(!source) {
         return;
     }
     Realloc(source->GetWidth(),source->GetHeight(),source->GetColorFormat());
-    unsigned char* original_buffer = source->GetBuffer();
+    const unsigned char* original_buffer = source->GetReadOnlyBuffer();
     if(!original_buffer) {
         return;
     }
-    unsigned long i;
     unsigned long imax = source->GetBufferLength();
-    for(i = 0; i < imax; ++i) {
-        if((i & 32767) == 0 && MustAbort()) { break; } // Check for abort every 32K
-        m_Buffer[i] = original_buffer[i];
+
+    const unsigned long* src = (const unsigned long*)original_buffer;
+    unsigned long* dst = (unsigned long*)(m_Data->m_Buffer);
+
+    // Copy the data in 4-byte chunks
+    for(unsigned int i = imax >> 2; i; --i, ++src, ++dst) {
+        if((i & 8192) == 0 && MustAbort()) { break; } // Check for abort every 32K
+        *dst = *src;
+    }
+
+    // Copy the remaining 3 bytes
+    unsigned int i = imax;
+    i = (i > 3) ? (i - 3) : 0;
+    for(; i < imax; ++i) {
+        m_Data->m_Buffer[i] = original_buffer[i];
     }
 }
 
-void syBitmap::PasteFrom(syBitmap* source,syStretchMode stretchmode) {
-    if(!source || !source->GetBuffer()) {
+void syBitmap::PasteFrom(const syBitmap* source,syStretchMode stretchmode) {
+    if(!source || !source->GetReadOnlyBuffer()) {
         return;
     }
 
     do {
         unsigned int srcw = source->GetWidth();
         unsigned int srch = source->GetHeight();
-        if(!srcw || !srch || !m_Width || !m_Height) {
+        if(!srcw || !srch || !m_Data->m_Width || !m_Data->m_Height) {
             break; // Invalid width/height
         }
         int x,y;
         VideoColorFormat srcfmt = source->GetColorFormat();
         // Trivial case: Original has exactly the same dimensions and color format
-        if(srcw == m_Width && srch == m_Height && srcfmt == m_ColorFormat) {
+        if(srcw == m_Data->m_Width && srch == m_Data->m_Height && srcfmt == m_Data->m_ColorFormat) {
             CopyFrom(source);
             break; // Get out of the do-while-false construct
         }
@@ -230,8 +300,8 @@ void syBitmap::PasteFrom(syBitmap* source,syStretchMode stretchmode) {
         copier.Init(source, this);
 
         // Near trivial case: Same dimensions, different color format
-        if(srcw == m_Width && srch == m_Height) {
-            for(y = 0; y < (int)m_Height; ++y) {
+        if(srcw == m_Data->m_Width && srch == m_Data->m_Height) {
+            for(y = 0; y < (int)m_Data->m_Height; ++y) {
                 if((y & 32) == 0 && MustAbort()) { break; } // Check for abort every 32 rows
                 copier.CopyRowAndIncrementBoth();
             }
@@ -243,7 +313,7 @@ void syBitmap::PasteFrom(syBitmap* source,syStretchMode stretchmode) {
         int srcx, srcy;
         double xscale, yscale, xoffset, yoffset, tmpx, tmpy;
 
-        if(stretchmode == sy_stcopy && (srcw > m_Width || srch > m_Height)) {
+        if(stretchmode == sy_stcopy && (srcw > m_Data->m_Width || srch > m_Data->m_Height)) {
             stretchmode = sy_stkeepaspectratio;
         }
 
@@ -253,37 +323,37 @@ void syBitmap::PasteFrom(syBitmap* source,syStretchMode stretchmode) {
         //      srcx = x * xscale;
         // Therefore,
         //      xscale = srcx / x;
-        // If x = m_Width, then:
-        //      xscale = srcw / m_Width.
+        // If x = m_Data->m_Width, then:
+        //      xscale = srcw / m_Data->m_Width.
         //
         // Now, if we want to make the centers fit together, then we have the following condition:
-        //      srcx = srcw/2, and x = m_Width/2.
+        //      srcx = srcw/2, and x = m_Data->m_Width/2.
         // Applying it to srcx = (x * xscale) + xoffset, we have:
-        //      srcw/2 = (m_Width/2 * xscale) + xoffset
-        //      xoffset = srcw/2 - (m_Width/2 * xscale).
+        //      srcw/2 = (m_Data->m_Width/2 * xscale) + xoffset
+        //      xoffset = srcw/2 - (m_Data->m_Width/2 * xscale).
         // By Getting the 1/2 out, we have:
-        //      xoffset = (srcw - m_Width*xscale)/2
+        //      xoffset = (srcw - m_Data->m_Width*xscale)/2
         // And so, we end up with the following formulas:
         //
         // -----------------------------------------
-        // xscale = srcw / m_Width;
-        // yscale = srch / m_Height;
-        // xoffset = (srcw - (m_Width*xscale)) / 2;
-        // yoffset = (srch - (m_Height*yscale)) / 2;
+        // xscale = srcw / m_Data->m_Width;
+        // yscale = srch / m_Data->m_Height;
+        // xoffset = (srcw - (m_Data->m_Width*xscale)) / 2;
+        // yoffset = (srch - (m_Data->m_Height*yscale)) / 2;
         // -----------------------------------------
 
         switch(stretchmode) {
             case sy_stcopy: // Just center the bitmap
             xscale = 1.0;
             yscale = 1.0;
-            xoffset = (double)(srcw - m_Width) / 2;
-            yoffset = (double)(srch - m_Height) / 2;
+            xoffset = (double)(srcw - m_Data->m_Width) / 2;
+            yoffset = (double)(srch - m_Data->m_Height) / 2;
             break;
 
             case sy_stkeepaspectratio: // Scale without distorting
             default: // Resize to fit
-            xscale = ((double)srcw) / m_Width;
-            yscale = ((double)srch) / m_Height;
+            xscale = ((double)srcw) / m_Data->m_Width;
+            yscale = ((double)srch) / m_Data->m_Height;
 
             if(stretchmode == sy_stkeepaspectratio) {
                 if(yscale >= xscale) { // Pick the greatest scale so that everything fits inside
@@ -292,33 +362,33 @@ void syBitmap::PasteFrom(syBitmap* source,syStretchMode stretchmode) {
                     yscale = xscale;
                 }
             }
-            xoffset = ((double)srcw - (double)(m_Width*xscale)) / 2;
-            yoffset = ((double)srch - (double)(m_Height*yscale)) / 2;
+            xoffset = ((double)srcw - (double)(m_Data->m_Width*xscale)) / 2;
+            yoffset = ((double)srch - (double)(m_Data->m_Height*yscale)) / 2;
         }
 
         // Now, we implement the formula srcx = (x * xscale) + xoffset into a for loop
         // But instead of just calculating x and y, we calculate the byte offsets, too!
-        for(y = 0, tmpy = yoffset; y < (int)m_Height; ++y, tmpy += yscale) {
-            m_YOffsets[y] = copier.m_SourceRowLength*int(floor(tmpy));
+        for(y = 0, tmpy = yoffset; y < (int)m_Data->m_Height; ++y, tmpy += yscale) {
+            m_Data->m_YOffsets[y] = copier.m_SourceRowLength*int(floor(tmpy));
         }
-        for(x = 0, tmpx = xoffset; x < (int)m_Width; ++x, tmpx += xscale) {
-            m_XOffsets[x] = copier.m_SourceBypp*int(floor(tmpx));
+        for(x = 0, tmpx = xoffset; x < (int)m_Data->m_Width; ++x, tmpx += xscale) {
+            m_Data->m_XOffsets[x] = copier.m_SourceBypp*int(floor(tmpx));
         }
 
         copier.Reset();
-        for(y = 0; y < (int)m_Height; ++y, copier.m_Dst += copier.m_DestRowLength) {
+        for(y = 0; y < (int)m_Data->m_Height; ++y, copier.m_Dst += copier.m_DestRowLength) {
             if((y & 32) == 0 && MustAbort()) { break; } // Check for abort every 32 rows
-            srcy = m_YOffsets[y];
+            srcy = m_Data->m_YOffsets[y];
             if((srcy < 0) | ((unsigned int)srcy >= copier.m_SourceBufferLength)) {
                 copier.ClearRow();
             } else {
                 unsigned int xoffset = 0;
-                for(x = 0; x < (int)m_Width; ++x, xoffset += copier.m_DestBypp) {
-                    srcx = m_XOffsets[x];
+                for(x = 0; x < (int)m_Data->m_Width; ++x, xoffset += copier.m_DestBypp) {
+                    srcx = m_Data->m_XOffsets[x];
                     if((srcx < 0) || ((unsigned int)srcx >= copier.m_SourceRowLength)) {
                         copier.ClearPixelAt(xoffset);
                     } else {
-                        copier.SetPixelAt(xoffset,syBitmapCopier::ConvertPixel(copier.GetPixelAt(srcy+srcx), srcfmt, m_ColorFormat));
+                        copier.SetPixelAt(xoffset,syBitmapCopier::ConvertPixel(copier.GetPixelAt(srcy+srcx), srcfmt, m_Data->m_ColorFormat));
                     }
                 }
             }
@@ -327,121 +397,76 @@ void syBitmap::PasteFrom(syBitmap* source,syStretchMode stretchmode) {
 }
 
 bool syBitmap::MustAbort() {
-    if(m_Aborter) {
-        return m_Aborter->MustAbort();
+    if(m_Data->m_Aborter) {
+        return m_Data->m_Aborter->MustAbort();
     }
     return syThread::MustAbort();
 }
 
-bool syBitmap::Lock(unsigned int tries,unsigned int delay) {
-    bool result = false;
-    unsigned i = 0;
-    if(delay < 1) {
-        delay = 1;
-    }
-    do {
-        {   // The extra braces are a stack spaceholder for tmplock
-            // FIXME: syBitmap::Lock code is hideous. Replace with a recursive sySafeMutex.
-            // NOTE: We might need to implement a recursive mutex in here.
-            syMutexLocker tmplock(*m_BufferMutex);
-            result = (m_BufferOwner == 0 || (m_BufferOwner == syThread::GetThreadId()));
-            if(result) {
-                if(!m_BufferLockCount) {
-                    m_BufferOwner = syThread::GetThreadId();
-                }
-                ++m_BufferLockCount;
-            }
-        }
-        if(!result) {
-            if(tries > 0) {
-                ++i;
-            }
-            syMilliSleep(delay);
-        }
-    }while(!result && (tries==0 || i < tries));
-    return result;
-}
-
-bool syBitmap::Unlock() {
-    bool result = false;
-    do {
-        syMutexLocker tmplock(*m_BufferMutex);
-        if(!m_BufferOwner) {
-            result = true;
-            break;
-        }
-        if(m_BufferOwner == syThread::GetThreadId()) {
-            if(m_BufferLockCount > 0) {
-                --m_BufferLockCount;
-            }
-            if(!m_BufferLockCount) {
-                m_BufferOwner = 0;
-            }
-            result = true;
-            break;
-        }
-    }while(false);
-
-    return result;
-}
-
-bool syBitmap::ReleaseBuffer(bool force) {
-    bool isLockedNow = Lock(10,1);
-    bool result = isLockedNow;
-    if(isLockedNow || force) {
-        delete[] m_Buffer;
-        m_Buffer = NULL;
-        m_BufferLength = 0;
-        m_BufferSize = 0;
-        result = true;
-    }
-    if(isLockedNow) {
-        Unlock();
-    }
-    return result;
-}
-
 void syBitmap::SetAborter(syAborter* aborter) {
-    m_Aborter = aborter;
+    m_Data->m_Aborter = aborter;
 }
 
 void syBitmap::Clear() {
-    if(!m_Buffer || m_Width == 0 || m_Height == 0) {
+    if(!m_Data->m_Buffer || m_Data->m_Width == 0 || m_Data->m_Height == 0) {
         return;
     }
+    // Now we'll clear all the buffer and not just the visible part
 
-    unsigned long i;
-    for(i = 0; i < m_BufferSize; ++i) {
-        // We clear all the buffer and not just the visible part
-        m_Buffer[i] = 0;
+    // By using pointer to longs, we can cut the clearing time by 4x.
+    // In Realloc() we already made sure that our buffer fits in 4-byte chunks, so this is 100% safe.
+    unsigned long* ptr = (unsigned long*)m_Data->m_Buffer;
+    for(unsigned long i = m_Data->m_BufferSize >> 2;i; --i, ++ptr) {
+        *ptr = 0;
     }
 }
 
 unsigned char* syBitmap::GetRow(int y) {
-    if(m_Width == 0 || m_Height == 0 || y < 0 || y >= (int)m_Height) {
+    if(m_Data->m_Width == 0 || m_Data->m_Height == 0 || y < 0 || y >= (int)m_Data->m_Height) {
         return NULL;
     }
-    unsigned long w = m_Width*m_bypp;
-    return (m_Buffer + (w*y));
+    unsigned long w = m_Data->m_Width*m_Data->m_bypp;
+    return (m_Data->m_Buffer + (w*y));
 }
 
 unsigned char* syBitmap::GetPixelAddr(int x, int y) {
     unsigned char* base = GetRow(y);
-    if(x < 0 || x >= (int)m_Width) {
+    if(x < 0 || x >= (int)m_Data->m_Width) {
         base = NULL;
     }
     if(base != NULL) {
-        base += (x*m_bypp);
+        base += (x*m_Data->m_bypp);
     }
     return base;
 }
 
-unsigned long syBitmap::GetPixel(int x, int y) {
+const unsigned char* syBitmap::GetReadOnlyRow(int y) const {
+    if(m_Data->m_Width == 0 || m_Data->m_Height == 0 || y < 0 || y >= (int)m_Data->m_Height) {
+        return NULL;
+    }
+    unsigned long w = m_Data->m_Width*m_Data->m_bypp;
+    return (m_Data->m_Buffer + (w*y));
+}
+
+const unsigned char* syBitmap::GetReadOnlyPixelAddr(int x, int y) const {
+    const unsigned char* base = GetReadOnlyRow(y);
+    if(x < 0 || x >= (int)m_Data->m_Width) {
+        base = NULL;
+    }
+    if(base != NULL) {
+        base += (x*m_Data->m_bypp);
+    }
+    return base;
+}
+
+
+
+unsigned long syBitmap::GetPixel(int x, int y) const {
     unsigned int i;
     unsigned long result = 0;
-    unsigned char* base = GetPixelAddr(x,y);
+    const unsigned char* base = GetReadOnlyPixelAddr(x,y);
     if(base != NULL) {
-        for(i = 0; i < m_bypp; ++i) {
+        for(i = 0; i < m_Data->m_bypp; ++i) {
             result = (result << 8) | (*base & 255);
             base++;
         }
@@ -453,7 +478,7 @@ void syBitmap::SetPixel(int x, int y, unsigned long pixel) {
     unsigned int i;
     unsigned char* base = GetPixelAddr(x,y);
     if(base != NULL) {
-        for(i = 0; i < m_bypp; ++i) {
+        for(i = 0; i < m_Data->m_bypp; ++i) {
             *base = pixel & 255;
             pixel >>= 8;
             base++;
@@ -484,24 +509,4 @@ void syBitmap::CopyPixel(unsigned char* src,unsigned char* dst,VideoColorFormat 
 
 unsigned long syBitmap::ConvertPixel(unsigned long pixel,VideoColorFormat sourcefmt,VideoColorFormat destfmt) {
     return syBitmapCopier::ConvertPixel(pixel,sourcefmt,destfmt);
-}
-
-syBitmapLocker::syBitmapLocker(syBitmap* bitmap,unsigned int tries,unsigned int delay) :
-m_IsLocked(false),
-m_Bitmap(NULL)
-{
-    m_Bitmap = bitmap;
-    if(m_Bitmap) {
-        m_IsLocked = bitmap->Lock(tries, delay);
-    }
-}
-
-syBitmapLocker::~syBitmapLocker() {
-    if(m_IsLocked) {
-        m_Bitmap->Unlock();
-    }
-}
-
-bool syBitmapLocker::IsLocked() {
-    return m_IsLocked;
 }

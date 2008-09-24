@@ -21,7 +21,8 @@
 #include "aborter.h"
 #include "videocolorformat.h"
 
-class syMutex;
+class sySafeMutex;
+class syBitmapData;
 
 /** Stretching strategy for pasting bitmaps */
 enum syStretchMode {
@@ -48,28 +49,31 @@ class syBitmap {
         void Create(unsigned int width,unsigned int height,VideoColorFormat colorformat);
 
         /** Makes a copy of another syBitmap */
-        void CopyFrom(syBitmap* source);
+        void CopyFrom(const syBitmap* source);
 
         /** Pastes from another bitmap, resizing if necessary */
-        void PasteFrom(syBitmap* source,syStretchMode stretchmode = sy_stkeepaspectratio);
+        void PasteFrom(const syBitmap* source,syStretchMode stretchmode = sy_stkeepaspectratio);
 
         /** Returns a pointer to the Buffer being used */
         unsigned char* GetBuffer();
 
+        /** Returns a const pointer to the bitmap's buffer */
+        const unsigned char* GetReadOnlyBuffer() const;
+
         /** Returns the bitmap's current width */
-        unsigned int GetWidth();
+        unsigned int GetWidth() const;
 
         /** Returns the bitmap's current height */
-        unsigned int GetHeight();
+        unsigned int GetHeight() const;
 
         /** Returns the length of the buffer's workable area, in bytes */
-        unsigned long GetBufferLength();
+        unsigned long GetBufferLength() const;
 
         /** Returns the size in bytes of the whole buffer */
-        unsigned long GetBufferSize();
+        unsigned long GetBufferSize() const;
 
         /** Returns the bitmap's color format */
-        VideoColorFormat GetColorFormat();
+        VideoColorFormat GetColorFormat() const;
 
         /** @brief Returns a pointer to the start of the specified row
          *
@@ -77,6 +81,14 @@ class syBitmap {
          *  @return A pointer to the current row if the value of "y" is valid; NULL otherwise.
          */
         unsigned char* GetRow(int y);
+
+        /** @brief Returns a const pointer to the start of the specified row
+         *
+         *  @param y The row to be accessed (zero-based)
+         *  @return A pointer to the current row if the value of "y" is valid; NULL otherwise.
+         */
+        const unsigned char* GetReadOnlyRow(int y) const;
+
 
         /** @brief Returns a pointer to the pixel corresponding to the specified coordinates
          *  @param x The column (zero-based)
@@ -86,6 +98,14 @@ class syBitmap {
          */
         unsigned char* GetPixelAddr(int x, int y);
 
+        /** @brief Returns a const pointer to the pixel corresponding to the specified coordinates
+         *  @param x The column (zero-based)
+         *  @param y The row (zero-based)
+         *  @return The pointer to the pixel in question, or NULL in case of an invalid y
+         *  @note y is invalid if it exceeds the bitmap's height or is less than 0.
+         */
+        const unsigned char* GetReadOnlyPixelAddr(int x, int y) const;
+
         /** @brief Gets a pixel in the current color format at the specified coordinates
          *
          *  @param x The x coordinate (zero-based)
@@ -93,7 +113,7 @@ class syBitmap {
          *  @return The contents of the specified pixel, in the current color format
          *  @note If the coordinates exceed the bitmap's dimensions or are less than 0, we get a 0.
          */
-        unsigned long GetPixel(int x, int y);
+        unsigned long GetPixel(int x, int y) const;
 
         /** @brief Sets a pixel in the current color format at the specified coordinates
          *
@@ -141,95 +161,17 @@ class syBitmap {
          */
         void Realloc(unsigned int newwidth,unsigned int newheight,const VideoColorFormat newformat);
 
+        /** Releases the buffer from memory. */
+        bool ReleaseBuffer(bool force = false);
+
         /** Clears the buffer, filling it with zeroes. */
         void Clear();
 
-        /** @brief Tries to Lock the Video Buffer for multithreaded operations.
-          * @param tries The number of attempts to lock the buffer
-          * @param delay The delay in milliseconds between each locking attempt
-          * @return true on success; false otherwise.
-          */
-        bool Lock(unsigned int tries = 1,unsigned int delay = 1);
-
-        /** @brief Unlocks the Video Buffer (if the current thread is the owner)
-          * @return true if the Buffer's owner was either 0 or the current thread; false otherwise.
-          */
-        bool Unlock();
-
-        /** @brief Releases the internal bitmap buffer.
-          *
-          * @param force If true, the bitmap is released even when locked by other thread.
-          * @warning DO NOT use the parameter force unless you REALLY REALLY KNOW what you're doing!
-          * @return true if the buffer was released successfully; false if the buffer was locked by another thread.
-          */
-        bool ReleaseBuffer(bool force = false);
-
-    protected:
-
-        /** Width in pixels */
-        unsigned int m_Width;
-
-        /** Height in pixels */
-        unsigned int m_Height;
-
-        /** The Buffer's Color Format */
-        VideoColorFormat m_ColorFormat;
-
-        /** The actual memory buffer for the operations */
-        unsigned char* m_Buffer;
-
-        /** Length in bytes of the current buffer's workable area */
-        unsigned long m_BufferLength;
-
-        /** Length in bytes of the whole buffer */
-        unsigned long m_BufferSize;
-
-        /** Bytes per pixel of the current color format */
-        unsigned int m_bypp;
-
         /** A mutex to protect the buffer for multithreaded apps */
-        syMutex* m_BufferMutex;
+        mutable sySafeMutex* m_Mutex;
 
-        /** The current owner thread */
-        unsigned long m_BufferOwner;
-
-        /** Locks can be recursive inside a single thread. Therefore, we need a counter. */
-        unsigned long m_BufferLockCount;
-
-        /** @brief Placeholder for an syAborter object.
-          *
-          * @see syBitmap::MustAbort
-          */
-        syAborter* m_Aborter;
-
-        /** @brief For use by PasteFrom when scaling bitmaps.
-         *
-         *  Contains the source bitmap's y offsets (in bytes) corresponding to our nth row.
-         */
-        int* m_YOffsets;
-
-        /** @brief For use by PasteFrom when scaling bitmaps.
-         *
-         *  Contains the source bitmap's x offsets (in bytes) corresponding to our nth column.
-         */
-        int* m_XOffsets;
-
-        /** Contains the current size used by m_YOffsets */
-        unsigned long m_YOffsetsSize;
-
-        /** Contains the current size used by m_XOffsets */
-        unsigned long m_XOffsetsSize;
-};
-
-/** @brief Sentry class for locking the bitmap */
-class syBitmapLocker {
-    public:
-        syBitmapLocker(syBitmap* bitmap,unsigned int tries,unsigned int delay);
-        ~syBitmapLocker();
-        bool IsLocked();
     private:
-        bool m_IsLocked;
-        syBitmap* m_Bitmap;
+        syBitmapData* m_Data;
 };
 
 #endif

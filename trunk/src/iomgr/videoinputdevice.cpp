@@ -59,7 +59,7 @@ unsigned long VideoInputDevice::InternalSeek(unsigned long time, bool fromend) {
 }
 
 unsigned long VideoInputDevice::Seek(unsigned long time,bool fromend) {
-    sySafeMutexLocker lock(*m_Busy, this);
+    sySafeMutexLocker lock(*m_InputMutex, this);
     bool result = false;
     if(lock.IsLocked()) {
         result = InternalSeek(time, fromend);
@@ -70,35 +70,36 @@ unsigned long VideoInputDevice::Seek(unsigned long time,bool fromend) {
 }
 
 
-unsigned long VideoInputDevice::GetLength() {
+unsigned long VideoInputDevice::GetLength() const {
     return m_Length;
 }
 
-unsigned long VideoInputDevice::GetPos() {
+unsigned long VideoInputDevice::GetPos() const {
     return m_CurrentTime;
 }
 
-VideoColorFormat VideoInputDevice::GetColorFormat() {
+VideoColorFormat VideoInputDevice::GetColorFormat() const {
     return m_ColorFormat;
 }
 
-unsigned long VideoInputDevice::GetWidth() {
+unsigned long VideoInputDevice::GetWidth() const {
     return m_Width;
 }
 
 
-unsigned long VideoInputDevice::GetHeight() {
+unsigned long VideoInputDevice::GetHeight() const {
     return m_Height;
 }
 
-float VideoInputDevice::GetPixelAspect() {
+float VideoInputDevice::GetPixelAspect() const {
     return m_PixelAspect;
 }
 
 
 void VideoInputDevice::SendCurrentFrame(VideoOutputDevice* device) {
-    sySafeMutexLocker lock(*m_Busy, this);
-    if(lock.IsLocked()) {
+    sySafeMutexLocker lock1(*m_InputMutex, this);
+    sySafeMutexLocker lock2(*m_OutputMutex, this);
+    if(lock1.IsLocked() && lock2.IsLocked()) {
         LoadCurrentFrame();
         if(device) {
             device->LoadVideoData(this->m_Bitmap);
@@ -107,8 +108,9 @@ void VideoInputDevice::SendCurrentFrame(VideoOutputDevice* device) {
 }
 
 void VideoInputDevice::SendCurrentFrame(syBitmap* bitmap) {
-    sySafeMutexLocker lock(*m_Busy, this);
-    if(lock.IsLocked()) {
+    sySafeMutexLocker lock1(*m_InputMutex, this);
+    sySafeMutexLocker lock2(*m_OutputMutex, this);
+    if(lock1.IsLocked() && lock2.IsLocked()) {
         LoadCurrentFrame();
         if(bitmap) {
             bitmap->CopyFrom(this->m_Bitmap); // And copy to the destination bitmap

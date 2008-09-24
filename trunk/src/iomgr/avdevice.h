@@ -41,7 +41,7 @@ class AVDevice : public syAborter {
         bool Init();
 
         /** Returns the OK status. */
-        bool IsOk();
+        bool IsOk() const;
 
         /** @brief Shutdown procedure.
          *
@@ -69,24 +69,38 @@ class AVDevice : public syAborter {
          */
         void FinishShutDown();
 
-        /** Returns the Busy status.
-         *
-         *  @return true if the object is altering or sending its data; false otherwise.
-         */
-        bool IsBusy();
-
         /** Returns true if it's a Video Device. */
-        bool IsVideo();
+        bool IsVideo() const;
 
         /** Returns true if it's an Audio Device. */
-        bool IsAudio();
+        bool IsAudio() const;
 
         /** Returns true if it's an Input Device. */
-        bool IsInput();
+        bool IsInput() const;
 
         /** Returns true if it's an Output Device. */
-        bool IsOutput();
+        bool IsOutput() const;
 
+        /** Returns true if a thread is sending or receiving data from the object. */
+        bool IsPlaying() const;
+
+        /** Returns true if a thread is sending data to the object. */
+        bool IsReading() const;
+
+        /** Returns true if a thread is receiving data from the object. */
+        bool IsWriting() const;
+
+        /** Aborts all operations immediately. Written data must be discarded as if it were corrupted.
+         *
+         *  @note This method can only be called from the main thread.
+         */
+        void Abort() const;
+
+        /** Aborts all operations gracefully. Integrity of the written data is guaranteed.
+         *
+         *  @note This method can only be called from the main thread.
+         */
+        void Stop() const;
 
     protected:
 
@@ -94,12 +108,22 @@ class AVDevice : public syAborter {
          *
          *  @see syAborter
          */
-        virtual bool InnerMustAbort();
+        virtual bool InnerMustAbort() const;
+
+        /** @brief Indicates that the current operation must be aborted, either gracefully or immediately.
+         *  @note To find out if the operation must be aborted gracefuly, compare with MustAbort().
+         */
+        bool MustStop() const;
+
+        /** returns the m_IsShuttingDown status. */
+        bool IsShuttingDown() const;
 
         /** Allocates the memory resources required by Init(). */
         virtual bool AllocateResources() { return true; }
 
-        /** Deallocates the memory resources allocated by AllocateResources(). */
+        /** Deallocates the memory resources allocated by AllocateResources().
+         *  @warning This function is called by Init()! You MUST make sure you don't free your buffers twice.
+         */
         virtual void FreeResources() {}
 
         /** Connects to the input/output device. */
@@ -111,8 +135,11 @@ class AVDevice : public syAborter {
          */
         virtual void Disconnect() {}
 
-        /** Mutex used for busy status */
-        sySafeMutex* m_Busy;
+        /** Mutex used when the object is receiving data */
+        mutable sySafeMutex* m_InputMutex;
+
+        /** Mutex used when the object is sending data */
+        mutable sySafeMutex* m_OutputMutex;
 
         /** Flag for Video devices */
         bool m_IsVideo;
@@ -126,10 +153,22 @@ class AVDevice : public syAborter {
         /** Flag for Output devices */
         bool m_IsOutput;
 
+        /** @brief Flag to stop playback immediately.
+         *  @note Pending transactions MUST be aborted, even if the resulting data is corrupted.
+         */
+        mutable volatile bool m_Stop;
+
+        /** @brief Flag to stop playback, but not urgent.
+         *  Pending transactions MUST either be completed or rolled back so that the data is not corrupted.
+         */
+        mutable volatile bool m_SoftStop;
+
     private:
 
-        bool m_IsOk;
-        bool m_IsShuttingDown;
+        volatile bool m_IsOk;
+
+        /** Using volatile guarantees that the variable won't be cached in any registers */
+        mutable volatile bool m_IsShuttingDown;
 };
 
 #endif

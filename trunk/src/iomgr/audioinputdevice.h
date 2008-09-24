@@ -12,6 +12,7 @@
 
 class AudioOutputDevice;
 
+// TODO: Update AudioOutputDevice to use the AVDevice class and the syAudioBuffer class.
 class AudioInputDevice {
     //TODO: Design and implement the Audio Input Device. (This is a partial stub)
 

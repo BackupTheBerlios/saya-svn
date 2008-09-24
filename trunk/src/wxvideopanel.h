@@ -66,21 +66,11 @@ class wxVideoOutputDevice : public VideoOutputDevice {
           */
         virtual bool ChangeDeviceSize(unsigned int newwidth,unsigned int newheight);
 
-        /** @brief Loads video data from an external buffer.
-         *
-         *  @param bitmap Buffer containing the data to be processed.
-         *  @note  This method MUST do nothing if either m_width or m_height are set to 0.
-         *  @note  When the data is finally converted, RenderData MUST be called.
-         *  @note  This method MUST check MustAbort() regularly and abort rendering when the result is true.
-         */
-        virtual void LoadDeviceVideoData(syBitmap* bitmap);
-
-
         /** Plays the received frames by Refreshing the panel's internal buffer.
           * @note This method MUST check MustAbort() regularly and abort rendering when the result is true.
           * @note This method MUST do nothing if either m_width or m_height are set to 0.
           */
-        virtual void RenderData();
+        virtual void RenderVideoData(const syBitmap* bitmap);
 
     private:
 
@@ -119,7 +109,7 @@ class wxVideoPanel : public wxPanel {
          *
          *  @see wxVideoOutputDevice::RenderData
          */
-        void LoadData();
+        void LoadData(const syBitmap* bitmap);
 
         wxVideoOutputDevice* m_Video;
 

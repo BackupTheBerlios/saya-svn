@@ -26,7 +26,7 @@ class syBitmap;
 class syBitmapCopier {
     public:
         /** Initializes the member variables to perform the batch copying */
-        void Init(syBitmap *sourcebmp, syBitmap *destbmp);
+        void Init(const syBitmap *sourcebmp, syBitmap *destbmp);
 
         /** Resets m_Src and m_Dst to the bitmaps original addresses */
         void Reset();
@@ -93,7 +93,7 @@ class syBitmapCopier {
         void ClearPixelAt(unsigned int offset);
 
         /** Source bitmap */
-        syBitmap* m_SourceBitmap;
+        const syBitmap* m_SourceBitmap;
 
         /** Destination bitmap */
         syBitmap* m_DestBitmap;
@@ -111,7 +111,7 @@ class syBitmapCopier {
         unsigned int m_DestBypp;
 
         /** Source address obtained by Init(). Kept public to allow external modification. */
-        unsigned char* m_Src;
+        const unsigned char* m_Src;
 
         /** Destination address obtained by Init(). Kept public to allow external modification. */
         unsigned char* m_Dst;
@@ -191,14 +191,14 @@ inline void syBitmapCopier::CopyRow() {
             maxlength = m_DestRowLength;
         }
         for(unsigned int j = 0; j < maxlength; ++j) {
-            m_Src[j] = m_Dst[j];
+            m_Dst[j] = m_Src[j];
         }
     } else {
         unsigned int maxw = m_SourceWidth;
         if(maxw > m_DestWidth) {
             maxw = m_DestWidth;
         }
-        unsigned char* sourceptr = m_Src;
+        const unsigned char* sourceptr = m_Src;
         unsigned char* destptr = m_Dst;
         for(unsigned int j = 0; j < maxw; ++j, sourceptr += m_SourceBypp, destptr += m_DestBypp) {
             unsigned long pixel = 0;

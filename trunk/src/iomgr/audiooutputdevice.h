@@ -10,10 +10,12 @@
 #ifndef audiooutputdevice_h
 #define audiooutputdevice_h
 
-#include "aborter.h"
+#include "avdevice.h"
 
 class syMutex;
 class sySemaphore;
+class syAudioBuffer;
+class syAudioOutputDeviceData;
 
 /** @brief Generic class for Audio Output
   *
@@ -23,57 +25,37 @@ class sySemaphore;
   * The A/V syncrhonization and optional frame skipping needs to be handled by a streaming class.
   * This class has the following virtual methods (not including the destructor) that must be implemented by derived classes:
   *
-  * InitializeOutput()          - Initializes the output device.
+  * AllocateAudioData()
+  * FreeAudioData()
+  * ConnectAudioOutput()
+  * Disconnect()  (inherited from AVDevice)
   * Clear()                     - Mutes the audio output device.
-  * DisconnectOutput()          - Disconnects the output device from the program.
   * LoadAudioData()             - Loads audio data for a single channel
-  * RenderData()                - Sends the multichannel data stream from the buffer to the output device.
+  * RenderAudioData()           - Sends the multichannel data stream from the buffer to the output device.
   * SetDeviceSampleFreq()       - Tries to Set the output device's sample frequency.
   * SetDeviceBytesPerSample()   - Tries to set the output device's bytes-per-sample size.
   * GetDeviceNumChannels()      - Gets the output device's number of channels.
   *
-  * All of these methods are protected. Additionally, there's a non-virtual, protected method:
-  *
-  * GetChannelBuffer()          - Gets the output buffer for a given audio channel.
-  *
   * These protected methods are used by the derived classes to implement low-level audio playback / encoding.
   */
-class AudioOutputDevice : public syAborter {
+
+// TODO: Update AudioOutputDevice to use the AVDevice class and the syAudioBuffer class.
+class AudioOutputDevice : public AVDevice {
+
     public:
 
         /** @brief Constructor
-          *
-          * Includes a parameter to indicate whether it should use the default output buffers.
-          * When deriving your class, you can call the constructor with false to implement your own
-          * buffering scheme.
-          * @note Once this variable is set, it cannot be changed.
           */
-        AudioOutputDevice(bool usedefaultbuffers = true);
-
-        /** @brief Initializes the output device and sets the m_ok flag.
-         *
-         *  @note This is a wrapper for the InitializeOutput() virtual method.
-         *  @return True on success; false otherwise.
-         */
-        bool Init();
-
-         /** Returns the OK status for the output device. */
-        bool IsOk();
-
-        /** Clears and disconnects the output device. Sets m_ok to false. */
-        void ShutDown();
+        AudioOutputDevice();
 
         /** Returns the output sample frequency in Hz. */
         unsigned int GetSampleFreq();
 
         /** Returns the output buffer length, in samples. */
-        unsigned int GetBufferLength();
-
-        /** Gets the default buffer length for the next Init(). */
-        unsigned int GetBufferDefaultLength();
+        unsigned int GetBufferSize();
 
         /** Sets the default buffer length for the next Init(). */
-        unsigned int SetBufferDefaultLength(unsigned int newlen);
+        unsigned int SetBufferSize(unsigned int newsize);
 
         /** @brief Sets the output sample frequency in Hz. This is a wrapper for SetDeviceSampleFreq()
           *
@@ -83,31 +65,35 @@ class AudioOutputDevice : public syAborter {
         unsigned int SetSampleFreq(unsigned int freq);
 
 
-        /** Returns the output sample size in bytes. */
-        unsigned int GetBytesPerSample();
+        /** Returns the output sample size in bits. */
+        unsigned int GetSamplePrecision();
 
-        /** @brief Sets the bytes per sample. This is a wrapper for SetDeviceBytesperSample().
+        /** @brief Sets the bytes per sample. This is a wrapper for SetDeviceSamplePrecision().
           *
           * @param newsize the new sample size, in bytes (from 1 to 4).
           * @return The actual sample size, in bytes, used by the output.
           */
-        unsigned int SetBytesPerSample(unsigned int newsize);
+        unsigned int SetSamplePrecision(unsigned int precision);
 
-        /** Gets the number of audio-channel buffers currently allocated. */
-        unsigned int GetNumBuffers();
-
-        /** Returns the number of audio-channels in the output (from 0 to 255).  */
+        /** Returns the number of audio-channels in the output (from 1 to 255).  */
         unsigned int GetNumChannels();
 
-        /** @brief Loads audio data from an external buffer. This method is a wrapper for LoadDeviceAudioData.
-         *
-         *  @param channel Number of Channel being processed.
-         *  @param bytespersample Number of Bytes per audio sample. From 1 to 4.
-         *  @param freq Frequency in Hz.
-         *  @param buf Buffer containing the data to be processed.
-         *  @param buflen The length of the buffer to be processed, in bytes.
+        /** @brief Sets the number of audio-channels in the output.
+         *  @param The desired number of audio channels (from 1 to 255).
+         *  @return The number of audio channels available.
          */
-        void LoadAudioData(unsigned int channel,unsigned int bytespersample,unsigned int freq,const char *buf,unsigned int buflen);
+        unsigned int SetNumChannels(unsigned int numchannels);
+
+        /** @brief Loads audio data from an external buffer.
+         *
+         *  @param buf Buffer containing the data to be processed.
+         */
+        void LoadAudioData(const syAudioBuffer* buf);
+
+        /** @brief Flushes the output buffer and writes the data.
+         *  This is a wrapper for the protected virtual method RenderData().
+         */
+        void FlushAudioData();
 
         /** Standard destructor. */
         virtual ~AudioOutputDevice();
@@ -118,26 +104,49 @@ class AudioOutputDevice : public syAborter {
          */
         virtual bool IsEncoder() { return false; }
 
-        /** Mutes the audio output device. Called by ShutDown(). */
+        /** Mutes the audio output device. */
         virtual void Clear();
 
     protected:
 
-        /** @brief Initializes the output device.
+        /** @brief Initializes the audio output and sets the frequency, number of channels and sample precision.
          *
-         *  @note The m_ok flag MUST be set by this method.
-         *  @return True on success; false otherwise.
+         *  @param freq The desired frequency. Must be set to the correct value if and ONLY if the connection was successful.
+         *  @param numchannels The desired number of channels. Must be set to the correct value if and ONLY if the connection was successful.
+         *  @param precision The number of bits per sample. Must be set to the correct value if and ONLY if the connection was successful.
+         *  @return true on success; false otherwise.
          */
-        virtual bool InitializeOutput();
+        virtual bool ConnectAudioOutput(unsigned int& freq, unsigned int& numchannels, unsigned int& precision);
 
         /** Frees the audio output device. Called by ShutDown(). */
-        virtual void DisconnectOutput();
+        virtual void Disconnect();
 
-        /** Plays / encodes the data received.
-          *
+        /** @brief Allocates the memory resources required by Init().
+         *
+         *  This method is called by AllocateResources().
+         */
+        virtual bool AllocateAudioData();
+
+        /** @brief Deallocates the memory resources allocated by AllocateAudioData().
+         *
+         *  This method is called by FreeResources().
+         */
+        virtual void FreeAudioData();
+
+        /** Plays/encodes the data received.
+          * @param buf This is actually OUR Audio Buffer containing the data received by LoadAudioData.
           * @note This method MUST check MustAbort() regularly and abort rendering when the result is true.
           */
-        virtual void RenderData();
+        virtual void RenderAudioData(const syAudioBuffer* buf);
+
+        /** Returns the device's sample frequency in Hz. */
+        virtual unsigned int GetDeviceSampleFreq();
+
+        /** @brief Gets the device's sample precision. */
+        virtual unsigned int GetDeviceSamplePrecision();
+
+        /** @brief Gets the number of audio channels. */
+        virtual unsigned int GetDeviceNumChannels();
 
         /** @brief Sets the output sample frequency in Hz.
           *
@@ -146,75 +155,40 @@ class AudioOutputDevice : public syAborter {
           */
         virtual unsigned int SetDeviceSampleFreq(unsigned int freq);
 
-        /** @brief Sets the bytes per sample.
+        /** @brief Sets the sample precision.
           *
-          * @param newsize the new sample size, in bytes (from 1 to 4).
-          * @return The actual sample size, in bytes, used by the output.
+          * @param precision the new sample precision, in bits per sample (from 1 to 32).
+          * @return The actual sample precision used by the output.
           */
-        virtual unsigned int SetDeviceBytesPerSample(unsigned int newsize);
+        virtual unsigned int SetDeviceSamplePrecision(unsigned int precision);
 
-        /** Gets the number of audio-channels in the output. Called by Init(). */
-        virtual unsigned int GetDeviceNumChannels();
-
-        /** @brief Returns the address for the audio buffer corresponding to a given channel
+        /** @brief Sets the number of audio channels.
           *
-          * @param idx The channel from which we want to retrieve the output audio buffer.
-          * @return a pointer to the audio buffer. NULL if the channel index is invalid.
+          * @param The desired number of output channels (from 1 to 255).
+          * @return The available number of channels in the output.
           */
-        char* GetChannelBuffer(unsigned int idx);
-
-        /** @brief Virtual method which loads audio data from an external buffer. Called by LoadAudioData.
-         *
-         *  @param channel Number of Channel being processed.
-         *  @param bytespersample Number of Bytes per audio sample. From 1 to 4.
-         *  @param freq Frequency in Hz.
-         *  @param buf Buffer containing the data to be processed.
-         *  @param buflen The length of the buffer to be processed, in bytes.
-         *  @note  This method must check MustAbort() regularly and return immediately when true.
-         */
-        virtual void LoadDeviceAudioData(unsigned int channel,unsigned int bytespersample,unsigned int freq,const char *buf,unsigned int buflen);
-
-        /** @brief Flag indicating that playback must be aborted immediately.
-          * @return true if playback/encoding thread must be aborted; false otherwise.
-          * @note This method MUST be called regularly by LoadDeviceAudioData.
-          */
-        virtual bool InternalMustAbort();
+        virtual unsigned int SetDeviceNumChannels(unsigned int numchannels);
 
     private:
 
-        /** Allocates the Audio output buffers. Called by Init. */
-        void AllocateBuffers();
+        /** @brief Initializes the output device. This is a wrapper for ConnectAudioOutput().
+         *  @return True on success; false otherwise.
+         *  @note  Since this function is not to be overriden, we make it private.
+         */
+        virtual bool Connect();
 
-        /** Deallocates the Audio output buffers. Called by ShutDown. */
-        void DeallocateBuffers();
+        /** @brief Allocates the memory resources required by Init().
+         *  @note This function allocates the circular buffer and then proceeds to call AllocateAudioData().
+         */
+        virtual bool AllocateResources();
 
-        bool m_usedefaultbuffers;
+        /** @brief Deallocates the memory resources allocated by AllocateResources().
+         *
+         *  This function calls FreeAudioData, and then proceeds to free the circular buffer.
+         */
+        virtual void FreeResources();
 
-
-        /** flag that indicates that playing is ACTUALLY taking place. */
-        bool m_playing;
-
-        /** flag that forbids playback when changing the device size */
-        bool m_changingparams;
-
-        /** flag that forbids playback when shutting down the device */
-        bool m_shuttingdown;
-
-        /** Tells whether the output device was initialized correctly. */
-        bool m_ok;
-
-        /** Mutex for thread safety */
-        syMutex* m_mutex;
-
-        sySemaphore* m_StopSemaphore;
-
-        unsigned int m_bytespersample;  /** Current setting of bytes per sample */
-        unsigned int m_freq;            /** Current sample frequency */
-        unsigned int m_numchannels;     /** Number of audio channels for this device */
-        unsigned int m_numbuffers;      /** Number of audio buffers currently allocated */
-        unsigned int m_buflen;          /** Current Output buffer's length, in samples */
-        unsigned int m_defaultbuflen;   /** Output buffer length for the next Init(). */
-        char *m_buffers[256];           /** Array of 256 pointers to char buffers */
+        syAudioOutputDeviceData* m_Data;
 };
 
 #endif

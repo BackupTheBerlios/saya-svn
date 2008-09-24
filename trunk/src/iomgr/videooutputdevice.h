@@ -17,6 +17,7 @@
 class syBitmap;
 class syMutex;
 class VideoOutputDevice;
+class VideoOutputDeviceData;
 
 /**
  * @brief Generic wrapper for a Video Output device.
@@ -24,23 +25,26 @@ class VideoOutputDevice;
 class VideoOutputDevice : public AVDevice {
     public:
 
+        /** Maximum width for the rendered window. Currently the value is 10240 pixels. */
+        static const unsigned int MaxWidth;
+
+        /** Maximum height for the rendered window. Currently the value is 10240 pixels. */
+        static const unsigned int MaxHeight;
+
         /** Standard constructor. */
         VideoOutputDevice();
 
         /** Standard destructor. */
         virtual ~VideoOutputDevice();
 
-        /** Returns the value of the m_playing flag */
-        bool IsPlaying();
-
         /** Returns the output color format. */
-        VideoColorFormat GetColorFormat();
+        VideoColorFormat GetColorFormat() const;
 
         /** Returns the output width, in pixels. */
-        unsigned int GetWidth();
+        unsigned int GetWidth() const;
 
         /** Returns the output height, in pixels. */
-        unsigned int GetHeight();
+        unsigned int GetHeight() const;
 
         /** @brief Called whenever the output screen size is changed (i.e. by resizing the playback window)
          *
@@ -59,19 +63,24 @@ class VideoOutputDevice : public AVDevice {
          *  @note  This method is a wrapper for LoadDeviceVideoData.
          *  @note  This method should be called by the worker thread
          */
-        void LoadVideoData(syBitmap* bitmap);
+        void LoadVideoData(const syBitmap* bitmap);
+
+        /** @brief Writes the video data into the device.
+         *  @note This method is a wrapper for RenderVideoData.
+         */
+        void FlushVideoData();
 
         /** @brief Flag indicating that playback must be aborted immediately.
           * @return true if playback/encoding thread must be aborted; false otherwise.
           * @note This method MUST be called by LoadDeviceVideoData.
           * @see syAborter::MustAbort
           */
-        virtual bool InnerMustAbort();
+        virtual bool InnerMustAbort() const;
 
         /** @brief Flag indicating whether it's a playback or an encoding device.
          *  @return true for encoding; false for playback.
          */
-        virtual bool IsEncoder();
+        virtual bool IsEncoder() const;
 
     protected:
 
@@ -95,21 +104,11 @@ class VideoOutputDevice : public AVDevice {
           */
         virtual bool ChangeDeviceSize(unsigned int newwidth,unsigned int newheight);
 
-        /** @brief Virtual method which loads video data from an external buffer.
-         *
-         *  @param bitmap the bitmap (buffer) containing the image to be sent.
-         *  @note  This method MUST do nothing if either m_width or m_height are set to 0.
-         *  @note  When the data is finally converted, RenderData MUST be called.
-         *  @note  This method MUST check MustAbort() regularly and abort rendering when the result is true.
-         */
-        virtual void LoadDeviceVideoData(syBitmap* bitmap);
-
-
         /** Plays the received frames.
           * @note This method MUST check MustAbort() regularly and abort rendering when the result is true.
           * @note This method MUST do nothing if either m_Width or m_Height are set to 0.
           */
-        virtual void RenderData();
+        virtual void RenderVideoData(const syBitmap* bitmap);
 
         /** Output color format */
         VideoColorFormat m_ColorFormat;
@@ -122,17 +121,10 @@ class VideoOutputDevice : public AVDevice {
 
     private:
 
-        /** flag that indicates that playing is ACTUALLY taking place. */
-        bool m_Playing;
-
         /** flag that forbids playback when changing the device size */
         bool m_ChangingSize;
 
-        /** flag that forbids playback when shutting down the device */
-        bool m_shuttingdown;
-
-        /** Tells whether the output device was initialized correctly. */
-        bool m_ok;
+        VideoOutputDeviceData* m_Data;
 };
 
 #endif

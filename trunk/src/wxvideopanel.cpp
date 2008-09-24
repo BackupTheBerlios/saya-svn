@@ -61,7 +61,7 @@ bool wxVideoOutputDevice::AllocateResources() {
 void wxVideoOutputDevice::Clear() {
     m_Bitmap->Clear(); // Clear the bitmap...
     // ... and repaint the panel.
-    RenderData();
+    RenderVideoData(m_Bitmap);
 }
 
 void wxVideoOutputDevice::FreeResources() {
@@ -69,44 +69,24 @@ void wxVideoOutputDevice::FreeResources() {
 }
 
 bool wxVideoOutputDevice::ChangeDeviceSize(unsigned int newwidth,unsigned int newheight) {
-    m_Bitmap->Lock(0,1); // unlimited lock attempts, 1ms each
-
-    // Reallocate the current bitmap's buffer, if necessary
-    m_Bitmap->Realloc(m_Width,m_Height,m_ColorFormat);
-
-    // And unlock
-    m_Bitmap->Unlock();
-
-    return true;
+    bool result = false;
+    sySafeMutexLocker lock(*(m_Bitmap->m_Mutex));
+    if(lock.IsLocked()) {
+        m_Bitmap->Realloc(m_Width,m_Height,m_ColorFormat);
+        result = true;
+    }
+    return result;
 }
 
 syBitmap* wxVideoOutputDevice::GetBitmap() {
     return m_Bitmap;
 }
 
-void wxVideoOutputDevice::LoadDeviceVideoData(syBitmap* bitmap) {
-    if(!m_Width || !m_Height) {
-        return;
-    }
-
-    m_Bitmap->Lock(0,1); // Lock the buffer with 1 msec between lock attempts; Never stop trying.
-
-    m_Bitmap->PasteFrom(bitmap,sy_stkeepaspectratio);
-    // Copy from the source bitmap, stretching it as much as possible without distorting it.
-    // Note: Since syBitmap checks our MustAbort() method, we don't need to worry about it
-
-    m_Bitmap->Unlock(); // Don't forget to unlock the buffer
-
-    if(!MustAbort()) { // If we're called to abort, skip this step
-        RenderData(); // We're clear. Now copy the data to m_Panel.
-    }
-}
-
-void wxVideoOutputDevice::RenderData() {
+void wxVideoOutputDevice::RenderVideoData(const syBitmap* bitmap) {
     if(m_Width == 0 || m_Height == 0) {
         return;
     }
-    m_Panel->LoadData(); // Copy the data to the wxPanel's internal bitmap
+    m_Panel->LoadData(bitmap); // Copy the data to the wxPanel's internal bitmap
 }
 
 // *** Begin wxVideoPanel code ***
@@ -150,19 +130,22 @@ void wxVideoPanel::OnPaint(wxPaintEvent &event) {
     wxSize size = GetSize();
     unsigned int w = size.GetWidth();
     unsigned int h = size.GetHeight();
-    m_Bitmap->Lock(0,1);
-    if(w > 0 && h > 0 && m_Video && m_Video->IsOk() && m_Bitmap->GetBuffer()) {
-        // Video is created, active and available. Let's play our current bitmap.
-        wxBitmap bmp(wxImage(w,h,m_Bitmap->GetBuffer(), true));
-        m_Bitmap->Unlock(); // Unlock our own bitmap
-        wxBufferedPaintDC dc(this, bmp);
-    } else {
-        m_Bitmap->Unlock(); // Unlock our own bitmap
-        // Video has not yet been created. Let's paint a black bitmap.
-        wxPaintDC pdc(this);
-        wxBrush mybrush(*wxBLACK, wxSOLID);
-        pdc.SetBackground(mybrush);
-        pdc.Clear();
+    sySafeMutexLocker lock(*(m_Bitmap->m_Mutex));
+    if(lock.IsLocked()) {
+        // FIXME: Finish reimplementing the VideoOutputDevice and enable this code
+        if(false && w > 0 && h > 0 && m_Video && m_Video->IsOk() && m_Bitmap->GetBuffer()) {
+            // Video is created, active and available. Let's play our current bitmap.
+            wxBitmap bmp(wxImage(w,h,m_Bitmap->GetBuffer(), true));
+            lock.Unlock();
+            wxBufferedPaintDC dc(this, bmp);
+        } else {
+            lock.Unlock();
+            // Video has not yet been created. Let's paint a black bitmap.
+            wxPaintDC pdc(this);
+            wxBrush mybrush(*wxBLACK, wxSOLID);
+            pdc.SetBackground(mybrush);
+            pdc.Clear();
+        }
     }
 }
 
@@ -178,15 +161,18 @@ void wxVideoPanel::OnIdle(wxIdleEvent &event) {
     Demo();
 }
 
-void wxVideoPanel::LoadData() {
+void wxVideoPanel::LoadData(const syBitmap* bitmap) {
     if(m_SizeChanging) {
         // Do not load the new data while resizing
         return;
     }
     if(m_Video && m_Video->IsOk()) {
-        m_Bitmap->Lock(0,1);
-        m_Bitmap->PasteFrom(m_Video->GetBitmap());
-        m_Bitmap->Unlock();
+        {
+            sySafeMutexLocker lock(*(m_Bitmap->m_Mutex));
+            if(lock.IsLocked()) {
+                m_Bitmap->PasteFrom(m_Video->GetBitmap());
+            }
+        }
         FlagForRepaint();
     }
 }
@@ -224,7 +210,7 @@ void wxVideoPanel::OnSize(wxSizeEvent& event) {
         if(m_Video && m_Video->IsOk()) {
             result = m_Video->ChangeSize(newsize.GetWidth(),newsize.GetHeight());
         }
-        syBitmapLocker lock(m_Bitmap, 0, 1);
+        sySafeMutexLocker lock(*(m_Bitmap->m_Mutex));
         if(lock.IsLocked()) {
             m_Bitmap->Realloc(newsize.GetWidth(),newsize.GetHeight(),m_NativeFormat);
         }

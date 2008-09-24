@@ -12,7 +12,7 @@
 #include "sybitmapcopier.h"
 #include "sybitmap.h"
 
-void syBitmapCopier::Init(syBitmap *sourcebmp, syBitmap *destbmp) {
+void syBitmapCopier::Init(const syBitmap *sourcebmp, syBitmap *destbmp) {
     if(!sourcebmp || !destbmp) { return; }
     m_SourceBitmap = sourcebmp;
     m_DestBitmap = destbmp;
@@ -20,7 +20,7 @@ void syBitmapCopier::Init(syBitmap *sourcebmp, syBitmap *destbmp) {
     m_DestFmt = destbmp->GetColorFormat();
     m_SourceBypp = syBitmap::CalculateBytesperPixel(m_SourceFmt);
     m_DestBypp = syBitmap::CalculateBytesperPixel(m_DestFmt);
-    m_Src = sourcebmp->GetBuffer();
+    m_Src = sourcebmp->GetReadOnlyBuffer();
     m_Dst = destbmp->GetBuffer();
     m_SourceWidth = sourcebmp->GetWidth();
     m_DestWidth = destbmp->GetWidth();
@@ -33,7 +33,7 @@ void syBitmapCopier::Init(syBitmap *sourcebmp, syBitmap *destbmp) {
 }
 
 void syBitmapCopier::Reset() {
-    m_Src = m_SourceBitmap->GetBuffer();
+    m_Src = m_SourceBitmap->GetReadOnlyBuffer();
     m_Dst = m_DestBitmap->GetBuffer();
 }
 

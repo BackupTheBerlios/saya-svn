@@ -15,38 +15,56 @@
 #include <cstddef>
 
 AVDevice::AVDevice() :
-m_Busy(NULL),
+m_InputMutex(NULL),
+m_OutputMutex(NULL),
+m_Stop(false),
+m_SoftStop(false),
 m_IsOk(false),
 m_IsShuttingDown(false)
 {
-    m_Busy = new sySafeMutex;
+    m_InputMutex = new sySafeMutex;
+    m_OutputMutex = new sySafeMutex;
 }
 
 AVDevice::~AVDevice() {
-    delete m_Busy;
+    delete m_OutputMutex;
+    delete m_InputMutex;
 }
 
 bool AVDevice::Init() {
-    bool result = Connect();
-    if(result) {
-        result = AllocateResources();
+    if(!m_IsOk) {
+        FreeResources();
+        bool result = Connect();
+        if(result) {
+            result = AllocateResources();
+        }
+        m_IsOk = result;
     }
-    m_IsOk = result;
     return m_IsOk;
 }
 
-bool AVDevice::IsOk() {
+bool AVDevice::IsShuttingDown() const {
+    return m_IsShuttingDown;
+}
+
+bool AVDevice::IsOk() const {
     return m_IsOk;
 }
 
 void AVDevice::ShutDown() {
     if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
     m_IsShuttingDown = true;
-    m_Busy->Wait();
+    while(!m_InputMutex->IsUnlocked() || !m_OutputMutex->IsUnlocked()) {
+        m_InputMutex->Wait();
+        m_OutputMutex->Wait();
+    }
     Disconnect();
     FreeResources();
     m_IsOk = false;
     m_IsShuttingDown = false;
+    m_Stop = false;
+    m_SoftStop = false;
+
 }
 
 void AVDevice::StartShutDown() {
@@ -56,41 +74,58 @@ void AVDevice::StartShutDown() {
 void AVDevice::WaitForShutDown() {
     if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
     m_IsShuttingDown = true;
-    m_Busy->Wait();
+    while(!m_InputMutex->IsUnlocked() || !m_OutputMutex->IsUnlocked()) {
+        m_InputMutex->Wait();
+        m_OutputMutex->Wait();
+    }
 }
 
 void AVDevice::FinishShutDown() {
     if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
-    if(m_Busy->IsUnlocked()) {
+    if(m_InputMutex->IsUnlocked() && m_OutputMutex->IsUnlocked()) {
         Disconnect();
         FreeResources();
         m_IsOk = false;
         m_IsShuttingDown = false;
+        m_Stop = false;
+        m_SoftStop = false;
     }
 }
 
-bool AVDevice::IsBusy() {
-    return !m_Busy->IsUnlocked();
+bool AVDevice::IsPlaying() const {
+    return !(m_InputMutex->IsUnlocked() && m_OutputMutex->IsUnlocked());
 }
 
-bool AVDevice::InnerMustAbort() {
-    return !m_IsOk || m_IsShuttingDown;
+bool AVDevice::InnerMustAbort() const {
+    return !m_IsOk || m_IsShuttingDown || m_Stop;
 }
 
-bool AVDevice::IsVideo() {
+bool AVDevice::MustStop() const {
+    return !m_IsOk || m_IsShuttingDown || m_Stop || m_SoftStop;
+}
+
+bool AVDevice::IsVideo() const {
     return m_IsVideo;
 }
 
-bool AVDevice::IsAudio() {
+bool AVDevice::IsAudio() const {
     return m_IsAudio;
 }
 
-bool AVDevice::IsInput() {
+bool AVDevice::IsInput() const {
     return m_IsInput;
 }
 
-bool AVDevice::IsOutput() {
+bool AVDevice::IsOutput() const {
     return m_IsOutput;
 }
 
+void AVDevice::Abort() const {
+    if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
+    m_Stop = true;
+}
 
+void AVDevice::Stop() const {
+    if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
+    m_SoftStop = true;
+}

@@ -45,24 +45,24 @@ class VideoInputDevice : public AVDevice {
 
 
         /** Gets the current position in time (milliseconds) */
-        unsigned long GetPos();
+        unsigned long GetPos() const;
 
         /** @brief Gets the length of the data being read.
          *  @return The length of the resource's data, in milliseconds. Minimum one.
          */
-        unsigned long GetLength();
+        unsigned long GetLength() const;
 
         /** Gets the Video Color format of the resource. */
-        VideoColorFormat GetColorFormat();
+        VideoColorFormat GetColorFormat() const;
 
         /** Gets the resource's width in pixels  */
-        unsigned long GetWidth();
+        unsigned long GetWidth() const;
 
         /** Gets the resource's height in pixels. */
-        unsigned long GetHeight();
+        unsigned long GetHeight() const;
 
         /** Gets the resource's pixel aspect ratio. */
-        float GetPixelAspect();
+        float GetPixelAspect() const;
 
         /** @brief Sends the current frame to device.
          *

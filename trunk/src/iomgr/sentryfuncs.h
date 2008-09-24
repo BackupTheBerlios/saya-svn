@@ -15,6 +15,7 @@ class syBoolSetter {
     public:
         /** Constructor */
         syBoolSetter(bool& flag,bool newvalue);
+        syBoolSetter(volatile bool& flag,bool newvalue);
 
         /** Destructor. Sets the flag to its original value. */
         ~syBoolSetter();
@@ -29,6 +30,7 @@ class syIntSetter {
     public:
         /** Constructor */
         syIntSetter(int& dest,int newvalue);
+        syIntSetter(volatile int& dest,int newvalue);
 
         /** Destructor. Sets the flag to its original value. */
         ~syIntSetter();
@@ -42,6 +44,7 @@ class syUintSetter {
     public:
         /** Constructor */
         syUintSetter(unsigned int& dest,unsigned int newvalue);
+        syUintSetter(volatile unsigned int& dest,unsigned int newvalue);
 
         /** Destructor. Sets the flag to its original value. */
         ~syUintSetter();
@@ -55,6 +58,7 @@ class syLongSetter {
     public:
         /** Constructor */
         syLongSetter(long& dest,long newvalue);
+        syLongSetter(volatile long& dest,long newvalue);
 
         /** Destructor. Sets the flag to its original value. */
         ~syLongSetter();
@@ -68,6 +72,7 @@ class syULongSetter {
     public:
         /** Constructor */
         syULongSetter(unsigned long& dest,unsigned long newvalue);
+        syULongSetter(volatile unsigned long& dest,unsigned long newvalue);
 
         /** Destructor. Sets the flag to its original value. */
         ~syULongSetter();
@@ -80,6 +85,7 @@ class syCharSetter {
     public:
         /** Constructor */
         syCharSetter(char& dest,char newvalue);
+        syCharSetter(volatile char& dest,char newvalue);
 
         /** Destructor. Sets the flag to its original value. */
         ~syCharSetter();
@@ -92,6 +98,7 @@ class syUcharSetter {
     public:
         /** Constructor */
         syUcharSetter(unsigned char& dest,unsigned char newvalue);
+        syUcharSetter(volatile unsigned char& dest,unsigned char newvalue);
 
         /** Destructor. Sets the flag to its original value. */
         ~syUcharSetter();

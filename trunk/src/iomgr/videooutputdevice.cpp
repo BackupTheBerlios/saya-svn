@@ -9,39 +9,57 @@
 
 #include "sythread.h"
 #include "videooutputdevice.h"
+#include "sybitmap.h"
 #include "sentryfuncs.h"
 
-/** Maximum size for the rendered window. 100 megapixels ought to be enough for anyone. */
-const unsigned int MaxVideoOutputDeviceWidth = 10240;
-const unsigned int MaxVideoOutputDeviceHeight = 10240;
+const unsigned int VideoOutputDevice::MaxWidth = 10240;
+const unsigned int VideoOutputDevice::MaxHeight = 10240;
+
+class VideoOutputDeviceData {
+
+    public:
+
+        syBitmap* m_InputBitmap;
+        syBitmap* m_OutputBitmap;
+        syBitmap* m_ExtraBitmap;
+
+        VideoOutputDeviceData() {
+            m_InputBitmap = new syBitmap;
+            m_OutputBitmap = new syBitmap;
+            m_ExtraBitmap = new syBitmap;
+        }
+
+        ~VideoOutputDeviceData() {
+            delete m_ExtraBitmap;
+            delete m_OutputBitmap;
+            delete m_InputBitmap;
+        }
+};
 
 VideoOutputDevice::VideoOutputDevice() : AVDevice(),
 m_ColorFormat(vcfRGB32),
 m_Width(0),
 m_Height(0),
-m_Playing(false),
 m_ChangingSize(false)
 {
     m_IsVideo = true;
     m_IsOutput = true;
+    m_Data = new VideoOutputDeviceData;
 }
 
 VideoOutputDevice::~VideoOutputDevice() {
+    delete m_Data;
 }
 
-bool VideoOutputDevice::IsPlaying() {
-    return m_Playing;
-}
-
-bool VideoOutputDevice::InnerMustAbort() {
+bool VideoOutputDevice::InnerMustAbort() const {
     return (AVDevice::InnerMustAbort() || m_ChangingSize);
 }
 
-unsigned int VideoOutputDevice::GetWidth() {
+unsigned int VideoOutputDevice::GetWidth() const {
     return m_Width;
 }
 
-unsigned int VideoOutputDevice::GetHeight() {
+unsigned int VideoOutputDevice::GetHeight() const {
     return m_Height;
 }
 
@@ -49,10 +67,11 @@ bool VideoOutputDevice::ChangeSize(unsigned int newwidth,unsigned int newheight)
     if(!syThread::IsMain()) { return false; } // Can only be called from the main thread!
     if(!IsOk()) { return false; }
     syBoolSetter setter(m_ChangingSize, true);
-    sySafeMutexLocker lock(*m_Busy);
+    sySafeMutexLocker lockin(*m_InputMutex);
+    sySafeMutexLocker lockout(*m_OutputMutex);
     bool result = false;
-    if(lock.IsLocked()) {
-        if(newwidth > MaxVideoOutputDeviceWidth || newheight > MaxVideoOutputDeviceHeight) {
+    if(lockin.IsLocked() && lockout.IsLocked()) {
+        if(newwidth > MaxWidth || newheight > MaxHeight) {
             return false;
         }
         result = ChangeDeviceSize(newwidth, newheight);
@@ -69,16 +88,24 @@ bool VideoOutputDevice::ChangeDeviceSize(unsigned int newwidth,unsigned int newh
     return false;
 }
 
-void VideoOutputDevice::LoadVideoData(syBitmap* bitmap) {
-    sySafeMutexLocker lock(*m_Busy, this);
+void VideoOutputDevice::LoadVideoData(const syBitmap* bitmap) {
+    if(!IsOk()) return;
+    if(MustAbort()) return;
+
+    sySafeMutexLocker lock(*m_InputMutex, this);
     if(lock.IsLocked()) {
-        syBoolSetter setter(m_Playing, true);
-        LoadDeviceVideoData(bitmap);
+        m_Data->m_InputBitmap->PasteFrom(bitmap,sy_stkeepaspectratio);
+        // TODO: Read data from the source bitmap.
     }
 }
 
-void VideoOutputDevice::LoadDeviceVideoData(syBitmap* bitmap) {
-    // This is a stub
+void VideoOutputDevice::FlushVideoData() {
+    if(!IsOk()) return;
+    if(MustAbort()) return;
+    sySafeMutexLocker lock(*m_OutputMutex, this);
+    if(lock.IsLocked()) {
+        RenderVideoData(m_Data->m_OutputBitmap);
+    }
 }
 
 bool VideoOutputDevice::Connect() {
@@ -93,10 +120,10 @@ void VideoOutputDevice::Clear() {
     // This is a stub
 }
 
-void VideoOutputDevice::RenderData() {
+void VideoOutputDevice::RenderVideoData(const syBitmap* bitmap) {
     // This is a stub
 }
 
-bool VideoOutputDevice::IsEncoder() {
+bool VideoOutputDevice::IsEncoder() const {
     return false;
 }

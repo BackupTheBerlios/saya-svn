@@ -7,241 +7,214 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
-#include "audiooutputdevice.h"
-#include "sythread.h"
 #include <cstddef>
-/* #include "audiosourcedevie.h" */
+#include "sythread.h"
+#include "sentryfuncs.h"
+#include "audiobuffer.h"
+#include "audiooutputdevice.h"
 
-AudioOutputDevice::AudioOutputDevice(bool usedefaultbuffers) :
-m_usedefaultbuffers(usedefaultbuffers),
-m_playing(false),
-m_changingparams(false),
-m_shuttingdown(false),
-m_ok(false),
-m_mutex(NULL),
-m_StopSemaphore(NULL),
-m_bytespersample(2),
-m_freq(44100),
-m_numchannels(2),
-m_numbuffers(0),
-m_buflen(88200),
-m_defaultbuflen(88200)
-{
-    size_t i;
-    m_mutex = new syMutex;
-    for(i = 0; i < 256; i++) {
-        m_buffers[i] = NULL;
-    }
-    m_StopSemaphore = new sySemaphore;
+const unsigned int DefaultAODFrequency = 44100;
+const unsigned int DefaultAODNumChannels = 2;
+const unsigned int DefaultAODBufferSize = 88200;
+const unsigned int DefaultAODPrecision = 16;
 
+class syAudioOutputDeviceData {
+    public:
+        syAudioOutputDeviceData() : m_Condition(m_Mutex) {}
 
+        /** Buffer to hold the audio data. */
+        syAudioBuffer* m_Buffer;
+
+        /** Mutex for thread safety. */
+        syMutex m_Mutex;
+
+        /** Condition for waking up if the buffer's full. */
+        syCondition m_Condition;
+
+        /** Frequency of the device. */
+        unsigned int m_Freq;
+
+        /** Number of audio channels in the device. */
+        unsigned int m_NumChannels;
+
+        /** Buffer Size, in samples. */
+        unsigned int m_BufSize;
+
+        /** Bits per sample. */
+        unsigned int m_Precision;
+
+        /** Default Device Frequency. */
+        unsigned int m_DefaultFreq;
+
+        /** Default number of channels. */
+        unsigned int m_DefaultNumChannels;
+
+        /** Default buffer size. */
+        unsigned int m_DefaultBufSize;
+
+        /** Default precision. */
+        unsigned int m_DefaultPrecision;
+        };
+
+AudioOutputDevice::AudioOutputDevice() {
+    m_IsAudio = true;
+    m_IsOutput = true;
+
+    m_Data = new syAudioOutputDeviceData;
+
+    // We must keep a copy of the parameters because we haven't allocated the buffer yet.
+    m_Data->m_Freq        = m_Data->m_DefaultFreq        = DefaultAODFrequency;
+    m_Data->m_NumChannels = m_Data->m_DefaultNumChannels = DefaultAODNumChannels;
+    m_Data->m_BufSize     = m_Data->m_DefaultBufSize     = DefaultAODBufferSize;
+    m_Data->m_Precision   = m_Data->m_DefaultPrecision   = DefaultAODPrecision;
 }
 
 AudioOutputDevice::~AudioOutputDevice() {
     ShutDown();
-    delete m_mutex;
-    delete m_StopSemaphore;
-    m_mutex = NULL; // Clear memory
-    m_StopSemaphore = NULL;
+    delete m_Data;
 }
 
-bool AudioOutputDevice::Init() {
-    if(!m_ok) {
-        // Mutex not needed here because only Init() and ShutDown() change m_ok and they're only called by the main thread.
-        m_changingparams = true;
-        DeallocateBuffers();
-        m_ok = InitializeOutput();
-
-        if(m_ok) {
-            m_numchannels = GetDeviceNumChannels();
-            if(m_numchannels > 255) m_numchannels = 255;
-            AllocateBuffers();
-            m_playing = false;
-        }
-        m_changingparams = false;
-    }
-    return m_ok;
+bool AudioOutputDevice::Connect() {
+    return ConnectAudioOutput(m_Data->m_DefaultFreq, m_Data->m_DefaultNumChannels, m_Data->m_DefaultPrecision);
 }
 
-bool AudioOutputDevice::IsOk() {
-    return m_ok;
-}
-
-bool AudioOutputDevice::InitializeOutput() {
+bool AudioOutputDevice::ConnectAudioOutput(unsigned int& freq, unsigned int& numchannels, unsigned int& precision) {
     return true;
 }
 
-bool AudioOutputDevice::InternalMustAbort() {
-    return (!m_ok || m_shuttingdown || m_changingparams);
+void AudioOutputDevice::Disconnect() {
 }
 
-void AudioOutputDevice::ShutDown() {
-    m_shuttingdown = true;
-    while(m_playing) {
-        m_StopSemaphore->WaitTimeout(1); // Wait
-    }
-    Clear();
-    DisconnectOutput();
-    DeallocateBuffers();
-    m_ok = false;
-    m_shuttingdown = false;
+bool AudioOutputDevice::AllocateResources() {
+    // This function must be called ONLY by Init()!
+
+    // First, let's allocate the buffer.
+    m_Data->m_Buffer = new syAudioBuffer(m_Data->m_DefaultBufSize,
+                                         m_Data->m_DefaultNumChannels,
+                                         m_Data->m_DefaultPrecision,
+                                         m_Data->m_DefaultFreq);
+    // Then, get the parameters.
+    m_Data->m_Freq = m_Data->m_Buffer->GetSampleFrequency();
+    m_Data->m_NumChannels = m_Data->m_Buffer->GetNumChannels();
+    m_Data->m_BufSize = m_Data->m_Buffer->GetSize();
+    m_Data->m_Precision = m_Data->m_Buffer->GetSamplePrecision();
+
+    return AllocateAudioData();
 }
+
+void AudioOutputDevice::FreeResources() {
+    FreeAudioData();
+    if(m_Data->m_Buffer) {
+        delete m_Data->m_Buffer;
+        m_Data->m_Buffer = NULL;
+    }
+}
+
+bool AudioOutputDevice::AllocateAudioData() {
+    return true;
+}
+
+void AudioOutputDevice::FreeAudioData() {
+}
+
 
 unsigned int AudioOutputDevice::GetSampleFreq() {
-    return m_freq;
+    return m_Data->m_Freq;
 }
 
 unsigned int AudioOutputDevice::SetSampleFreq(unsigned int freq) {
-    bool result = true;
-    {
-        syMutexLocker mylocker(*m_mutex);
-        if(m_shuttingdown || m_changingparams || m_playing) {
-            result = false;
-        } else {
-            m_changingparams = true;
-        }
-    }
+    // To avoid complex synchronization issues, we'll just change the Default Sample Frequency
+    // and set the new frequency the next Init().
 
-    if(result) {
-        m_freq = SetDeviceSampleFreq(freq);
-        m_changingparams = false;
-    }
-    return m_freq;
+    if(freq < 1) { freq = 1; }
+    if(freq > syAudioBuffer::maxsamplefreq) { freq = syAudioBuffer::maxsamplefreq; }
+    m_Data->m_DefaultFreq = freq;
+    return m_Data->m_Freq;
 }
 
-unsigned int AudioOutputDevice::GetBytesPerSample() {
-    return m_bytespersample;
+unsigned int AudioOutputDevice::GetSamplePrecision() {
+    return m_Data->m_Precision;
 }
 
-unsigned int AudioOutputDevice::SetBytesPerSample(unsigned int newsize) {
-    bool result = true;
-    {
-        syMutexLocker mylocker(*m_mutex);
-        if(m_shuttingdown || m_changingparams || m_playing) {
-            result = false;
-        } else {
-            m_changingparams = true;
-        }
-    }
-
-    if(result) {
-        if(newsize < 1) {
-            newsize = 1;
-        }
-        if(newsize > 4) {
-            newsize = 4;
-        }
-        newsize = SetDeviceBytesPerSample(newsize);
-        m_bytespersample = newsize;
-        m_changingparams = false;
-    }
-
-    return m_bytespersample;
-}
-
-unsigned int AudioOutputDevice::GetNumBuffers() {
-    return m_numbuffers;
+unsigned int AudioOutputDevice::SetSamplePrecision(unsigned int precision) {
+    if(precision < 1) { precision = 1; }
+    if(precision > syAudioBuffer::maxbitspersample) { precision = syAudioBuffer::maxbitspersample; }
+    m_Data->m_DefaultPrecision = precision;
+    return m_Data->m_Precision;
 }
 
 unsigned int AudioOutputDevice::GetNumChannels() {
-    return m_numchannels;
+    return m_Data->m_NumChannels;
+}
+
+unsigned int AudioOutputDevice::SetNumChannels(unsigned int numchannels) {
+    if(numchannels < 1) { numchannels = 1; }
+    if(numchannels > syAudioBuffer::maxaudiochannels) { numchannels = syAudioBuffer::maxaudiochannels; }
+    m_Data->m_DefaultNumChannels = numchannels;
+    return m_Data->m_NumChannels;
+}
+
+unsigned int AudioOutputDevice::GetBufferSize() {
+    return m_Data->m_BufSize;
+}
+
+unsigned int AudioOutputDevice::SetBufferSize(unsigned int newsize) {
+    if(newsize < syAudioBuffer::minsamplesperbuffer) { newsize = syAudioBuffer::minsamplesperbuffer; }
+    if(newsize > syAudioBuffer::maxsamplesperbuffer) { newsize = syAudioBuffer::maxsamplesperbuffer; }
+    m_Data->m_DefaultBufSize = newsize;
+    return newsize;
 }
 
 unsigned int AudioOutputDevice::SetDeviceSampleFreq(unsigned int freq) {
-    return 44100; // Default
+    return DefaultAODFrequency; // Default
 }
 
-unsigned int AudioOutputDevice::SetDeviceBytesPerSample(unsigned int newsize) {
-    return 2; // Default
+unsigned int AudioOutputDevice::SetDeviceSamplePrecision(unsigned int precision) {
+    return DefaultAODPrecision; // Default
+}
+
+unsigned int AudioOutputDevice::SetDeviceNumChannels(unsigned int numchannels) {
+    return DefaultAODNumChannels; // Default
+}
+
+unsigned int AudioOutputDevice::GetDeviceSampleFreq() {
+    return DefaultAODFrequency; // Default
+}
+
+unsigned int AudioOutputDevice::GetDeviceSamplePrecision() {
+    return DefaultAODPrecision; // Default
 }
 
 unsigned int AudioOutputDevice::GetDeviceNumChannels() {
-    return 0; // Default
+    return DefaultAODNumChannels; // Default
 }
 
-char* AudioOutputDevice::GetChannelBuffer(unsigned int idx) {
-    if(idx > m_numbuffers)
-        return NULL;
-    return m_buffers[idx];
-}
-
-void AudioOutputDevice::AllocateBuffers() {
-    // This function must be called ONLY by Init()!
-    size_t i;
-
-    if(!m_usedefaultbuffers) {
-        m_numbuffers = 0;
-        return;
-    }
-    for(i = 0; i < 256 && i < m_numchannels; i++) {
-        m_buffers[i] = new char[m_defaultbuflen * m_bytespersample];
-    }
-    m_numbuffers = m_numchannels;
-    m_buflen = m_defaultbuflen;
-}
-
-void AudioOutputDevice::DeallocateBuffers() {
-    // This function must be called ONLY by Init() or Shutdown()!
-    size_t i;
-    for(i = 0; i < 256 && i < m_numbuffers; i++) {
-        if(m_buffers[i] != NULL) {
-            delete[] m_buffers[i];
-        }
-    }
-    for(i = 0; i < 256; i++) {
-        m_buffers[i] = NULL;
-    }
-    m_numbuffers = 0;
-}
-
-unsigned int AudioOutputDevice::GetBufferLength() {
-    return m_buflen;
-}
-
-unsigned int AudioOutputDevice::SetBufferDefaultLength(unsigned int newlen) {
-    if(newlen < 44100) {
-        newlen = 44100;
-    }
-    m_defaultbuflen = 44100;
-    return m_defaultbuflen;
-}
-
-unsigned int AudioOutputDevice::GetBufferDefaultLength() {
-    return m_defaultbuflen;
-}
-
-void AudioOutputDevice::LoadAudioData(unsigned int channel,unsigned int bytespersample,unsigned int freq,const char *buf,unsigned int buflen) {
+void AudioOutputDevice::LoadAudioData(const syAudioBuffer* buf) {
     if(!IsOk()) return;
-    bool result = true;
-    {
-        syMutexLocker mylocker(*m_mutex);
-        if(m_playing || MustAbort()) {
-            result = false;
-        } else {
-            m_playing = true;
-        }
-    }
+    if(MustAbort()) return;
 
-    if(result) {
-        LoadDeviceAudioData(channel, bytespersample, freq, buf, buflen);
-        m_playing = false;
-        m_StopSemaphore->Post();
+    sySafeMutexLocker lock(*m_InputMutex, this);
+    if(lock.IsLocked()) {
+        // Read the source buffer until our buffer is filled or the other buffer is empty.
+        while(!MustStop() && buf->ReadInto(m_Data->m_Buffer)) {}
     }
 }
-
 
 void AudioOutputDevice::Clear() {
     if(!IsOk()) return;
+    m_Data->m_Buffer->Clear();
 }
 
-void AudioOutputDevice::DisconnectOutput() {
+
+void AudioOutputDevice::FlushAudioData() {
     if(!IsOk()) return;
+    if(MustAbort()) return;
+    sySafeMutexLocker lock(*m_OutputMutex, this);
+    if(lock.IsLocked()) {
+        RenderAudioData(m_Data->m_Buffer);
+    }
 }
 
-void AudioOutputDevice::LoadDeviceAudioData(unsigned int channel,unsigned int bytespersample,unsigned int freq,const char *buf,unsigned int buflen) {
-    if(!IsOk()) return;
-}
-
-void AudioOutputDevice::RenderData() {
+void AudioOutputDevice::RenderAudioData(const syAudioBuffer* buf) {
     if(!IsOk()) return;
 }
