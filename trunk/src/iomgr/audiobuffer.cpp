@@ -24,6 +24,7 @@
 // the reader, resulting in a garbage buffer of size m_Size.
 
 #include "audiobuffer.h"
+#include "atomic.h"
 
 const unsigned int syAudioBuffer::maxbitspersample = 32;
 const unsigned int syAudioBuffer::maxsamplefreq = 96000;
@@ -159,7 +160,7 @@ unsigned int syAudioBuffer::SetSamplePrecision(unsigned int precision) {
     if(precision < 1) { precision = 1; }
     if(precision > maxbitspersample) { precision = maxbitspersample; }
     m_Data->m_Precision = precision;
-    return m_Data->m_Precision;
+    return precision;
 }
 
 unsigned int syAudioBuffer::GetSampleFrequency() const {
@@ -181,6 +182,8 @@ bool syAudioBuffer::Read(int* dest,unsigned int precision) const {
     // Copy the sample
     syAudioBufferData::CopySample(ptr,dest, m_Data->m_NumChannels, m_Data->m_Precision, precision);
 
+    syAtomic::MemoryBarrier(); // Make sure the data has been written before updating head
+
     // First calculate the new value of head, and then set the variable. Can't be set in 2 steps because
     // the writer may read m_Data->m_Head.
     m_Data->m_Head = (m_Data->m_Head + 1) % m_Data->m_Size;
@@ -196,10 +199,11 @@ bool syAudioBuffer::Write(const int* src, unsigned int freq, unsigned int precis
         // nothing we can do about it, but the times that we can catch it, let's reset m_LastInputFreq.
         m_Data->m_LastInputFreq = 0;
     }
-
     // Set default values in case of 0
     if(!freq) { freq = m_Data->m_Freq; }
     if(!precision) { precision = m_Data->m_Precision; }
+
+    syAtomic::MemoryBarrier();
 
     // Calculate Quotient, remainder and set the counters to 0 for resampling.
     if(freq != m_Data->m_LastInputFreq) {
@@ -244,14 +248,18 @@ bool syAudioBuffer::Write(const int* src, unsigned int freq, unsigned int precis
         m_Data->m_Quotient = m_Data->m_Freq / freq;
         m_Data->m_Remainder = m_Data->m_Freq % freq;
         m_Data->m_RCounter = 0;
+        syAtomic::MemoryBarrier();
         m_Data->m_LastInputFreq = freq;
     }
+
+    syAtomic::MemoryBarrier();
 
     if(freq == m_Data->m_Freq) {
 
         // Input sample frequency == buffer's sample frequency. Copy.
         int* ptr = &m_Data->m_Data[m_Data->m_NumChannels*m_Data->m_Tail];
         syAudioBufferData::CopySample(src, ptr, m_Data->m_NumChannels, precision, m_Data->m_Precision);
+        syAtomic::MemoryBarrier();
         m_Data->m_Tail = (m_Data->m_Tail + 1) % m_Data->m_Size;
     } else {
 
@@ -279,10 +287,17 @@ bool syAudioBuffer::Write(const int* src, unsigned int freq, unsigned int precis
             // We have to update tail everytime because we could wrap at the end of the buffer.
             m_Data->m_Tail = (m_Data->m_Tail + 1) % m_Data->m_Size;
         }
+
+        syAtomic::MemoryBarrier();
+
         // Now, update the remainder counter.
         m_Data->m_RCounter = newr;
     }
-    if(m_Data->m_Clear) { m_Data->m_LastInputFreq = 0; m_Data->m_Clear = false; }
+    if(m_Data->m_Clear) {
+        m_Data->m_LastInputFreq = 0;
+        syAtomic::MemoryBarrier();
+        m_Data->m_Clear = false;
+    }
     return true;
 }
 

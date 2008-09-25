@@ -127,7 +127,7 @@ void syBitmap::Realloc(unsigned int newwidth,unsigned int newheight,VideoColorFo
     unsigned int rowlen = bypp * newwidth;
     unsigned int newsize = rowlen * newheight;
     if(newsize & 3 || newsize < 4) {
-        newsize = (newsize + 4) & 3; // Round up the buffer size to 4 bytes.
+        newsize = (newsize + 4) & ~3; // Round up the buffer size to 4 bytes.
     }
 
     if(newsize > m_Data->m_BufferSize) {

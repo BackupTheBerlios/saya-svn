@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 1991-1994 by Xerox Corporation.  All rights reserved.
  * Copyright (c) 1996-1999 by Silicon Graphics.  All rights reserved.
  * Copyright (c) 1999-2003 by Hewlett-Packard Company. All rights reserved.
@@ -40,6 +40,7 @@ AO_nop_full()
 }
 
 #define AO_HAVE_NOP_FULL
+#define AO_HAVE_nop_full
 
 #else
 
@@ -91,7 +92,7 @@ AO_test_and_set_full(volatile AO_t *addr)
 /* Returns nonzero if the comparison succeeded. */
 AO_INLINE int
 AO_compare_and_swap_full(volatile AO_t *addr,
-		  	     AO_t old, AO_t new_val) 
+		  	     AO_t old, AO_t new_val)
 {
   char result;
   __asm__ __volatile__("lock; cmpxchgl %2, %0; setz %1"

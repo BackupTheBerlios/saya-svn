@@ -13,10 +13,14 @@
 #ifndef sy_atomic_h
 #define sy_atomic_h
 
+#if defined(__SSE2__) && !defined(AO_USE_PENTIUM4_INSTRS)
+    #define AO_USE_PENTIUM4_INSTRS
+#endif
+
 #include "qprof/atomic_ops.h"
 
 #ifdef _GNUC_
-#if HAVE_GCC_VERSION(4,1)
+#if HAVE_GCC_VERSION(4,1)  && (!defined(__INTEL_COMPILER) || defined(__ia64))
     #define AO_USE_GCC
     // For GCC < 4.1.0, we'll use qprof's atomic operations
 #endif
@@ -57,134 +61,191 @@ class syAtomic {
         static char val_CAS(char* ptr, char oldval, char newval);
         static char val_CAS(unsigned char* ptr, unsigned char oldval, unsigned char newval);
         static void* val_CAS(void** ptr, void* oldval, void* newval);
+
+        static void MemoryBarrier();
 };
 
 inline bool syAtomic::bool_CAS(bool* ptr, bool oldval, bool newval) {
+    bool result;
     #ifdef AO_USE_GCC
-    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+    result = __sync_bool_compare_and_swap(ptr, oldval, newval);
     #else
-    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
+    result = AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
     #endif
+    MemoryBarrier();
+    return result;
 }
 
 inline bool syAtomic::bool_CAS(int* ptr, int oldval, int newval) {
+    bool result;
     #ifdef AO_USE_GCC
-    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+    result = __sync_bool_compare_and_swap(ptr, oldval, newval);
     #else
-    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
+    result = AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
     #endif
+    MemoryBarrier();
+    return result;
 }
 
 inline bool syAtomic::bool_CAS(unsigned int* ptr, unsigned int oldval, unsigned int newval) {
+    bool result;
     #ifdef AO_USE_GCC
-    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+    result = __sync_bool_compare_and_swap(ptr, oldval, newval);
     #else
-    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
+    result = AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
     #endif
+    MemoryBarrier();
+    return result;
 }
 
 inline bool syAtomic::bool_CAS(long* ptr, long oldval, long newval) {
+    bool result;
     #ifdef AO_USE_GCC
-    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+    result = __sync_bool_compare_and_swap(ptr, oldval, newval);
     #else
-    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
+    result = AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
     #endif
+    MemoryBarrier();
+    return result;
 }
 
 inline bool syAtomic::bool_CAS(unsigned long* ptr, unsigned long oldval, unsigned long newval) {
+    bool result;
     #ifdef AO_USE_GCC
-    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+    result = __sync_bool_compare_and_swap(ptr, oldval, newval);
     #else
-    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
+    result = AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
     #endif
+    MemoryBarrier();
+    return result;
 }
 
 inline bool syAtomic::bool_CAS(char* ptr, char oldval, char newval) {
+    bool result;
     #ifdef AO_USE_GCC
-    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+    result = __sync_bool_compare_and_swap(ptr, oldval, newval);
     #else
-    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
+    result = AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
     #endif
+    MemoryBarrier();
+    return result;
 }
 
 inline bool syAtomic::bool_CAS(unsigned char* ptr, unsigned char oldval, unsigned char newval) {
+    bool result;
     #ifdef AO_USE_GCC
-    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+    result = __sync_bool_compare_and_swap(ptr, oldval, newval);
     #else
-    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
+    result = AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
     #endif
+    MemoryBarrier();
+    return result;
 }
 
 inline bool syAtomic::bool_CAS(void** ptr, void* oldval, void* newval) {
+    bool result;
     #ifdef AO_USE_GCC
-    return __sync_bool_compare_and_swap(ptr, oldval, newval);
+    result = __sync_bool_compare_and_swap(ptr, oldval, newval);
     #else
-    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
+    result = AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval);
     #endif
+    MemoryBarrier();
+    return result;
 }
 
 inline bool syAtomic::val_CAS(bool* ptr, bool oldval, bool newval) {
+    bool result;
     #ifdef AO_USE_GCC
-    return __sync_val_compare_and_swap(ptr, oldval, newval);
+    result = __sync_val_compare_and_swap(ptr, oldval, newval);
     #else
-    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr;
+    result = (AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr);
     #endif
+    MemoryBarrier();
+    return result;
 }
 
 inline int syAtomic::val_CAS(int* ptr, int oldval, int newval) {
+    int result;
     #ifdef AO_USE_GCC
-    return __sync_val_compare_and_swap(ptr, oldval, newval);
+    result = __sync_val_compare_and_swap(ptr, oldval, newval);
     #else
-    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr;
+    result = (AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr);
     #endif
+    MemoryBarrier();
+    return result;
 }
 
 inline unsigned int syAtomic::val_CAS(unsigned int* ptr, unsigned int oldval, unsigned int newval) {
+    int result;
     #ifdef AO_USE_GCC
-    return __sync_val_compare_and_swap(ptr, oldval, newval);
+    result = __sync_val_compare_and_swap(ptr, oldval, newval);
     #else
-    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr;
+    result = (AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr);
     #endif
+    MemoryBarrier();
+    return result;
 }
 
 inline long syAtomic::val_CAS(long* ptr, long oldval, long newval) {
+    long result;
     #ifdef AO_USE_GCC
-    return __sync_val_compare_and_swap(ptr, oldval, newval);
+    result = __sync_val_compare_and_swap(ptr, oldval, newval);
     #else
-    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr;
+    result = (AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr);
     #endif
+    MemoryBarrier();
+    return result;
 }
 
 inline unsigned long syAtomic::val_CAS(unsigned long* ptr, unsigned long oldval, unsigned long newval) {
+    unsigned long result;
     #ifdef AO_USE_GCC
-    return __sync_val_compare_and_swap(ptr, oldval, newval);
+    result = __sync_val_compare_and_swap(ptr, oldval, newval);
     #else
-    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr;
+    result = (AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr);
     #endif
+    MemoryBarrier();
+    return result;
 }
 
 inline char syAtomic::val_CAS(char* ptr, char oldval, char newval) {
+    char result;
     #ifdef AO_USE_GCC
-    return __sync_val_compare_and_swap(ptr, oldval, newval);
+    result = __sync_val_compare_and_swap(ptr, oldval, newval);
     #else
-    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr;
+    result = (AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr);
     #endif
+    MemoryBarrier();
+    return result;
 }
 
 inline char syAtomic::val_CAS(unsigned char* ptr, unsigned char oldval, unsigned char newval) {
+    char result;
     #ifdef AO_USE_GCC
-    return __sync_val_compare_and_swap(ptr, oldval, newval);
+    result = __sync_val_compare_and_swap(ptr, oldval, newval);
     #else
-    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr;
+    result = (AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr);
     #endif
+    MemoryBarrier();
+    return result;
 }
 
 inline void* syAtomic::val_CAS(void** ptr, void* oldval, void* newval) {
+    void* result;
     #ifdef AO_USE_GCC
-    return __sync_val_compare_and_swap(ptr, oldval, newval);
+    result = __sync_val_compare_and_swap(ptr, oldval, newval);
     #else
-    return AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr;
+    result = (AO_compare_and_swap((AO_t*) ptr, (AO_t)oldval, (AO_t)newval) ? oldval : *ptr);
     #endif
+    MemoryBarrier();
+    return result;
+}
+
+inline void syAtomic::MemoryBarrier() {
+    // As of 24/Sep/2008, GCC's __sync_synchronize() has a bug on x86-64 CPUs:
+    // It doesn't use the "mfence" instruction (see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=36793 )
+    // However, qprof's AO_nop_full() does, as long as AO_USE_PENTIUM4_INSTRS is defined.
+    AO_nop_full();
 }
 
 #endif
