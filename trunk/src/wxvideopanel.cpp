@@ -132,8 +132,7 @@ void wxVideoPanel::OnPaint(wxPaintEvent &event) {
     unsigned int h = size.GetHeight();
     sySafeMutexLocker lock(*(m_Bitmap->m_Mutex));
     if(lock.IsLocked()) {
-        // FIXME: Finish reimplementing the VideoOutputDevice and enable this code
-        if(false && w > 0 && h > 0 && m_Video && m_Video->IsOk() && m_Bitmap->GetBuffer()) {
+        if(w > 0 && h > 0 && m_Video && m_Video->IsOk() && m_Bitmap->GetBuffer()) {
             // Video is created, active and available. Let's play our current bitmap.
             wxBitmap bmp(wxImage(w,h,m_Bitmap->GetBuffer(), true));
             lock.Unlock();
