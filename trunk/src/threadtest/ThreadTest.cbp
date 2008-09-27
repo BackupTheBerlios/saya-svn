@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="ThreadModuleUnitTest" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\ThreadModuleUnitTest" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\ThreadModuleUnitTest" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+		</Compiler>
+		<Unit filename="..\iomgr\aborter.cpp" />
+		<Unit filename="..\iomgr\aborter.h" />
+		<Unit filename="..\iomgr\atomic.h" />
+		<Unit filename="..\iomgr\audiobuffer.cpp" />
+		<Unit filename="..\iomgr\audiobuffer.h" />
+		<Unit filename="..\iomgr\audioinputdevice.cpp" />
+		<Unit filename="..\iomgr\audioinputdevice.h" />
+		<Unit filename="..\iomgr\audiooutputdevice.cpp" />
+		<Unit filename="..\iomgr\audiooutputdevice.h" />
+		<Unit filename="..\iomgr\avcontroller.cpp" />
+		<Unit filename="..\iomgr\avcontroller.h" />
+		<Unit filename="..\iomgr\avdevice.cpp" />
+		<Unit filename="..\iomgr\avdevice.h" />
+		<Unit filename="..\iomgr\iocommon.cpp" />
+		<Unit filename="..\iomgr\iocommon.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\generalize.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\acquire_release_volatile.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\aligned_atomic_load_store.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\atomic_load_store.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\ecc\ia64.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\emul_cas.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\gcc\alpha.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\gcc\arm.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\gcc\hppa.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\gcc\ia64.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\gcc\m68k.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\gcc\powerpc.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\gcc\s390.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\gcc\sparc.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\gcc\x86.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\generic_pthread.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\hpc\hppa.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\hpc\ia64.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\msftc\x86.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\ordered.h" />
+		<Unit filename="..\iomgr\qprof\atomic_ops\sysdeps\ordered_except_wr.h" />
+		<Unit filename="..\iomgr\sentryfuncs.cpp" />
+		<Unit filename="..\iomgr\sentryfuncs.h" />
+		<Unit filename="..\iomgr\sybitmap.cpp" />
+		<Unit filename="..\iomgr\sybitmap.h" />
+		<Unit filename="..\iomgr\sybitmapcopier.cpp" />
+		<Unit filename="..\iomgr\sybitmapcopier.h" />
+		<Unit filename="..\iomgr\sythread.cpp" />
+		<Unit filename="..\iomgr\sythread.h" />
+		<Unit filename="..\iomgr\videocolorformat.h" />
+		<Unit filename="..\iomgr\videoinputdevice.cpp" />
+		<Unit filename="..\iomgr\videoinputdevice.h" />
+		<Unit filename="..\iomgr\videooutputdevice.cpp" />
+		<Unit filename="..\iomgr\videooutputdevice.h" />
+		<Unit filename="SyThreadTest.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
