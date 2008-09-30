@@ -19,9 +19,7 @@ public:
     // thread execution starts here
     virtual int Entry();
 
-    // called when the thread exits - whether it terminates normally or is
-    // stopped with Delete() (but not when it is Kill()ed!)
-    virtual int Exit();
+    virtual void OnExit();
 };
 
 SYThreadTest::SYThreadTest()
@@ -35,20 +33,17 @@ int SYThreadTest::Entry()
         // check if we were asked to exit
         if ( TestDestroy() )
             break;
-
-        cout << "Secondary thread running.\n";
-
-        syThread::Sleep(1000);
+        {
+            cout << "o" << flush;
+        }
+        syThread::Sleep(500);
     }
-
-    cout << "Secondary thread finished.\n";
 
     return 0;
 }
 
-int SYThreadTest::Exit()
-{
-    return 0;
+void SYThreadTest::OnExit() {
+    cout << "Secondary thread finished." << endl;
 }
 
 int main()
@@ -65,9 +60,16 @@ int main()
         cout << "Can't start secondary thread!\n";
     }
 
-    for(int i=0;i<100;i++){
-        cout << "Main thread running\n";
+    cout << "Main thread running";
+    for(int i=0;i<10;i++){
+        syMilliSleep(100);
+        {
+            cout << "." << flush;
+        }
     }
+    thread->Delete();
+    // What happens if we don't wait for the thread to finish?
+    // syMilliSleep(1000);
 
     return 0;
 }

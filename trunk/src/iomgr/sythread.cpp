@@ -89,6 +89,26 @@
 // Begin Private classes declarations
 // ----------------------------------
 
+/** syThreadExiter is a RAII-class designed for threads.
+ *  It calls OnExit when destroyed.
+ */
+class syThreadExiter {
+    public:
+        /** Constructor. */
+        syThreadExiter(syThread* thread) : m_Thread(thread) {}
+
+        /** Calls the thread's OnExit() method. */
+        void OnExit();
+
+        /** Destructor. */
+        ~syThreadExiter() {
+            OnExit();
+        }
+
+    private:
+        syThread* m_Thread;
+};
+
 class syMutexData {
     public:
         #ifdef __WIN32__
@@ -180,10 +200,11 @@ class syThreadData {
             m_StopRequested(false),
             m_ExitCode(0),
             m_PausedCondition(m_Mutex),
-            m_ResumeCondition(m_Mutex)
+            m_ResumeCondition(m_Mutex),
+            m_Exiter(0)
             {}
 
-        static int InternalEntry(syThread* thread);
+        static void InternalEntry(syThread* thread, int& rc);
 
         /** The OS-dependent thread ID */
         unsigned long m_ThreadId;
@@ -226,15 +247,18 @@ class syThreadData {
         /** The thread's stack size when it was last created */
         unsigned int m_StackSize;
 
-        /** Semaphore for starting the thread. */
-        sySemaphore m_StartSemaphore;
-
         /** Condition that signals that this thread has been paused. */
         syCondition m_PausedCondition;
 
-        /** Condition that signals that this thread needs to be resumed. */
+        /** Condition that signals that this thread needs to be started or resumed. */
         syCondition m_ResumeCondition;
+
+        syThreadExiter* m_Exiter;
 };
+
+// The OnExit process is a little complicated, because we might have an syThreadExiter object in the stack.
+// by making syThreadData::OnExit a proxy for all the internal calls to syThread::OnExit,
+// we can handle all the difficult logic in here.
 
 // --------------------------------
 // End Private classes declarations
@@ -282,7 +306,9 @@ struct ltthread
 // terribly inefficient. On top of that, this is a locking operation,
 // which makes things even slower.
 
-static std::set<syThread*,ltthread> gs_allThreads;
+static std::set<syThread*,ltthread> gs_JoinableThreads;
+static std::set<syThread*,ltthread> gs_DetachedThreads;
+
 
 // -----------------------
 // Timing functions (mine)
@@ -896,18 +922,13 @@ sySemaError  sySemaphore::WaitTimeout(unsigned long timeout_msec) {
 // Begin syThread auxiliary functions (courtesy of wxWidgets)
 // ----------------------------------------------------------
 
-/** syThreadExiter is a class of mine, an adaptation from wxMutexLocker, but for threads instead.
- *  It calls OnExit when destroyed.
- */
-class syThreadExiter {
-    public:
-        syThreadExiter(syThread* thread) : m_Thread(thread) {}
-        ~syThreadExiter() {
-            if(m_Thread) { m_Thread->OnExit(); }
-        }
-    private:
-        syThread* m_Thread;
-};
+void syThreadExiter::OnExit() {
+    if(m_Thread) {
+        syThread* thread = m_Thread;
+        m_Thread = NULL;
+        thread->OnExit();
+    }
+}
 
 /** @brief Deletes a thread. */
 static void syDeleteThread(syThread *This) {
@@ -932,10 +953,7 @@ void *syPthreadStart(void *thread) {
 /** @brief This static function is the cross-platform entry point for a thread. */
 static unsigned syThreadStart(syThread* thread) {
 
-    // Whether an exception occurs or not while running the thread,
-    // OnExit is still called via the exiter's destructor.
-    // This was adapted from wxWidget's thread.cpp, with the difference that they used macros and C functions.
-    syThreadExiter exiter(thread);
+    if(!thread) { return -1; }
 
     int rc = -1;
     // Set up the indexing so that syThread::This() will work.
@@ -946,15 +964,32 @@ static unsigned syThreadStart(syThread* thread) {
     if(rc != 0) { rc = -1; }
     #endif
     if(rc == 0) {
-        rc = syThreadData::InternalEntry(thread);
+        rc = -1;
+        syThreadData::InternalEntry(thread, rc);
     }
     return rc;
 }
 
+static bool syDeleteDetachedThreadFromList(syThread* thread) {
+    syMutexLocker lock(*gs_mutexAllThreads);
+    return (gs_DetachedThreads.erase(thread) == 1);
+}
+
 static void syScheduleThreadForDeletion() {
     syMutexLocker lock(*gs_mutexDeleteThread);
+    syDeleteDetachedThreadFromList(syThread::This()); // Delete thread from the detached threads list.
     gs_nThreadsBeingDeleted++;
 }
+
+bool IsThreadDetached(syThread* thread) {
+    syMutexLocker lock(*gs_mutexAllThreads);
+    std::set<syThread*>::iterator i = gs_JoinableThreads.find(thread);
+
+    // it's not in the joinable threads list, assume it's a detached thread.
+    bool result = (i == gs_JoinableThreads.end());
+    return result;
+}
+
 
 // ---------------------------------------------------
 // Begin syThread class (mostly wxWidgets, a bit mine)
@@ -963,13 +998,21 @@ static void syScheduleThreadForDeletion() {
 syThread::syThread(syThreadKind kind) {
     m_Data = new syThreadData(kind);
     syMutexLocker lock(*gs_mutexAllThreads);
-    gs_allThreads.insert(this);
+    if(kind == syTHREAD_JOINABLE) {
+        gs_JoinableThreads.insert(this);
+    } else {
+        gs_DetachedThreads.insert(this);
+    }
 }
 
 syThread::~syThread() {
-    delete m_Data;
     syMutexLocker lock(*gs_mutexAllThreads);
-    gs_allThreads.erase(this);
+    if(m_Data->m_ThreadKind == syTHREAD_JOINABLE) {
+        gs_JoinableThreads.erase(this);
+    } else {
+        gs_DetachedThreads.erase(this);
+    }
+    delete m_Data;
 }
 
 unsigned long syThread::GetThreadId() {
@@ -1009,12 +1052,6 @@ syThreadError syThread::Create(unsigned int stackSize) {
     if(!gs_ThreadsOk) {
         return syTHREAD_NO_RESOURCE; // Cannot create threads: Error initializing global variables!
     }
-    syMutexLocker lock(m_Mutex);
-    if(m_Data->m_ThreadStatus == syTHREADSTATUS_TERMINATING || m_Data->m_ThreadStatus == syTHREADSTATUS_EXITED) {
-        lock.Unlock();
-        syMicroSleep(1); // Sleep for 1 uSeconds or more just to let the thread finish its cleanup
-    }
-    lock.Lock();
     if(m_Data->m_ThreadStatus == syTHREADSTATUS_EXITED) {
         m_Data->m_ThreadStatus = syTHREADSTATUS_NOT_CREATED;
     }
@@ -1073,6 +1110,7 @@ syThreadError syThread::Create(unsigned int stackSize) {
         return syTHREAD_NO_RESOURCE; // Error creating the thread!
     }
 
+    syMutexLocker lock(m_Data->m_Mutex);
     m_Data->m_ThreadStatus = syTHREADSTATUS_CREATED;
     lock.Unlock();
     if (m_Data->m_Priority != SYTHREAD_DEFAULT_PRIORITY) {
@@ -1082,56 +1120,70 @@ syThreadError syThread::Create(unsigned int stackSize) {
     return syTHREAD_NO_ERROR;
 }
 
-int syThreadData::InternalEntry(syThread* thread) {
+void syThreadData::InternalEntry(syThread* thread, int& rc) {
     bool dontRunAtAll;
 
-    thread->m_Data->m_StartSemaphore.Wait();
     {
-        syMutexLocker lock(thread->m_Mutex);
-        dontRunAtAll = (thread->m_Data->m_ThreadStatus == syTHREADSTATUS_CREATED) && thread->m_Data->m_StopRequested;
+        syMutexLocker lock(thread->m_Data->m_Mutex);
+        // When created, the thread must wait before running.
+
+        thread->m_Data->m_ResumeCondition.Wait();
+
+        // After the thread has started, we need to check whether it's safe to run or not.
+        // We add a check for gs_ThreadsOk (the thread will stop if the application is being shut down)
+        dontRunAtAll = (!gs_ThreadsOk || thread->m_Data->m_StopRequested);
     }
-    int result = -1;
-    if (dontRunAtAll) {
-        return -1;
-    }
+    rc = -1; // Default exit value in case dontRunAtAll is true
     if(!dontRunAtAll) {
+        syThreadExiter exiter(thread);
+        // Set the OnExit handler
+        thread->m_Data->m_Exiter = &exiter;
+
         // call the main entry
         int exitcode = thread->Entry();
         {
-            syMutexLocker lock(thread->m_Mutex);
+            syMutexLocker lock(thread->m_Data->m_Mutex);
             thread->m_Data->m_ThreadStatus = syTHREADSTATUS_TERMINATING;
             thread->m_Data->m_PausedCondition.Signal(); // Just in case someone's waiting for us
         }
-
         thread->Exit(exitcode); // Note: Exit should terminate the thread and not return at all.
         #ifdef __WIN32__
-        result = exitcode;
+        rc = exitcode;
         #else
-        result = 0; // If the thread didn't exit, return 0. syThreadStart will know what to do with it.
+        rc = 0; // If the thread didn't exit, return 0. syThreadStart will know what to do with it.
         #endif
     }
-    // If everything went fine, OnExit() should already be called and we shouldn't return in the first place.
-    return result;
+    // If everything went fine, Exit() should already be called and we shouldn't return in the first place.
 }
 
 void syThread::Exit(int exitcode) {
     if(!IsThisThread()) { return; } // Exit() can only be called by the same thread context
     m_Data->m_ExitCode = exitcode;
-    if(IsDetached()) {
-        // Comment from the wxWidgets source code:
-        // from the moment we call OnExit(), the main program may terminate at
-        // any moment, so mark this thread as being already in process of being
-        // deleted or wxThreadModule::OnExit() will try to delete it again
+    bool isdetached = IsDetached();
+    if(isdetached) {
+        // From the moment we call OnExit(), the main program may terminate at
+        // any moment, and syThreadModule::~syThreadModule() will try to delete the thread.
+
+        // Addition by Rick: The original wxWidgets code just set up a counter and a Condition Var,
+        // but here we actually remove the thread from the detached threads' list,
+        // making syThread::Delete() effectively harmless.
         syScheduleThreadForDeletion();
     }
-    OnExit();
-    if(IsDetached()) {
-        syDeleteThread(this);
-        #ifndef __WIN32__
+
+    if(m_Data->m_Exiter) {
+        m_Data->m_Exiter->OnExit();
+    } else {
+        OnExit();
+    }
+
+    if(isdetached) {
+        syDeleteThread(this); // From now on, accessing "this" is forbidden!
+        #ifdef __WIN32__
+        ::TlsSetValue(gs_keySelf, (LPVOID)0);
+        #else
         pthread_setspecific(gs_keySelf, 0);
         #endif
     } else {
-        syMutexLocker lock(m_Mutex);
         m_Data->m_ThreadStatus = syTHREADSTATUS_EXITED;
     }
 
@@ -1146,7 +1198,7 @@ void syThread::Exit(int exitcode) {
 
 
 bool syThread::IsAlive() {
-    syMutexLocker lock(m_Mutex);
+    syMutexLocker lock(m_Data->m_Mutex);
     return (m_Data->m_ThreadStatus == syTHREADSTATUS_CREATED) ||
     (m_Data->m_ThreadStatus == syTHREADSTATUS_PAUSED) ||
     (m_Data->m_ThreadStatus == syTHREADSTATUS_RUNNING);
@@ -1159,12 +1211,12 @@ bool syThread::IsDetached() const {
 }
 
 bool syThread::IsPaused() {
-    syMutexLocker lock(m_Mutex);
+    syMutexLocker lock(m_Data->m_Mutex);
     return (m_Data->m_ThreadStatus == syTHREADSTATUS_PAUSED);
 }
 
 bool syThread::IsRunning() {
-    syMutexLocker lock(m_Mutex);
+    syMutexLocker lock(m_Data->m_Mutex);
     return (m_Data->m_ThreadStatus == syTHREADSTATUS_RUNNING);
 }
 
@@ -1209,7 +1261,7 @@ syThreadError syThread::Pause() {
     if(IsThisThread()) { return syTHREAD_WRONG_THREAD_CONTEXT; }
     if(!IsRunning()) { return syTHREAD_NOT_RUNNING; }
 
-    syMutexLocker lock(m_Mutex);
+    syMutexLocker lock(m_Data->m_Mutex);
     syBoolSetter(m_Data->m_PauseRequested,true);
     if(m_Data->m_ThreadStatus == syTHREADSTATUS_RUNNING) {
         // Wait unlocks our mutex before waiting, and locks it on exit.
@@ -1225,7 +1277,7 @@ syThreadError syThread::Run() {
     if(IsThisThread()) { return syTHREAD_WRONG_THREAD_CONTEXT; }
 
     syThreadError result;
-    syMutexLocker lock(m_Mutex);
+    syMutexLocker lock(m_Data->m_Mutex);
     if(m_Data->m_ThreadKind == syTHREAD_JOINABLE && m_Data->m_ThreadStatus == syTHREADSTATUS_EXITED) {
         lock.Unlock();
         if(Create(m_Data->m_StackSize) != syTHREAD_NO_ERROR) {
@@ -1241,14 +1293,13 @@ syThreadError syThread::Run() {
     } else {
         m_Data->m_ThreadStatus = syTHREADSTATUS_RUNNING;
         result = syTHREAD_NO_ERROR;
-        lock.Unlock();
-        m_Data->m_StartSemaphore.Post();
+        m_Data->m_ResumeCondition.Signal();
     }
     return result;
 }
 
 void syThread::SetPriority(int priority) {
-    syMutexLocker lock(m_Mutex);
+    syMutexLocker lock(m_Data->m_Mutex);
     switch(m_Data->m_ThreadStatus) {
         case syTHREADSTATUS_CREATED:
         case syTHREADSTATUS_PAUSED:
@@ -1297,7 +1348,7 @@ void syThread::SetPriority(int priority) {
 }
 
 int syThread::GetPriority() {
-    syMutexLocker lock(m_Mutex);
+    syMutexLocker lock(m_Data->m_Mutex);
     return m_Data->m_Priority;
 }
 
@@ -1320,7 +1371,7 @@ void syThread::Sleep(unsigned long msec) {
 
 syThreadError syThread::Resume() {
     if(IsThisThread()) { return syTHREAD_WRONG_THREAD_CONTEXT; }
-    syMutexLocker lock(m_Mutex);
+    syMutexLocker lock(m_Data->m_Mutex);
     syThreadError result;
     switch(m_Data->m_ThreadStatus) {
         case syTHREADSTATUS_PAUSED:
@@ -1357,10 +1408,10 @@ bool syThread::MustAbort() {
 
 bool syThread::TestDestroy() {
     if(!IsThisThread()) return false; // Not our thread
-    if(m_Data->m_StopRequested) {
+    if(!gs_ThreadsOk || m_Data->m_StopRequested) {
         return true; // No need to lock mutex, must stop.
     }
-    syMutexLocker lock(m_Mutex);
+    syMutexLocker lock(m_Data->m_Mutex);
     if(m_Data->m_PauseRequested && (m_Data->m_ThreadStatus == syTHREADSTATUS_RUNNING)) {
         if(m_Data->m_ThreadStatus!= syTHREADSTATUS_RUNNING) return false;
         m_Data->m_ThreadStatus = syTHREADSTATUS_PAUSED;
@@ -1368,7 +1419,7 @@ bool syThread::TestDestroy() {
         m_Data->m_ResumeCondition.Wait();
         m_Data->m_ThreadStatus = syTHREADSTATUS_RUNNING;
     }
-    return m_Data->m_StopRequested;
+    return (!gs_ThreadsOk || m_Data->m_StopRequested);
 }
 
 syThread* syThread::This() {
@@ -1402,13 +1453,14 @@ int syThread::Wait() {
     if(IsThisThread()) { return -1; }
 
     // Waiting for a detached thread is a very stupid thing to do. Even checking the thread kind
-    // might give you a segfault if the thread was already deleted. DOH.
-    if(m_Data->m_ThreadKind == syTHREAD_DETACHED) {
+    // might give you a segfault if the thread was already deleted. This is why
+    if(IsThreadDetached(this)) {
         return -1;
     }
+
     // First, make sure the thread is running and not paused.
     {
-        syMutexLocker lock(m_Mutex);
+        syMutexLocker lock(m_Data->m_Mutex);
 
         syThreadStatus status = m_Data->m_ThreadStatus;
         m_Data->m_PauseRequested = false;
@@ -1467,26 +1519,57 @@ int syThread::Wait() {
 }
 
 syThreadError syThread::Delete(int* rc) {
-    if(IsThisThread()) { return syTHREAD_WRONG_THREAD_CONTEXT; }
-    bool isdetached = false;
-    syThreadStatus status;
-    // The following logic was adapted from wxWidgets' threadpsx.cpp
-    syMutexLocker lock(m_Mutex);
+    if(IsThisThread()) {
+        return syTHREAD_WRONG_THREAD_CONTEXT; // A thread can't delete itself!
+    }
 
-    status = m_Data->m_ThreadStatus;
-    m_Data->m_PauseRequested = false;
-    m_Data->m_StopRequested = true;
-    isdetached = (m_Data->m_ThreadKind == syTHREAD_DETACHED);
-    if(status == syTHREADSTATUS_CREATED) { lock.Unlock();Run(); }
-    // Run the thread (we can't stop it if it keeps waiting)
-    if(status == syTHREADSTATUS_PAUSED) { lock.Unlock();Resume(); }
-    // Resume the thread for the same reason.
+    // Under wxWidgets, checking if a thread was joinable could segfault if the thread
+    // had already been deleted (we would be accessing non-allocated memory).
+    // IsThreadDetached simply looks for the thread in a global list of joinable threads,
+    // so it's 100% safe, even if the thread had already been deleted.
+    bool isdetached = IsThreadDetached(this);
+    syThreadStatus status;
+
+    {
+        // To prevent a race condition between deleting a thread here and the thread deleting itself,
+        // we lock gs_mutexDeleteThread and then check the coulddelete flag by calling
+        // the thread-safe function syDeleteDetachedThreadFromList().
+        syMutexLocker lock(*gs_mutexDeleteThread);
+        bool coulddelete = false;
+        if(isdetached) {
+            coulddelete = syDeleteDetachedThreadFromList(this);
+        }
+
+        if(!isdetached || coulddelete) {
+            // The thread hasn't been deleted yet! It means we can safely access
+            // its mutex and member variables.
+
+            syMutexLocker lock(m_Data->m_Mutex); // Now we lock m_Mutex to check the thread's status
+            status = m_Data->m_ThreadStatus;
+            m_Data->m_PauseRequested = false;
+            m_Data->m_StopRequested = true;
+
+            // With the thread status available, we can know if we need to Run or Resume the thread.
+            // However, we MUST NOT call Run() or Resume() because that would alter the
+            // m_PauseRequested and m_StopRequested flags we just changed.
+
+            if(status == syTHREADSTATUS_CREATED || status == syTHREADSTATUS_PAUSED) {
+                m_Data->m_ResumeCondition.Signal(); // m_Mutex is already locked, so we don't need to lock it here.
+            }
+        }
+
+        // If the thread is detached, now it will try to delete itself, not before
+        // attempting a lock on gs_mutexDeleteThread which we have locked right now.
+        // So, we free the lock from the stack and the detached thread will be deleted any moment now.
+    }
+
     if (!isdetached) {
         // For joinable threads, wait until the thread stops;
         // We can't wait for detached threads.
-        if(status != syTHREADSTATUS_EXITED) { lock.Unlock();Wait(); }
+        if(status != syTHREADSTATUS_EXITED) { Wait(); }
         if(rc) { *rc = m_Data->m_ExitCode; } // return the thread's exit code
     }
+
     return syTHREAD_NO_ERROR;
 }
 
@@ -1560,17 +1643,54 @@ syThreadModule::~syThreadModule() {
         }
     }
 
-    // Now we just delete all the threads.
-    std::set<syThread*>::iterator i = gs_allThreads.begin();
-    while(!gs_allThreads.empty()) {
-        i = gs_allThreads.begin();
-        // We don't actually delete the pointer from gs_allThreads;
-        // that is done by syThread::~syThread().
-        syThread* thread = *i;
-        thread->Delete();
+    std::set<syThread*>::iterator i;
+
+    // First, delete all joinable threads.
+    for(;;) {
+        syThread* thread;
+        {
+            syMutexLocker lock(*gs_mutexAllThreads);
+            if(gs_JoinableThreads.empty()) {
+                break;
+            }
+            i = gs_JoinableThreads.begin();
+             thread = *i;
+        }
+        if(thread) {
+            thread->Delete();
+            delete thread; // Delete only deletes the OS thread, we have to delete the C++ object too.
+        }
+    }
+
+    // Now for the detached threads.
+    for(;;) {
+        syThread* thread;
+        {
+            syMutexLocker lock(*gs_mutexAllThreads);
+            if(gs_DetachedThreads.empty()) {
+                break;
+            }
+            i = gs_DetachedThreads.begin();
+             thread = *i;
+        }
+        if(thread) {
+            thread->Delete();
+        }
+    }
+
+    // Let's repeat the thread deletion check
+    {
+        syMutexLocker lock( *gs_mutexDeleteThread );
+        nThreadsBeingDeleted = gs_nThreadsBeingDeleted;
+
+        if (nThreadsBeingDeleted > 0) {
+            gs_condAllDeleted->Wait();
+        }
     }
 
     delete gs_mutexAllThreads;
+    delete gs_condAllDeleted;
+    delete gs_mutexDeleteThread;
 
     // free TLD slot
     #ifdef __WIN32__
@@ -1578,9 +1698,6 @@ syThreadModule::~syThreadModule() {
     #else
         (void)pthread_key_delete(gs_keySelf);
     #endif
-
-    delete gs_condAllDeleted;
-    delete gs_mutexDeleteThread;
 }
 
 // ----------------------------------

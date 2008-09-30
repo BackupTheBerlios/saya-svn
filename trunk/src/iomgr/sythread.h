@@ -589,7 +589,6 @@ class syThread {
 
     private:
         syThreadData* m_Data;
-        syMutex m_Mutex;
 };
 
 #endif
