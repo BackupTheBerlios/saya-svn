@@ -216,10 +216,10 @@ class syThreadData {
         syThreadStatus m_ThreadStatus;
 
         /** Indicates if another thread requested a pause */
-        bool m_PauseRequested;
+        volatile bool m_PauseRequested;
 
         /** Indicates if another thread requested a stop */
-        bool m_StopRequested;
+        volatile bool m_StopRequested;
 
         /** Mutex to prevent race conditions on status changing */
         syMutex m_Mutex;
@@ -268,7 +268,7 @@ class syThreadData {
 // Private functions (courtesy of wxWidgets)
 // -----------------------------------------
 
-static void syScheduleThreadForDeletion();
+static bool syScheduleThreadForDeletion(syThread*, bool);
 static void syDeleteThread(syThread *This);
 static unsigned syThreadStart(syThread* thread);
 
@@ -970,15 +970,31 @@ static unsigned syThreadStart(syThread* thread) {
     return rc;
 }
 
-static bool syDeleteDetachedThreadFromList(syThread* thread) {
-    syMutexLocker lock(*gs_mutexAllThreads);
-    return (gs_DetachedThreads.erase(thread) == 1);
-}
+static bool syScheduleThreadForDeletion(syThread* thread = NULL, bool dontlock = false) {
+    // This method is called from both syThread::Delete() and syThread::Exit(),
+    // Therefore, we need to use a mutex so that whoever comes later does no harm.
 
-static void syScheduleThreadForDeletion() {
-    syMutexLocker lock(*gs_mutexDeleteThread);
-    syDeleteDetachedThreadFromList(syThread::This()); // Delete thread from the detached threads list.
-    gs_nThreadsBeingDeleted++;
+    if(!thread) { thread = syThread::This(); }
+
+    bool result;
+    if(!dontlock) {
+        // This part is called by syThread::Exit and syThread:Kill
+        // We must lock gs_mutexDeleteThread here, as it hasn't been locked by those methods.
+        syMutexLocker lock(*gs_mutexDeleteThread); // First, use a global mutex
+        {
+            // Now we check if the thread was present in the detached threads list.
+            syMutexLocker lock(*gs_mutexAllThreads);
+            result = (gs_DetachedThreads.erase(thread) == 1);
+        }
+    } else {
+        // This part is called by syThread::Delete, which has already locked gs_mutexDeleteThread.
+        syMutexLocker lock(*gs_mutexAllThreads);
+        result = (gs_DetachedThreads.erase(thread) == 1);
+    }
+    if(result) {
+        gs_nThreadsBeingDeleted++;
+    }
+    return result;
 }
 
 bool IsThreadDetached(syThread* thread) {
@@ -990,7 +1006,6 @@ bool IsThreadDetached(syThread* thread) {
     return result;
 }
 
-
 // ---------------------------------------------------
 // Begin syThread class (mostly wxWidgets, a bit mine)
 // ---------------------------------------------------
@@ -1000,9 +1015,9 @@ syThread::syThread(syThreadKind kind) {
     syMutexLocker lock(*gs_mutexAllThreads);
     if(kind == syTHREAD_JOINABLE) {
         gs_JoinableThreads.insert(this);
-    } else {
-        gs_DetachedThreads.insert(this);
     }
+    // We don't add detached threads here because they do their own deletion. Hence,
+    // the addition must be done AFTER the thread has been created.
 }
 
 syThread::~syThread() {
@@ -1123,11 +1138,22 @@ syThreadError syThread::Create(unsigned int stackSize) {
 void syThreadData::InternalEntry(syThread* thread, int& rc) {
     bool dontRunAtAll;
 
+    if(thread->IsDetached()) {
+        // Detached threads follow their own deletion logic. Deleting a detached thread
+        // schedules it for deletion, but if the thread was added to the list before being actually
+        // created, the deletion will never take place, making syThreadModule wait for a signal
+        // that will NEVER come.
+        syMutexLocker lock(*gs_mutexAllThreads);
+        gs_DetachedThreads.insert(thread);
+    }
+
     {
         syMutexLocker lock(thread->m_Data->m_Mutex);
-        // When created, the thread must wait before running.
 
-        thread->m_Data->m_ResumeCondition.Wait();
+        // When created, the thread must wait before running.
+        if(thread->m_Data->m_ThreadStatus != syTHREADSTATUS_RUNNING) {
+            thread->m_Data->m_ResumeCondition.Wait();
+        }
 
         // After the thread has started, we need to check whether it's safe to run or not.
         // We add a check for gs_ThreadsOk (the thread will stop if the application is being shut down)
@@ -1152,8 +1178,16 @@ void syThreadData::InternalEntry(syThread* thread, int& rc) {
         #else
         rc = 0; // If the thread didn't exit, return 0. syThreadStart will know what to do with it.
         #endif
+    } else if(thread->IsDetached()) {
+        // Cleanup
+        syScheduleThreadForDeletion(thread);
+        syDeleteThread(thread);
+        #ifdef __WIN32__
+        ::TlsSetValue(gs_keySelf, (LPVOID)0);
+        #else
+        pthread_setspecific(gs_keySelf, 0);
+        #endif
     }
-    // If everything went fine, Exit() should already be called and we shouldn't return in the first place.
 }
 
 void syThread::Exit(int exitcode) {
@@ -1262,7 +1296,7 @@ syThreadError syThread::Pause() {
     if(!IsRunning()) { return syTHREAD_NOT_RUNNING; }
 
     syMutexLocker lock(m_Data->m_Mutex);
-    syBoolSetter(m_Data->m_PauseRequested,true);
+    syBoolSetter setter(m_Data->m_PauseRequested,true);
     if(m_Data->m_ThreadStatus == syTHREADSTATUS_RUNNING) {
         // Wait unlocks our mutex before waiting, and locks it on exit.
         // This saves us a lot of trouble and allows us to simplify our code.
@@ -1440,20 +1474,13 @@ void syThread::Yield() {
     #endif
 }
 
-//void syThread::Yield() {
-//    #ifdef __WIN32__
-//    ::SwitchToThread();
-//    #else
-//    ::sched_yield();
-//    #endif
-//}
-
 int syThread::Wait() {
     // Are we opening a rift in the timespace continuum?
     if(IsThisThread()) { return -1; }
 
     // Waiting for a detached thread is a very stupid thing to do. Even checking the thread kind
-    // might give you a segfault if the thread was already deleted. This is why
+    // might give you a segfault if the thread was already deleted, and we DON'T want to access
+    // the global threads list, causing a major slowdown due to the use of global mutexes.
     if(IsThreadDetached(this)) {
         return -1;
     }
@@ -1467,9 +1494,10 @@ int syThread::Wait() {
         // NO need to wait for a non created thread.
         if(status == syTHREADSTATUS_NOT_CREATED) { return m_Data->m_ExitCode; }
 
-        if(status == syTHREADSTATUS_CREATED) { lock.Unlock();Run(); }
-        // Run the thread (we can't stop it if it keeps waiting)
-        if(status == syTHREADSTATUS_PAUSED) { lock.Unlock();Resume(); }
+        // Run or unpause the thread (we can't stop it if it keeps waiting)
+        if(status == syTHREADSTATUS_CREATED || status == syTHREADSTATUS_PAUSED) {
+            m_Data->m_ResumeCondition.Signal();
+        }
     }
     long int rc = 0;
     // Now, let's join the threads
@@ -1532,12 +1560,13 @@ syThreadError syThread::Delete(int* rc) {
 
     {
         // To prevent a race condition between deleting a thread here and the thread deleting itself,
-        // we lock gs_mutexDeleteThread and then check the coulddelete flag by calling
-        // the thread-safe function syDeleteDetachedThreadFromList().
+        // we lock gs_mutexDeleteThread and then call syScheduleThreadForDeletion.
+        // The function returns true if the thread hadn't been scheduled first.
         syMutexLocker lock(*gs_mutexDeleteThread);
         bool coulddelete = false;
         if(isdetached) {
-            coulddelete = syDeleteDetachedThreadFromList(this);
+            // The second parameter tells syScheduleThreadForDeletion that we've already locked gs_mutexDeleteThread.
+            coulddelete = syScheduleThreadForDeletion(this,true);
         }
 
         if(!isdetached || coulddelete) {

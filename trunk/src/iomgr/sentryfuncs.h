@@ -20,7 +20,7 @@ class syBoolSetter {
         /** Destructor. Sets the flag to its original value. */
         ~syBoolSetter();
     private:
-        bool& m_Flag;
+        bool* m_Var;
         bool m_Old;
 
 };
@@ -35,7 +35,7 @@ class syIntSetter {
         /** Destructor. Sets the flag to its original value. */
         ~syIntSetter();
     private:
-        int &m_Var;
+        int* m_Var;
         int m_Old;
 };
 
@@ -49,7 +49,7 @@ class syUintSetter {
         /** Destructor. Sets the flag to its original value. */
         ~syUintSetter();
     private:
-        unsigned int &m_Var;
+        unsigned int* m_Var;
         unsigned int m_Old;
 };
 
@@ -63,7 +63,7 @@ class syLongSetter {
         /** Destructor. Sets the flag to its original value. */
         ~syLongSetter();
     private:
-        long &m_Var;
+        long* m_Var;
         long m_Old;
 };
 
@@ -77,7 +77,7 @@ class syULongSetter {
         /** Destructor. Sets the flag to its original value. */
         ~syULongSetter();
     private:
-        unsigned long &m_Var;
+        unsigned long* m_Var;
         unsigned long m_Old;
 };
 
@@ -90,7 +90,7 @@ class syCharSetter {
         /** Destructor. Sets the flag to its original value. */
         ~syCharSetter();
     private:
-        char &m_Var;
+        char* m_Var;
         char m_Old;
 };
 
@@ -103,7 +103,7 @@ class syUcharSetter {
         /** Destructor. Sets the flag to its original value. */
         ~syUcharSetter();
     private:
-        unsigned char &m_Var;
+        unsigned char* m_Var;
         unsigned char m_Old;
 };
 

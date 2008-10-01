@@ -36,9 +36,8 @@ int SYThreadTest::Entry()
         {
             cout << "o" << flush;
         }
-        syThread::Sleep(500);
+        syThread::Sleep(150);
     }
-
     return 0;
 }
 
@@ -61,8 +60,14 @@ int main()
     }
 
     cout << "Main thread running";
-    for(int i=0;i<10;i++){
+    for(int i=0;i<100;i++){
         syMilliSleep(100);
+        if(i == 20) {
+            thread->Pause();
+        }
+        if(i == 60) {
+            thread->Resume();
+        }
         {
             cout << "." << flush;
         }
