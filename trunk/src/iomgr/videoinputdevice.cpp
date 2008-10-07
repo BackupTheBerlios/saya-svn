@@ -17,7 +17,7 @@
 VideoInputDevice::VideoInputDevice() : AVDevice(),
 m_Bitmap(NULL),
 m_CurrentTime(0),
-m_Length(0),
+m_VideoLength(0),
 m_Width(0),
 m_Height(0),
 m_ColorFormat(vcfBGR24),
@@ -33,17 +33,17 @@ VideoInputDevice::~VideoInputDevice() {
     delete m_Bitmap;
 }
 
-unsigned long VideoInputDevice::InternalSeek(unsigned long time, bool fromend) {
+avtime_t VideoInputDevice::InternalSeek(avtime_t time, bool fromend) {
     if(fromend) {
-        if(time >= m_Length) {
+        if(time >= m_VideoLength) {
             time = 0;
         } else {
-            time = (m_Length) - time;
+            time = (m_VideoLength) - time;
         }
     } else {
-        if(time >= m_Length) {
-            if(m_Length > 0) {
-                time = m_Length;
+        if(time >= m_VideoLength) {
+            if(m_VideoLength > 0) {
+                time = m_VideoLength;
             } else {
                 time = 0;
             }
@@ -58,7 +58,7 @@ unsigned long VideoInputDevice::InternalSeek(unsigned long time, bool fromend) {
     return result;
 }
 
-unsigned long VideoInputDevice::Seek(unsigned long time,bool fromend) {
+avtime_t VideoInputDevice::Seek(avtime_t time,bool fromend) {
     sySafeMutexLocker lock(*m_InputMutex, this);
     bool result = false;
     if(lock.IsLocked()) {
@@ -70,11 +70,11 @@ unsigned long VideoInputDevice::Seek(unsigned long time,bool fromend) {
 }
 
 
-unsigned long VideoInputDevice::GetLength() const {
-    return m_Length;
+avtime_t VideoInputDevice::GetLength() const {
+    return m_VideoLength;
 }
 
-unsigned long VideoInputDevice::GetPos() const {
+avtime_t VideoInputDevice::GetPos() const {
     return m_CurrentTime;
 }
 
@@ -119,7 +119,7 @@ void VideoInputDevice::SendCurrentFrame(syBitmap* bitmap) {
 }
 
 
-unsigned long VideoInputDevice::GetFrameIndex(unsigned long time) {
+unsigned long VideoInputDevice::GetFrameIndex(avtime_t time) {
     return 0; // This is a Stub. You must override it in your subclass.
 }
 

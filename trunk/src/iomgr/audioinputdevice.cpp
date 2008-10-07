@@ -9,20 +9,40 @@
 
 #include "audioinputdevice.h"
 
+avtime_t AudioInputDevice::InternalSeek(avtime_t time, bool fromend) {
+    if(fromend) {
+        if(time >= m_AudioLength) {
+            time = 0;
+        } else {
+            time = (m_AudioLength) - time;
+        }
+    } else {
+        if(time >= m_AudioLength) {
+            if(m_AudioLength > 0) {
+                time = m_AudioLength;
+            } else {
+                time = 0;
+            }
+        }
+    }
+    avtime_t result;
+    if(!MustAbort()) {
+        m_CurrentTime = result = SeekResource(time);
+    } else {
+        result = m_CurrentTime;
+    }
+    return result;
+}
 
-unsigned long AudioInputDevice::GetLength() {
+avtime_t AudioInputDevice::GetLength() const {
     return 0; // This is a stub
 }
 
-unsigned long AudioInputDevice::GetPos() {
+avtime_t AudioInputDevice::GetPos() const {
     return 0; // This is a stub
 }
 
-void AudioInputDevice::ShutDown() {
-    return;
-}
-
-unsigned long AudioInputDevice::Seek(unsigned long pos, bool fromend) {
+avtime_t AudioInputDevice::Seek(avtime_t time, bool fromend) {
     return 0;
 }
 

@@ -60,6 +60,9 @@
 		<Unit filename="Main.h" />
 		<Unit filename="debuglog.cpp" />
 		<Unit filename="debuglog.h" />
+		<Unit filename="drafts/high_priority_tasks.txt">
+			<Option target="Debug" />
+		</Unit>
 		<Unit filename="drafts/monitor_preview.txt">
 			<Option target="Debug" />
 		</Unit>
@@ -82,6 +85,7 @@
 		<Unit filename="iomgr/avcontroller.h" />
 		<Unit filename="iomgr/avdevice.cpp" />
 		<Unit filename="iomgr/avdevice.h" />
+		<Unit filename="iomgr/avtypes.h" />
 		<Unit filename="iomgr/iocommon.cpp" />
 		<Unit filename="iomgr/iocommon.h" />
 		<Unit filename="iomgr/qprof/atomic_ops.h" />

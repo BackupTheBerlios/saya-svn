@@ -13,6 +13,7 @@
 
 #include "videocolorformat.h"
 #include "avdevice.h"
+#include "avtypes.h"
 
 class sySafeMutex;
 class syBitmap;
@@ -41,16 +42,16 @@ class VideoInputDevice : public AVDevice {
          *  @return The current instant in time where the current frame will be read.
          *  @note  This is a thread-safe wrapper for the protected functions InternalSeek() and SeekResource().
          */
-        unsigned long Seek(unsigned long time,bool fromend = false);
+        avtime_t Seek(avtime_t time,bool fromend = false);
 
 
-        /** Gets the current position in time (milliseconds) */
-        unsigned long GetPos() const;
+        /** Gets the current position in time */
+        avtime_t GetPos() const;
 
         /** @brief Gets the length of the data being read.
-         *  @return The length of the resource's data, in milliseconds. Minimum one.
+         *  @return The length of the resource's data, in avtime_t units. Minimum one.
          */
-        unsigned long GetLength() const;
+        avtime_t GetLength() const;
 
         /** Gets the Video Color format of the resource. */
         VideoColorFormat GetColorFormat() const;
@@ -64,7 +65,7 @@ class VideoInputDevice : public AVDevice {
         /** Gets the resource's pixel aspect ratio. */
         float GetPixelAspect() const;
 
-        /** @brief Sends the current frame to device.
+        /** @brief Sends the current frame to the specified VideoOutputDevice.
          *
          * This routine just calls LoadCurrentFrame() and then
          * calls device->LoadVideoData(this->m_Bitmap).
@@ -84,7 +85,7 @@ class VideoInputDevice : public AVDevice {
          *  @param time Instant in time (milliseconds) where we want to get the frame index.
          *  @return The frame index (zero-based) corresponding to the given time.
          */
-        virtual unsigned long GetFrameIndex(unsigned long time);
+        virtual unsigned long GetFrameIndex(avtime_t time);
 
     protected:
 
@@ -98,21 +99,21 @@ class VideoInputDevice : public AVDevice {
 
         /** @brief Internal seeking routine.
          *
-         *  @param time The time, in milliseconds, to seek to.
+         *  @param time The time, in avtime_t units, to seek to.
          *  @param fromend Boolean telling the device to seek from the end rather than the beginning.
          *  @return The current instant in time where the current frame will be read.
          *  @note Called by Seek(); Calls SeekResource().
          */
-        unsigned long InternalSeek(unsigned long time, bool fromend = false);
+        avtime_t InternalSeek(avtime_t time, bool fromend = false);
 
         /** @brief Seeks to a determinate instant in time.
          *
-         *  @param time The time, in milliseconds, to seek to.
+         *  @param time The time, in avtime_t units, to seek to.
          *  @return The current instant in time where the current frame will be read.
          *  @note  This function is called by InternalSeek().
          *  @warning This function MUST NOT update m_CurrentTime. That is done by InternalSeek().
          */
-        virtual unsigned long SeekResource(unsigned long time) { return time; }
+        virtual avtime_t SeekResource(avtime_t time) { return time; }
 
         /** @brief Allocates memory for m_Bitmap. Called by Init().
          *  @note If you override this function, remember to call it in your derived class' AllocateResources()
@@ -136,10 +137,10 @@ class VideoInputDevice : public AVDevice {
          *
          *  Modified by Seek().
          */
-        unsigned long m_CurrentTime;
+        avtime_t m_CurrentTime;
 
-        /** Indicates the resource's total length in milliseconds. One-based. */
-        unsigned long m_Length;
+        /** Indicates the resource's total length in avtime_t units. Minimum one. */
+        avtime_t m_VideoLength;
 
         /** The width of the current resource. */
         unsigned long m_Width;

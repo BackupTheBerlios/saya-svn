@@ -12,8 +12,6 @@
 
 #include "avdevice.h"
 
-class syMutex;
-class sySemaphore;
 class syAudioBuffer;
 class syAudioOutputDeviceData;
 
@@ -39,7 +37,6 @@ class syAudioOutputDeviceData;
   * These protected methods are used by the derived classes to implement low-level audio playback / encoding.
   */
 
-// TODO: Update AudioOutputDevice to use the AVDevice class and the syAudioBuffer class.
 class AudioOutputDevice : public AVDevice {
 
     public:
