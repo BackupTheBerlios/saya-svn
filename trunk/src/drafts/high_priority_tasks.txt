@@ -1,17 +1,12 @@
 HIGH PRIORITY TASKS (TODO LIST)
-===================
+===============================
 
 Rick
 ====
 
-* Switch time units to avtime_t.
+* Switch time units to avtime_t. DEFERRED FOR LATER.
   The core (iomgr/ ) and in the vidproject/ classes need their time units to be converted to avtime_t.
   This way, making the transition from milliseconds to nanoseconds for time measurement will be much easier.
-
-* Finish rewriting VideoOutputDevice::LoadVideoData.
-  VideoOutputDevice::LoadVideoData in videooutputdevice.cpp is being rewritten because we need
-  a way to switch the input/output/temp bitmap addresses (lock-free if possible) so that reading the
-  data from the source does not cause any delays with writing the data into the destination.
 
 * Complete the minimum features for the AVDevices.
   Verify that VideoInputDevice, AudioInputDevice, VideoOutputDevice and AudioOutputDevice have the
@@ -33,3 +28,12 @@ Javier Galicia
 ==============
 
 * Implement the basic wxWidgets controls for the Timeline.
+
+
+TASKS DONE
+==========
+
+* Finish rewriting VideoOutputDevice::LoadVideoData (done 2008-10-22)
+  VideoOutputDevice::LoadVideoData in videooutputdevice.cpp is being rewritten because we need
+  a way to switch the input/output/temp bitmap addresses (lock-free if possible) so that reading the
+  data from the source does not cause any delays with writing the data into the destination.
