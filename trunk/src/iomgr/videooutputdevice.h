@@ -67,6 +67,8 @@ class VideoOutputDevice : public AVDevice {
 
         /** @brief Writes the video data into the device.
          *  @note This method is a wrapper for RenderVideoData.
+         *  @note This method updates the output bitmap. If you don't call it, you'll be seeing a blank bitmap
+         *  all the time.
          */
         void FlushVideoData();
 
@@ -92,8 +94,23 @@ class VideoOutputDevice : public AVDevice {
          */
         virtual bool Connect();
 
-        /** Clears the video output device (i.e. sets it all to black). Called by ShutDown(). */
+        /** @brief Clears the video output device (i.e. sets it all to black). Called by ShutDown().
+         *
+         *  @warning If you derive this method , you MUST call VideoOutputDevice::Clear().
+         */
         virtual void Clear();
+
+        /** @brief Allocates the Bitmaps' memory.
+         *
+         *  @warning If you derive this method , you MUST call VideoOutputDevice::AllocateResources().
+         */
+        virtual bool AllocateResources();
+
+        /** @brief Disconnects the video output device or memory resource. Called by ShutDown().
+         *
+         *  @warning If you derive this method , you MUST call VideoOutputDevice::FreeResources().
+         */
+        virtual void FreeResources();
 
         /** @brief Called by ChangeSize whenever the output screen size is changed.
           *

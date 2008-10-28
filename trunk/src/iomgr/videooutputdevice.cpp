@@ -131,6 +131,9 @@ bool VideoOutputDevice::ChangeSize(unsigned int newwidth,unsigned int newheight)
         }
         result = ChangeDeviceSize(newwidth, newheight);
         if(result) {
+            m_Data->m_InputBitmap->Realloc(newwidth,newheight,m_ColorFormat);
+            m_Data->m_OutputBitmap->Realloc(newwidth,newheight,m_ColorFormat);
+            m_Data->m_ExtraBitmap->Realloc(newwidth,newheight,m_ColorFormat);
             m_Width = newwidth;
             m_Height = newheight;
         }
@@ -178,8 +181,26 @@ bool VideoOutputDevice::Connect() {
     return true;
 }
 
+bool VideoOutputDevice::AllocateResources() {
+    m_Data->m_InputBitmap->Realloc(m_Width,m_Height,m_ColorFormat);
+    m_Data->m_OutputBitmap->Realloc(m_Width,m_Height,m_ColorFormat);
+    m_Data->m_ExtraBitmap->Realloc(m_Width,m_Height,m_ColorFormat);
+    return true;
+}
+
+void VideoOutputDevice::FreeResources() {
+    m_Data->m_InputBitmap->ReleaseBuffer(false);
+    m_Data->m_OutputBitmap->ReleaseBuffer(false);
+    m_Data->m_ExtraBitmap->ReleaseBuffer(false);
+}
+
+
 void VideoOutputDevice::Clear() {
-    // This is a stub
+    sySafeMutexLocker lockout(*m_OutputMutex);
+    if(lockout.IsLocked()) {
+        m_Data->m_OutputBitmap->Clear();
+        RenderVideoData(m_Data->m_OutputBitmap);
+    }
 }
 
 void VideoOutputDevice::RenderVideoData(const syBitmap* bitmap) {

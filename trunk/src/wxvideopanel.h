@@ -34,11 +34,6 @@ class wxVideoOutputDevice : public VideoOutputDevice {
         /** Standard destructor */
         virtual ~wxVideoOutputDevice();
 
-        /** Gets the Video Bitmap Buffer
-          * @return a pointer to the Bitmap
-          */
-        syBitmap* GetBitmap();
-
     protected:
 
         /** @brief Initializes the output device.
@@ -73,9 +68,6 @@ class wxVideoOutputDevice : public VideoOutputDevice {
         virtual void RenderVideoData(const syBitmap* bitmap);
 
     private:
-
-        /** Holds a temporary buffer for the video data */
-        syBitmap* m_Bitmap;
 
         /** The corresponding Panel which we will refresh and from which we will take the width and height */
         wxVideoPanel* m_Panel;

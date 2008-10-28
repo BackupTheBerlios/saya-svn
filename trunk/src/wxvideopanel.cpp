@@ -31,16 +31,12 @@ END_EVENT_TABLE()
 // *** Begin wxVideoOutputDevice code ***
 
 wxVideoOutputDevice::wxVideoOutputDevice(wxVideoPanel* panel) : VideoOutputDevice(),
-m_Bitmap(NULL),
 m_Panel(panel)
 {
-    m_Bitmap = new syBitmap();
-    m_Bitmap->SetAborter(this);
 }
 
 wxVideoOutputDevice::~wxVideoOutputDevice() {
     ShutDown();
-    delete m_Bitmap;
 }
 
 bool wxVideoOutputDevice::Connect() {
@@ -54,32 +50,19 @@ bool wxVideoOutputDevice::Connect() {
 }
 
 bool wxVideoOutputDevice::AllocateResources() {
-    m_Bitmap->Realloc(m_Width,m_Height,m_ColorFormat);
-    return true;
+    return VideoOutputDevice::AllocateResources();
 }
 
 void wxVideoOutputDevice::Clear() {
-    m_Bitmap->Clear(); // Clear the bitmap...
-    // ... and repaint the panel.
-    RenderVideoData(m_Bitmap);
+    VideoOutputDevice::Clear();
 }
 
 void wxVideoOutputDevice::FreeResources() {
-    m_Bitmap->ReleaseBuffer(false);
+    VideoOutputDevice::FreeResources();
 }
 
 bool wxVideoOutputDevice::ChangeDeviceSize(unsigned int newwidth,unsigned int newheight) {
-    bool result = false;
-    sySafeMutexLocker lock(*(m_Bitmap->m_Mutex));
-    if(lock.IsLocked()) {
-        m_Bitmap->Realloc(m_Width,m_Height,m_ColorFormat);
-        result = true;
-    }
-    return result;
-}
-
-syBitmap* wxVideoOutputDevice::GetBitmap() {
-    return m_Bitmap;
+    return true;
 }
 
 void wxVideoOutputDevice::RenderVideoData(const syBitmap* bitmap) {
@@ -127,6 +110,7 @@ void wxVideoPanel::OnPaint(wxPaintEvent &event) {
         // Do not try to repaint screen while resizing
         return;
     }
+    m_Video->FlushVideoData();
     wxSize size = GetSize();
     unsigned int w = size.GetWidth();
     unsigned int h = size.GetHeight();
@@ -169,7 +153,7 @@ void wxVideoPanel::LoadData(const syBitmap* bitmap) {
         {
             sySafeMutexLocker lock(*(m_Bitmap->m_Mutex));
             if(lock.IsLocked()) {
-                m_Bitmap->PasteFrom(m_Video->GetBitmap());
+                m_Bitmap->PasteFrom(bitmap);
             }
         }
         FlagForRepaint();
