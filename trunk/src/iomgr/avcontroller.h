@@ -14,7 +14,7 @@ class VideoInputDevice;
 class VideoOutputDevice;
 class AudioInputDevice;
 class AudioOutputDevice;
-class syMutex;
+class AVControllerData;
 
 class AVController {
     public:
@@ -225,93 +225,7 @@ class AVController {
         void SetAudioGranularity(unsigned long granularity);
 
     private:
-
-        /** @brief Starts the playback/encoding thread for encoding only. Called by the Play*() functions.
-         *
-         *  @note Will do nothing if any of the Output Devices is for encoding.
-         */
-        void StartPlayback();
-
-        /** Main playback-only loop.
-         *
-         *  @warning Only for use by the worker thread.
-         */
-        void PlaybackLoop();
-
-        /** Main encoding-only loop.
-         *
-         *  @warning Only for use by the worker thread.
-         */
-        void EncodingLoop();
-
-        /** Starts the playback/encoding thread.
-         *  StartEncoding() sets the playback data and proceeds to call StartWorkerThread().
-         *
-         *  @note Will do nothing if any of the Output Devices is for playback.
-         */
-        void StartEncoding();
-
-        /** @brief Starts the playback/encoding thread. Called by StartEncoding().
-         *  @see AVController::StartEncoding()
-         *  @return true on success; false otherwise.
-         */
-        bool StartWorkerThread();
-
-        /** Current playback framerate. */
-        float m_FrameRate;
-
-        /** Flag for video-only or audio-only playback/encoding. */
-        bool m_VideoEnabled;
-
-        /** Flag for video-only or audio-only playback/encoding. */
-        bool m_AudioEnabled;
-
-        /** @brief Flag determining whether we're currently playing or not.
-         *
-         *  @note For paused states, it will return false.
-         */
-        bool m_IsPlaying;
-
-        /** Flag indicating that playback / encoding must be stopped. */
-        bool m_Stop;
-
-        /** Flag indicating that playback / encoding must be paused. */
-        bool m_Pause;
-
-        /** Playback/encoding speed. 1.0 = normal speed; -1.0 = normal speed, reversed. */
-        float m_PlaybackSpeed;
-
-        /** Playback/encoding duration, in milliseconds. */
-        unsigned long m_PlaybackDuration;
-
-        /** Video In */
-        VideoInputDevice* m_VideoIn;
-
-        /** Audio In */
-        AudioInputDevice* m_AudioIn;
-
-        /** Video Out */
-        VideoOutputDevice* m_VideoOut;
-
-        /** Audio Out */
-        AudioOutputDevice* m_AudioOut;
-
-        syMutex* m_Mutex;
-
-        unsigned long m_WorkerThread;
-
-        /** Sets the minimum quantity of data that will be sent to the AudioOutputDevice.
-         *
-         *  @see AVController::SetAudioGranularity
-         */
-        unsigned long m_AudioGranularity;
-
-        /** The starting position for video in the current playback. Used for video/audio sync. */
-        unsigned long m_StartVideoPos;
-
-        /** The starting position for video in the current playback. Used for video/audio sync. */
-        unsigned long m_StartAudioPos;
-
+        AVControllerData* m_Data;
 };
 
 #endif
