@@ -194,12 +194,6 @@ class AVController {
          */
          bool IsPlaying();
 
-        /** Main playback / encoding loop.
-         *
-         *  @warning Only for use by the worker thread.
-         */
-        void PlaybackOrEncodingLoop();
-
     protected:
 
         /** @brief Flag indicating that playback must pause.

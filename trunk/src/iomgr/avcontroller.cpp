@@ -57,6 +57,12 @@ class AVControllerData {
          */
         void EncodingLoop();
 
+        /** Main playback / encoding loop.
+         *
+         *  @warning Only for use by the worker thread.
+         */
+        void PlaybackOrEncodingLoop();
+
         /** Current playback framerate. */
         float m_FrameRate;
 
@@ -148,6 +154,7 @@ AVController::~AVController() {
 
 void AVController::Init(VideoInputDevice* videoin,AudioInputDevice* audioin,
                     VideoOutputDevice* videoout,AudioOutputDevice* audioout) {
+    ShutDown();
     m_Data->m_VideoIn = videoin;
     m_Data->m_AudioIn = audioin;
     m_Data->m_VideoOut = videoout;
@@ -446,8 +453,8 @@ void AVControllerData::StartEncoding() {
     StartWorkerThreads();
 }
 
-void AVController::PlaybackOrEncodingLoop() {
-    if(syThread::GetThreadId() != m_Data->m_WorkerThread) { return; }
+void AVControllerData::PlaybackOrEncodingLoop() {
+    if(syThread::GetThreadId() != m_WorkerThread) { return; }
 }
 
 void AVControllerData::PlaybackLoop() {
