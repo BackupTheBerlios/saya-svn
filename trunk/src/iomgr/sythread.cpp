@@ -1440,6 +1440,23 @@ bool syThread::MustAbort() {
     return thread->TestDestroy();
 }
 
+bool syThread::SelfPause() {
+    if(!IsThisThread()) return false; // Not our thread
+    if(!gs_ThreadsOk || m_Data->m_StopRequested) {
+        return true; // No need to lock mutex, must stop.
+    }
+    syMutexLocker lock(m_Data->m_Mutex);
+    m_Data->m_PauseRequested = true;
+    if(m_Data->m_ThreadStatus == syTHREADSTATUS_RUNNING) {
+        if(m_Data->m_ThreadStatus!= syTHREADSTATUS_RUNNING) return false;
+        m_Data->m_ThreadStatus = syTHREADSTATUS_PAUSED;
+        m_Data->m_PausedCondition.Signal();
+        m_Data->m_ResumeCondition.Wait();
+        m_Data->m_ThreadStatus = syTHREADSTATUS_RUNNING;
+    }
+    return (!gs_ThreadsOk || m_Data->m_StopRequested);
+}
+
 bool syThread::TestDestroy() {
     if(!IsThisThread()) return false; // Not our thread
     if(!gs_ThreadsOk || m_Data->m_StopRequested) {

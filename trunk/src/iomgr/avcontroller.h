@@ -99,6 +99,12 @@ class AVController {
          */
         void Snapshot();
 
+        /** @brief Disables video frame skipping on Playback. Takes effect on the next play. */
+        void DontSkipVideoFrames(bool dontskip);
+
+        /** Gets the status of non-frame-skipping flag. */
+        bool GetDontSkipVideoFrames();
+
         /** Pauses playback / encoding. */
         void Pause();
 
@@ -193,6 +199,18 @@ class AVController {
          *  @note   If playback / encoding is paused, it will return false.
          */
          bool IsPlaying();
+
+        /** Thread Id for Audio In */
+        unsigned long GetAudioInThreadId();
+
+        /** Thread Id for Video In */
+        unsigned long GetVideoInThreadId();
+
+        /** Thread Id for Audio Out */
+        unsigned long GetAudioOutThreadId();
+
+        /** Thread Id for Video Out */
+        unsigned long GetVideoOutThreadId();
 
     protected:
 

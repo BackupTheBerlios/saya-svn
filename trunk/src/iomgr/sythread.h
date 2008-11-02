@@ -508,6 +508,10 @@ class syThread {
          */
         syThreadError Pause();
 
+        /** @brief Pauses the currently running thread, as if Pause() had been called from another thread context.
+         *  @return true if the thread had been paused; false if the thread must be aborted.
+         */
+        bool SelfPause();
 
         /** @brief Starts the thread execution. Needs Create() to be called first.
          *
