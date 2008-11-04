@@ -58,6 +58,11 @@ avtime_t VideoInputDevice::InternalSeek(avtime_t time, bool fromend) {
     return result;
 }
 
+avtime_t VideoInputDevice::SeekFrame(unsigned long frame,bool fromend) {
+    avtime_t thetime = GetTimeFromFrameIndex(frame, fromend);
+    return Seek(thetime, false);
+}
+
 avtime_t VideoInputDevice::Seek(avtime_t time,bool fromend) {
     sySafeMutexLocker lock(*m_InputMutex, this);
     bool result = false;
@@ -120,6 +125,10 @@ void VideoInputDevice::SendCurrentFrame(syBitmap* bitmap) {
 
 
 unsigned long VideoInputDevice::GetFrameIndex(avtime_t time) {
+    return 0; // This is a Stub. You must override it in your subclass.
+}
+
+avtime_t VideoInputDevice::GetTimeFromFrameIndex(unsigned long  frame,bool fromend) {
     return 0; // This is a Stub. You must override it in your subclass.
 }
 

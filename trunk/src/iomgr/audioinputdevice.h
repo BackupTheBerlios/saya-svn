@@ -56,21 +56,37 @@ class AudioInputDevice : public AVDevice {
 
         /** @brief Sends the buffer contents to the specified AudioOutputDevice.
          *
-         * This routine just calls LoadAudioBuffer() and then
-         * calls device->LoadAudioData(this->m_Buffer).
+         * This method just calls LoadAudioBuffer() and then
+         * calls device->LoadAudioData(this->m_Buffer, numsamples).
+         * @param device the AudioOutputDevice object to send the data to.
+         * @param numsamples The number of samples to send. 0 = unlimited.
+         * @note When sending data, the device will not exit until the specified number
+         * of samples has been sent, we have reached EOF, or a stop/abort signal has been received.
          */
-        void SendAudioData(AudioOutputDevice* device);
+        void SendAudioData(AudioOutputDevice* device,unsigned long numsamples = 0);
+
+        /** @brief Sends the buffer contents to the specified AudioOutputDevice.
+         *
+         *  This method calls LoadAudioBuffer() and then device->LoadAudioData.
+         *  If duration != 0, the number of samples is obtained via GetSampleIndex;
+         *  then SendAudioData is called using the obtained number of samples.
+         */
+        void SendAudioData(AudioOutputDevice* device,avtime_t duration = 0);
 
     protected:
 
 
         /** @brief Loads a chunk of audio into m_Buffer.
          *
+         *  @param numsamples The maximum number of samples to be read. 0 = let the derived class choose.
          *  This is a stub; you need to override this function to acomplish anything.
          *  @warning You MUST NOT call Seek() from LoadAudioBuffer(), or you will trigger a mutex deadlock!!
          *  If you need to do a seeking, call InternalSeek() instead.
+         *  @note This method MUST NOT exit until the specified number of samples has been sent,  we
+         *  have reached EOF, OR a stop/abort signal has been received.
+         *
          */
-        virtual void LoadAudioBuffer();
+        virtual void LoadAudioBuffer(unsigned long numsamples = 0);
 
         /** @brief Internal seeking routine.
          *

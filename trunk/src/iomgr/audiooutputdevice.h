@@ -84,8 +84,13 @@ class AudioOutputDevice : public AVDevice {
         /** @brief Loads audio data from an external buffer.
          *
          *  @param buf Buffer containing the data to be processed.
+         *  @param numsamples The number of samples to be read (0 = unlimited).
+         *  @return The number of samples read.
+         *  @note This method won't return until the number of samples has been read,
+         *        the output buffer's full, the input buffer's empty,
+         *        or a stop/abort signal has been received by the thread.
          */
-        void LoadAudioData(const syAudioBuffer* buf);
+        unsigned long LoadAudioData(const syAudioBuffer* buf, unsigned long numsamples = 0);
 
         /** @brief Flushes the output buffer and writes the data.
          *  This is a wrapper for the protected virtual method RenderData().

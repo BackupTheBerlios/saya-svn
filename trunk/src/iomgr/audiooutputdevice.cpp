@@ -189,15 +189,22 @@ unsigned int AudioOutputDevice::GetDeviceNumChannels() {
     return DefaultAODNumChannels; // Default
 }
 
-void AudioOutputDevice::LoadAudioData(const syAudioBuffer* buf) {
-    if(!IsOk()) return;
-    if(MustAbort()) return;
-
+unsigned long AudioOutputDevice::LoadAudioData(const syAudioBuffer* buf, unsigned long numsamples) {
+    if(!IsOk()) return 0;
+    if(MustAbort()) return 0;
+    unsigned long samplesread = 0;
     sySafeMutexLocker lock(*m_InputMutex, this);
     if(lock.IsLocked()) {
         // Read the source buffer until our buffer is filled or the other buffer is empty.
-        while(!MustStop() && buf->ReadInto(m_Data->m_Buffer)) {}
+
+        while(!MustStop() && !(numsamples && samplesread >= numsamples)) {
+            if(!buf->ReadInto(m_Data->m_Buffer)) {
+                break;
+            }
+            ++samplesread;
+        }
     }
+    return samplesread;
 }
 
 void AudioOutputDevice::Clear() {

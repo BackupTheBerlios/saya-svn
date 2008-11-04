@@ -121,9 +121,6 @@ class AVControllerData {
         /** Audio Out */
         AudioOutputDevice* m_AudioOut;
 
-        syMutex m_Mutex;
-
-
         /** Sets the minimum quantity of data that will be sent to the AudioOutputDevice.
          *
          *  @see AVController::SetAudioGranularity
@@ -669,46 +666,73 @@ void AVControllerData::VideoOutLoop() {
 // --------------------
 
 void AVControllerData::PlaybackAudioInLoop() {
+    if(m_StutterMode) return; // In stutter mode, Audio Input will be handled by the video thread.
     while(!syThread::MustAbort() && m_AudioEnabled && !m_Stop) {
         while(m_Pause) {
             if(!m_AudioInThread->SelfPause()) return;
+            // TODO: Implement AVControllerData::PlaybackAudioInLoop()
         }
     }
 }
 
 void AVControllerData::PlaybackVideoInLoop() {
-    avtime_t curvideopos, starttime;
+    avtime_t curvideopos, curaudiopos, nextaudiopos, starttime;
     unsigned long curvideoframe,nextvideoframe;
-    bool stuttermode = m_StutterMode;
 
     starttime = syGetTicks();
-    curvideopos = m_StartVideoPos;
+    curaudiopos = curvideopos = m_StartVideoPos;
+    nextaudiopos = curaudiopos;
     nextvideoframe = 0;
+    curvideoframe = 0;
+
+    if(!syThread::MustAbort() && m_VideoEnabled && !m_Stop && m_VideoIn && m_VideoOut) {
+        m_VideoIn->SendCurrentFrame(m_VideoOut);
+    }
+
+    if(m_StutterMode && m_AudioEnabled) {
+        curaudiopos = m_AudioIn->Seek(curvideopos);
+    }
 
     while(!syThread::MustAbort() && m_VideoEnabled && !m_Stop && m_VideoIn && m_VideoOut) {
         while(m_Pause) {
             if(!m_VideoInThread->SelfPause()) return;
         }
-        m_VideoIn->SendCurrentFrame(m_VideoOut);
-        curvideoframe = m_VideoIn->GetFrameIndex(curvideopos);
-        if(curvideoframe != nextvideoframe) {
 
+        curvideoframe = m_VideoIn->GetFrameIndex(curvideopos);
+
+        if(curvideoframe != nextvideoframe) {
+            if(m_StutterMode && m_AudioEnabled) {
+                // In "stutter mode", we play back the audio using the video thread.
+
+                // Calculate the length of the audio, in seconds.
+                nextaudiopos = m_VideoIn->GetTimeFromFrameIndex(curvideoframe + 1, false);
+
+                avtime_t audiolen = nextaudiopos - curaudiopos;
+                if(audiolen > 0) {
+                    m_AudioIn->SendAudioData(m_AudioOut,audiolen);
+                }
+            }
             m_VideoIn->SendCurrentFrame(m_VideoOut);
             curvideoframe = nextvideoframe;
         }
-        // Here we calculate the next video position based on the current time.
 
-        nextvideoframe = m_VideoIn->GetFrameIndex(curvideopos);
-        // stuttermode: The case where we don't want to skip the video, even if audio will stutter.
-        if(stuttermode && nextvideoframe > curvideoframe + 1) {
+        // Calculate the next video position based on the current time.
+        curvideopos = m_StartVideoPos + ((syGetTicks() - starttime)*(AVTIME_T_SCALE / 1000));
+        if(m_StutterMode && nextvideoframe > curvideoframe + 1) {
             // Don't skip video frames in stutter mode.
             nextvideoframe = curvideoframe + 1;
+            curvideopos = m_VideoIn->GetTimeFromFrameIndex(nextvideoframe, false);
+        } else {
+            nextvideoframe = m_VideoIn->GetFrameIndex(curvideopos);
         }
 
-        curvideopos = m_StartVideoPos + ((syGetTicks() - starttime)*(AVTIME_T_SCALE / 1000));
-        m_VideoIn->Seek(curvideopos);
-        if(stuttermode) {
-            // TODO: Signal the audio thread to continue sending the audio if we're in "stuttering" mode.
+        // Seek to the calculated video position.
+        curvideopos = m_VideoIn->Seek(curvideopos);
+
+        if(m_StutterMode && m_AudioEnabled) {
+            // Seek to the calculated audio position.
+            curaudiopos = m_AudioIn->Seek(curvideopos);
+
         }
     }
 }
@@ -753,74 +777,6 @@ void AVControllerData::EncodingVideoOutLoop() {
 // End Encoding Loops
 // ------------------
 
-//void AVControllerData::PlaybackLoop() {
-//    if(syThread::GetThreadId() != m_WorkerThread) { return; }
-//    unsigned long curvideopos, curaudiopos, starttime;
-//    unsigned long audiochunklength;
-//    curvideopos = m_StartVideoPos;
-//    curaudiopos = m_StartAudioPos;
-//    starttime = syGetTicks();
-//
-//    // FIXME: Implement AVController::PlaybackLoop()
-//    // Currently, we're facing three problems:
-//    // 1. We need to moderate our framerate according to our current parameters.
-//    //    To do that, we need to calculate 1000 / m_Framerate and have that for the video delay.
-//    // 2. We need to stay alert for when the device audio buffer gets empty. So we need to be careful
-//    //    with sleep. Oh yeah, that part of the device audio buffer notifying before reaching an empty state,
-//    //    hasn't been implemented yet.
-//    // 3. We need a similar measure for "buffer full".
-//
-//    unsigned long curvideoframe = 0,nextvideoframe = 0;
-//    if(m_VideoIn) {
-//        if(m_VideoIn && m_VideoOut && m_VideoEnabled) {
-//            m_VideoIn->SendCurrentFrame(m_VideoOut);
-//            curvideoframe = m_VideoIn->GetFrameIndex(curvideopos);
-//        }
-//
-//    }
-//    while(!m_Parent->IsEof() && m_PlaybackDuration > 0) {
-//        audiochunklength = (m_PlaybackDuration < m_AudioGranularity) ? m_PlaybackDuration : m_AudioGranularity;
-//        if(m_Stop || m_Pause) { break; }
-//        if(m_AudioIn && m_AudioOut && m_AudioEnabled) {
-//            m_AudioIn->SendAudioData(m_AudioOut);
-//        }
-//        curaudiopos += audiochunklength;
-//        if(m_VideoIn && m_VideoOut && m_VideoEnabled) {
-//            nextvideoframe = m_VideoIn->GetFrameIndex(curvideopos);
-//            if(curvideoframe != nextvideoframe) {
-//                m_VideoIn->SendCurrentFrame(m_VideoOut);
-//                curvideoframe = nextvideoframe;
-//            }
-//        }
-//        curvideopos = m_StartVideoPos + (syGetTicks() - starttime);
-//        if(m_AudioIn) {
-//            m_AudioIn->Seek(curaudiopos);
-//        }
-//        if(m_VideoIn) {
-//            m_VideoIn->Seek(curvideopos);
-//        }
-//        m_PlaybackDuration -= audiochunklength;
-//        if(m_PlaybackDuration > 0) {
-//            if(audiochunklength > 20) {
-//                syMilliSleep(audiochunklength - 20);
-//            }
-//        }
-//    }
-//}
-//
-//void AVControllerData::EncodingLoop() {
-//    if(syThread::GetThreadId() != m_WorkerThread) { return; }
-//
-//    // TODO: Implement AVController::EncodingLoop()
-//
-////
-////    while(!IsEof() && m_PlaybackDuration > 0) {
-////        if(m_Stop || m_Pause) { break; }
-////
-////
-////    }
-//}
-
 void AVController::SetAudioGranularity(unsigned long granularity) {
     if(granularity < MinimumAudioGranularity) {
         granularity = MinimumAudioGranularity;
@@ -831,8 +787,6 @@ void AVController::SetAudioGranularity(unsigned long granularity) {
 bool AVControllerData::StartWorkerThreads() {
     if(!syThread::IsMain()) { return false; }
     bool result = false;
-    // TODO: Implement AVController::StartWorkerThreads
-
     // First, create the threads if they haven't been created already (the threads die on abort).
     // Failing to re-create the threads will end up in a "no video / audio after abort" bug.
     do {

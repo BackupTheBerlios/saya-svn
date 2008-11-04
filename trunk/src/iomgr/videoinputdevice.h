@@ -44,6 +44,14 @@ class VideoInputDevice : public AVDevice {
          */
         avtime_t Seek(avtime_t time,bool fromend = false);
 
+        /** @brief Seeks to a determinate frame.
+         *
+         *  @param frame The frame to seek to.
+         *  @param fromend Boolean telling the device to seek from the end rather than the beginning.
+         *  @return The current instant in time where the current frame will be read.
+         *  @note  This is a thread-safe wrapper for the protected functions InternalSeek() and SeekResource().
+         */
+        avtime_t SeekFrame(unsigned long frame,bool fromend = false);
 
         /** Gets the current position in time */
         avtime_t GetPos() const;
@@ -82,10 +90,17 @@ class VideoInputDevice : public AVDevice {
         void SendCurrentFrame(syBitmap* bitmap);
 
         /** @brief Gets the frame corresponding to the given time.
-         *  @param time Instant in time (milliseconds) where we want to get the frame index.
+         *  @param time Instant in time where we want to get the frame index.
          *  @return The frame index (zero-based) corresponding to the given time.
          */
         virtual unsigned long GetFrameIndex(avtime_t time);
+
+        /** @brief Gets the time corresponding to a given frame.
+         *  @param The frame index (zero-based) where we want to get the time.
+         *  @param fromend Boolean telling the device to seek from the end rather than the beginning.
+         *  @return The instant in time from the video start corresponding to the given frame.
+         */
+        virtual avtime_t GetTimeFromFrameIndex(unsigned long  frame, bool fromend = false);
 
     protected:
 

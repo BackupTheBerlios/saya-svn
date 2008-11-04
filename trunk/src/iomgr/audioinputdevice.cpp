@@ -46,5 +46,23 @@ avtime_t AudioInputDevice::Seek(avtime_t time, bool fromend) {
     return 0;
 }
 
-void AudioInputDevice::SendAudioData(AudioOutputDevice* device) {
+void AudioInputDevice::SendAudioData(AudioOutputDevice* device, unsigned long numsamples) {
+    // TODO: Implement AudioInputDevice::SendAudioData
+    // Here we have to implement a loop to make sure the desired quantity of numsamples
+    // has been sent.
 }
+
+void AudioInputDevice::SendAudioData(AudioOutputDevice* device, avtime_t duration) {
+    unsigned long numsamples = 0;
+    if(duration) {
+        unsigned long begin = GetSampleIndex(m_CurrentTime);
+        unsigned long end = GetSampleIndex(m_CurrentTime + duration);
+        if(end <= begin) {
+            return;
+        } else {
+            numsamples = end + 1- begin;
+        }
+    }
+    SendAudioData(device, numsamples);
+}
+
