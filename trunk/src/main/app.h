@@ -12,9 +12,9 @@
 
 #include <wx/app.h>
 #include <string>
-#include "vidproject/projectmanager.h"
-#include "vidproject/configprovider.h"
-#include "vidproject/sayaconfig.h"
+#include "../saya/projectmanager.h"
+#include "../saya/configprovider.h"
+#include "../saya/sayaconfig.h"
 
 class AppDebugLog;
 

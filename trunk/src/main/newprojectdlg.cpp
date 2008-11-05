@@ -29,9 +29,9 @@
 #endif
 
 #include "s2wx.h"
-#include "vidproject/projectmanager.h"
-#include "vidproject/presetmanager.h"
-#include "App.h"
+#include "../saya/projectmanager.h"
+#include "../saya/presetmanager.h"
+#include "app.h"
 #include "newprojectdlg.h"
 #include "picknamedlg.h"
 

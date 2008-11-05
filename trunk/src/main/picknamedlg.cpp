@@ -17,8 +17,8 @@
     #include <wx/sizer.h>
     #include <wx/html/htmlwin.h>
 #endif
-#include "vidproject/projectmanager.h"
-#include "App.h"
+#include "../saya/projectmanager.h"
+#include "app.h"
 #include "picknamedlg.h"
 
 int idPickNameDialog = XRCID("pick_name_dialog");

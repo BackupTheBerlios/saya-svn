@@ -18,7 +18,7 @@
 #include <wx/sizer.h>
 #include <wx/frame.h>
 
-#include "vidproject/sayadebuglogger.h"
+#include "../saya/sayadebuglogger.h"
 
 class AppDebugLog : public wxFrame, public sayaDebugLogger {
 

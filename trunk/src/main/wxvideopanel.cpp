@@ -15,9 +15,9 @@
 #include <wx/bitmap.h>
 
 #include "wxvideopanel.h"
-#include "iomgr/sythread.h"
-#include "iomgr/sybitmap.h"
-#include "iomgr/sentryfuncs.h"
+#include "../saya/core/sythread.h"
+#include "../saya/core/sybitmap.h"
+#include "../saya/core/sentryfuncs.h"
 
 IMPLEMENT_CLASS(wxVideoPanel, wxPanel)
 

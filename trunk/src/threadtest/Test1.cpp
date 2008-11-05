@@ -7,7 +7,7 @@
  * License:   WxWindows License
  ***************************************************************/
 #include <iostream>
-#include "../iomgr/sythread.h"
+#include "../saya/core/sythread.h"
 
 using namespace std;
 

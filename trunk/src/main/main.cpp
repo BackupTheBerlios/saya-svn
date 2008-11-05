@@ -26,12 +26,12 @@
     #include <wx/sizer.h>
 #endif
 
-#include "vidproject/vidproject.h"
-#include "vidproject/recentfileslist.h"
+#include "../saya/vidproject.h"
+#include "../saya/recentfileslist.h"
 
 #include "s2wx.h"
-#include "App.h"
-#include "Main.h"
+#include "app.h"
+#include "main.h"
 #include "welcomedlg.h"
 #include "newprojectdlg.h"
 

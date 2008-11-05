@@ -21,10 +21,10 @@
 #include <wx/config.h>
 
 #include "s2wx.h"
-#include "App.h"
-#include "Main.h"
+#include "app.h"
+#include "main.h"
 #include "debuglog.h"
-#include "vidproject/projectmanager.h"
+#include "../saya/projectmanager.h"
 
 //(*AppHeaders
 #include <wx/image.h>

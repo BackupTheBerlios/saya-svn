@@ -18,11 +18,11 @@
     #include <wx/html/htmlwin.h>
 #endif
 
-#include "vidproject/projectmanager.h"
-#include "vidproject/recentfileslist.h"
+#include "../saya/projectmanager.h"
+#include "../saya/recentfileslist.h"
 
 #include "s2wx.h"
-#include "App.h"
+#include "app.h"
 #include "welcomedlg.h"
 
 int idWelcomeDialog = XRCID("welcome_dialog");

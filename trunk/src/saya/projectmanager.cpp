@@ -11,7 +11,7 @@
 #pragma hdrstop
 #endif //__BORLANDC__
 
-#include "../iomgr/iocommon.h"
+#include "core/iocommon.h"
 #include "projectmanager.h"
 #include "vidproject.h"
 #include <string>

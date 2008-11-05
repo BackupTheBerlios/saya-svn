@@ -7,7 +7,7 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
-#include "../iomgr/iocommon.h"
+#include "core/iocommon.h"
 
 #include "avcommon.h"
 #include "vidproject.h"

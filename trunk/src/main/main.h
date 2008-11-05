@@ -16,9 +16,9 @@
     #include <wx/treectrl.h>
 #endif
 
-#include "App.h"
-#include "vidproject/projectmanager.h"
-#include "vidproject/sayaevthandler.h"
+#include "app.h"
+#include "../saya/projectmanager.h"
+#include "../saya/sayaevthandler.h"
 
 #include <string>
 

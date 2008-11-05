@@ -15,8 +15,8 @@
     #include <wx/html/htmlwin.h>
 #endif
 
-#include "App.h"
-#include "vidproject/projectmanager.h"
+#include "app.h"
+#include "../saya/projectmanager.h"
 class wxUpdateUIEvent;
 class wxPanel;
 class wxTreeCtrl;

@@ -13,7 +13,7 @@
 #define wxvideopanel_h
 
 #include <wx/panel.h>
-#include "iomgr/videooutputdevice.h"
+#include "../saya/core/videooutputdevice.h"
 
 class wxVideoOutputDevice;
 class wxVideoPanel;
