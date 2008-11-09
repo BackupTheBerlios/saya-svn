@@ -124,6 +124,22 @@ class syBitmap {
          */
         void SetPixel(int x, int y, unsigned long pixel);
 
+        /** @brief Gets a pixel in the current color format at the specified address
+         *
+         *  @param addr The address of said pixel
+         *  @return The contents of the specified pixel, in the current color format
+         *  @warning No bounds checking is done in this function!
+         */
+        unsigned long GetPixel(const unsigned char* addr) const;
+
+        /** @brief Sets a pixel in the current color format at the specified address
+         *
+         *  @param addr The address of said pixel
+         *  @param pixel The value to set the specified pixel, in the current color format
+         *  @warning No bounds checking is done in this function!
+         */
+        void SetPixel(unsigned char* addr, unsigned long pixel);
+
         /** @brief Converts a pixel between two color formats. It's a wrapper for syBitmapCopier::ConvertPixel()
          *  @see syBitmapCopier::ConvertPixel
          *  @param pixel The original pixel

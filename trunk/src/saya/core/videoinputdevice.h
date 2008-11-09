@@ -92,6 +92,8 @@ class VideoInputDevice : public AVDevice {
         /** @brief Gets the frame corresponding to the given time.
          *  @param time Instant in time where we want to get the frame index.
          *  @return The frame index (zero-based) corresponding to the given time.
+         *  @note The calculation is done assumming a constant input framerate.
+         *  For variable framerate, you must override this method.
          */
         virtual unsigned long GetFrameIndex(avtime_t time);
 
@@ -99,6 +101,8 @@ class VideoInputDevice : public AVDevice {
          *  @param The frame index (zero-based) where we want to get the time.
          *  @param fromend Boolean telling the device to seek from the end rather than the beginning.
          *  @return The instant in time from the video start corresponding to the given frame.
+         *  @note The calculation is done assumming a constant input framerate.
+         *  For variable framerate, you must override this method.
          */
         virtual avtime_t GetTimeFromFrameIndex(unsigned long  frame, bool fromend = false);
 
@@ -168,6 +172,13 @@ class VideoInputDevice : public AVDevice {
 
         /** The pixel aspect ratio for the current resource. */
         float m_PixelAspect;
+
+        /** The fps indicator, if any. Default = 0. */
+        float m_FramesPerSecond;
+
+public:
+
+        const syBitmap* GetBitmap() { return m_Bitmap; }
 };
 
 // TODO: Make all the I/O Device classes derivatives of AVDevice

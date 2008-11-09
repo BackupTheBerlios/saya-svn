@@ -18,6 +18,7 @@
 #include "../saya/core/sythread.h"
 #include "../saya/core/sybitmap.h"
 #include "../saya/core/sentryfuncs.h"
+#include "../saya/core/videoinputdevice.h"
 
 IMPLEMENT_CLASS(wxVideoPanel, wxPanel)
 
@@ -27,6 +28,46 @@ BEGIN_EVENT_TABLE(wxVideoPanel, wxPanel)
     EVT_SIZE(wxVideoPanel::OnSize)
     EVT_IDLE(wxVideoPanel::OnIdle)
 END_EVENT_TABLE()
+
+// *** Begin DemoVideo1 code ***
+
+class DemoVideo1 : public VideoInputDevice {
+    public:
+        DemoVideo1();
+        virtual ~DemoVideo1();
+
+    protected:
+
+        /** @brief Loads the current frame into m_Bitmap.
+         *
+         *  This is a stub; you need to override this function to acomplish anything.
+         *  @warning You MUST NOT call Seek() from LoadCurrentFrame(), or you will trigger a mutex deadlock!!
+         *  If you need to do a seeking, call InternalSeek() instead.
+         */
+        void LoadCurrentFrame();
+};
+
+DemoVideo1::DemoVideo1() {
+    m_Width = 200;
+    m_Height = 100;
+    m_ColorFormat = vcfBGR24;
+}
+
+DemoVideo1::~DemoVideo1(){
+}
+
+void DemoVideo1::LoadCurrentFrame(){
+    unsigned long ticks = syGetTicks() / 5;
+    long x,y;
+    for(y = 0; y < (int)(m_Bitmap->GetHeight()); ++y) {
+        for(x = 0; x < (int)(m_Bitmap->GetWidth()); ++x) {
+            unsigned long pixel = (y*y+(x*x) + ticks) & 255;
+            m_Bitmap->SetPixel(x,y,pixel);
+        }
+    }
+}
+
+// *** End DemoVideo1 code ***
 
 // *** Begin wxVideoOutputDevice code ***
 
@@ -81,7 +122,6 @@ m_SizeChanging(false),
 m_BufferChanged(false),
 m_PaintingDemo(false),
 m_Bitmap(NULL),
-m_DemoBitmap(NULL),
 m_NativeFormat(vcfBGR24)
 {
 #ifdef __WIN32__
@@ -90,8 +130,9 @@ m_NativeFormat(vcfBGR24)
     m_NativeFormat = vcfBGR24; // X11 devices use BGR
 #endif
 
+    m_Demo = new DemoVideo1;
+    m_Demo->Init();
     m_PaintingDemo = false;
-    m_DemoBitmap = new syBitmap(200,100,vcfBGR24);
     m_Bitmap = new syBitmap();
     m_Video = new wxVideoOutputDevice(this);
     m_Video->Init();
@@ -100,8 +141,9 @@ m_NativeFormat(vcfBGR24)
 
 wxVideoPanel::~wxVideoPanel() {
     delete m_Video;
-    delete m_DemoBitmap;
     delete m_Bitmap;
+    m_Demo->ShutDown();
+    delete m_Demo;
     m_Video = NULL;
 }
 
@@ -111,6 +153,7 @@ void wxVideoPanel::OnPaint(wxPaintEvent &event) {
         return;
     }
     m_Video->FlushVideoData();
+
     wxSize size = GetSize();
     unsigned int w = size.GetWidth();
     unsigned int h = size.GetHeight();
@@ -166,20 +209,7 @@ void wxVideoPanel::Demo() {
     }
     if(m_Video->GetWidth() !=0 && m_Video->GetHeight() !=0) {
         m_PaintingDemo = true;
-        // Let's paint some pretty colors!
-
-        int x,y;
-        unsigned long pixel,tick;
-        tick = syGetTicks();
-        // tick = wxDateTime::UNow().GetSecond() * 1000 + wxDateTime::UNow().GetMillisecond();
-        tick /= 5;
-        for(y = 0; y < (int)(m_DemoBitmap->GetHeight()); ++y) {
-            for(x = 0; x < (int)(m_DemoBitmap->GetWidth()); ++x) {
-                pixel = ((y*y+(x*x) + tick) & 255);
-                m_DemoBitmap->SetPixel(x,y,pixel);
-            }
-        }
-        m_Video->LoadVideoData(m_DemoBitmap);
+        m_Demo->SendCurrentFrame(m_Video);
         m_PaintingDemo = false;
         syMilliSleep(10);
     }

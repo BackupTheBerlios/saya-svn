@@ -15,6 +15,7 @@
 #include <wx/panel.h>
 #include "../saya/core/videooutputdevice.h"
 
+class VideoInputDevice;
 class wxVideoOutputDevice;
 class wxVideoPanel;
 class syMutex;
@@ -104,6 +105,7 @@ class wxVideoPanel : public wxPanel {
         void LoadData(const syBitmap* bitmap);
 
         wxVideoOutputDevice* m_Video;
+        VideoInputDevice *m_Demo;
 
         bool m_IsPlaying;
         bool m_SizeChanging;
@@ -114,8 +116,6 @@ class wxVideoPanel : public wxPanel {
          *  Otherwise we can get into a lot of awful situations that are nearly impossible to debug.
          */
         syBitmap* m_Bitmap;
-
-        syBitmap* m_DemoBitmap;
 
         VideoColorFormat m_NativeFormat;
 

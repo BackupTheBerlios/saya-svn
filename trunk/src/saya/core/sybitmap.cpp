@@ -459,6 +459,28 @@ const unsigned char* syBitmap::GetReadOnlyPixelAddr(int x, int y) const {
     return base;
 }
 
+unsigned long syBitmap::GetPixel(const unsigned char* addr) const {
+    unsigned int i;
+    unsigned long result = 0;
+    if(addr != NULL) {
+        for(i = 0; i < m_Data->m_bypp; ++i) {
+            result |= ((*addr & 255) << (8*i)) ;
+            ++addr;
+        }
+    }
+    return result;
+}
+
+void syBitmap::SetPixel(unsigned char* addr, unsigned long pixel) {
+    unsigned int i;
+    if(addr != NULL) {
+        for(i = 0; i < m_Data->m_bypp; ++i) {
+            *addr = pixel & 255;
+            pixel >>= 8;
+            ++addr;
+        }
+    }
+}
 
 
 unsigned long syBitmap::GetPixel(int x, int y) const {
@@ -467,8 +489,8 @@ unsigned long syBitmap::GetPixel(int x, int y) const {
     const unsigned char* base = GetReadOnlyPixelAddr(x,y);
     if(base != NULL) {
         for(i = 0; i < m_Data->m_bypp; ++i) {
-            result = (result << 8) | (*base & 255);
-            base++;
+            result |= ((*base & 255) << (8*i)) ;
+            ++base;
         }
     }
     return result;
@@ -481,7 +503,7 @@ void syBitmap::SetPixel(int x, int y, unsigned long pixel) {
         for(i = 0; i < m_Data->m_bypp; ++i) {
             *base = pixel & 255;
             pixel >>= 8;
-            base++;
+            ++base;
         }
     }
 }

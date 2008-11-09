@@ -12,6 +12,7 @@
 #include "videoinputdevice.h"
 #include "videooutputdevice.h"
 #include "sythread.h"
+#include <cmath>
 #include <cstddef>
 
 VideoInputDevice::VideoInputDevice() : AVDevice(),
@@ -21,7 +22,8 @@ m_VideoLength(0),
 m_Width(0),
 m_Height(0),
 m_ColorFormat(vcfBGR24),
-m_PixelAspect(1.0)
+m_PixelAspect(1.0),
+m_FramesPerSecond(30)
 {
     m_IsVideo = true;
     m_IsInput = true;
@@ -125,11 +127,35 @@ void VideoInputDevice::SendCurrentFrame(syBitmap* bitmap) {
 
 
 unsigned long VideoInputDevice::GetFrameIndex(avtime_t time) {
-    return 0; // This is a Stub. You must override it in your subclass.
+
+    if(m_FramesPerSecond == 0) {
+        return 0;
+    }
+    avtime_t unitsperframe = (avtime_t)floor(((double)AVTIME_T_SCALE) / m_FramesPerSecond);
+    time /= unitsperframe;
+    unsigned long frame = (unsigned long)(time & 0xFFFFFFFF);
+    unsigned long length = GetLength();
+    if(length && frame > length) { frame = length - 1; }
+    return frame;
 }
 
 avtime_t VideoInputDevice::GetTimeFromFrameIndex(unsigned long  frame,bool fromend) {
-    return 0; // This is a Stub. You must override it in your subclass.
+    if(m_FramesPerSecond == 0) {
+        return 0;
+    }
+    unsigned long length = GetLength();
+    if(length && frame >= length) { frame = length - 1; }
+    if(fromend) {
+        if(!length) {
+            frame = 0;
+        } else {
+            frame = length - 1 - frame;
+        }
+    }
+
+    avtime_t unitsperframe = (avtime_t)floor(((double)AVTIME_T_SCALE) / m_FramesPerSecond);
+    unitsperframe *= frame;
+    return unitsperframe;
 }
 
 

@@ -157,6 +157,7 @@ inline void syBitmapCopier::CopyPixel() {
         }
     } else {
         unsigned long pixel = 0;
+        // FIXME: Make sure we don't invert the R and B components in this code
         for(i = 0; i < m_SourceBypp; ++i) {
             pixel = (pixel << 8) | (m_Src[i] & 255);
         }
@@ -203,6 +204,7 @@ inline void syBitmapCopier::CopyRow() {
         for(unsigned int j = 0; j < maxw; ++j, sourceptr += m_SourceBypp, destptr += m_DestBypp) {
             unsigned long pixel = 0;
             unsigned int i;
+            // FIXME: Make sure we don't invert the R and B components in this code
             for(i = 0; i < m_SourceBypp; ++i) {
                 pixel = (pixel << 8) | (sourceptr[i] & 255);
             }
