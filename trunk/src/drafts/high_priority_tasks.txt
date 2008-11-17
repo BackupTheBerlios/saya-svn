@@ -16,6 +16,11 @@ Rick
   The AVController class is needed to implement the video player. It should be much easier to write now
   that we're going to use different threads for audio-in, audio-out, video-in and video-out.
 
+* Implement reverse playback in either AVController and/or AudioInputDevice, VideoInputDevice
+
+* Implement a default playback AVController and an encoder AVController for VidProject, so
+  that we can play video files while a project is being encoded.
+
 Rigo
 ====
 

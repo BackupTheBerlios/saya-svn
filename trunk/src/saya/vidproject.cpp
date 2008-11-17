@@ -23,6 +23,105 @@
 #include "tinyxml/tinyxml.h"
 #include <libintl.h>
 
+// --------------------
+// Begin VidProjectData
+// --------------------
+class VidProjectData {
+    public:
+
+        /** Constructor */
+        VidProjectData(VidProject* parent);
+
+        /** Destructor */
+        ~VidProjectData();
+
+        VidProject* m_Parent;
+
+        /** Saves the project to a given filename. */
+        bool SaveToFile(const std::string &filename);
+
+        /** Saves project's current state. */
+        void SaveState(std::string& data);
+
+        /** Loads specified state from the project. */
+        bool LoadState(const std::string& data);
+
+        /** Project's modified flag */
+        bool m_IsModified;
+
+        /** Project's original state as loaded from disk. */
+        std::string m_OriginalXML;
+
+        /** Undo History Stack. @see UndoHistoryClass */
+        UndoHistoryClass* m_UndoHistory;
+
+        /** The data for the sequences and clips in the project. */
+        AVTimeline* m_Timeline; // the data for all clips
+
+        /** The data for the resources used in the project. */
+        AVResources* m_Resources;
+};
+
+VidProjectData::VidProjectData(VidProject* parent) :
+m_Parent(parent),
+m_IsModified(false),
+m_UndoHistory(NULL),
+m_Timeline(NULL),
+m_Resources(NULL)
+{
+    m_UndoHistory = new UndoHistoryClass;
+    m_Timeline = new AVTimeline;
+    m_Resources = new AVResources;
+}
+
+VidProjectData::~VidProjectData() {
+    delete m_Resources;
+    delete m_Timeline;
+    delete m_UndoHistory;
+
+    m_Resources = NULL;
+    m_Timeline = NULL;
+    m_UndoHistory = NULL;
+}
+
+void VidProjectData::SaveState(std::string& data) {
+    data = "";
+// TODO: Implement project State saving
+}
+
+bool VidProjectData::LoadState(const std::string& data) {
+// TODO: Implement project State loading
+    m_Parent->SetModified();
+    return true;
+}
+
+bool VidProjectData::SaveToFile(const std::string &filename) {
+    if(filename.empty()) {
+        return false;
+    }
+    std::string data;
+    bool result = false;
+    do {
+        data = m_Parent->serialize();
+        TempFile tmpfile(filename);
+        if(!tmpfile.IsOpened()) break;
+        if(!tmpfile.Write(data)) {
+            tmpfile.Discard();
+            break;
+        }
+        result = tmpfile.Commit();
+    }while(false);
+    return result;
+}
+
+// --------------------
+// End VidProjectData
+// --------------------
+
+// ----------------
+// Begin VidProject
+// ----------------
+
 bool VidProject::unserialize(const std::string& data) {
     // TODO: Implement VidProject::unserialize
     Clear();
@@ -36,26 +135,20 @@ std::string VidProject::serialize() {
     return data;
 }
 
-VidProject::VidProject()
+VidProject::VidProject() :
+m_Title(""),
+m_Filename("")
 {
+    m_Data = new VidProjectData(this);
     m_ExportSettings = new AVSettings;
-    m_UndoHistory = new UndoHistoryClass;
-    m_Timeline = new AVTimeline;
-    m_Resources = new AVResources;
-
-    m_Title = "";
     m_ExportSettings->ResetToDefaults();
     m_NeedsExportSettings = true;
-    m_Filename = "";
 }
 
 VidProject::~VidProject()
 {
     // dtor
     delete m_ExportSettings;
-    delete m_UndoHistory;
-    delete m_Timeline;
-    delete m_Resources;
 }
 
 void VidProject::Clear() {
@@ -92,7 +185,7 @@ void VidProject::Revert() {
     if(IsNew()) {
         return;
     }
-    unserialize(m_OriginalXML);
+    unserialize(m_Data->m_OriginalXML);
     ResetModified();
     ClearUndoHistory();
     // At this point the relation between the Undo history
@@ -106,7 +199,7 @@ bool VidProject::Reload() {
     }
     std::string data = "";
     std::string currentdata = serialize();
-    std::string original_xml = m_OriginalXML;
+    std::string original_xml = m_Data->m_OriginalXML;
     bool result = false;
     FFile myfile;
 
@@ -123,7 +216,7 @@ bool VidProject::Reload() {
         myfile.Close();
         result = unserialize(data);
         if(result) {
-            m_OriginalXML = data;
+            m_Data->m_OriginalXML = data;
             ResetModified();
         }
     } while(false);
@@ -133,97 +226,86 @@ bool VidProject::Reload() {
     }
     if(!result) {
         unserialize(currentdata);
-        m_OriginalXML = original_xml;
+        m_Data->m_OriginalXML = original_xml;
         SetModified();
     }
     ClearUndoHistory();
     return result;
 }
 
-void VidProject::SaveState(std::string& data) {
-    data = "";
-// TODO: Implement project State saving
-}
-
-bool VidProject::LoadState(const std::string& data) {
-// TODO: Implement project State loading
-    SetModified();
-    return true;
-}
-
 void VidProject::ClearUndoHistory() {
-    m_UndoHistory->Clear();
+    m_Data->m_UndoHistory->Clear();
 }
 
 bool VidProject::CanUndo() {
-    return m_UndoHistory->CanUndo();
+    return m_Data->m_UndoHistory->CanUndo();
 }
 
 bool VidProject::CanRedo() {
-    return m_UndoHistory->CanRedo();
+    return m_Data->m_UndoHistory->CanRedo();
 }
 
 
 void VidProject::Undo() {
     std::string data,curdata;
     curdata = "";
-    if(m_UndoHistory->IsEof()) {
-        SaveState(curdata); // If there's no redo available, make one.
+    if(m_Data->m_UndoHistory->IsEof()) {
+        m_Data->SaveState(curdata); // If there's no redo available, make one.
     }
 
-    if(m_UndoHistory->Undo(data,curdata)) {
-        LoadState(data);
+    if(m_Data->m_UndoHistory->Undo(data,curdata)) {
+        m_Data->LoadState(data);
     }
 }
 
 void VidProject::Redo() {
     std::string data;
-    if(m_UndoHistory->Redo(data)) {
-        LoadState(data);
+    if(m_Data->m_UndoHistory->Redo(data)) {
+        m_Data->LoadState(data);
     }
 }
 
 void VidProject::PushUndo(const std::string OpName) {
     std::string data;
-    SaveState(data);
-    m_UndoHistory->PushUndo(OpName,data);
-    if(m_UndoHistory->Redo(data)) {
-        LoadState(data);
+    m_Data->SaveState(data);
+    m_Data->m_UndoHistory->PushUndo(OpName,data);
+    if(m_Data->m_UndoHistory->Redo(data)) {
+        m_Data->LoadState(data);
     }
 }
 
 const std::string VidProject::GetUndoOpname() {
-    return m_UndoHistory->GetUndoOpname();
+    return m_Data->m_UndoHistory->GetUndoOpname();
 }
 
 const std::string VidProject::GetRedoOpname() {
-    return m_UndoHistory->GetRedoOpname();
+    return m_Data->m_UndoHistory->GetRedoOpname();
 }
 
 const std::string VidProject::GetUndoHistoryOpName(unsigned int idx) {
-    return m_UndoHistory->GetOpname(idx);
+    return m_Data->m_UndoHistory->GetOpname(idx);
 }
 
 unsigned int VidProject::GetUndoIdx() {
-    return m_UndoHistory->CurState();
+    return m_Data->m_UndoHistory->CurState();
 }
 
 bool VidProject::IsModified() {
-    return m_IsModified;
+    return m_Data->m_IsModified;
 }
 
 void VidProject::SetModified() {
-    bool lastmodified = m_IsModified;
-    m_IsModified = true;
-    if(m_IsModified != lastmodified) {
+    bool lastmodified = m_Data->m_IsModified;
+    m_Data->m_IsModified = true;
+    if(m_Data->m_IsModified != lastmodified) {
         ProjectManager::Get()->OnProjectStatusModified();
     }
 }
 
 void VidProject::ResetModified() {
-    bool lastmodified = m_IsModified;
-    m_IsModified = false;
-    if(m_IsModified != lastmodified) {
+    bool lastmodified = m_Data->m_IsModified;
+    m_Data->m_IsModified = false;
+    if(m_Data->m_IsModified != lastmodified) {
         ProjectManager::Get()->OnProjectStatusModified();
     }
 }
@@ -271,9 +353,9 @@ VidProject* VidProject::Load(const std::string filename, std::string &errortext)
 }
 
 bool VidProject::Save() {
-    bool result = SaveToFile(m_Filename);
+    bool result = m_Data->SaveToFile(m_Filename);
     if(result) {
-        m_OriginalXML = serialize();
+        m_Data->m_OriginalXML = serialize();
         ResetModified();
         if(ProjectManager::Get()->m_ClearUndoHistoryOnSave) {
             ClearUndoHistory();
@@ -283,10 +365,10 @@ bool VidProject::Save() {
 }
 
 bool VidProject::SaveAs(const std::string filename) {
-    bool result = SaveToFile(filename);
+    bool result = m_Data->SaveToFile(filename);
     if(result) {
         m_Filename = filename;
-        m_IsModified = false;
+        m_Data->m_IsModified = false;
         ProjectManager::Get()->OnProjectStatusModified(); // Update status and filename
         if(ProjectManager::Get()->m_ClearUndoHistoryOnSave) {
             ClearUndoHistory();
@@ -296,25 +378,10 @@ bool VidProject::SaveAs(const std::string filename) {
 }
 
 bool VidProject::SaveCopy(const std::string filename) {
-    bool result = SaveToFile(filename);
+    bool result = m_Data->SaveToFile(filename);
     return result;
 }
 
-bool VidProject::SaveToFile(const std::string &filename) {
-    if(filename.empty()) {
-        return false;
-    }
-    std::string data;
-    bool result = false;
-    do {
-        data = serialize();
-        TempFile tmpfile(filename);
-        if(!tmpfile.IsOpened()) break;
-        if(!tmpfile.Write(data)) {
-            tmpfile.Discard();
-            break;
-        }
-        result = tmpfile.Commit();
-    }while(false);
-    return result;
-}
+// --------------
+// End VidProject
+// --------------

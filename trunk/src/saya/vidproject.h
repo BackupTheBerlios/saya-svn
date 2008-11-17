@@ -12,13 +12,9 @@
 
 #include "serializable.h"
 
-// TODO: Simplify the vidproject API by using private classes and forward declarations
-
 class VidProject;
+class VidProjectData;
 class AVSettings;
-class UndoHistoryClass;
-class AVTimeline;
-class AVResources;
 
 /** @class VidProject
   * @brief Defines a video project and all objects contained within.
@@ -41,12 +37,12 @@ class VidProject:public serializable
         /** @brief Loads the project from XML data.
           * @see serializable::unserialize
           */
-        virtual bool unserialize(const std::string& src);
+        bool unserialize(const std::string& src);
 
         /** @brief Saves the project into XML data.
           * @see serializable::serialize
           */
-        virtual std::string serialize();
+        std::string serialize();
 
         /** @brief Loads a project from disk.
           *
@@ -157,27 +153,7 @@ class VidProject:public serializable
         AVSettings* m_ExportSettings;
 
     private:
-        /** Project's modified flag */
-        bool m_IsModified;
-        /** Saves the project to a given filename. */
-        bool SaveToFile(const std::string &filename);
-
-        /** Project's original state as loaded from disk. */
-        std::string m_OriginalXML;
-
-        /** Undo History Stack. @see UndoHistoryClass */
-        UndoHistoryClass* m_UndoHistory;
-
-        /** Saves project's current state. */
-        void SaveState(std::string& data);
-        /** Loads specified state from the project. */
-        bool LoadState(const std::string& data);
-
-        /** The data for the sequences and clips in the project. */
-        AVTimeline* m_Timeline; // the data for all clips
-
-        /** The data for the resources used in the project. */
-        AVResources* m_Resources;
+        VidProjectData* m_Data;
 };
 
 #endif // VIDPROJECT_H
