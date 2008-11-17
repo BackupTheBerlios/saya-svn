@@ -16,6 +16,8 @@ class sayaEvtHandler;
 class sayaDebugLogger;
 class RecentFilesList;
 class PresetManager;
+class AVController;
+class ProjectManagerData;
 
 /** Tells whether the application is shutting down. */
 bool IsAppShuttingDown();
@@ -28,6 +30,8 @@ extern const std::string APP_VENDOR; /** The application vendor's name (that wou
 extern const std::string APP_SHOWNAME; /** The application's official name */
 extern const std::string APP_SHOWOFFNAME; /** The application's name and tagline for showing off */
 
+
+
 /** @class ProjectManager
   * @brief The main class that handles project loading and saving.
   *
@@ -38,6 +42,7 @@ extern const std::string APP_SHOWOFFNAME; /** The application's name and tagline
   */
 class ProjectManager
 {
+    friend class ProjectManagerData;
     private:
         /** @brief Standard constructor.
           *
@@ -162,6 +167,9 @@ class ProjectManager
         /** Gets the pointer for the active project. */
         VidProject* GetProject();
 
+        /** Gets the AVController */
+        AVController* GetController();
+
         /** Tells whether there's an active project or not. */
         bool HasProject();
 
@@ -177,18 +185,7 @@ class ProjectManager
     protected:
 
     private:
-
-        /** The currently opened project */
-        VidProject* m_project;
-
-        /** The last used project directory */
-        std::string m_lastprojectdir;
-
-        /** A pointer to the program's event handler */
-        sayaEvtHandler* m_evthandler;
-
-        /** A pointer to the program's config provider */
-        SayaConfigProvider* m_configprovider;
+        ProjectManagerData* m_Data;
 };
 
 #endif // PROJECTMANAGER_H
