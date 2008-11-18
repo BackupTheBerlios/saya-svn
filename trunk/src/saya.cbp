@@ -135,8 +135,12 @@
 		<Unit filename="saya/core/avdevice.cpp" />
 		<Unit filename="saya/core/avdevice.h" />
 		<Unit filename="saya/core/avtypes.h" />
+		<Unit filename="saya/core/filevid.cpp" />
+		<Unit filename="saya/core/filevid.h" />
 		<Unit filename="saya/core/iocommon.cpp" />
 		<Unit filename="saya/core/iocommon.h" />
+		<Unit filename="saya/core/nullvid.cpp" />
+		<Unit filename="saya/core/nullvid.h" />
 		<Unit filename="saya/core/qprof/atomic_ops.h" />
 		<Unit filename="saya/core/qprof/atomic_ops/generalize.h" />
 		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/acquire_release_volatile.h" />
