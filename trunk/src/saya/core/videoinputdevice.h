@@ -181,6 +181,4 @@ public:
         const syBitmap* GetBitmap() { return m_Bitmap; }
 };
 
-// TODO: Make all the I/O Device classes derivatives of AVDevice
-
 #endif

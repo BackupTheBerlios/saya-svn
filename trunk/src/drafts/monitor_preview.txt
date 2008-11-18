@@ -29,13 +29,13 @@ Update (17/Nov/2008) :
 So far, steps 1.1 to 1.6 are done except the creation of the NullVideoOutputDevice class, and we didn't
 use SDL anyway. Now we need to focus on the Input processing.
 
-2.1) Create a NulVideoInputDevice that only displays a blank screen. Why not call it NullVID.
+2.1) [done] Create a NulVideoInputDevice that only displays a blank screen. Why not call it NullVID.
 
-2.2) Create a FileVID that loads info from a file. There must be some way to integrate it
-with GStreamer so we're able to use input plugins. And while we're at it, perhaps we should have a
-CaptureVID class.
+2.2) [done] Create a FileVID that loads info from a file.
+2.2.1) [pending] There must be some way to integrate it with GStreamer so we're able to use input plugins.
+2.2.2) [deferred for later] And while we're at it, perhaps we should have a CaptureVID class.
 
-2.3) Create a RenderedVID class, which will implement the full-fledged video rendering.
+2.3) [deferred for later] Create a RenderedVID class, which will implement the full-fledged video rendering.
 
 2.4) Create an InputMonitor class (outside the core), which will encapsulate AVController. It will have its own
 NullVID, CaptureVID, and FileVID objects (to keep the one-consumer,one-producer  design).
