@@ -177,6 +177,8 @@
 		<Unit filename="saya/core/videooutputdevice.cpp" />
 		<Unit filename="saya/core/videooutputdevice.h" />
 		<Unit filename="saya/fxparameterlist.h" />
+		<Unit filename="saya/inputmonitor.cpp" />
+		<Unit filename="saya/inputmonitor.h" />
 		<Unit filename="saya/presetmanager.cpp" />
 		<Unit filename="saya/presetmanager.h" />
 		<Unit filename="saya/projectmanager.cpp" />

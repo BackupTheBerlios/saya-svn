@@ -286,6 +286,10 @@ AVControllerData::~AVControllerData() {
 
 
 AVController::AVController() :
+m_ReservedVideoIn(false),
+m_ReservedAudioIn(false),
+m_ReservedVideoOut(false),
+m_ReservedAudioOut(false),
 m_Data(NULL)
 {
     m_Data = new AVControllerData(this);
@@ -296,13 +300,37 @@ AVController::~AVController() {
     delete m_Data;
 }
 
-void AVController::Init(VideoInputDevice* videoin,AudioInputDevice* audioin,
-                    VideoOutputDevice* videoout,AudioOutputDevice* audioout) {
-    ShutDown();
+bool AVController::SetVideoIn(VideoInputDevice* videoin) {
+    if(!syThread::IsMain()) { return false; }
+    if(m_ReservedVideoIn || m_Data->m_IsPlaying) { return false; }
     m_Data->m_VideoIn = videoin;
+    return true;
+}
+
+bool AVController::SetAudioIn(AudioInputDevice* audioin) {
+    if(!syThread::IsMain()) { return false; }
+    if(m_ReservedAudioIn || m_Data->m_IsPlaying) { return false; }
     m_Data->m_AudioIn = audioin;
+    return true;
+}
+
+bool AVController::SetVideoOut(VideoOutputDevice* videoout) {
+    if(!syThread::IsMain()) { return false; }
+    if(m_ReservedVideoOut || m_Data->m_IsPlaying) { return false; }
     m_Data->m_VideoOut = videoout;
+    return true;
+}
+
+bool AVController::SetAudioOut(AudioOutputDevice* audioout) {
+    if(!syThread::IsMain()) { return false; }
+    if(m_ReservedAudioOut || m_Data->m_IsPlaying) { return false; }
     m_Data->m_AudioOut = audioout;
+    return true;
+}
+
+void AVController::Init() {
+    if(!syThread::IsMain()) { return; }
+    ShutDown();
 
     if(m_Data->m_AudioOut) {
         m_Data->m_AudioOut->Init();
@@ -317,7 +345,6 @@ void AVController::Init(VideoInputDevice* videoin,AudioInputDevice* audioin,
     if(m_Data->m_VideoIn) {
         m_Data->m_VideoIn->Init();
     }
-
 }
 
 void AVController::ShutDown() {

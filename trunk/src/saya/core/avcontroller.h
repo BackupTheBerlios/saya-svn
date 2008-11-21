@@ -23,11 +23,40 @@ class AVController {
         AVController();
 
         /** Standard destructor */
-        ~AVController();
+        virtual ~AVController();
 
-        /** Initializer */
-        void Init(VideoInputDevice* videoin,AudioInputDevice* audioin,
-                            VideoOutputDevice* videoout,AudioOutputDevice* audioout);
+        /** @brief Sets the Video Input Device. Must be called before Init().
+         *  @param videoin The video input.
+         *  @return true on success; false if playing or if video-in is reserved.
+         *  @warning This function must be called by the main thread ONLY!
+         */
+        bool SetVideoIn(VideoInputDevice* videoin);
+
+        /** @brief Sets the Audio Input Device. Must be called before Init().
+         *  @param audioin The audio input.
+         *  @return true on success; false if playing or if audio-in is reserved.
+         *  @warning This function must be called by the main thread ONLY!
+         */
+        bool SetAudioIn(AudioInputDevice* audioin);
+
+        /** @brief Sets the Video Output Device. Must be called before Init().
+         *  @param videoout The video output.
+         *  @return true on success; false if playing or if video-out is reserved.
+         *  @warning This function must be called by the main thread ONLY!
+         */
+        bool SetVideoOut(VideoOutputDevice* videoout);
+
+        /** @brief Sets the Audio Output Device. Must be called before Init().
+         *  @param audioout The audio output.
+         *  @return true on success; false if playing or if audio-out is reserved.
+         *  @warning This function must be called by the main thread ONLY!
+         */
+        bool SetAudioOut(AudioOutputDevice* audioout);
+
+        /** @brief Initializer. Sets the new A/V devices, shutting down previously if necessary.
+         *  @warning This function must be called by the main thread ONLY!
+         */
+        void Init();
 
         /** @brief Quits all threads and shuts down all devices.
          *
@@ -214,6 +243,10 @@ class AVController {
 
     protected:
 
+        /** Initializes the devices */
+        void InitDevices(VideoInputDevice* videoin,AudioInputDevice* audioin,
+                            VideoOutputDevice* videoout,AudioOutputDevice* audioout);
+
         /** @brief Flag indicating that playback must pause.
          *
          *  @return true if we must pause; false otherwise.
@@ -235,6 +268,15 @@ class AVController {
          *  @note Value cannot be changed during playback.
          */
         void SetAudioGranularity(unsigned long granularity);
+
+        /** @brief Set this flag to true if you're using an internal video input device. */
+        bool m_ReservedVideoIn;
+        /** @brief Set this flag to true if you're using a fixed audio input device. */
+        bool m_ReservedAudioIn;
+        /** @brief Set this flag to true if you're using a fixed video output device. */
+        bool m_ReservedVideoOut;
+        /** @brief Set this flag to true if you're using a fixed audio output device. */
+        bool m_ReservedAudioOut;
 
     private:
         AVControllerData* m_Data;
