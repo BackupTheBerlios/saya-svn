@@ -167,9 +167,6 @@ class ProjectManager
         /** Gets the pointer for the active project. */
         VidProject* GetProject();
 
-        /** Gets the AVController */
-        AVController* GetController();
-
         /** Tells whether there's an active project or not. */
         bool HasProject();
 

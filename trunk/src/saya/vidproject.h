@@ -15,6 +15,7 @@
 class VidProject;
 class VidProjectData;
 class AVSettings;
+class InputMonitor;
 
 /** @class VidProject
   * @brief Defines a video project and all objects contained within.
@@ -148,6 +149,8 @@ class VidProject:public serializable
 
         /** Is the project new (it hasn't been saved yet)? */
         bool IsNew();
+
+        InputMonitor* GetInputMonitor();
 
         /** The export settings for the current project. @see AVSettings */
         AVSettings* m_ExportSettings;

@@ -56,8 +56,8 @@ InputMonitor::~InputMonitor() {
 bool InputMonitor::SetFile(std::string filename) {
     if(!syThread::IsMain()) { return false; }
     if(IsPlaying()) { return false; }
+    if(!(m_Data->m_VID->SetFile(filename))) { return false; }
     m_Data->m_File = filename;
-    // TODO: Set the file to read in m_Data->m_VID
     return true;
 }
 

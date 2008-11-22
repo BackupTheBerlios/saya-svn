@@ -17,6 +17,7 @@
 #include "avresources.h"
 #include "avsequence.h"
 #include "avtimeline.h"
+#include "inputmonitor.h"
 
 #include "projectmanager.h"
 
@@ -60,6 +61,8 @@ class VidProjectData {
 
         /** The data for the resources used in the project. */
         AVResources* m_Resources;
+
+        InputMonitor* m_InputMonitor;
 };
 
 VidProjectData::VidProjectData(VidProject* parent) :
@@ -67,21 +70,20 @@ m_Parent(parent),
 m_IsModified(false),
 m_UndoHistory(NULL),
 m_Timeline(NULL),
-m_Resources(NULL)
+m_Resources(NULL),
+m_InputMonitor(NULL)
 {
     m_UndoHistory = new UndoHistoryClass;
     m_Timeline = new AVTimeline;
     m_Resources = new AVResources;
+    m_InputMonitor = new InputMonitor;
 }
 
 VidProjectData::~VidProjectData() {
+    delete m_InputMonitor;
     delete m_Resources;
     delete m_Timeline;
     delete m_UndoHistory;
-
-    m_Resources = NULL;
-    m_Timeline = NULL;
-    m_UndoHistory = NULL;
 }
 
 void VidProjectData::SaveState(std::string& data) {
@@ -382,6 +384,9 @@ bool VidProject::SaveCopy(const std::string filename) {
     return result;
 }
 
+InputMonitor* VidProject::GetInputMonitor() {
+    return m_Data->m_InputMonitor;
+}
 // --------------
 // End VidProject
 // --------------

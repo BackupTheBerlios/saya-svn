@@ -69,8 +69,6 @@ class ProjectManagerData {
         /** A pointer to the program's event handler */
         sayaEvtHandler* m_EvtHandler;
 
-        AVController* m_Controller;
-
         /** A pointer to the program's config provider */
         SayaConfigProvider* m_ConfigProvider;
 
@@ -78,11 +76,9 @@ class ProjectManagerData {
 };
 
 ProjectManagerData::ProjectManagerData(ProjectManager* parent) : m_Parent(parent) {
-    m_Controller = new AVController();
 }
 
 ProjectManagerData::~ProjectManagerData() {
-    delete m_Controller;
 }
 
 // ----------------------
@@ -350,9 +346,6 @@ void ProjectManager::OnProjectStatusModified() {
     }
 }
 
-AVController* ProjectManager::GetController() {
-    return m_Data->m_Controller;
-}
 // ------------------
 // end ProjectManager
 //-------------------
