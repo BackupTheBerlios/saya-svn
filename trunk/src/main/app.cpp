@@ -97,6 +97,7 @@ bool App::OnInit()
     DebugLog("Initializing File system handlers...");
     wxFileSystem::AddHandler(new wxZipFSHandler);
     wxFileSystem::AddHandler(new wxMemoryFSHandler);
+    wxImage::AddHandler(new wxPNGHandler);
     DebugLog("Initializing XML Resource handlers...");
     wxXmlResource::Get()->InitAllHandlers();
 	//(*AppInitialize
