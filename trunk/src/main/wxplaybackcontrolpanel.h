@@ -6,20 +6,16 @@
  * Copyright: Rigoberto Calleja, Ricardo Garcia
  * License:   wxWindows license
  ************************************************************************************/
-
 #ifndef WXPLAYBACKCONTROLPANEL_H
 #define WXPLAYBACKCONTROLPANEL_H
 
-#ifndef WX_PRECOMP
-    #include <wx/wx.h>
-    #include <wx/panel.h>
-    class wxSlider;
-    class wxBitmapButton;
-    class wxStaticText;
-#else
-    #include "wx_pch.h"
-#endif
+#include <wx/wx.h>
+#include <wx/panel.h>
+class wxSlider;
+class wxBitmapButton;
+class wxStaticText;
 
+class wxVideoPanel;
 class wxPlaybackControlPanel : public wxPanel {
 
 	protected:
@@ -33,10 +29,25 @@ class wxPlaybackControlPanel : public wxPanel {
 		wxBitmapButton* m_btnLastFrame;
 		wxSlider* m_Shuttle;
 		wxStaticText* m_txtShuttle;
+		wxBoxSizer* m_VBox;
+		/** @brief Video Panel.
+		 *  Initialized to NULL by the constructor.
+		 * You must initialize it to something else in your derived class' constructor.
+		 */
+		wxPanel* m_VideoPanel;
 
 	public:
-		wxPlaybackControlPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL );
-		~wxPlaybackControlPanel();
+		wxPlaybackControlPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL);
+		virtual ~wxPlaybackControlPanel();
+};
+
+class wxVideoPlaybackPanel : public wxPlaybackControlPanel {
+
+    protected:
+        wxVideoPanel* GetVideoPanel();
+    public:
+        wxVideoPlaybackPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL );
+        virtual ~wxVideoPlaybackPanel();
 };
 
 #endif //WXPLAYBACKCONTROLPANEL_H

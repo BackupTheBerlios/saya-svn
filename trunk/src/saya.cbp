@@ -39,7 +39,6 @@
 			<Add option="-DWXUSINGDLL" />
 			<Add option="-DwxUSE_UNICODE" />
 			<Add option="-DTIXML_USE_STL" />
-			<Add option="-DWX_PRECOMP" />
 			<Add directory="$(#wx.include)" />
 			<Add directory="$(#wx)/contrib/include" />
 			<Add directory="$(#wx)/lib/gcc_dll/mswu" />
@@ -77,6 +76,8 @@
 		<Unit filename="main/newprojectdlg.h" />
 		<Unit filename="main/picknamedlg.cpp" />
 		<Unit filename="main/picknamedlg.h" />
+		<Unit filename="main/resources.cpp" />
+		<Unit filename="main/resources.h" />
 		<Unit filename="main/s2wx.cpp" />
 		<Unit filename="main/s2wx.h" />
 		<Unit filename="main/welcomedlg.cpp" />

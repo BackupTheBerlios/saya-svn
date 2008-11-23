@@ -35,7 +35,7 @@
 #include "welcomedlg.h"
 #include "newprojectdlg.h"
 
-#include "wxvideopanel.h"
+#include "wxplaybackcontrolpanel.h"
 #include <deque>
 
 
@@ -523,8 +523,8 @@ bool AppFrame::CreatePanels() {
     do {
         m_projectpanel = CreateProjectPane(); // wxXmlResource::Get()->LoadPanel(this,wxT("project_panel"));
         if(!m_projectpanel) { LoadFail(_T("project_panel")); break; }
-           m_monitorpanel = new wxVideoPanel(this);
-           m_effectspanel = new wxVideoPanel(this);
+           m_monitorpanel = new wxVideoPlaybackPanel(this);
+           m_effectspanel = new wxVideoPlaybackPanel(this);
 //         m_monitorpanel = wxXmlResource::Get()->LoadPanel(this,wxT("monitor_panel"));
 //         if(!m_monitorpanel) { LoadFail(_T("monitor_panel")); break; }
 //         m_effectspanel = wxXmlResource::Get()->LoadPanel(this,wxT("effects_panel"));

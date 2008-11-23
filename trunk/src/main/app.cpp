@@ -23,6 +23,7 @@
 #include "s2wx.h"
 #include "app.h"
 #include "main.h"
+#include "resources.h"
 #include "debuglog.h"
 #include "../saya/projectmanager.h"
 
@@ -94,12 +95,16 @@ bool App::OnInit()
 
     DebugLog("Debug log initialized.");
 
+    DebugLog("Initializing Resources path...");
+    syInitResourcesPaths();
+
     DebugLog("Initializing File system handlers...");
     wxFileSystem::AddHandler(new wxZipFSHandler);
     wxFileSystem::AddHandler(new wxMemoryFSHandler);
     wxImage::AddHandler(new wxPNGHandler);
     DebugLog("Initializing XML Resource handlers...");
     wxXmlResource::Get()->InitAllHandlers();
+
 	//(*AppInitialize
 	bool wxsOK = true;
 	wxInitAllImageHandlers();
