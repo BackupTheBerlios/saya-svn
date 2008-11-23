@@ -50,13 +50,13 @@ m_VideoPanel(NULL)
     wxBitmap* imgfastforward = syLoadImage(wxT("btn_fastforward.png"));
     wxBitmap* imglastframe = syLoadImage(wxT("btn_lastframe.png"));
 
-	m_btnFirstFrame = new wxBitmapButton( this, wxID_ANY, *imgfirstframe, wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
-	m_btnFastRewind = new wxBitmapButton( this, wxID_ANY, *imgfastrewind, wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
-	m_btnPreviousFrame = new wxBitmapButton( this, wxID_ANY, *imgprevframe, wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
-	m_btnPlay = new wxBitmapButton( this, wxID_ANY, *imgplay, wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
-	m_btnNextFrame = new wxBitmapButton( this, wxID_ANY, *imgnextframe, wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
-	m_btnFastForward = new wxBitmapButton( this, wxID_ANY, *imgfastforward, wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
-	m_btnLastFrame = new wxBitmapButton( this, wxID_ANY, *imglastframe, wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
+	m_btnFirstFrame = new wxBitmapButton( this, wxID_ANY, *imgfirstframe, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+	m_btnFastRewind = new wxBitmapButton( this, wxID_ANY, *imgfastrewind, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+	m_btnPreviousFrame = new wxBitmapButton( this, wxID_ANY, *imgprevframe, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+	m_btnPlay = new wxBitmapButton( this, wxID_ANY, *imgplay, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+	m_btnNextFrame = new wxBitmapButton( this, wxID_ANY, *imgnextframe, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+	m_btnFastForward = new wxBitmapButton( this, wxID_ANY, *imgfastforward, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
+	m_btnLastFrame = new wxBitmapButton( this, wxID_ANY, *imglastframe, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
 
 	delete imglastframe;
 	delete imgfastforward;
