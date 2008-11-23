@@ -1,15 +1,33 @@
-///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Apr 16 2008)
-// http://www.wxformbuilder.org/
-//
-// PLEASE DO "NOT" EDIT THIS FILE!
-///////////////////////////////////////////////////////////////////////////
+/**************************************************************************************
+ * Name:      wxplaybackcontrolpanel.cpp
+ * Purpose:   Implementation of classes wxPlaybackControlPanel and wxVideoPlaybackPanel
+ * Authors:   Rigoberto Calleja, Ricardo Garcia
+ * Created:   2008-11-22
+ * Copyright: Rigoberto Calleja, Ricardo Garcia
+ * License:   wxWindows license
+ **************************************************************************************/
 
 #include "wxplaybackcontrolpanel.h"
 
-///////////////////////////////////////////////////////////////////////////
+#ifndef WX_PRECOMP
+    #include <wx/slider.h>
+    #include <wx/gdicmn.h>
+    #include <wx/font.h>
+    #include <wx/colour.h>
+    #include <wx/settings.h>
+    #include <wx/string.h>
+    #include <wx/sizer.h>
+    #include <wx/bitmap.h>
+    #include <wx/image.h>
+    #include <wx/icon.h>
+    #include <wx/bmpbuttn.h>
+    #include <wx/button.h>
+    #include <wx/stattext.h>
+    #include <wx/panel.h>
+#endif
 
-AllInOnePlaybackControlGUI::AllInOnePlaybackControlGUI( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
+wxPlaybackControlPanel::wxPlaybackControlPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) :
+wxPanel( parent, id, pos, size, style )
 {
 	wxBoxSizer* vBox;
 	vBox = new wxBoxSizer( wxVERTICAL );
@@ -17,49 +35,44 @@ AllInOnePlaybackControlGUI::AllInOnePlaybackControlGUI( wxWindow* parent, wxWind
 	wxBoxSizer* hbox1;
 	hbox1 = new wxBoxSizer( wxHORIZONTAL );
 
-	m_playbackslider = new wxSlider( this, ID_PLAYSLIDER, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
-	hbox1->Add( m_playbackslider, 1, wxEXPAND, 5 );
+	m_PlaybackSlider = new wxSlider( this, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
+	hbox1->Add(m_PlaybackSlider, 1, wxEXPAND, 5 );
 
 	vBox->Add( hbox1, 1, wxEXPAND, 5 );
 
 	wxBoxSizer* hbox2;
+
 	hbox2 = new wxBoxSizer( wxHORIZONTAL );
+	unsigned long defaultbuttonstyle = defaultbuttonstyle | wxBU_EXACTFIT;
 
-	m_firstframe = new wxBitmapButton( this, ID_FIRSTFRAME, wxBitmap( wxT("../resources/img/btn_firstframe.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
-	hbox2->Add( m_firstframe, 0, 0, 5 );
+	m_btnFirstFrame = new wxBitmapButton( this, wxID_ANY, wxBitmap( wxT("../resources/img/btn_firstframe.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
+	m_btnFastRewind = new wxBitmapButton( this, wxID_ANY, wxBitmap( wxT("../resources/img/btn_fastrewind.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
+	m_btnPreviousFrame = new wxBitmapButton( this, wxID_ANY, wxBitmap( wxT("../resources/img/btn_prevframe.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
+	m_btnPlay = new wxBitmapButton( this, wxID_ANY, wxBitmap( wxT("../resources/img/btn_play.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
+	m_btnNextFrame = new wxBitmapButton( this, wxID_ANY, wxBitmap( wxT("../resources/img/btn_nextframe.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
+	m_btnFastForward = new wxBitmapButton( this, wxID_ANY, wxBitmap( wxT("../resources/img/btn_fastforward.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
+	m_btnLastFrame = new wxBitmapButton( this, wxID_ANY, wxBitmap( wxT("../resources/img/btn_lastframe.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
+	m_Shuttle = new wxSlider( this, wxID_ANY, 50, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
+	m_txtShuttle = new wxStaticText( this, wxID_ANY, wxT("[Display]"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT );
+	m_txtShuttle->Wrap( -1 );
 
-	m_fastrewind = new wxBitmapButton( this, ID_FASTREWIND, wxBitmap( wxT("../resources/img/btn_fastrewind.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
-	hbox2->Add( m_fastrewind, 0, 0, 5 );
-
-	m_previousframe = new wxBitmapButton( this, ID_PREVIOUSFRAME, wxBitmap( wxT("../resources/img/btn_prevframe.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
-	hbox2->Add( m_previousframe, 0, 0, 5 );
-
-	m_play = new wxBitmapButton( this, ID_PLAY, wxBitmap( wxT("../resources/img/btn_play.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
-	hbox2->Add( m_play, 0, 0, 5 );
-
-	m_nextframe = new wxBitmapButton( this, ID_NEXTFRAME, wxBitmap( wxT("../resources/img/btn_nextframe.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
-	hbox2->Add( m_nextframe, 0, 0, 5 );
-
-	m_fastforward = new wxBitmapButton( this, ID_FASTFORWARD, wxBitmap( wxT("../resources/img/btn_fastforward.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
-	hbox2->Add( m_fastforward, 0, 0, 5 );
-
-	m_lastframe = new wxBitmapButton( this, ID_LASTFRAME, wxBitmap( wxT("../resources/img/btn_lastframe.png"), wxBITMAP_TYPE_ANY ), wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW );
-	hbox2->Add( m_lastframe, 0, 0, 5 );
-
-	m_shuttle = new wxSlider( this, ID_SHUTTLE, 50, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
-	hbox2->Add( m_shuttle, 0, 0, 5 );
-
-	m_display = new wxStaticText( this, wxID_ANY, wxT("[Display]"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT );
-	m_display->Wrap( -1 );
-	hbox2->Add( m_display, 1, 0, 5 );
+	hbox2->Add(m_btnFirstFrame, 0, 0, 5);
+	hbox2->Add(m_btnFastRewind, 0, 0, 5);
+	hbox2->Add(m_btnPreviousFrame, 0, 0, 5);
+	hbox2->Add(m_btnPlay, 0, 0, 5);
+	hbox2->Add(m_btnNextFrame, 0, 0, 5);
+	hbox2->Add(m_btnFastForward, 0, 0, 5);
+	hbox2->Add(m_btnLastFrame, 0, 0, 5);
+	hbox2->Add(m_Shuttle, 1, 0, 5);
+	hbox2->Add(m_txtShuttle, 1, 0, 5);
 
 	vBox->Add( hbox2, 1, wxEXPAND, 5 );
 
 	this->SetSizer( vBox );
 	this->Layout();
-	vBox->Fit( this );
+	vBox->Fit(this);
 }
 
-AllInOnePlaybackControlGUI::~AllInOnePlaybackControlGUI()
+wxPlaybackControlPanel::~wxPlaybackControlPanel()
 {
 }

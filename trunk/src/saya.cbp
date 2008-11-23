@@ -39,6 +39,7 @@
 			<Add option="-DWXUSINGDLL" />
 			<Add option="-DwxUSE_UNICODE" />
 			<Add option="-DTIXML_USE_STL" />
+			<Add option="-DWX_PRECOMP" />
 			<Add directory="$(#wx.include)" />
 			<Add directory="$(#wx)/contrib/include" />
 			<Add directory="$(#wx)/lib/gcc_dll/mswu" />
@@ -84,6 +85,8 @@
 			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
+		<Unit filename="main/wxplaybackcontrolpanel.cpp" />
+		<Unit filename="main/wxplaybackcontrolpanel.h" />
 		<Unit filename="main/wxvideopanel.cpp" />
 		<Unit filename="main/wxvideopanel.h" />
 		<Unit filename="resources/debuglog.fbp">
