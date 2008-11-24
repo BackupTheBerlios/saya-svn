@@ -26,6 +26,14 @@
 #include <wx/stattext.h>
 #include <wx/panel.h>
 
+const int id_PLAYBACK_FIRSTFRAME = wxNewId();
+const int id_PLAYBACK_FASTREWIND = wxNewId();
+const int id_PLAYBACK_PREVFRAME = wxNewId();
+const int id_PLAYBACK_PLAY = wxNewId();
+const int id_PLAYBACK_NEXTFRAME = wxNewId();
+const int id_PLAYBACK_FASTFORWARD = wxNewId();
+const int id_PLAYBACK_LASTFRAME = wxNewId();
+
 wxPlaybackControlPanel::wxPlaybackControlPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style) :
 wxPanel( parent, id, pos, size, style ),
 m_VideoPanel(NULL)
@@ -36,7 +44,9 @@ m_VideoPanel(NULL)
 	hbox1 = new wxBoxSizer( wxHORIZONTAL );
 
 	m_PlaybackSlider = new wxSlider( this, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
+	hbox1->Add(10,0); // Adds a spacer
 	hbox1->Add(m_PlaybackSlider, 1, wxEXPAND, 5 );
+	hbox1->Add(10,0); // Adds a spacer
 
 	wxBoxSizer* hbox2;
 	hbox2 = new wxBoxSizer( wxHORIZONTAL );
@@ -70,6 +80,7 @@ m_VideoPanel(NULL)
 	m_txtShuttle = new wxStaticText( this, wxID_ANY, wxT("[Display]"), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT );
 	m_txtShuttle->Wrap( -1 );
 
+    hbox2->Add(5,0); // Adds a spacer
 	hbox2->Add(m_btnFirstFrame, 0, wxALIGN_CENTER_VERTICAL, 5);
 	hbox2->Add(m_btnFastRewind, 0, wxALIGN_CENTER_VERTICAL, 5);
 	hbox2->Add(m_btnPreviousFrame, 0, wxALIGN_CENTER_VERTICAL, 5);
@@ -83,6 +94,7 @@ m_VideoPanel(NULL)
 
 	m_VBox->Add( hbox1, 0, wxEXPAND, 5 );
 	m_VBox->Add( hbox2, 0, wxEXPAND, 5 );
+    m_VBox->Add(0,5); // Adds a spacer
 
 	this->SetSizer(m_VBox);
 	this->Layout();

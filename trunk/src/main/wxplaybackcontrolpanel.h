@@ -14,8 +14,16 @@
 class wxSlider;
 class wxBitmapButton;
 class wxStaticText;
-
 class wxVideoPanel;
+
+extern const int id_PLAYBACK_FIRSTFRAME;
+extern const int id_PLAYBACK_FASTREWIND;
+extern const int id_PLAYBACK_PREVFRAME;
+extern const int id_PLAYBACK_PLAY;
+extern const int id_PLAYBACK_NEXTFRAME;
+extern const int id_PLAYBACK_FASTFORWARD;
+extern const int id_PLAYBACK_LASTFRAME;
+
 class wxPlaybackControlPanel : public wxPanel {
 
 	protected:
