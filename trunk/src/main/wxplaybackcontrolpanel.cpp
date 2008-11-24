@@ -60,13 +60,15 @@ m_VideoPanel(NULL)
     wxBitmap* imgfastforward = syLoadImage(wxT("btn_fastforward.png"));
     wxBitmap* imglastframe = syLoadImage(wxT("btn_lastframe.png"));
 
-	m_btnFirstFrame = new wxBitmapButton( this, wxID_ANY, *imgfirstframe, wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
-	m_btnFastRewind = new wxBitmapButton( this, wxID_ANY, *imgfastrewind, wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
-	m_btnPreviousFrame = new wxBitmapButton( this, wxID_ANY, *imgprevframe, wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
-	m_btnPlay = new wxBitmapButton( this, wxID_ANY, *imgplay, wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
-	m_btnNextFrame = new wxBitmapButton( this, wxID_ANY, *imgnextframe, wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
-	m_btnFastForward = new wxBitmapButton( this, wxID_ANY, *imgfastforward, wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
-	m_btnLastFrame = new wxBitmapButton( this, wxID_ANY, *imglastframe, wxDefaultPosition, wxDefaultSize, defaultbuttonstyle );
+    wxSize defaultbuttonsize(26,26);
+
+	m_btnFirstFrame = new wxBitmapButton( this, wxID_ANY, *imgfirstframe, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
+	m_btnFastRewind = new wxBitmapButton( this, wxID_ANY, *imgfastrewind, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
+	m_btnPreviousFrame = new wxBitmapButton( this, wxID_ANY, *imgprevframe, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
+	m_btnPlay = new wxBitmapButton( this, wxID_ANY, *imgplay, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
+	m_btnNextFrame = new wxBitmapButton( this, wxID_ANY, *imgnextframe, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
+	m_btnFastForward = new wxBitmapButton( this, wxID_ANY, *imgfastforward, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
+	m_btnLastFrame = new wxBitmapButton( this, wxID_ANY, *imglastframe, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
 
 	delete imglastframe;
 	delete imgfastforward;
