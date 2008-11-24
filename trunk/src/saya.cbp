@@ -99,6 +99,9 @@
 		<Unit filename="resources/pickname.xrc" />
 		<Unit filename="resources/saya_welcome.fbp" />
 		<Unit filename="resources/welcome.xrc" />
+		<Unit filename="resources/wxplaybackcontrolpanel.fbp">
+			<Option target="Debug" />
+		</Unit>
 		<Unit filename="saya/avclip.cpp" />
 		<Unit filename="saya/avclip.h" />
 		<Unit filename="saya/avclips.h" />
