@@ -80,7 +80,7 @@ m_VideoPanel(NULL)
 	m_txtShuttle = new wxStaticText( this, wxID_ANY, wxT("[Display]"), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT );
 	m_txtShuttle->Wrap( -1 );
 
-    hbox2->Add(5,0); // Adds a spacer
+    hbox2->Add(16,0); // Adds a spacer
 	hbox2->Add(m_btnFirstFrame, 0, wxALIGN_CENTER_VERTICAL, 5);
 	hbox2->Add(m_btnFastRewind, 0, wxALIGN_CENTER_VERTICAL, 5);
 	hbox2->Add(m_btnPreviousFrame, 0, wxALIGN_CENTER_VERTICAL, 5);
@@ -88,13 +88,14 @@ m_VideoPanel(NULL)
 	hbox2->Add(m_btnNextFrame, 0, wxALIGN_CENTER_VERTICAL, 5);
 	hbox2->Add(m_btnFastForward, 0, wxALIGN_CENTER_VERTICAL, 5);
 	hbox2->Add(m_btnLastFrame, 0, wxALIGN_CENTER_VERTICAL, 5);
+    hbox2->Add(16,0); // Adds a spacer
 	hbox2->Add(m_Shuttle, 1, wxALIGN_CENTER_VERTICAL, 5);
 	hbox2->Add(20,0); // Adds a spacer
 	hbox2->Add(m_txtShuttle, 1, wxALIGN_CENTER_VERTICAL, 5);
 
-	m_VBox->Add( hbox1, 0, wxEXPAND, 5 );
-	m_VBox->Add( hbox2, 0, wxEXPAND, 5 );
-    m_VBox->Add(0,5); // Adds a spacer
+	m_VBox->Add( hbox1, 0, wxEXPAND, 2 );
+	m_VBox->Add( hbox2, 0, wxEXPAND, 2 );
+    m_VBox->Add(0,4); // Adds a spacer
 
 	this->SetSizer(m_VBox);
 	this->Layout();
