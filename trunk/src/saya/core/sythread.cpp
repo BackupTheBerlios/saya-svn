@@ -953,9 +953,9 @@ void *syPthreadStart(void *thread) {
 /** @brief This static function is the cross-platform entry point for a thread. */
 static unsigned syThreadStart(syThread* thread) {
 
-    if(!thread) { return -1; }
-
     int rc = -1;
+    if(!thread) { return rc; }
+
     // Set up the indexing so that syThread::This() will work.
     #ifdef __WIN32__
     rc = (::TlsSetValue(gs_keySelf, thread)) ? 0 : -1;
