@@ -50,7 +50,12 @@ m_VideoPanel(NULL)
 
 	wxBoxSizer* hbox2;
 	hbox2 = new wxBoxSizer( wxHORIZONTAL );
-	unsigned long defaultbuttonstyle = wxTAB_TRAVERSAL | wxBU_AUTODRAW | wxBORDER_NONE | wxBU_EXACTFIT;
+	unsigned long defaultbuttonstyle;
+	#ifdef __WIN32__
+      defaultbuttonstyle = wxBU_AUTODRAW | wxBORDER_THEME;
+    #else
+	  defaultbuttonstyle = wxBU_AUTODRAW | wxBORDER_NONE;
+    #endif
 
     wxBitmap* imgfirstframe = syLoadImage(wxT("btn_firstframe.png"));
     wxBitmap* imgfastrewind = syLoadImage(wxT("btn_fastrewind.png"));
