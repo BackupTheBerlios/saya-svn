@@ -11,6 +11,7 @@
 
 #include "avsettings.h"
 #include "smap.h"
+#include "smapxstr.h"
 
 using namespace std;
 
@@ -28,22 +29,24 @@ AVSettings::~AVSettings() {
 }
 
 
-string AVSettings::serialize() {
-    string result;
+void AVSettings::serialize(serialized& dest) const {
+    //TODO: Reimplement AVSettings::serialize
 
-    result = ioCommon::Printf("<AVSettings width=\"%u\" height=\"%u\" pixelaspect=\"%f\" fps=\"%f\">",
-        width, height, pixelaspect, fps);
-    result += ioCommon::PrintfBig(65536,"<vidformat type=\"%s\">%s</vidformat>",
-              vidformat.c_str(),formatsettings->serialize().c_str());
-    result += ioCommon::PrintfBig(65536,"<videocodec type=\"%s\">%s</videocodec>",
-              videocodec.c_str(),videocodecsettings->serialize().c_str());
-    result += ioCommon::PrintfBig(65536,"<audiocodec type=\"%s\">%s</audiocodec>",
-              audiocodec.c_str(),audiocodecsettings->serialize().c_str());
-    result += "</AVSettings>";
-    return result;
+//    string result;
+//
+//    result = ioCommon::Printf("<AVSettings width=\"%u\" height=\"%u\" pixelaspect=\"%f\" fps=\"%f\">",
+//        width, height, pixelaspect, fps);
+//    result += ioCommon::PrintfBig(65536,"<vidformat type=\"%s\">%s</vidformat>",
+//              vidformat.c_str(),formatsettings->serialize().c_str());
+//    result += ioCommon::PrintfBig(65536,"<videocodec type=\"%s\">%s</videocodec>",
+//              videocodec.c_str(),videocodecsettings->serialize().c_str());
+//    result += ioCommon::PrintfBig(65536,"<audiocodec type=\"%s\">%s</audiocodec>",
+//              audiocodec.c_str(),audiocodecsettings->serialize().c_str());
+//    result += "</AVSettings>";
+//    return result;
 }
 
-bool AVSettings::unserialize(const string& data) {
+bool AVSettings::unserialize(const char* src) {
 // TODO: Implement AVSettings::unserialize
     return false;
 }

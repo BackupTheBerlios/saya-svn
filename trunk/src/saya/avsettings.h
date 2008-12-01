@@ -12,6 +12,7 @@
 
 #include "avcommon.h"
 #include "serializable.h"
+#include "core/cstr.h"
 
 class SMapStrStr;
 
@@ -56,13 +57,13 @@ class AVSettings: public serializable {
         unsigned int channels;
 
         /** Specifies the container format of the video. */
-        std::string vidformat;
+        cstr vidformat;
 
         /** Specifies the codec in which the video is encoded. */
-        std::string videocodec;
+        cstr videocodec;
 
         /** Specifies the codec in which the audio is encoded. */
-        std::string audiocodec;
+        cstr audiocodec;
 
         /** Specifies the settings for the video codec. */
         SMapStrStr* videocodecsettings;
@@ -74,10 +75,10 @@ class AVSettings: public serializable {
         SMapStrStr* formatsettings;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
+        virtual bool unserialize(const char* src);
 
         /** @see serializable::serialize */
-        virtual std::string serialize();
+        virtual void serialize(serialized& dest) const;
 };
 
 #endif

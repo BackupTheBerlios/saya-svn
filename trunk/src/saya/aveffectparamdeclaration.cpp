@@ -16,13 +16,11 @@ AVEffectParamDeclaration::AVEffectParamDeclaration() {
 AVEffectParamDeclaration::~AVEffectParamDeclaration() {
 }
 
-bool AVEffectParamDeclaration::unserialize(const string& src) {
+bool AVEffectParamDeclaration::unserialize(const char* src) {
     // TODO: Implement AVEffectParamDeclaration::unserialize
     return false;
 }
 
-string AVEffectParamDeclaration::serialize() {
+void AVEffectParamDeclaration::serialize(serialized& dest) const {
     // TODO: Implement AVEffectParamDeclaration::serialize
-    return "";
-
 }

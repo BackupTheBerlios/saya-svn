@@ -142,6 +142,8 @@
 		<Unit filename="saya/core/avdevice.cpp" />
 		<Unit filename="saya/core/avdevice.h" />
 		<Unit filename="saya/core/avtypes.h" />
+		<Unit filename="saya/core/cstr.cpp" />
+		<Unit filename="saya/core/cstr.h" />
 		<Unit filename="saya/core/filevid.cpp" />
 		<Unit filename="saya/core/filevid.h" />
 		<Unit filename="saya/core/iocommon.cpp" />
@@ -198,8 +200,12 @@
 		<Unit filename="saya/sayaevthandler.h" />
 		<Unit filename="saya/serializable.cpp" />
 		<Unit filename="saya/serializable.h" />
+		<Unit filename="saya/serialized.cpp" />
+		<Unit filename="saya/serialized.h" />
 		<Unit filename="saya/smap.cpp" />
 		<Unit filename="saya/smap.h" />
+		<Unit filename="saya/smapxstr.cpp" />
+		<Unit filename="saya/smapxstr.h" />
 		<Unit filename="saya/svector.cpp" />
 		<Unit filename="saya/svector.h" />
 		<Unit filename="saya/tinyxml/tinyxml.cpp" />

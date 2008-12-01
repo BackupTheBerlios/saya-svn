@@ -12,6 +12,7 @@
 
 #include "avcommon.h"
 #include "serializable.h"
+#include  "core/cstr.h"
 
 class FXParameterList;
 
@@ -32,7 +33,7 @@ class AVEffect : public serializable {
           *
           * @see AVEffectDeclaration::EffectId
           */
-        std::string EffectId; // Effect's ID
+        cstr EffectId; // Effect's ID
 
         /** @brief The effect's parameters.
           *
@@ -50,10 +51,10 @@ class AVEffect : public serializable {
         unsigned int m_EndTime;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
+        virtual bool unserialize(const char* src);
 
         /** @see serializable::serialize */
-        virtual std::string serialize();
+        virtual void serialize(serialized& dest) const;
 };
 
 #endif

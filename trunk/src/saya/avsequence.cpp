@@ -12,6 +12,7 @@
 #include "avclips.h"
 #include "avtrack.h"
 #include "avtracks.h"
+#include "serialized.h"
 
 AVSequence::AVSequence() {
     m_VideoTracks = new AVTracks;
@@ -23,12 +24,11 @@ AVSequence::~AVSequence() {
     delete m_VideoTracks;
 }
 
-bool AVSequence::unserialize(const std::string& src) {
+bool AVSequence::unserialize(const char* src) {
     // TODO: Implement AVSequence::unserialize
     return false;
 }
 
-std::string AVSequence::serialize() {
+void AVSequence::serialize(serialized& dest) const {
     // TODO: Implement AVSequence::serialize
-    return "";
 }

@@ -9,6 +9,7 @@
 
 #include "undohistory.h"
 #include "serializable.h"
+#include "serialized.h"
 #include <deque>
 
 /** @class UndoState
@@ -41,10 +42,10 @@ class UndoHistoryQueue : public serializable {
         virtual ~UndoHistoryQueue();
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
+        virtual bool unserialize(const char* src);
 
         /** @see serializable::serialize */
-        virtual std::string serialize();
+        virtual void serialize(serialized& dest) const;
 
         std::deque<UndoState> data;
 };
@@ -212,12 +213,11 @@ UndoHistoryQueue::UndoHistoryQueue() {
 UndoHistoryQueue::~UndoHistoryQueue() {
 }
 
-bool UndoHistoryQueue::unserialize(const std::string& src) {
+bool UndoHistoryQueue::unserialize(const char* src) {
     //TODO: Implement UndoHistoryQueue::unserialize
     return false;
 }
 
-std::string UndoHistoryQueue::serialize() {
+void UndoHistoryQueue::serialize(serialized& dest) const {
     //TODO: Implement UndoHistoryQueue::serialize
-    return "";
 }

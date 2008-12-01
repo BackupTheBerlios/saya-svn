@@ -8,22 +8,22 @@
  ***********************************************************/
 
 #include "svector.h"
+#include "serialized.h"
+#include "core/cstr.h"
 
-std::string SStringVector::GetTagName() {
-    return "SStringVector";
+const char* SStringVector::GetTagName() const {
+    static const char* result = "SStringVector";
+    return result;
 }
 
-bool SStringVector::unserialize(const std::string& src) {
+bool SStringVector::unserialize(const char* src) {
     // TODO: Implement SStringVector::unserialize
     return false;
 }
 
-std::string SStringVector::serialize() {
-    std::string result = "<SStringVector>";
+void SStringVector::serialize(serialized& dest) const {
     unsigned int i;
     for(i = 0; i < data.size(); ++i) {
-        result += "<item id=\"" + serializeuint(i) + "\" value=\"" + serializeattribute(data[i]) + "\" />";
+        serializestring(dest,"#",data[i].c_str());
     }
-    result += "</SStringVector>";
-    return result;
 }

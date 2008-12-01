@@ -45,10 +45,10 @@ class AVClip: public serializable {
         virtual ~AVClip();
 
         /** @brief Loads serialized data. @see serializable::unserialize() */
-        virtual bool unserialize(const std::string& src);
+        virtual bool unserialize(const char* src);
 
         /** @brief Saves serialized data. @see serializable::serialize() */
-        virtual std::string serialize();
+        virtual void serialize(serialized& dest) const;
 
 
         ClipType m_ClipType;       /// The type of clip we're storing in the timeline. @see ClipType

@@ -11,6 +11,7 @@
 #define aveffectparamdeclaration_h
 
 #include "serializable.h"
+#include "core/cstr.h"
 
 class AVEffectParamDeclaration: public serializable {
     public:
@@ -25,31 +26,31 @@ class AVEffectParamDeclaration: public serializable {
          *
          * Parameters can use the suffixes ".x" and ".y" to choose a point in the clip's area.
          */
-        std::string ParamName;
+        cstr ParamName;
 
         /** The parameter's description as it will appear in the effects window. */
-        std::string Description;
+        cstr Description;
 
         /** The parameter's description as it will appear in the help dialog. */
-        std::string LongDescription; // The parameter's Long Description as it will appear in the help dialog.
+        cstr LongDescription; // The parameter's Long Description as it will appear in the help dialog.
 
         /** Defines a tooltip for the parameter. */
-        std::string Tooltip;
+        cstr Tooltip;
 
         /** @brief Defines the parameter type.
           *
-          * It must be a C++ basic data type, except for "string" which will be interpreted as std::string.
+          * It must be a C++ basic data type, except for "string" which will be interpreted as cstr.
           */
-        std::string ParamType;
+        cstr ParamType;
 
         /** Defines the minimum value for the parameter. */
-        std::string MinValue;
+        cstr MinValue;
 
         /** Defines the maximum value for the parameter. */
-        std::string MaxValue;
+        cstr MaxValue;
 
         /** Defines the default value for the parameter. */
-        std::string DefaultValue;
+        cstr DefaultValue;
 
         /** @brief Specifies the widget type used to modify the parameter.
           *
@@ -62,13 +63,13 @@ class AVEffectParamDeclaration: public serializable {
           * "angle" (for rotation effects)
           * "xyangle" (for 3D rotation effects)
           */
-        std::string WidgetType;
+        cstr WidgetType;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
+        virtual bool unserialize(const char* src);
 
         /** @see serializable::serialize */
-        virtual std::string serialize();
+        virtual void serialize(serialized& dest) const;
 };
 
 #endif

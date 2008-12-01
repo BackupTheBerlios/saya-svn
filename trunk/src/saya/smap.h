@@ -11,12 +11,17 @@
 #define smap_h
 
 #include "serializable.h"
+#include "serialized.h"
+#include "core/cstr.h"
 #include <map>
+
+extern const char* tag_smapuint;
+extern const char* tag_smapstr;
 
 template <class T> class SMapUint : public serializable {
     public:
 
-        typedef typename std::map<unsigned int,T>::iterator SMapUintIt;
+        typedef typename std::map<unsigned int,T>::const_iterator SMapUintIt;
         /** standard constructor */
         SMapUint() {}
 
@@ -24,23 +29,20 @@ template <class T> class SMapUint : public serializable {
         virtual ~SMapUint() {}
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src) {
+        virtual bool unserialize(const char* src) {
             // TODO: Implement SMapUint::unserialize
             return false;
         }
 
-        virtual std::string GetTagName() { return "SMapUint"; }
+        virtual const char* GetTagName() const { return tag_smapuint; }
 
         /** @see serializable::serialize */
-        virtual std::string serialize() {
-            std::string result = "<" + GetTagName() + ">";
+        virtual void serialize(serialized& dest) const {
             SMapUintIt i;
             for(i = data.begin(); i != data.end(); ++i) {
-                result += "<item id=\"" + serializeuint(i->first) + "\">";
-                result += i->second.serialize() + "</item>";
+                serialized idx(i->first); // Convert the integer to a string
+                serialize_object(dest, idx.c_str(), &(i->second));
             }
-            result += "</" + GetTagName() + ">";
-            return result;
         }
 
         T& operator[](unsigned int i) {
@@ -57,7 +59,7 @@ template <class T> class SMapUint : public serializable {
 template <class T> class SMapStr : public serializable {
     public:
 
-        typedef typename std::map<std::string,T>::iterator SMapStrIt;
+        typedef typename std::map<cstr,T, ltcstr>::const_iterator SMapStrIt;
         /** standard constructor */
         SMapStr() {}
 
@@ -65,34 +67,31 @@ template <class T> class SMapStr : public serializable {
         virtual ~SMapStr() {}
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src) {
+        virtual bool unserialize(const char* src) {
             // TODO: Implement SMapStr::unserialize
             return false;
         }
 
-        virtual std::string GetTagName() { return "SMapStr"; }
+        virtual const char* GetTagName() const { return tag_smapstr; }
 
         /** @see serializable::serialize */
-        virtual std::string serialize() {
-            std::string result = "<" + GetTagName() + ">";
+        virtual void serialize(serialized& dest) const {
             SMapStrIt i;
             for(i = data.begin(); i != data.end(); ++i) {
-                result += "<item id=\"" + serializeattribute(i->first) + "\">";
-                result += i->second.serialize() + "</item>";
+                serialized idx;
+                serialize_object(dest, i->first.c_str(), &(i->second));
             }
-            result += "</" + GetTagName() + ">";
-            return result;
         }
 
-        T& operator[](const std::string& s) {
-            return data[s];
+        T& operator[](const char* s) {
+            return data[cstr(s,true)];
         }
 
         void clear() {
             data.clear();
         }
 
-        std::map<std::string,T> data;
+        std::map<cstr,T,ltcstr> data;
 };
 
 class SMapUintUint : public serializable {
@@ -104,91 +103,19 @@ class SMapUintUint : public serializable {
         /** standard destructor */
         virtual ~SMapUintUint() {}
 
-        virtual std::string GetTagName() { return "SMapUintUint"; }
+        virtual const char* GetTagName() const;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
+        virtual bool unserialize(const char* src);
 
         /** @see serializable::serialize */
-        virtual std::string serialize();
+        virtual void serialize(serialized& dest) const;
 
         unsigned int& operator[](unsigned int i);
 
         void clear();
 
         std::map<unsigned int,unsigned int> data;
-};
-
-class SMapUintStr : public serializable {
-    public:
-
-        /** standard constructor */
-        SMapUintStr() {}
-
-        /** standard destructor */
-        virtual ~SMapUintStr() {}
-
-        /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
-
-        virtual std::string GetTagName() { return "SMapUintStr"; }
-
-        /** @see serializable::serialize */
-        virtual std::string serialize();
-
-        std::string& operator[](unsigned int i);
-
-        void clear();
-
-        std::map<unsigned int,std::string> data;
-};
-
-class SMapIntStr : public serializable {
-    public:
-
-        /** standard constructor */
-        SMapIntStr() {}
-
-        /** standard destructor */
-        virtual ~SMapIntStr() {}
-
-        /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
-
-        /** @see serializable::serialize */
-        virtual std::string serialize();
-
-        virtual std::string GetTagName() { return "SMapIntStr"; }
-
-        std::string& operator[](int i);
-
-        void clear();
-
-        std::map<int,std::string> data;
-};
-
-class SMapStrStr : public serializable {
-    public:
-
-        /** standard constructor */
-        SMapStrStr() {}
-
-        /** standard destructor */
-        virtual ~SMapStrStr() {}
-
-        /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
-
-        /** @see serializable::serialize */
-        virtual std::string serialize();
-
-        virtual std::string GetTagName() { return "SMapStrStr"; }
-
-        std::string& operator[](const std::string& s);
-
-        void clear();
-
-        std::map<std::string,std::string> data;
 };
 
 #endif

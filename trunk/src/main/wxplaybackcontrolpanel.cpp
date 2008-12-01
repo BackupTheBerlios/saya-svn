@@ -54,7 +54,7 @@ m_VideoPanel(NULL)
 	#ifdef __WIN32__
       defaultbuttonstyle = wxBU_AUTODRAW | wxBORDER_THEME;
     #else
-	  defaultbuttonstyle = wxBU_AUTODRAW | wxBORDER_NONE;
+	  defaultbuttonstyle = wxBORDER_NONE;
     #endif
 
     wxBitmap* imgfirstframe = syLoadImage(wxT("btn_firstframe.png"));
@@ -68,6 +68,7 @@ m_VideoPanel(NULL)
     wxSize defaultbuttonsize(26,26);
 
 	m_btnFirstFrame = new wxBitmapButton( this, wxID_ANY, *imgfirstframe, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
+	m_btnFirstFrame->SetBitmapHover(*imgfirstframe);
 	m_btnFastRewind = new wxBitmapButton( this, wxID_ANY, *imgfastrewind, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
 	m_btnPreviousFrame = new wxBitmapButton( this, wxID_ANY, *imgprevframe, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
 	m_btnPlay = new wxBitmapButton( this, wxID_ANY, *imgplay, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );

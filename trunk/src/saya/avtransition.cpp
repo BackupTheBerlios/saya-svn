@@ -8,7 +8,7 @@
  **************************************************************/
 
 #include "avtransition.h"
-#include "smap.h"
+#include "smapxstr.h"
 
 AVTransition::AVTransition() {
     m_Parameters = new SMapStrStr;
@@ -18,12 +18,11 @@ AVTransition::~AVTransition() {
     delete m_Parameters;
 }
 
-bool AVTransition::unserialize(const std::string& data) {
+bool AVTransition::unserialize(const char* data) {
     // TODO: Implement AVTransition::unserialize
     return false;
 }
 
-std::string AVTransition::serialize() {
+void AVTransition::serialize(serialized& dest) const {
     // TODO: Implement AVTransition::serialize
-    return "";
 }

@@ -22,12 +22,11 @@ AVTrack::~AVTrack() {
     delete m_Clips;
 }
 
-bool AVTrack::unserialize(const std::string& src) {
+bool AVTrack::unserialize(const char* src) {
     // TODO: Implement AVTrack::unserialize
     return false;
 }
 
-std::string AVTrack::serialize() {
+void AVTrack::serialize(serialized& dest) const {
     // TODO: Implement AVTrack::serialize
-    return "";
 }

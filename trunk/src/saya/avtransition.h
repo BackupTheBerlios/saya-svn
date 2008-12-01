@@ -12,7 +12,7 @@
 
 #include "avcommon.h"
 #include "serializable.h"
-
+#include "core/cstr.h"
 class SMapStrStr;
 
 class AVTransition : public serializable {
@@ -34,7 +34,7 @@ class AVTransition : public serializable {
           *
           * Tells which transition effect we're applying
           */
-        std::string TransitionId; // Transition's ID
+        cstr TransitionId; // Transition's ID
 
         /** parameters for the transition */
         SMapStrStr* m_Parameters;
@@ -43,10 +43,10 @@ class AVTransition : public serializable {
         bool m_Enabled;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
+        virtual bool unserialize(const char* src);
 
         /** @see serializable::serialize */
-        virtual std::string serialize();
+        virtual void serialize(serialized& dest) const;
 };
 
 #endif

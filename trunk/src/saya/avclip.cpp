@@ -29,10 +29,10 @@ AVClip::~AVClip()
     delete m_Effects;
 }
 
-bool AVClip::unserialize(const std::string& data) {
+bool AVClip::unserialize(const char* data) {
     return false;
 }
 
-std::string AVClip::serialize() {
-    return "";
+void AVClip::serialize(serialized& dest) const {
+    // TODO: Implement AVClip::serialize
 }

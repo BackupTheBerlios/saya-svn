@@ -11,7 +11,7 @@
 #define avsequence_h
 
 #include "serializable.h"
-
+#include "core/cstr.h"
 class AVTracks;
 
 class AVSequence: public serializable {
@@ -23,7 +23,7 @@ class AVSequence: public serializable {
         /** Standard destructor. */
         virtual ~AVSequence();
 
-        std::string m_SeqName; /// User-friendly name for the sequence.
+        cstr m_SeqName; /// User-friendly name for the sequence.
 
         /** @brief Resource Id for the sequence.
           *
@@ -57,10 +57,10 @@ class AVSequence: public serializable {
         unsigned int m_EndWorkArea;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
+        virtual bool unserialize(const char* src);
 
         /** @see serializable::serialize */
-        virtual std::string serialize();
+        virtual void serialize(serialized& dest) const;
 };
 
 class AVClipboard: public AVSequence {

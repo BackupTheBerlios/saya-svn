@@ -10,6 +10,7 @@
 #include "aveffectdeclaration.h"
 #include "aveffectparamdeclaration.h"
 #include "aveffectparamdeclarations.h"
+#include "serialized.h"
 
 using namespace std;
 
@@ -21,12 +22,11 @@ AVEffectDeclaration::~AVEffectDeclaration() {
     delete ParametersInfo;
 }
 
-bool AVEffectDeclaration::unserialize(const string& src) {
+bool AVEffectDeclaration::unserialize(const char* src) {
     // TODO: Implement AVEffectDeclaration::unserialize
     return false;
 }
 
-string AVEffectDeclaration::serialize() {
+void AVEffectDeclaration::serialize(serialized& dest) const {
     // TODO: Implement AVEffectDeclaration::serialize
-    return "";
 }

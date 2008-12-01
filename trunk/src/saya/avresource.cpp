@@ -9,6 +9,7 @@
 
 #include "avsettings.h"
 #include "avresource.h"
+#include "core/cstr.h"
 
 AVResource::AVResource() {
 }
@@ -16,12 +17,11 @@ AVResource::AVResource() {
 AVResource::~AVResource() {
 }
 
-bool AVResource::unserialize(const std::string& src) {
+bool AVResource::unserialize(const char* src) {
     // TODO: Implement AVResource::unserialize
     return false;
 }
 
-std::string AVResource::serialize() {
+void AVResource::serialize(serialized& dest) const {
     // TODO: Implement AVResource::serialize
-    return "";
 }

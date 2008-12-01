@@ -11,6 +11,7 @@
 #define fxparameterlist_h
 
 #include "smap.h"
+#include "smapxstr.h"
 
 /** @brief Defines a parameter list for effects.
   *

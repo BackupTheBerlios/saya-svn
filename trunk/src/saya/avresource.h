@@ -48,20 +48,20 @@ class AVResource:public serializable {
           * startup based on m_RelativeFilename and the project's
           * path.
           */
-        std::string m_Filename;
+        cstr m_Filename;
 
         /** @brief The relative filename for the resource.
           *
           * Resources are stored in a directory below the project's path.
           * This way they can easily be located and transported.
           */
-        std::string m_RelativeFilename;
+        cstr m_RelativeFilename;
 
         /** @brief Resource's icon.
           *
           * The icon is stored in 64x64 JPEG, encoded in base64.
           */
-        std::string m_Icon; // 64x64 JPEG icon encoded with base64
+        cstr m_Icon; // 64x64 JPEG icon encoded with base64
 
         /** @brief Video Settings for the clip.
           *
@@ -70,10 +70,10 @@ class AVResource:public serializable {
         AVSettings* m_AVSettings;
 
         /** @see serializable::unserialize */
-        virtual bool unserialize(const std::string& src);
+        virtual bool unserialize(const char* src);
 
         /** @see serializable::serialize */
-        virtual std::string serialize();
+        virtual void serialize(serialized& dest) const;
 };
 
 #endif
