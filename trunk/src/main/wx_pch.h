@@ -17,10 +17,6 @@
     #pragma hdrstop
 #endif
 
-#ifndef WX_PRECOMP
-    #include <wx/wx.h>
-#endif
-
 #ifdef WX_PRECOMP
     // put here all your rarely-changing header files
     #include <wx/xrc/xmlres.h>
