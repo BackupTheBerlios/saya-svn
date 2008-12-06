@@ -45,6 +45,9 @@
     #include <wx/button.h>
     #include <wx/stattext.h>
     #include <wx/panel.h>
+    #include <wx/fs_zip.h>
+    #include <wx/fs_mem.h>
+    #include <wx/log.h>
 #endif // WX_PRECOMP
 
 #endif // WX_PCH_H_INCLUDED
