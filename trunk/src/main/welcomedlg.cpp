@@ -20,6 +20,7 @@
 
 #include "../saya/projectmanager.h"
 #include "../saya/recentfileslist.h"
+#include "../saya/core/systring.h"
 
 #include "s2wx.h"
 #include "app.h"

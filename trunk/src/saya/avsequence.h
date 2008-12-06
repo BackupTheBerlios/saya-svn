@@ -11,7 +11,7 @@
 #define avsequence_h
 
 #include "serializable.h"
-#include "core/cstr.h"
+#include "core/systring.h"
 class AVTracks;
 
 class AVSequence: public serializable {
@@ -23,7 +23,7 @@ class AVSequence: public serializable {
         /** Standard destructor. */
         virtual ~AVSequence();
 
-        cstr m_SeqName; /// User-friendly name for the sequence.
+        syString m_SeqName; /// User-friendly name for the sequence.
 
         /** @brief Resource Id for the sequence.
           *

@@ -12,7 +12,7 @@
 
 #include "avcommon.h"
 #include "serializable.h"
-#include  "core/cstr.h"
+#include  "core/systring.h"
 
 class FXParameterList;
 
@@ -33,7 +33,7 @@ class AVEffect : public serializable {
           *
           * @see AVEffectDeclaration::EffectId
           */
-        cstr EffectId; // Effect's ID
+        syString EffectId; // Effect's ID
 
         /** @brief The effect's parameters.
           *

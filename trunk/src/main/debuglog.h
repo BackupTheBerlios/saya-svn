@@ -31,7 +31,7 @@ class AppDebugLog : public wxFrame, public sayaDebugLogger {
 
         virtual void DebugLog(const char* msg);
 
-        virtual void DebugLog(const std::string& msg);
+        virtual void DebugLog(const syString& msg);
 
         void DebugLog(const wxString& msg);
 

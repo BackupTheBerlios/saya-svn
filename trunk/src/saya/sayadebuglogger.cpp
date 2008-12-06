@@ -7,6 +7,7 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
+#include <cstddef>
 #include "sayadebuglogger.h"
 
 sayaDebugLogger* TheDebugLogger = NULL;
@@ -21,7 +22,7 @@ void DebugLog(const char* msg) {
     }
 }
 
-void DebugLog(const std::string& msg) {
+void DebugLog(const syString& msg) {
     if(TheDebugLogger) {
         TheDebugLogger->DebugLog(msg);
     }

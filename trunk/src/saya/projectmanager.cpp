@@ -15,16 +15,17 @@
 #include "core/avcontroller.h"
 #include "projectmanager.h"
 #include "vidproject.h"
-#include <string>
 #include <list>
 #include <map>
 
+#include "core/systring.h"
 #include "sayaconfig.h"
 #include "configprovider.h"
 #include "sayadebuglogger.h"
 #include "sayaevthandler.h"
 #include "recentfileslist.h"
 #include "presetmanager.h"
+
 
 // For internationalization
 #include <libintl.h>
@@ -33,10 +34,10 @@
 using namespace std;
 
 static bool s_IsAppShuttingDown = false;
-const std::string APP_NAME = "SayaVideoEditor";
-const std::string APP_VENDOR = "Rick Garcia";
-const std::string APP_SHOWNAME = "Saya";
-const std::string APP_SHOWOFFNAME = "SayaVE Ain't Yet Another Video Editor";
+const char* APP_NAME = "SayaVideoEditor";
+const char* APP_VENDOR = "Rick Garcia";
+const char* APP_SHOWNAME = "Saya";
+const char* APP_SHOWOFFNAME = "SayaVE Ain't Yet Another Video Editor";
 
 bool IsAppShuttingDown() {
     return s_IsAppShuttingDown;
@@ -64,7 +65,7 @@ class ProjectManagerData {
         VidProject* m_Project;
 
         /** The last used project directory */
-        std::string m_LastProjectDir;
+        syString m_LastProjectDir;
 
         /** A pointer to the program's event handler */
         sayaEvtHandler* m_EvtHandler;
@@ -73,6 +74,8 @@ class ProjectManagerData {
         SayaConfigProvider* m_ConfigProvider;
 
         ProjectManager* m_Parent;
+
+        syString m_LastError;
 };
 
 ProjectManagerData::ProjectManagerData(ProjectManager* parent) : m_Parent(parent) {
@@ -142,7 +145,7 @@ bool ProjectManager::HasProject() {
     return (m_Data->m_Project != NULL);
 }
 
-const std::string ProjectManager::GetLastProjectDir() {
+const syString ProjectManager::GetLastProjectDir() {
     return m_Data->m_LastProjectDir;;
 }
 
@@ -152,20 +155,20 @@ bool ProjectManager::LoadConfig() {
         return false; // ERROR!
     }
     SayaConfig* cfg = m_Data->m_ConfigProvider->Create(APP_NAME);
-    std::string key;
-    std::string tmpname;
+    syString key;
+    syString tmpname;
 
     // Read last used directory
     key = "paths/LastProjectDir";
-    if (cfg->Exists(key))
-        m_Data->m_LastProjectDir = cfg->Read(key,"");
+    if (cfg->Exists(key.c_str()))
+        m_Data->m_LastProjectDir = cfg->Read(key.c_str(),"");
     unsigned int i;
     for(i = 1; i <= 9; i++) {
         key = ioCommon::Printf("RecentProjects/File%u",i);
-        DebugLog(string("Reading key: ") + key);
-        if(cfg->Exists(key)) {
-            tmpname = cfg->Read(key,"");
-            m_RecentFiles->Add(tmpname,false);
+        DebugLog(syString("Reading key: ") + key);
+        if(cfg->Exists(key.c_str())) {
+            tmpname = cfg->Read(key.c_str(),"");
+            m_RecentFiles->Add(tmpname.c_str(),false);
         }
     }
 
@@ -179,10 +182,10 @@ bool ProjectManager::SaveConfig() {
         return false; // ERROR!
     }
     SayaConfig* cfg = m_Data->m_ConfigProvider->Create(APP_NAME);
-    std::string key;
+    syString key;
 
     // Save last used directory
-    cfg->Write("paths/LastProjectDir",m_Data->m_LastProjectDir);
+    cfg->Write("paths/LastProjectDir",m_Data->m_LastProjectDir.c_str());
 
     // Save Recent Projects list
 
@@ -192,9 +195,9 @@ bool ProjectManager::SaveConfig() {
         key = ioCommon::Printf("RecentProjects/File%u",i);
         DebugLog(key.c_str());
         if(i>m_RecentFiles->size()) {
-            cfg->Write(key,"");
+            cfg->Write(key.c_str(),"");
         } else {
-            cfg->Write(key,m_RecentFiles->item(i));
+            cfg->Write(key.c_str(),m_RecentFiles->item(i).c_str());
         }
     }
 
@@ -202,36 +205,36 @@ bool ProjectManager::SaveConfig() {
     return true;
 }
 
-bool ProjectManager::LoadProject(const std::string filename) {
-    std::string data("");
+bool ProjectManager::LoadProject(const syString& filename) {
+    syString data("");
     bool result = false;
     CloseProject(true); // Close any project we have in memory
-    VidProject* prj = VidProject::Load(filename,m_lasterror);
+    VidProject* prj = VidProject::Load(filename.c_str(),m_Data->m_LastError);
     if(prj != NULL) {
-        m_RecentFiles->Add(filename);
-        m_Data->m_LastProjectDir = ioCommon::GetPathname(filename); // Extract last project directory from opened file path
+        m_RecentFiles->Add(filename.c_str());
+        m_Data->m_LastProjectDir = ioCommon::GetPathname(filename.c_str()); // Extract last project directory from opened file path
         m_Data->m_Project = prj;
         result = true;
     } else {
         if(m_Data->m_EvtHandler) {
-            m_Data->m_EvtHandler->ErrorMessageBox(m_lasterror.c_str(),gettext("Error loading project"));
+            m_Data->m_EvtHandler->ErrorMessageBox(m_Data->m_LastError.c_str(),gettext("Error loading project"));
         }
     }
     OnProjectStatusModified();
     return result;
 }
 
-const std::string ProjectManager::GetOfflineProjectTitle(const std::string& filename) {
-    return VidProject::GetOfflineProjectTitle(filename);
+const syString ProjectManager::GetOfflineProjectTitle(const syString& filename) {
+    return VidProject::GetOfflineProjectTitle(filename.c_str());
 }
 
-const std::string ProjectManager::GetOfflineProjectTitle(const char* filename) {
-    return VidProject::GetOfflineProjectTitle(std::string(filename));
+const syString ProjectManager::GetOfflineProjectTitle(const char* filename) {
+    return VidProject::GetOfflineProjectTitle(filename);
 }
 
 bool ProjectManager::LoadRecentProject(int fileno) {
     if(fileno <= 0 || fileno > (int)m_RecentFiles->size()) { return false; }
-    string filename = m_RecentFiles->item(fileno);
+    syString filename = m_RecentFiles->item(fileno);
     if(filename.empty())
         return false;
     bool result = LoadProject(filename);
@@ -245,13 +248,13 @@ bool ProjectManager::SaveProject() {
     return m_Data->m_Project->Save(); // Title update is invoked by the project saving method
 }
 
-bool ProjectManager::SaveProjectAs(const std::string filename) {
+bool ProjectManager::SaveProjectAs(const syString& filename) {
     if(!m_Data->m_Project)
         return false;
     return m_Data->m_Project->SaveAs(filename); // Title update is invoked by the project saving method
 }
 
-bool ProjectManager::SaveProjectCopy(const std::string filename) {
+bool ProjectManager::SaveProjectCopy(const syString& filename) {
     if(!m_Data->m_Project)
         return false;
     return m_Data->m_Project->SaveCopy(filename); // Title update is invoked by the project saving method
@@ -267,8 +270,8 @@ bool ProjectManager::InteractiveSaveProject() {
         result = SaveProject();
         if(!result) {
             bool answer = false;
-            std::string msg = gettext("Couldn't save the file! Try with a different name?");
-            std::string caption = gettext("Error Saving");
+            syString msg = gettext("Couldn't save the file! Try with a different name?");
+            syString caption = gettext("Error Saving");
             if(m_Data->m_EvtHandler) {
                 answer = m_Data->m_EvtHandler->YesNoMessageBox(msg.c_str(),caption.c_str(),true);
             }
@@ -284,7 +287,7 @@ bool ProjectManager::InteractiveSaveProjectAs() {
     if(m_Data->m_Project == NULL)
         return true;
     bool result = false;
-    std::string filename("");
+    syString filename("");
     if(m_Data->m_EvtHandler != NULL) {
         filename = m_Data->m_EvtHandler->ShowDialogSaveProjectAs();
     }
@@ -298,7 +301,7 @@ bool ProjectManager::InteractiveSaveProjectCopy() {
     if(m_Data->m_Project == NULL)
         return true;
     bool result = false;
-    std::string filename("");
+    syString filename("");
     if(m_Data->m_EvtHandler != NULL) {
         filename = m_Data->m_EvtHandler->ShowDialogSaveProjectCopyAs();
     }
@@ -338,6 +341,10 @@ bool ProjectManager::CloseProject(bool force) {
     }
     OnProjectStatusModified();
     return result;
+}
+
+const char* ProjectManager::GetLastError() const {
+    return m_Data->m_LastError.c_str();
 }
 
 void ProjectManager::OnProjectStatusModified() {

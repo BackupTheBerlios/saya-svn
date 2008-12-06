@@ -12,7 +12,7 @@
 
 #include "serializable.h"
 #include "serialized.h"
-#include "core/cstr.h"
+#include "core/systring.h"
 #include <map>
 
 class SMapUintStr : public serializable {
@@ -31,11 +31,11 @@ class SMapUintStr : public serializable {
         /** @see serializable::serialize */
         virtual void serialize(serialized& dest) const;
 
-        cstr& operator[](unsigned int i);
+        syString& operator[](unsigned int i);
 
         void clear();
 
-        std::map<unsigned int,cstr> data;
+        std::map<unsigned int,syString> data;
 };
 
 class SMapIntStr : public serializable {
@@ -55,11 +55,11 @@ class SMapIntStr : public serializable {
 
         virtual const char* GetTagName() const;
 
-        cstr& operator[](int i);
+        syString& operator[](int i);
 
         void clear();
 
-        std::map<int,cstr> data;
+        std::map<int,syString> data;
 };
 
 class SMapStrStr : public serializable {
@@ -79,11 +79,11 @@ class SMapStrStr : public serializable {
 
         virtual const char* GetTagName() const;
 
-        cstr& operator[](const char* s);
+        syString& operator[](const char* s);
 
         void clear();
 
-        std::map<cstr,cstr,ltcstr> data;
+        std::map<syString,syString,ltsystr> data;
 };
 
 #endif

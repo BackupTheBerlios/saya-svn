@@ -7,6 +7,7 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
+#include "systring.h"
 #include "filevid.h"
 #include "sybitmap.h"
 
@@ -18,7 +19,7 @@ class FileVIDData {
     public:
         FileVIDData(FileVID* parent);
         FileVID* m_Parent;
-        std::string m_Filename;
+        syString m_Filename;
 };
 
 FileVIDData::FileVIDData(FileVID* parent) : m_Parent(parent),
@@ -49,17 +50,17 @@ void FileVID::LoadCurrentFrame(){
 
 bool FileVID::SetFile(const char* filename) {
     if(IsOk()) { return false; } // File can't be changed while playing!
-    m_Data->m_Filename = std::string(filename);
+    m_Data->m_Filename = syString(filename);
     return true;
 }
 
-bool FileVID::SetFile(const std::string& filename) {
+bool FileVID::SetFile(const syString& filename) {
     if(IsOk()) { return false; } // File can't be changed while playing!
     m_Data->m_Filename = filename;
     return true;
 }
 
-std::string FileVID::GetFile() {
+syString FileVID::GetFile() {
     return m_Data->m_Filename;
 }
 

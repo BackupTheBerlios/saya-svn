@@ -16,6 +16,7 @@ class VidProject;
 class VidProjectData;
 class AVSettings;
 class InputMonitor;
+class syString;
 
 /** @class VidProject
   * @brief Defines a video project and all objects contained within.
@@ -38,12 +39,12 @@ class VidProject:public serializable
         /** @brief Loads the project from XML data.
           * @see serializable::unserialize
           */
-        bool unserialize(const std::string& src);
+        bool unserialize(const syString& src);
 
         /** @brief Saves the project into XML data.
           * @see serializable::serialize
           */
-        std::string serialize();
+        syString serialize();
 
         /** @brief Loads a project from disk.
           *
@@ -53,7 +54,17 @@ class VidProject:public serializable
           * @param errortext The text of the error (if any).
           * @return a pointer to the newly created project.
           */
-        static VidProject* Load(const std::string filename,std::string &errortext);
+        static VidProject* Load(const char* filename,syString &errortext);
+
+        /** @brief Loads a project from disk.
+          *
+          * Loads a project from a given filename. If the file can't be opened / parsed,
+          * the error is stored in errortext.
+          * @param filename The file to open.
+          * @param errortext The text of the error (if any).
+          * @return a pointer to the newly created project.
+          */
+        static VidProject* Load(const syString& filename,syString &errortext);
 
         /** @brief Saves the project under its current filename.
           * @return True on success; false otherwise.
@@ -65,14 +76,28 @@ class VidProject:public serializable
           * The project will adopt the new filename if successful.
           * @return True on success; false otherwise.
           */
-        bool SaveAs(const std::string filename);
+        bool SaveAs(const char* filename);
+
+        /** @brief Saves the project under a new filename.
+          *
+          * The project will adopt the new filename if successful.
+          * @return True on success; false otherwise.
+          */
+        bool SaveAs(const syString& filename);
 
         /** @brief Saves a copy of the project with another filename.
           *
           * The project's unsaved status will remain untouched.
           * @return True on success; false otherwise.
           */
-        bool SaveCopy(const std::string filename);
+        bool SaveCopy(const char* filename);
+
+        /** @brief Saves a copy of the project with another filename.
+          *
+          * The project's unsaved status will remain untouched.
+          * @return True on success; false otherwise.
+          */
+        bool SaveCopy(const syString& filename);
 
         /** @brief Reverts the project to the original state after it was loaded from disk.
           *
@@ -95,7 +120,7 @@ class VidProject:public serializable
           * @param filename The filename of the project
           * @return The project's title
           */
-        static const std::string GetOfflineProjectTitle(const std::string& filename);
+        static const syString GetOfflineProjectTitle(const char* filename);
 
         // Undo History management functions
 
@@ -103,10 +128,10 @@ class VidProject:public serializable
         void ClearUndoHistory();
 
         /** Can the last operation be undone? */
-        bool CanUndo();
+        bool CanUndo() const;
 
         /** Can the last undoed operation be redone? */
-        bool CanRedo();
+        bool CanRedo() const;
 
         /** Undoes the last operation. */
         void Undo();
@@ -115,22 +140,22 @@ class VidProject:public serializable
         void Redo();
 
         /** Saves the current state in an undo slot, and stores the operation's name. */
-        void PushUndo(const std::string OpName);
+        void PushUndo(const char* OpName);
 
         /** Gets the name for the last done operation. */
-        const std::string GetUndoOpname();
+        const syString GetUndoOpname() const;
 
         /** Gets the name for the last undone operation. */
-        const std::string GetRedoOpname();
+        const syString GetRedoOpname() const;
 
         /** Gets the name for the operation done after state idx. */
-        const std::string GetUndoHistoryOpName(unsigned int idx);
+        const syString GetUndoHistoryOpName(unsigned int idx) const;
 
         /** Gets the current undo slot. */
-        unsigned int GetUndoIdx();
+        unsigned int GetUndoIdx() const;
 
         /** Is the project modified? */
-        bool IsModified();
+        bool IsModified() const;
 
         /** Sets the project's modified state to true. */
         void SetModified();
@@ -142,15 +167,16 @@ class VidProject:public serializable
         bool m_NeedsExportSettings;
 
         /** Project's Title */
-        std::string m_Title;
+        const char* GetTitle() const;
 
-        /** Project's filename */
-        std::string m_Filename;
+        const char* GetFilename() const;
+
+        void SetTitle(const char* newtitle);
 
         /** Is the project new (it hasn't been saved yet)? */
-        bool IsNew();
+        bool IsNew() const;
 
-        InputMonitor* GetInputMonitor();
+        InputMonitor* GetInputMonitor() const;
 
         /** The export settings for the current project. @see AVSettings */
         AVSettings* m_ExportSettings;

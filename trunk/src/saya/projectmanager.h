@@ -10,6 +10,7 @@
 #ifndef PROJECTMANAGER_H
 #define PROJECTMANAGER_H
 
+class syString;
 class VidProject;
 class SayaConfigProvider;
 class sayaEvtHandler;
@@ -25,10 +26,10 @@ bool IsAppShuttingDown();
 /** Sets the flag that forbids a new Project Manager instance to be created. */
 void ShutDownApp();
 
-extern const std::string APP_NAME; /** The application's name. */
-extern const std::string APP_VENDOR; /** The application vendor's name (that would be moi) */
-extern const std::string APP_SHOWNAME; /** The application's official name */
-extern const std::string APP_SHOWOFFNAME; /** The application's name and tagline for showing off */
+extern const char* APP_NAME; /** The application's name. */
+extern const char* APP_VENDOR; /** The application vendor's name (that would be moi) */
+extern const char* APP_SHOWNAME; /** The application's official name */
+extern const char* APP_SHOWOFFNAME; /** The application's name and tagline for showing off */
 
 
 
@@ -55,7 +56,7 @@ class ProjectManager
         /** Standard destructor. */
         virtual ~ProjectManager();
 
-        bool LoadProject(const std::string filename);
+        bool LoadProject(const syString& filename);
         /** @brief Loads a project from disk.
           *
           * @param filename The project's filename.
@@ -73,7 +74,7 @@ class ProjectManager
           * @param filename The New filename for the project.
           * @return True on success, false otherwise.
           */
-        bool SaveProjectAs(const std::string filename);
+        bool SaveProjectAs(const syString& filename);
 
         /** @brief Saves a copy of the project under the specified filename.
           *
@@ -81,7 +82,7 @@ class ProjectManager
           * @return True on success, false otherwise.
           * @note Save Project copy does not alter the project's unsaved status!
           */
-        bool SaveProjectCopy(const std::string filename);
+        bool SaveProjectCopy(const syString& filename);
 
         /** @brief Saves file, or shows the "Save As..." dialog to the user if the project is new.
           * @note All errors are handled and if the file cannot be saved, options are given to the user.
@@ -123,7 +124,7 @@ class ProjectManager
         /** @brief sets the pointer for the program's main frame (window)
           *
           * Call this from your main program to specify which frame will
-          * receive the events.
+          * std::stringreceive the events.
           */
         void SetEventHandler(sayaEvtHandler* handler);
 
@@ -134,13 +135,13 @@ class ProjectManager
         void SetConfigProvider(SayaConfigProvider* provider);
 
         /** Gets the last used project directory */
-        const std::string GetLastProjectDir();
+        const syString GetLastProjectDir();
 
         // Recent Projects and Imported files
 
-        const std::string GetOfflineProjectTitle(const std::string& filename);
+        const syString GetOfflineProjectTitle(const syString& filename);
 
-        const std::string GetOfflineProjectTitle(const char* filename);
+        const syString GetOfflineProjectTitle(const char* filename);
 
         /** A list of the most recently opened project files. */
         RecentFilesList* m_RecentFiles;
@@ -170,8 +171,8 @@ class ProjectManager
         /** Tells whether there's an active project or not. */
         bool HasProject();
 
-        /** Stores the last program error */
-        std::string m_lasterror;
+        /** Gets the last program error */
+        const char* GetLastError() const;
 
         /** Tells whether to clear the Undo History after the project's successfully saved. */
         bool m_ClearUndoHistoryOnSave;

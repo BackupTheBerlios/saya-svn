@@ -51,10 +51,10 @@ class sayaEvtHandler {
         virtual sayaYesNoCancel YesNoCancelMessageBox(const char* msg,const char* caption,bool exclamation) = 0;
 
         /** Shows the "Save Project As" dialog */
-        virtual std::string ShowDialogSaveProjectAs() = 0;
+        virtual syString ShowDialogSaveProjectAs() = 0;
 
         /** Shows the "Save Project Copy As" dialog */
-        virtual std::string ShowDialogSaveProjectCopyAs() = 0;
+        virtual syString ShowDialogSaveProjectCopyAs() = 0;
 
 };
 

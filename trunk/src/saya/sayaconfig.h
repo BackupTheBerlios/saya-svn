@@ -20,7 +20,7 @@ class SayaConfig {
     public:
 
         /** Standard constructor */
-        SayaConfig(std::string application_name) {}
+        SayaConfig(const char* application_name) {}
 
         /** Standard destructor */
         virtual ~SayaConfig() {};
@@ -31,7 +31,7 @@ class SayaConfig {
           * @param defaultvalue The default value to return, if the value is not found.
           * @return The value of the read configuration.
           */
-        virtual std::string Read(const std::string& key, const std::string& defaultvalue) = 0;
+        virtual syString Read(const char* key, const char* defaultvalue) = 0;
 
         /** @brief Writes a string configuration value.
           *
@@ -39,14 +39,14 @@ class SayaConfig {
           * @param value The value to write.
           * @return true on success; false otherwise.
           */
-        virtual bool Write(const std::string& key, const std::string& value) = 0;
+        virtual bool Write(const char* key, const char* value) = 0;
 
         /** @brief Checks if a configuration key exists.
           *
           * @param key The key to search in the config.
           * @return true if the key exists; false otherwise.
           */
-        virtual bool Exists(const std::string& key) = 0;
+        virtual bool Exists(const char* key) = 0;
 };
 
 #endif

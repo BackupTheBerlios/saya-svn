@@ -17,22 +17,23 @@
 #include "../saya/sayaconfig.h"
 
 class AppDebugLog;
+class syString;
 
 /** Our Implementation of SayaConfig with wxWidgets. @see SayaConfig */
 class AppConfig : public SayaConfig {
     public:
 
         /** Standard constructor. */
-        AppConfig(std::string application_name);
+        AppConfig(const char* application_name);
 
         /** Reads configuration. @see SayaConfig::Read */
-        virtual std::string Read(const std::string& key, const std::string& defaultvalue);
+        virtual syString Read(const char* key, const char* defaultvalue);
 
         /** Writes configuration. @see SayaConfig::Read */
-        virtual bool Write(const std::string& key, const std::string& value);
+        virtual bool Write(const char* key, const char* value);
 
         /** Checks whether a configuration key exists. @see SayaConfig::Read */
-        virtual bool Exists(const std::string& key);
+        virtual bool Exists(const char* key);
 
         /** Standard destructor. */
         virtual ~AppConfig();
@@ -45,7 +46,7 @@ class AppConfig : public SayaConfig {
 class AppConfigProvider : public SayaConfigProvider {
     public:
         /** Creates a SayaConfig object */
-        virtual SayaConfig* Create(const std::string application_name);
+        virtual SayaConfig* Create(const char* application_name);
 
         /** Virtual destructor. */
         virtual ~AppConfigProvider() {}

@@ -26,6 +26,7 @@
     #include <wx/sizer.h>
 #endif
 
+#include "../saya/core/systring.h"
 #include "../saya/vidproject.h"
 #include "../saya/recentfileslist.h"
 
@@ -1270,10 +1271,11 @@ void AppFrame::DoUpdateAppTitle() {
         if(prj->IsModified()) {
             modified_str = _T("* ");
         }
-        title = modified_str + s2wx(prj->m_Title);
+        title = modified_str + s2wx(prj->GetTitle());
 
-        if(!prj->m_Filename.empty()) {
-            wxFileName fname(s2wx(prj->m_Filename));
+        syString filename(prj->GetFilename(),true);
+        if(!filename.empty()) {
+            wxFileName fname(s2wx(filename));
             fname.GetFullName();
             title += _T(" [") + fname.GetFullName() + _T("]");
         } else {
@@ -1356,18 +1358,18 @@ sayaYesNoCancel AppFrame::YesNoCancelMessageBox(const char* msg,const char* capt
     return result;
 }
 
-std::string AppFrame::ShowDialogSaveProjectAs() {
+syString AppFrame::ShowDialogSaveProjectAs() {
     wxFileDialog mydialog(this,_("Save file as..."),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
-    std::string result = "";
+    syString result = "";
     if(mydialog.ShowModal() == wxID_OK) {
         result = wx2s(mydialog.GetPath());
     }
     return result;
 }
 
-std::string AppFrame::ShowDialogSaveProjectCopyAs() {
+syString AppFrame::ShowDialogSaveProjectCopyAs() {
     wxFileDialog mydialog(this,_("Save Copy as..."),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
-    std::string result = "";
+    syString result = "";
     if(mydialog.ShowModal() == wxID_OK) {
         result = wx2s(mydialog.GetPath()); // Gets full path including filename
     }

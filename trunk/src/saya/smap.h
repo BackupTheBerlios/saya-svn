@@ -12,7 +12,7 @@
 
 #include "serializable.h"
 #include "serialized.h"
-#include "core/cstr.h"
+#include "core/systring.h"
 #include <map>
 
 extern const char* tag_smapuint;
@@ -59,7 +59,7 @@ template <class T> class SMapUint : public serializable {
 template <class T> class SMapStr : public serializable {
     public:
 
-        typedef typename std::map<cstr,T, ltcstr>::const_iterator SMapStrIt;
+        typedef typename std::map<syString,T, ltsystr>::const_iterator SMapStrIt;
         /** standard constructor */
         SMapStr() {}
 
@@ -84,14 +84,14 @@ template <class T> class SMapStr : public serializable {
         }
 
         T& operator[](const char* s) {
-            return data[cstr(s,true)];
+            return data[syString(s,true)];
         }
 
         void clear() {
             data.clear();
         }
 
-        std::map<cstr,T,ltcstr> data;
+        std::map<syString,T,ltsystr> data;
 };
 
 class SMapUintUint : public serializable {

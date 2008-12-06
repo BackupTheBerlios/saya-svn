@@ -8,7 +8,10 @@
  **************************************************************/
 
 #include "presetmanager.h"
+#include "core/systring.h"
 using namespace std;
+
+
 
 PresetManager::PresetManager() {
 }
@@ -16,8 +19,8 @@ PresetManager::PresetManager() {
 PresetManager::~PresetManager() {
 }
 
-std::list<std::string> PresetManager::GetPresets() {
-    std::list<std::string> presets;
+std::vector<syString> PresetManager::GetPresets() {
+    std::vector<syString> presets;
 
     presets.push_back("Predef 1");
     presets.push_back("Predef 2");
@@ -27,8 +30,8 @@ std::list<std::string> PresetManager::GetPresets() {
     return presets;
 }
 
-std::map<std::string, std::string> PresetManager::GetPresetData(std::string preset) {
-    map<std::string, std::string> configs;
+sayaPreset PresetManager::GetPresetData(const char* preset) {
+    sayaPreset configs;
 
     configs["idNewPrjAVSettings_width"] = "600";
     configs["idNewPrjAVSettings_height"] = "400";
@@ -44,6 +47,6 @@ std::map<std::string, std::string> PresetManager::GetPresetData(std::string pres
     return configs;
 }
 
-bool PresetManager::SaveNewPreset(std::string preset, std::map<std::string, std::string>) {
+bool PresetManager::SaveNewPreset(const char* preset, const sayaPreset& data) {
     return true;
 }

@@ -15,7 +15,7 @@
 #ifndef iocommon_h
 #define iocommon_h
 
-#include <string>
+#include "systring.h"
 
 /** @brief Class for File handling functions
   *
@@ -37,28 +37,21 @@ class ioCommon {
         virtual ~ioCommon() {}
 
         /** Gets the path separator ( / or \\ )for the current OS. */
-        static std::string GetSeparator();
+        static const char* GetSeparator();
 
         /** @brief Gets the pathname for a filename.
           *
           * @param fullpath The full path to extract the pathname from.
           * @return the pathname of the file.
           */
-        static std::string GetPathname(const std::string& fullpath);
+        static syString GetPathname(const char* fullpath);
 
         /** @brief Gets the basename (filename and extension) for a filename.
           *
           * @param fullpath The full path to extract the basename from.
           * @return the name of the file, without path component.
           */
-        static std::string GetFilename(const std::string& fullpath);
-
-        /** @brief Checks for the existance of a file.
-          *
-          * @param filename the filename to be checked
-          * @return true if the file exists; false otherwise.
-          */
-        static bool FileExists(const std::string& filename);
+        static syString GetFilename(const char* fullpath);
 
         /** @brief Checks for the existance of a file.
           *
@@ -67,12 +60,12 @@ class ioCommon {
           */
         static bool FileExists(const char* filename);
 
-        /** @brief Deletes a file.
+        /** @brief Checks for the existance of a file.
           *
-          * @param filename the filename to be deleted
-          * @return true if the file was deleted successfully; false otherwise.
+          * @param filename the filename to be checked
+          * @return true if the file exists; false otherwise.
           */
-        static bool DeleteFile(const std::string& filename);
+        static bool FileExists(const syString& filename);
 
         /** @brief Deletes a file.
           *
@@ -81,13 +74,12 @@ class ioCommon {
           */
         static bool DeleteFile(const char* filename);
 
-        /** @brief Renames a file.
+        /** @brief Deletes a file.
           *
-          * @param oldname The file to be renamed
-          * @param newname The new name
-          * @return true on success; false otherwise.
+          * @param filename the filename to be deleted
+          * @return true if the file was deleted successfully; false otherwise.
           */
-        static bool RenameFile(const std::string& oldname, const std::string& newname);
+        static bool DeleteFile(const syString& filename);
 
         /** @brief Renames a file.
           *
@@ -105,23 +97,13 @@ class ioCommon {
           * @warning Using this function could lead to a race condition between checking the file's existence and
           * opening the file.
           */
-        static const std::string GetTemporaryFilename(const std::string& path, const std::string& prefix = "_sayatmp");
-
-        /** @brief Creates a temporary filename with the given prefix
-          *
-          * @param path The path where the temporary file should be created
-          * @param prefix a prefix to prepend to the filename.
-          * @return the resulting filename.
-          * @warning Using this function could lead to a race condition between checking the file's existence and
-          * opening the file.
-          */
-        static const std::string GetTemporaryFilename(const char* path, const char* prefix = "_sayatmp");
+        static const syString GetTemporaryFilename(const char* path, const char* prefix = "_sayatmp");
 
         /** Formats a string using sprintf syntax. 2Kbytes max. */
-        static const std::string Printf(const char* format, ... );
+        static const syString Printf(const char* format, ... );
 
         /** Formats a string with maximum length of bufsize - 1, using sprintf syntax. */
-        static const std::string PrintfBig(unsigned long bufsize, const char* format, ... );
+        static const syString PrintfBig(unsigned long bufsize, const char* format, ... );
 
 };
 
@@ -174,7 +156,7 @@ class FFile {
         /** Returns the file length in bytes. */
         long Length();
 
-        /** @brief Opens a file (const char* version).
+        /** @brief Opens a file.
           *
           * @param filename The file to open
           * @param mode The I/O mode that will be used to open the file.
@@ -182,21 +164,13 @@ class FFile {
           */
         bool Open(const char* filename, const char* mode = "r");
 
-        /** @brief Opens a file (std::string version).
-          *
-          * @param filename The file to open
-          * @param mode The I/O mode that will be used to open the file.
-          * @return true on success; false otherwise.
-          */
-        bool Open(const std::string& filename, const char* mode = "r");
-
         /** @brief Reads data from the file.
           *
           * @param buffer A pointer indicating the destination buffer.
           * @param count The number of bytes to read.
           * @return true on success; false otherwise.
           */
-        size_t Read(void* buffer, size_t count);
+        unsigned int Read(void* buffer, unsigned int count);
 
         /** @brief Reads all data from the file into a string object.
           *
@@ -204,8 +178,7 @@ class FFile {
           * @return true on success; false otherwise.
           * @warning For big files this could end up using all memory. Use with care.
           */
-        bool ReadAll(std::string* str);
-
+        bool ReadAll(syString& dest);
 
         /** @brief Seeks to a specific offset in the file.
           *
@@ -228,17 +201,17 @@ class FFile {
           * @param count  The number of bytes to write.
           * @return The number of bytes written.
           */
-        size_t Write(const void* buffer, size_t count);
+        unsigned int Write(const void* buffer, unsigned int count);
 
-        /** @brief Writes data into the file (std::string version).
+        /** @brief Writes data into the file (const-char* version).
           *
           * @param s The data to be written.
           * @return true on success; false otherwise.
           */
-        bool Write(const std::string& s);
+        bool Write(const char* s);
     private:
         void* m_file;
-        std::string m_filename;
+        syString m_filename;
 };
 
 /** @brief Generic temporary file object.
@@ -258,22 +231,11 @@ class TempFile {
           */
         TempFile(const char* filename);
 
-        /** Constructor with a std::string as parameter
-          * @param filename The file to save the data into when the commit takes place.
-          */
-        TempFile(const std::string& filename);
-
         /** @brief Opens a file for writing. The file will be replaced when the commit takes place.
           *
           * @param filename The file to save the data into when the commit takes place.
           */
         bool Open(const char* filename);
-
-        /** @brief Opens a file for writing. The file will be replaced when the commit takes place.
-          *
-          * @param filename The file to save the data into when the commit takes place.
-          */
-        bool Open(const std::string& filename);
 
         /** Is the file opened correctly? */
         bool IsOpened();
@@ -296,13 +258,13 @@ class TempFile {
           * @param p A pointer indicating where the data is.
           * @param
           */
-        bool Write(const void *p, size_t n);
+        bool Write(const void *p, unsigned int n);
 
         /** @brief Writes data into the file.
           *
-          * @param str An std::string to write into the file.
+          * @param str A c-string to write into the file.
           */
-        bool Write(const std::string& str);
+        bool Write(const char* str);
 
         /** @brief Saves the data under the specified file.
           *
@@ -317,8 +279,8 @@ class TempFile {
         ~TempFile();
     private:
         FFile m_File;
-        std::string m_filename;
-        std::string m_tempfilename;
+        syString m_filename;
+        syString m_tempfilename;
 };
 
 #endif

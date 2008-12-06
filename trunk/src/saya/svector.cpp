@@ -9,7 +9,7 @@
 
 #include "svector.h"
 #include "serialized.h"
-#include "core/cstr.h"
+#include "core/systring.h"
 
 const char* SStringVector::GetTagName() const {
     static const char* result = "SStringVector";

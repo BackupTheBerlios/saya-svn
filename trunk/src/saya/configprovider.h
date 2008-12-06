@@ -25,7 +25,7 @@ class SayaConfigProvider {
         /** Standard Destructor */
         virtual ~SayaConfigProvider() {};
 
-        virtual SayaConfig* Create(const std::string application_name) = 0;
+        virtual SayaConfig* Create(const char* application_name) = 0;
 };
 
 #endif

@@ -9,6 +9,7 @@
 
 #include "recentfileslist.h"
 #include <deque>
+#include "core/systring.h"
 
 #define RECENTFILES_DEBUG
 
@@ -22,7 +23,7 @@ const unsigned int RecentFilesListCapacity = 9;
 
 class RecentFilesListData {
     public:
-    std::deque<std::string> items;
+    std::deque<syString> items;
     unsigned long Counter;
     unsigned int Capacity;
 };
@@ -39,30 +40,31 @@ RecentFilesList::~RecentFilesList() {
     delete m_Data;
 }
 
-void RecentFilesList::Add(const std::string& s, bool fromthebeginning) {
+void RecentFilesList::Add(const char* s, bool fromthebeginning) {
 
-    if(s.empty()) { return; }
+    if(!s || !s[0]) { return; }
+    syString tmps(s, true);
 
-    std::deque<std::string>& items = m_Data->items;
+    std::deque<syString>& items = m_Data->items;
 
     if(!fromthebeginning && items.size() >= m_Data->Capacity) { return; } // Queue full
 
     // First, check if it's in the list
     size_t i;
     for(i = 0; i < items.size(); i++) {
-        if(s == items[i]) {
+        if(tmps == items[i]) {
             return; // Found
         }
     }
 
     // Finally, add it
     if(fromthebeginning) {
-        items.push_front(s); // Add to the beginning
+        items.push_front(tmps); // Add to the beginning
         if(items.size() > m_Data->Capacity) {
             items.pop_back();
         }
     } else {
-        items.push_back(s); // Add to the end
+        items.push_back(tmps); // Add to the end
     }
     m_Data->Counter++;
 }
@@ -72,17 +74,17 @@ void RecentFilesList::clear() {
     m_Data->Counter++;
 }
 
-const std::string& RecentFilesList::item(unsigned int i) {
+const syString& RecentFilesList::item(unsigned int i) const {
     if(i > 0) --i;
     return m_Data->items[i];
 }
 
 
-unsigned int RecentFilesList::size() {
+unsigned int RecentFilesList::size() const {
     return m_Data->items.size();
 }
 
-unsigned int RecentFilesList::Counter() {
+unsigned int RecentFilesList::Counter() const {
     return m_Data->Counter;
 }
 

@@ -55,7 +55,7 @@ void AppDebugLog::DebugLog(const char* msg) {
     DebugLog(s2wx(msg));
 }
 
-void AppDebugLog::DebugLog(const std::string& msg) {
+void AppDebugLog::DebugLog(const syString& msg) {
     DebugLog(s2wx(msg));
 }
 

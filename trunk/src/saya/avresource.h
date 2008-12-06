@@ -48,20 +48,20 @@ class AVResource:public serializable {
           * startup based on m_RelativeFilename and the project's
           * path.
           */
-        cstr m_Filename;
+        syString m_Filename;
 
         /** @brief The relative filename for the resource.
           *
           * Resources are stored in a directory below the project's path.
           * This way they can easily be located and transported.
           */
-        cstr m_RelativeFilename;
+        syString m_RelativeFilename;
 
         /** @brief Resource's icon.
           *
           * The icon is stored in 64x64 JPEG, encoded in base64.
           */
-        cstr m_Icon; // 64x64 JPEG icon encoded with base64
+        syString m_Icon; // 64x64 JPEG icon encoded with base64
 
         /** @brief Video Settings for the clip.
           *

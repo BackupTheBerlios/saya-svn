@@ -12,7 +12,7 @@
 
 #include "avcommon.h"
 #include "serializable.h"
-#include "core/cstr.h"
+#include "core/systring.h"
 
 class AVEffectParamDeclarations;
 
@@ -34,13 +34,13 @@ class AVEffectDeclaration : public serializable {
           * must be of alphanumeric / underscore. First character must be alphabetic.
           * @note the namespaces "saya" and "openvip" are reserved.
           */
-        cstr EffectId;
+        syString EffectId;
         /** Displayable effect name. */
-        cstr DisplayName; // Displayable effect name
+        syString DisplayName; // Displayable effect name
         /** Short description for the effect (like in a tooltip). */
-        cstr ShortDescription; // for tooltip
+        syString ShortDescription; // for tooltip
         /** Long description for the effect for documentation / help. */
-        cstr LongDescription; // For documentation and help
+        syString LongDescription; // For documentation and help
         /** @brief The declaration for the parameters.
           *
           * @see AVEffectParamDeclaration

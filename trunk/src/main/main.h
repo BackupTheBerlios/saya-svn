@@ -20,8 +20,7 @@
 #include "../saya/projectmanager.h"
 #include "../saya/sayaevthandler.h"
 
-#include <string>
-
+class syString;
 class WelcomeDialog;
 class wxUpdateUIEvent;
 class wxPanel;
@@ -72,10 +71,10 @@ class AppFrame: public wxFrame, public sayaEvtHandler
         virtual sayaYesNoCancel YesNoCancelMessageBox(const char* msg,const char* caption,bool exclamation);
 
         /// Shows "Save Project As" dialog.
-        virtual std::string ShowDialogSaveProjectAs();
+        virtual syString ShowDialogSaveProjectAs();
 
         /// Shows "Save Project Copy As" dialog.
-        virtual std::string ShowDialogSaveProjectCopyAs();
+        virtual syString ShowDialogSaveProjectCopyAs();
 
         wxMenu* FindMenu(const wxString name);
         ~AppFrame();

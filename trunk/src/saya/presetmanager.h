@@ -10,9 +10,12 @@
 #ifndef presetmanager_h
 #define presetmanager_h
 
-#include <list>
+#include <vector>
 #include <map>
-#include <string>
+class syString;
+struct ltsystr;
+
+typedef std::map<syString, syString, ltsystr> sayaPreset;
 
 class PresetManager {
 
@@ -25,14 +28,14 @@ class PresetManager {
         ~PresetManager();
 
         /** Gets (only names) all predefined settings saved by user (not include custom)  */
-        std::list<std::string> GetPresets();
+        std::vector<syString> GetPresets();
 
         /** Returns the info for the specified preset. The map contains the id of the component and the value.
         The value is a string, but it is well formed for every value type of every widget */
-        std::map<std::string, std::string> GetPresetData(std::string preset);
+        sayaPreset GetPresetData(const char* preset);
 
         /** Save new predefined setting */
-        bool SaveNewPreset(std::string preset, std::map<std::string, std::string>);
+        bool SaveNewPreset(const char* preset, const sayaPreset& data);
 };
 
 #endif

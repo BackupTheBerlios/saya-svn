@@ -10,6 +10,7 @@
 #include "core/sythread.h"
 #include "inputmonitor.h"
 #include "core/filevid.h"
+#include "core/systring.h"
 
 // ----------------------
 // Begin InputMonitorData
@@ -20,7 +21,7 @@ class InputMonitorData {
         InputMonitorData(InputMonitor* parent);
         ~InputMonitorData();
         InputMonitor* m_Parent;
-        std::string m_File;
+        syString m_File;
         FileVID* m_VID;
 
 };
@@ -53,7 +54,7 @@ InputMonitor::~InputMonitor() {
 }
 
 /** Sets the file to read */
-bool InputMonitor::SetFile(std::string filename) {
+bool InputMonitor::SetFile(syString filename) {
     if(!syThread::IsMain()) { return false; }
     if(IsPlaying()) { return false; }
     if(!(m_Data->m_VID->SetFile(filename))) { return false; }
@@ -61,7 +62,7 @@ bool InputMonitor::SetFile(std::string filename) {
     return true;
 }
 
-const std::string InputMonitor::GetFile() const {
+const syString InputMonitor::GetFile() const {
     return m_Data->m_File;
 }
 

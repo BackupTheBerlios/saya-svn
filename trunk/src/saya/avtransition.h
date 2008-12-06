@@ -12,7 +12,7 @@
 
 #include "avcommon.h"
 #include "serializable.h"
-#include "core/cstr.h"
+#include "core/systring.h"
 class SMapStrStr;
 
 class AVTransition : public serializable {
@@ -34,7 +34,7 @@ class AVTransition : public serializable {
           *
           * Tells which transition effect we're applying
           */
-        cstr TransitionId; // Transition's ID
+        syString TransitionId; // Transition's ID
 
         /** parameters for the transition */
         SMapStrStr* m_Parameters;

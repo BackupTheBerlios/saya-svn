@@ -10,13 +10,13 @@
 #ifndef sayadebuglogger_h
 #define sayadebuglogger_h
 
-#include <string>
+class syString;
 
 /** Adds a message to the currently-assigned debug log */
 void DebugLog(const char* msg);
 
-/** Adds a message to the currently-assigned debug log (std::string version) */
-void DebugLog(const std::string& msg);
+/** Adds a message to the currently-assigned debug log (syString version) */
+void DebugLog(const syString& msg);
 
 class sayaDebugLogger {
     public:
@@ -24,8 +24,8 @@ class sayaDebugLogger {
         /** Adds a message to the debug log */
         virtual void DebugLog(const char* msg) = 0;
 
-        /** Adds a message to the debug log (std::string version) */
-        virtual void DebugLog(const std::string& msg) = 0;
+        /** Adds a message to the debug log (syString version) */
+        virtual void DebugLog(const syString& msg) = 0;
 
         /** @brief sets the pointer for the program's debug logger
           *

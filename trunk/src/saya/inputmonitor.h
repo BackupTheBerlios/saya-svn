@@ -11,10 +11,9 @@
 #define inputmonitor_h
 
 class InputMonitorData;
+class syString;
 
 #include "core/avcontroller.h"
-#include <string>
-
 class InputMonitor : public AVController {
     friend class InputMonitorData;
 
@@ -31,9 +30,9 @@ class InputMonitor : public AVController {
          *  @return true on success; false if the file couldn't be set due to playback.
          *  @warning This function must be called ONLY by the main thread.
          */
-        bool SetFile(std::string filename);
+        bool SetFile(syString filename);
 
-        const std::string GetFile() const;
+        const syString GetFile() const;
 
         void Init(VideoOutputDevice* videoout, AudioOutputDevice* audioout);
 

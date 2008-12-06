@@ -10,8 +10,7 @@
 #ifndef recentfileslist_h
 #define recentfileslist_h
 
-#include <string>
-
+class syString;
 class RecentFilesListData;
 
 /** RecentFilesList is a customized encapsulation of an std::deque of strings
@@ -31,7 +30,7 @@ class RecentFilesList {
         ~RecentFilesList();
 
         /** Prepends a file to the beginning of the list. */
-        void Add(const std::string& s, bool fromthebeginning = true);
+        void Add(const char* s, bool fromthebeginning = true);
 
         /** Clears the list. */
         void clear();
@@ -39,13 +38,13 @@ class RecentFilesList {
         /** Gets an item from the list
          *  @note The function is one-based.
          */
-        const std::string& item(unsigned int i);
+        const syString& item(unsigned int i) const;
 
         /** Gets the current list size. */
-        unsigned int size();
+        unsigned int size() const;
 
         /** Gets the counter for refreshing */
-        unsigned int Counter();
+        unsigned int Counter() const;
 
         /** Updates a destination counter, and if it's different than the current counter, returns true. */
         bool UpdateCounter(unsigned int& destinationcounter);

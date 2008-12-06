@@ -34,6 +34,7 @@
 #include "app.h"
 #include "newprojectdlg.h"
 #include "picknamedlg.h"
+#include "../saya/core/systring.h"
 
 #include <map>
 #include <list>
@@ -129,10 +130,10 @@ void NewProjectDlg::OnPjrPresetsChanged(wxCommandEvent& event) {
     }
     //disable all and put values
     else{
-        string selPreset = wx2s(idNewPrjPresetsChoice->GetStringSelection());
-        map<string, string> values = ProjectManager::Get()->m_Presets->GetPresetData(selPreset);
+        syString selPreset = wx2s(idNewPrjPresetsChoice->GetStringSelection());
+        sayaPreset values = ProjectManager::Get()->m_Presets->GetPresetData(selPreset.c_str());
 
-        map<string, string>::iterator iter;
+        sayaPreset::const_iterator iter;
 
         iter = values.find("idNewPrjAVSettings_width");
         if(iter != values.end()){idNewPrjAVSettings_widthTextCtrl->SetValue(s2wx(iter->second));}
@@ -184,7 +185,7 @@ void NewProjectDlg::OnPrjSaveSettingsAsClicked(wxCommandEvent& event) {
 
     if(dlg->ShowModal() == wxID_OK){
         //save preset (veirification not neede)
-        map<string, string> configs;
+        sayaPreset configs;
         configs["idNewPrjAVSettings_width"] = wx2s(idNewPrjAVSettings_widthTextCtrl->GetValue());
         configs["idNewPrjAVSettings_height"] = wx2s(idNewPrjAVSettings_heightTextCtrl->GetValue());
         configs["idNewPrjAVSettings_fps"] = wx2s(idNewPrjAVSettings_fpsComboBox->GetValue());
@@ -197,7 +198,7 @@ void NewProjectDlg::OnPrjSaveSettingsAsClicked(wxCommandEvent& event) {
         configs["idNewPrjAVSettings_description"] = wx2s(idNewPrjAVSettings_descriptionTextCtrl->GetValue());
 
 
-        ProjectManager::Get()->m_Presets->SaveNewPreset(wx2s(dlg->GetName()), configs);
+        ProjectManager::Get()->m_Presets->SaveNewPreset(wx2s(dlg->GetName()).c_str(), configs);
         int columns = idNewPrjPresetsChoice->GetCount();
         idNewPrjPresetsChoice->Append(dlg->GetName());
         idNewPrjPresetsChoice->Select(columns);
@@ -205,13 +206,13 @@ void NewProjectDlg::OnPrjSaveSettingsAsClicked(wxCommandEvent& event) {
 }
 
 bool NewProjectDlg::LoadPresets(){
-    std::list<string> presets = ProjectManager::Get()->m_Presets->GetPresets();
+    std::vector<syString> presets = ProjectManager::Get()->m_Presets->GetPresets();
 
     idNewPrjPresetsChoice->Append(wxString(_T("<Custom>")));
-    list<string>::iterator i;
+    unsigned int i, imax;
 
-    for(i=presets.begin(); i != presets.end(); ++i){
-        idNewPrjPresetsChoice->Append(s2wx(*i));
+    for(i=0, imax = presets.size(); i < imax; ++i){
+        idNewPrjPresetsChoice->Append(s2wx(presets[i]));
     }
 
     //select custom preset by default

@@ -12,7 +12,7 @@
 
 #include "serializable.h"
 #include <vector>
-#include "core/cstr.h"
+#include "core/systring.h"
 
 static const char* svector_name = "vector";
 
@@ -71,7 +71,7 @@ class SStringVector : public serializable {
         /** @see serializable::serialize */
         virtual void serialize(serialized& dest) const;
 
-        cstr& operator[](unsigned int i) {
+        syString& operator[](unsigned int i) {
             return data[i];
         }
 
@@ -79,7 +79,7 @@ class SStringVector : public serializable {
             data.clear();
         };
 
-        std::vector<cstr> data;
+        std::vector<syString> data;
 };
 
 #endif

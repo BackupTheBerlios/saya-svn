@@ -1,6 +1,6 @@
 /****************************************************************
  * Name:      smapxstr.cpp
- * Purpose:   Implementation of std::map-based cstr serializables
+ * Purpose:   Implementation of std::map-based syString serializables
  * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * Created:   2008-09-12
  * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
@@ -21,14 +21,14 @@ const char* SMapUintStr::GetTagName() const {
 }
 
 void SMapUintStr::serialize(serialized& dest) const {
-    map<unsigned int,cstr>::const_iterator i;
+    map<unsigned int,syString>::const_iterator i;
     for(i = data.begin(); i != data.end(); ++i) {
         serialized tmp(i->first);
         serializestring(dest, tmp.c_str(), i->second.c_str());
     }
 }
 
-cstr& SMapUintStr::operator[](unsigned int i) {
+syString& SMapUintStr::operator[](unsigned int i) {
     return data[i];
 }
 
@@ -47,14 +47,14 @@ bool SMapIntStr::unserialize(const char* src) {
 }
 
 void SMapIntStr::serialize(serialized& dest) const {
-    map<int,cstr>::const_iterator i;
+    map<int,syString>::const_iterator i;
     for(i = data.begin(); i != data.end(); ++i) {
         serialized tmp(i->first);
         serializestring(dest, tmp.c_str(), i->second.c_str());
     }
 }
 
-cstr& SMapIntStr::operator[](int i) {
+syString& SMapIntStr::operator[](int i) {
     return data[i];
 }
 
@@ -69,14 +69,14 @@ bool SMapStrStr::unserialize(const char* src) {
 }
 
 void SMapStrStr::serialize(serialized& dest) const {
-    map<cstr,cstr>::const_iterator i;
+    map<syString,syString>::const_iterator i;
     for(i = data.begin(); i != data.end(); ++i) {
         serializestring(dest, i->first.c_str(), i->second.c_str());
     }
 }
 
-cstr& SMapStrStr::operator[](const char* s) {
-    return data[cstr(s,true)];
+syString& SMapStrStr::operator[](const char* s) {
+    return data[syString(s,true)];
 }
 
 void SMapStrStr::clear() {

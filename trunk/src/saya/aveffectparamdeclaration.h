@@ -11,7 +11,7 @@
 #define aveffectparamdeclaration_h
 
 #include "serializable.h"
-#include "core/cstr.h"
+#include "core/systring.h"
 
 class AVEffectParamDeclaration: public serializable {
     public:
@@ -26,31 +26,31 @@ class AVEffectParamDeclaration: public serializable {
          *
          * Parameters can use the suffixes ".x" and ".y" to choose a point in the clip's area.
          */
-        cstr ParamName;
+        syString ParamName;
 
         /** The parameter's description as it will appear in the effects window. */
-        cstr Description;
+        syString Description;
 
         /** The parameter's description as it will appear in the help dialog. */
-        cstr LongDescription; // The parameter's Long Description as it will appear in the help dialog.
+        syString LongDescription; // The parameter's Long Description as it will appear in the help dialog.
 
         /** Defines a tooltip for the parameter. */
-        cstr Tooltip;
+        syString Tooltip;
 
         /** @brief Defines the parameter type.
           *
-          * It must be a C++ basic data type, except for "string" which will be interpreted as cstr.
+          * It must be a C++ basic data type, except for "string" which will be interpreted as syString.
           */
-        cstr ParamType;
+        syString ParamType;
 
         /** Defines the minimum value for the parameter. */
-        cstr MinValue;
+        syString MinValue;
 
         /** Defines the maximum value for the parameter. */
-        cstr MaxValue;
+        syString MaxValue;
 
         /** Defines the default value for the parameter. */
-        cstr DefaultValue;
+        syString DefaultValue;
 
         /** @brief Specifies the widget type used to modify the parameter.
           *
@@ -63,7 +63,7 @@ class AVEffectParamDeclaration: public serializable {
           * "angle" (for rotation effects)
           * "xyangle" (for 3D rotation effects)
           */
-        cstr WidgetType;
+        syString WidgetType;
 
         /** @see serializable::unserialize */
         virtual bool unserialize(const char* src);

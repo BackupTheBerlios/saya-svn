@@ -11,7 +11,7 @@
 #define filevid_h
 
 #include "videoinputdevice.h"
-#include <string>
+class syString;
 
 // TODO: Add support to add "file video handlers"
 // TODO: Complete implementation of FileVID
@@ -34,11 +34,11 @@ class FileVID : public VideoInputDevice {
         /** Sets the file to load on Init(). (const char* version) */
         bool SetFile(const char* filename);
 
-        /** Sets the file to load on Init(). (std::string version) */
-        bool SetFile(const std::string& filename);
+        /** Sets the file to load on Init(). (syString version) */
+        bool SetFile(const syString& filename);
 
         /** Gets the file being processed */
-        std::string GetFile();
+        syString GetFile();
 
         /** @brief Allocates memory for m_Bitmap. Called by Init().
          *  @note If you override this function, remember to call it in your derived class' AllocateResources()

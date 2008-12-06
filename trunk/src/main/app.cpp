@@ -26,6 +26,7 @@
 #include "resources.h"
 #include "debuglog.h"
 #include "../saya/projectmanager.h"
+#include "../saya/core/systring.h"
 
 //(*AppHeaders
 #include <wx/image.h>
@@ -37,19 +38,19 @@ BEGIN_EVENT_TABLE( App, wxApp )
     EVT_MENU(idExitApp, App::OnExitApp)
 END_EVENT_TABLE()
 
-AppConfig::AppConfig(std::string application_name) : SayaConfig(application_name) {
+AppConfig::AppConfig(const char* application_name) : SayaConfig(application_name) {
     m_config = new wxConfig(s2wx(application_name));
 }
 
-std::string AppConfig::Read(const std::string& key, const std::string& defaultvalue) {
+syString AppConfig::Read(const char* key, const char* defaultvalue) {
     return wx2s(m_config->Read(s2wx(key),s2wx(defaultvalue)));
 }
 
-bool AppConfig::Write(const std::string& key, const std::string& value) {
+bool AppConfig::Write(const char* key, const char* value) {
     return m_config->Write(s2wx(key),s2wx(value));
 }
 
-bool AppConfig::Exists(const std::string& key) {
+bool AppConfig::Exists(const char* key) {
     return m_config->Exists(s2wx(key));
 }
 
@@ -58,7 +59,7 @@ AppConfig::~AppConfig() {
     m_config = NULL;
 }
 
-SayaConfig* AppConfigProvider::Create(const std::string application_name) {
+SayaConfig* AppConfigProvider::Create(const char* application_name) {
     return new AppConfig(application_name);
 }
 
