@@ -11,19 +11,15 @@
     #include <wx/xrc/xmlres.h>
     #include <wx/config.h>
     #include <wx/filedlg.h>
-    #include <wx/aui/aui.h>
-    #include <wx/splitter.h>
-    #include <wx/treectrl.h>
     #include <wx/sizer.h>
     #include <wx/html/htmlwin.h>
 #endif
 
-#include "../saya/projectmanager.h"
-#include "../saya/recentfileslist.h"
 #include "../saya/core/systring.h"
+#include "../saya/recentfileslist.h"
+#include "../saya/projectmanager.h"
 
 #include "s2wx.h"
-#include "app.h"
 #include "welcomedlg.h"
 
 int idWelcomeDialog = XRCID("welcome_dialog");
@@ -33,6 +29,7 @@ int idWelcomeQuit = XRCID("idWelcomeQuit");
 int idWelcomeRecentProjects = XRCID("idWelcomeRecentProjects");
 extern int idFileOpen;
 extern int idNewProject;
+
 
 
 BEGIN_EVENT_TABLE(WelcomeDialog, wxFrame)

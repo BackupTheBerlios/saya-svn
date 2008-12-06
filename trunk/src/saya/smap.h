@@ -94,28 +94,5 @@ template <class T> class SMapStr : public serializable {
         std::map<syString,T,ltsystr> data;
 };
 
-class SMapUintUint : public serializable {
-    public:
-
-        /** standard constructor */
-        SMapUintUint() {}
-
-        /** standard destructor */
-        virtual ~SMapUintUint() {}
-
-        virtual const char* GetTagName() const;
-
-        /** @see serializable::unserialize */
-        virtual bool unserialize(const char* src);
-
-        /** @see serializable::serialize */
-        virtual void serialize(serialized& dest) const;
-
-        unsigned int& operator[](unsigned int i);
-
-        void clear();
-
-        std::map<unsigned int,unsigned int> data;
-};
 
 #endif

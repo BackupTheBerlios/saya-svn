@@ -10,7 +10,6 @@
 #include "core/iocommon.h"
 
 #include "avsettings.h"
-#include "smap.h"
 #include "smapxstr.h"
 
 using namespace std;
@@ -59,8 +58,8 @@ void AVSettings::ResetToDefaults() {
     vidformat = "avi";
     videocodec = "";
     audiocodec = "";
-    videocodecsettings->data.clear();
-    audiocodecsettings->data.clear();
-    formatsettings->data.clear();
+    videocodecsettings->clear();
+    audiocodecsettings->clear();
+    formatsettings->clear();
 }
 

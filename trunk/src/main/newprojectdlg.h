@@ -11,15 +11,16 @@
 #define NEWPROJECTDLG_H
 
 #ifndef WX_PRECOMP
-    #include <wx/wx.h>
+    #include <wx/dialog.h>
 #endif
 
-#include "app.h"
-#include "../saya/projectmanager.h"
 class wxUpdateUIEvent;
 class wxPanel;
 class wxTreeCtrl;
 class wxSpinCtrl;
+class wxChoice;
+class wxTextCtrl;
+class wxComboBox;
 
 class NewProjectDlg : public wxDialog
 {

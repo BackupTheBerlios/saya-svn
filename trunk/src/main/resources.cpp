@@ -12,9 +12,11 @@
 
 #include <wx/string.h>
 #include <wx/bitmap.h>
+#include <wx/string.h>
 
 wxString ResourcesPath;
 wxString ResourcesImgPath;
+
 
 void syInitResourcesPaths() {
     ResourcesPath = wxString(wxT("resources/"));

@@ -65,6 +65,18 @@ class syString {
         /** Concatenation binary operator */
         const syString operator+(const syString& s) const;
 
+        /** Concatenation a-la stream */
+        syString& operator<<(const syString& s);
+
+        /** Concatenation a-la stream */
+        syString& operator<<(const char* str);
+
+        /** Concatenation a-la stream */
+        syString& append(const syString& s);
+
+        /** Concatenation a-la stream */
+        syString& append(const char* str);
+
         /** Returns the character from a given index. */
         char operator[](unsigned int i) const;
 
@@ -74,7 +86,46 @@ class syString {
         /** Returns the currently stored string's size. */
         unsigned int size() const;
 
+        /** Returns the currently stored string's size. */
+        unsigned int length() const;
+
+        /** Returns the current buffer's capacity. */
         unsigned int capacity() const;
+
+        /** @brief Returns the position of string <i>needle</i>  in the string.
+         *  Returns syString::npos (-1) if <i>needle</i> was not found.
+         *  @param needle The string to find.
+         *  @param pos The initial position to search (zero-based).
+         */
+        int find(const syString& needle,unsigned int pos = 0) const;
+
+        /** @brief Returns the position of string <i>needle</i>  in the string.
+         *  Returns syString::npos (-1) if <i>needle</i> was not found.
+         *  @param needle The string to find.
+         *  @param pos The initial position to search (zero-based).
+         */
+        int find(char needle,unsigned int pos  = 0) const;
+
+        /** @brief Returns the position of string <i>needle</i>  in the string.
+         *  Returns syString::npos (-1) if <i>needle</i> was not found.
+         *  @param needle The string to find.
+         *  @param pos The initial position to search backwards (zero-based).
+         *         npos means the entire string is searched.
+         */
+        int rfind(const syString& needle,int pos = npos) const;
+
+        /** @brief Returns the position of string <i>needle</i>  in the string.
+         *  Returns syString::npos (-1) if <i>needle</i> was not found.
+         *  @param needle The string to find.
+         *  @param pos The initial position to search backwards (zero-based).
+         *         npos means the entire string is searched.
+         */
+        int rfind(char needle, int pos  = npos) const;
+
+        /** @brief Obtains the substring located at pos, with length at most n. */
+        const syString substr(unsigned int pos = 0, unsigned int n = npos) const;
+
+        static const int npos;
     private:
         unsigned int m_Size;
         mutable unsigned int m_Capacity;
@@ -89,5 +140,11 @@ struct ltsystr
     return s1.compare(s2);
   }
 };
+
+syString rtrim(const syString& str, const syString& chars = " \r\n\t");
+syString ltrim(const syString& str, const syString& chars = " \r\n\t");
+syString trim(const syString& str, const syString& chars = " \r\n\t");
+
+
 
 #endif

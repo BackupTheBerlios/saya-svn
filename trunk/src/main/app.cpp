@@ -15,28 +15,68 @@
 #pragma hdrstop
 #endif //__BORLANDC__
 
-#include <wx/fs_zip.h>
-#include <wx/fs_mem.h>
-#include <wx/xrc/xmlres.h>
-#include <wx/config.h>
+#ifndef WX_PRECOMP
+    #include <wx/fs_zip.h>
+    #include <wx/fs_mem.h>
+    #include <wx/xrc/xmlres.h>
+    #include <wx/config.h>
+    #include <wx/log.h>
+#endif
 
 #include "s2wx.h"
 #include "app.h"
-#include "main.h"
 #include "resources.h"
 #include "debuglog.h"
 #include "../saya/projectmanager.h"
 #include "../saya/core/systring.h"
+#include "../saya/configprovider.h"
+#include "../saya/sayaconfig.h"
 
 //(*AppHeaders
 #include <wx/image.h>
 //*)
+
+extern int idExitApp;
 
 IMPLEMENT_APP(App);
 
 BEGIN_EVENT_TABLE( App, wxApp )
     EVT_MENU(idExitApp, App::OnExitApp)
 END_EVENT_TABLE()
+
+
+/** Our Implementation of SayaConfig with wxWidgets. @see SayaConfig */
+class AppConfig : public SayaConfig {
+    public:
+
+        /** Standard constructor. */
+        AppConfig(const char* application_name);
+
+        /** Reads configuration. @see SayaConfig::Read */
+        virtual syString Read(const char* key, const char* defaultvalue);
+
+        /** Writes configuration. @see SayaConfig::Read */
+        virtual bool Write(const char* key, const char* value);
+
+        /** Checks whether a configuration key exists. @see SayaConfig::Read */
+        virtual bool Exists(const char* key);
+
+        /** Standard destructor. */
+        virtual ~AppConfig();
+    private:
+        /** Our configuration object */
+        wxConfig* m_config;
+};
+
+/** Our Configuration object provider. @see SayaConfigProvider */
+class AppConfigProvider : public SayaConfigProvider {
+    public:
+        /** Creates a SayaConfig object */
+        virtual SayaConfig* Create(const char* application_name);
+
+        /** Virtual destructor. */
+        virtual ~AppConfigProvider() {}
+};
 
 AppConfig::AppConfig(const char* application_name) : SayaConfig(application_name) {
     m_config = new wxConfig(s2wx(application_name));
@@ -72,7 +112,7 @@ bool App::LoadConfig()
 
 void App::InitManagers() {
     ProjectManager::Get();
-    ProjectManager::Get()->SetConfigProvider(&m_configprovider);
+    ProjectManager::Get()->SetConfigProvider(m_configprovider);
 }
 
 bool App::LoadXRCResources() {
@@ -91,6 +131,7 @@ bool App::LoadXRCResources() {
 
 bool App::OnInit()
 {
+    m_configprovider = new AppConfigProvider;
     m_debuglog = new AppDebugLog(NULL);
     sayaDebugLogger::SetDebugLogger(m_debuglog);
 
@@ -128,8 +169,7 @@ bool App::OnInit()
     }
 
     DebugLog("Creating main frame...");
-    AppFrame* frame = new AppFrame(NULL, _("Saya - Unsheathe your Creativity"));
-    ProjectManager::Get()->SetEventHandler(frame);
+    wxFrame* frame = CreateMainFrame();
     SetTopWindow(frame);
 
     DebugLog("Initialization finished.");
@@ -141,6 +181,7 @@ int App::OnExit() {
 }
 
 App::~App() {
+    delete m_configprovider;
 }
 
 void App::OnExitApp(wxCommandEvent& event) {

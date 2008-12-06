@@ -11,21 +11,20 @@
 #define MAIN_H
 
 #ifndef WX_PRECOMP
-    #include <wx/wx.h>
-    #include <wx/aui/aui.h>
-    #include <wx/treectrl.h>
+    #include <wx/frame.h>
 #endif
 
-#include "app.h"
-#include "../saya/projectmanager.h"
 #include "../saya/sayaevthandler.h"
 
 class syString;
+class ProjectManager;
+
 class WelcomeDialog;
 class wxUpdateUIEvent;
 class wxPanel;
 class wxTreeCtrl;
-
+class wxTreeEvent;
+class wxAuiManager;
 extern int idExitApp;
 
 class AppFrame: public wxFrame, public sayaEvtHandler
@@ -104,7 +103,6 @@ class AppFrame: public wxFrame, public sayaEvtHandler
         void OnFileOpen(wxCommandEvent& event);
         void OnFileClose(wxCommandEvent& event);
 
-
         void OnClearRecentProjectList(wxCommandEvent& event);
         void OnOpenRecentFile(wxCommandEvent& event);
         void OnFileSave(wxCommandEvent& event);
@@ -138,7 +136,7 @@ class AppFrame: public wxFrame, public sayaEvtHandler
 
         void OnUpdateProjectPaneUI(wxUpdateUIEvent& event);
 
-        wxAuiManager m_mgr;
+        wxAuiManager *m_mgr;
         wxConfig* m_cfg;
         bool m_hadproject;
         bool m_panes_status_checked;

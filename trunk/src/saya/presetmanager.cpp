@@ -19,8 +19,8 @@ PresetManager::PresetManager() {
 PresetManager::~PresetManager() {
 }
 
-std::vector<syString> PresetManager::GetPresets() {
-    std::vector<syString> presets;
+SStringVector PresetManager::GetPresets() {
+    SStringVector presets;
 
     presets.push_back("Predef 1");
     presets.push_back("Predef 2");
@@ -30,8 +30,8 @@ std::vector<syString> PresetManager::GetPresets() {
     return presets;
 }
 
-sayaPreset PresetManager::GetPresetData(const char* preset) {
-    sayaPreset configs;
+SMapStrStr PresetManager::GetPresetData(const char* preset) {
+    SMapStrStr configs;
 
     configs["idNewPrjAVSettings_width"] = "600";
     configs["idNewPrjAVSettings_height"] = "400";
@@ -47,6 +47,6 @@ sayaPreset PresetManager::GetPresetData(const char* preset) {
     return configs;
 }
 
-bool PresetManager::SaveNewPreset(const char* preset, const sayaPreset& data) {
+bool PresetManager::SaveNewPreset(const char* preset, const SMapStrStr& data) {
     return true;
 }

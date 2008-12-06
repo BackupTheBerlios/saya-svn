@@ -7,7 +7,7 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
-#include "smap.h"
+#include "smapxstr.h"
 #include "avclip.h"
 #include "avtransition.h"
 #include "aveffect.h"

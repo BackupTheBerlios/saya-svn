@@ -18,12 +18,12 @@
 
 #ifndef WX_PRECOMP
     #include <wx/xrc/xmlres.h>
-    #include <wx/config.h>
-    #include <wx/filedlg.h>
-    #include <wx/aui/aui.h>
-    #include <wx/splitter.h>
-    #include <wx/treectrl.h>
+    #include <wx/string.h>
+    #include <wx/textctrl.h>
+    #include <wx/gdicmn.h>
+    #include <wx/settings.h>
     #include <wx/sizer.h>
+    #include <wx/config.h>
 #endif
 
 #include "s2wx.h"

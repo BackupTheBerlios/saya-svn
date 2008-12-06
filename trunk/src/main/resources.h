@@ -10,8 +10,7 @@
 #ifndef RESOURCES_H
 #define RESOURCES_H
 
-#include <wx/string.h>
-
+class wxString;
 class wxBitmap;
 extern wxString ResourcesPath;
 extern wxString ResourcesImgPath;

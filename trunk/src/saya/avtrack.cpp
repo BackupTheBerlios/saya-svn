@@ -10,7 +10,7 @@
 #include "avtrack.h"
 #include "avclip.h"
 #include "avclips.h"
-#include "smap.h"
+#include "smapxstr.h"
 
 AVTrack::AVTrack() {
     m_Clips = new AVClips;

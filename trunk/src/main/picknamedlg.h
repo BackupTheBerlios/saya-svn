@@ -2,9 +2,11 @@
 #define PICKNAMEDLG_H
 
 #ifndef WX_PRECOMP
-    #include <wx/wx.h>
+    #include <wx/dialog.h>
 #endif
 
+class wxTextCtrl;
+class wxString;
 
 class PickNameDlg : public wxDialog
 {

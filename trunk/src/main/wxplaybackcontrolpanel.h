@@ -9,12 +9,12 @@
 #ifndef WXPLAYBACKCONTROLPANEL_H
 #define WXPLAYBACKCONTROLPANEL_H
 
-#include <wx/wx.h>
 #include <wx/panel.h>
 class wxSlider;
 class wxBitmapButton;
 class wxStaticText;
 class wxVideoPanel;
+class wxBoxSizer;
 
 extern const int id_PLAYBACK_FIRSTFRAME;
 extern const int id_PLAYBACK_FASTREWIND;

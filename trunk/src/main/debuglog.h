@@ -9,16 +9,14 @@
 #ifndef debuglog_h
 #define debuglog_h
 
-#include <wx/string.h>
-#include <wx/textctrl.h>
-#include <wx/gdicmn.h>
-#include <wx/font.h>
-#include <wx/colour.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
 #include <wx/frame.h>
 
 #include "../saya/sayadebuglogger.h"
+
+class syString;
+class wxString;
+class wxCloseEvent;
+class wxTextCtrl;
 
 class AppDebugLog : public wxFrame, public sayaDebugLogger {
 

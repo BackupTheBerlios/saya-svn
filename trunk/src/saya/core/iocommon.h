@@ -15,7 +15,9 @@
 #ifndef iocommon_h
 #define iocommon_h
 
-#include "systring.h"
+class syString;
+class FFileData;
+class TempFileData;
 
 /** @brief Class for File handling functions
   *
@@ -107,6 +109,7 @@ class ioCommon {
 
 };
 
+
 /** @brief Generic buffered file object.
   *
   * Originally designed as a wxFFile wrapper, this object will allow us to access files
@@ -114,6 +117,7 @@ class ioCommon {
   * @see wxFFile
   */
 class FFile {
+    friend class FFileData;
     public:
 
         /** Standard constructor */
@@ -209,9 +213,16 @@ class FFile {
           * @return true on success; false otherwise.
           */
         bool Write(const char* s);
+
+        /** @brief Writes data into the file.
+          *
+          * @param str An syString object to write into the file.
+          */
+        bool Write(const syString& s);
+
+
     private:
-        void* m_file;
-        syString m_filename;
+        FFileData* m_Data;
 };
 
 /** @brief Generic temporary file object.
@@ -221,6 +232,7 @@ class FFile {
   * @see wxTempFile
   */
 class TempFile {
+    friend class TempFileData;
     public:
 
         /** Standard constructor */
@@ -266,6 +278,12 @@ class TempFile {
           */
         bool Write(const char* str);
 
+        /** @brief Writes data into the file.
+          *
+          * @param str An syString object to write into the file.
+          */
+        bool Write(const syString& s);
+
         /** @brief Saves the data under the specified file.
           *
           * @return true on success; false otherwise.
@@ -278,9 +296,7 @@ class TempFile {
         /** Standard destructor. */
         ~TempFile();
     private:
-        FFile m_File;
-        syString m_filename;
-        syString m_tempfilename;
+        TempFileData* m_Data;
 };
 
 #endif

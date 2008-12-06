@@ -11,15 +11,14 @@
 #define WELCOMEDLG_H
 
 #ifndef WX_PRECOMP
-    #include <wx/wx.h>
-    #include <wx/html/htmlwin.h>
+    #include <wx/frame.h>
 #endif
 
-#include "app.h"
-#include "../saya/projectmanager.h"
 class wxUpdateUIEvent;
 class wxPanel;
 class wxTreeCtrl;
+class wxHtmlLinkEvent;
+
 
 class WelcomeDialog: public wxFrame
 {
@@ -36,7 +35,6 @@ class WelcomeDialog: public wxFrame
         void RefreshRecentFilesList();
         void OnLinkClicked(wxHtmlLinkEvent& event);
         wxFrame* m_parent;
-
 
 	DECLARE_EVENT_TABLE()
 

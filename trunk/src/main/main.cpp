@@ -17,6 +17,7 @@
 
 
 #ifndef WX_PRECOMP
+    #include <wx/app.h>
     #include <wx/xrc/xmlres.h>
     #include <wx/config.h>
     #include <wx/filedlg.h>
@@ -24,14 +25,18 @@
     #include <wx/splitter.h>
     #include <wx/treectrl.h>
     #include <wx/sizer.h>
+    #include <wx/log.h>
+    #include <wx/menu.h>
+    #include <wx/msgdlg.h>
+    #include <wx/aui/aui.h>
 #endif
 
 #include "../saya/core/systring.h"
 #include "../saya/vidproject.h"
 #include "../saya/recentfileslist.h"
+#include "../saya/projectmanager.h"
 
 #include "s2wx.h"
-#include "app.h"
 #include "main.h"
 #include "welcomedlg.h"
 #include "newprojectdlg.h"
@@ -78,6 +83,14 @@ int main_RegisterId(int id)
     wxRegisterId(id);
     return id;
 }
+
+wxFrame* CreateMainFrame() {
+    AppFrame* frame = new AppFrame(NULL, _("Saya - Unsheathe your Creativity"));
+    ProjectManager::Get()->SetEventHandler(frame);
+    return frame;
+}
+
+
 
 const wxString CFG_LAYOUTS = _T("Layouts");
 const wxString CFG_LAYOUT_DEFAULT = CFG_LAYOUTS + _T("/Default");
@@ -463,6 +476,7 @@ m_layouthidden(false),
 m_recentfilesmodcounter(0),
 m_recentimportsmodcounter(0)
 {
+    m_mgr = new wxAuiManager;
     bool result = false;
     do {
         m_cfg = new wxConfig(s2wx(APP_NAME));
@@ -470,7 +484,7 @@ m_recentimportsmodcounter(0)
         if(!CreateDialogs()) break;
         CreateStatusBar(2);
 
-        m_mgr.SetManagedWindow(this);
+        m_mgr->SetManagedWindow(this);
         m_prjMan = ProjectManager::Get();
         LoadAndSetFrameSize();
 
@@ -484,7 +498,7 @@ m_recentimportsmodcounter(0)
 
 
 
-        m_FactoryDefaultLayout = m_mgr.SavePerspective();
+        m_FactoryDefaultLayout = m_mgr->SavePerspective();
         LoadDefaultLayout(true);
 
         result = true;
@@ -538,22 +552,22 @@ bool AppFrame::CreatePanels() {
 }
 
 void AppFrame::CreateDockAreas() {
-    m_mgr.SetFlags(m_mgr.GetFlags() | wxAUI_MGR_ALLOW_ACTIVE_PANE);
+    m_mgr->SetFlags(m_mgr->GetFlags() | wxAUI_MGR_ALLOW_ACTIVE_PANE);
      // add the panes to the manager
-//   m_mgr.SetDockSizeConstraint(0.3,0.45);
-    m_mgr.AddPane(m_projectpanel, wxAuiPaneInfo().
+//   m_mgr->SetDockSizeConstraint(0.3,0.45);
+    m_mgr->AddPane(m_projectpanel, wxAuiPaneInfo().
                             Name(wxT("Project")).Caption(_("Project")).
                               BestSize(wxSize(200, 300)).MaximizeButton().MinimizeButton().PinButton().
                               Left().Layer(1));
-    m_mgr.AddPane(m_monitorpanel, wxAuiPaneInfo().
+    m_mgr->AddPane(m_monitorpanel, wxAuiPaneInfo().
                             Name(wxT("Monitor")).Caption(_("Monitor / Preview")).
                               BestSize(wxSize(250, 300)).MaximizeButton().MinimizeButton().PinButton().
                               Bottom().Layer(1));
-    m_mgr.AddPane(m_effectspanel, wxAuiPaneInfo().
+    m_mgr->AddPane(m_effectspanel, wxAuiPaneInfo().
                             Name(wxT("Effects")).Caption(_("Effects Monitor")).
                               BestSize(wxSize(250, 300)).MaximizeButton().MinimizeButton().PinButton().
                               Bottom().Layer(1));
-    m_mgr.AddPane(m_timelinepanel, wxAuiPaneInfo().Name(wxT("MainPane")).CentrePane().MinSize(wxSize(500,200)).MaximizeButton().Caption(_("Timeline")).CaptionVisible(true));
+    m_mgr->AddPane(m_timelinepanel, wxAuiPaneInfo().Name(wxT("MainPane")).CentrePane().MinSize(wxSize(500,200)).MaximizeButton().Caption(_("Timeline")).CaptionVisible(true));
 }
 
 bool AppFrame::LoadDefaultLayout(bool firsttime) {
@@ -561,7 +575,7 @@ bool AppFrame::LoadDefaultLayout(bool firsttime) {
     wxString strlayout;
     m_cfg->Read(CFG_PERSPECTIVE_DEFAULT, &strlayout, wxEmptyString);
     if(!strlayout.IsEmpty()) {
-        result = m_mgr.LoadPerspective(strlayout,false);
+        result = m_mgr->LoadPerspective(strlayout,false);
     }
     if(firsttime)
     {
@@ -569,7 +583,7 @@ bool AppFrame::LoadDefaultLayout(bool firsttime) {
         wxPostEvent(this,tmpevent);
 //        OnProjectStatusChanged(tmpevent);
     }
-    m_mgr.Update();
+    m_mgr->Update();
     return result;
 }
 
@@ -580,9 +594,9 @@ void AppFrame::OnLoadDefaultLayout(wxCommandEvent& event) {
 void AppFrame::OnWorkspaceFactoryDefault(wxCommandEvent& event) {
     bool result = false;
     if(!m_FactoryDefaultLayout.IsEmpty()) {
-        result = m_mgr.LoadPerspective(m_FactoryDefaultLayout,false);
+        result = m_mgr->LoadPerspective(m_FactoryDefaultLayout,false);
     }
-    m_mgr.Update();
+    m_mgr->Update();
 }
 
 wxPanel* AppFrame::CreateProjectPane() {
@@ -726,10 +740,11 @@ void AppFrame::LoadAndSetFrameSize() {
 AppFrame::~AppFrame() {
     ShutDownApp();
     ProjectManager::Unload();
-    m_mgr.UnInit();
+    m_mgr->UnInit();
     if(m_welcomedialog) {
         delete m_welcomedialog;
     }
+    delete m_mgr;
     delete m_cfg;
 }
 
@@ -896,7 +911,7 @@ void AppFrame::SaveDefaultLayout(bool showmsg) {
     m_cfg->Write(key + _T("/width"), rect.width);
     m_cfg->Write(key + _T("/height"), rect.height);
 
-    wxString strlayout = m_mgr.SavePerspective();
+    wxString strlayout = m_mgr->SavePerspective();
     m_cfg->Write(CFG_PERSPECTIVE_DEFAULT, strlayout);
     m_cfg->Write(CFG_DEFAULT_PRJ_SASHPOS,GetProjectPanelSashPos());
 
@@ -1226,31 +1241,31 @@ void AppFrame::ShowLayout(bool show) {
         return;
     if(show) {
         if(m_layouthidden) {
-            m_mgr.LoadPerspective(m_CurrentPerspective,true);
+            m_mgr->LoadPerspective(m_CurrentPerspective,true);
             m_layouthidden = false;
         }
     } else {
         if(!m_layouthidden) {
             // Hide All panes
-            m_CurrentPerspective = m_mgr.SavePerspective();
-            wxAuiPaneInfoArray& myarr = m_mgr.GetAllPanes();
+            m_CurrentPerspective = m_mgr->SavePerspective();
+            wxAuiPaneInfoArray& myarr = m_mgr->GetAllPanes();
             size_t i;
             for(i = 0;i < myarr.size(); i++) {
                 myarr[i].Hide();
             }
-            m_mgr.Update();
+            m_mgr->Update();
             m_layouthidden = true;
         }
     }
     if(!show) {
-//        m_mgr.Update();
+//        m_mgr->Update();
         ShowWelcomeDialog();
     } else {
         if(m_welcomedialog) {
             m_welcomedialog->Hide();
         }
         Show();
-        m_mgr.Update();
+        m_mgr->Update();
     }
 }
 

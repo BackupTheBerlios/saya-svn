@@ -13,49 +13,24 @@
  **************************************************************/
 
 #include "iocommon.h"
+#include "systring.h"
 #include <cstdio>
 #include <cstdarg>
 #include <string.h>
-#include <string>
 
 using namespace std;
 
-// The following string functions were taken from a personal string library of mine - Rick.
-string rtrim(const string& str,const string& chars) {
-  if( chars.empty() || str.empty() ) return str;
-  int i;
-
-  for(i=str.length();i>0;i--) {
-    if(chars.find(str.substr(i-1,1),0)==string::npos) break;
-  }
-  return str.substr(0,i);
-}
-
-string ltrim(const string& str,const string& chars = " \r\n\t") {
-  if( chars.empty() || str.empty() ) return str;
-  unsigned int i;
-
-  for(i=0;i<str.length();i++) {
-    if(chars.find(str.substr(i,1),0)==string::npos) break;
-  }
-  return str.substr(i,str.length());
-}
-
-string trim(const string& str,const string& chars = " \r\n\t")
-{
-  return ltrim(rtrim(str,chars),chars);
-}
 
 syString ioCommon::GetPathname(const char* fullpath) {
-  string s(fullpath);
-  unsigned int i1 = s.rfind("/",s.length());
-  unsigned int i2 = s.rfind("\\",s.length());
-  unsigned int i;
+  syString s(fullpath);
+  int i1 = s.rfind("/",s.length());
+  int i2 = s.rfind("\\",s.length());
+  int i;
   syString result;
 
-  i = ( (i1 == string::npos) || (i2 != string::npos && (i2 > i1) ) ) ? i2 : i1;
+  i = ( (i1 == syString::npos) || (i2 != syString::npos && (i2 > i1) ) ) ? i2 : i1;
 
-  if(i==string::npos) {
+  if(i==syString::npos) {
     result = "";
   } else {
     result = trim(rtrim(s.substr(0,i),"/\\")).c_str();
@@ -64,21 +39,21 @@ syString ioCommon::GetPathname(const char* fullpath) {
 }
 
 syString ioCommon::GetFilename(const char* fullpath) {
-  string s(fullpath);
-  unsigned int i1 = s.rfind("/",s.length());
-  unsigned int i2 = s.rfind("\\",s.length());
-  unsigned int i;
+  syString s(fullpath);
+  int i1 = s.rfind("/",s.length());
+  int i2 = s.rfind("\\",s.length());
+  int i;
   syString result;
 
-  i = ( (i1==string::npos) || (i2!=string::npos && (i2 > i1) ) ) ? i2 : i1;
-  if(i!=string::npos) {
+  i = ( (i1==syString::npos) || (i2!=syString::npos && (i2 > i1) ) ) ? i2 : i1;
+  if(i!=syString::npos) {
     result = fullpath;
   } else {
     result = trim(s.substr(i+1,s.length())).c_str();
   }
   return result;
 }
-// End of string functions
+// End of String functions
 
 const char* ioCommon::GetSeparator() {
     #ifdef __WIN32__
@@ -119,9 +94,9 @@ bool ioCommon::RenameFile(const char* oldname, const char* newname) {
 }
 
 const syString ioCommon::GetTemporaryFilename(const char* path, const char* prefix) {
-    string filename;
-    string fntemplate;
-    string sprefix(prefix);
+    syString filename;
+    syString fntemplate;
+    syString sprefix(prefix);
     unsigned int i;
     unsigned int i_max = 1000000;
     if(sprefix.empty()) {
@@ -133,7 +108,7 @@ const syString ioCommon::GetTemporaryFilename(const char* path, const char* pref
     }
     fntemplate.append(prefix);
     for(i = 0; i < i_max; i++) {
-        filename = fntemplate + string(ioCommon::Printf("%6d",i).c_str());
+        filename = fntemplate + syString(ioCommon::Printf("%6d",i).c_str());
         if(!ioCommon::FileExists(filename.c_str())) break; // Success!
     }
     if(i >= i_max) {
@@ -151,7 +126,7 @@ const syString ioCommon::Printf(const char* format, ... ) {
     buffer = new char[bufsize + 1];
 
     // vsnprintf is a version of sprintf that takes a variable number of arguments. Additionally,
-    // it allows you to set a limit on the buffer size used for storing the resulting string.
+    // it allows you to set a limit on the buffer size used for storing the resulting syString.
     // See http://linux.about.com/library/cmd/blcmdl3_vsnprintf.htm
 
     va_start(arguments, format);
@@ -192,67 +167,83 @@ const syString ioCommon::PrintfBig(unsigned long bufsize, const char* format, ..
 
 // *** FFile ***
 
-FFile::FFile() : m_file(NULL) {
+class FFileData {
+    public:
+        FFileData();
+        void* m_File;
+        syString m_Filename;
+};
+
+FFileData::FFileData() :
+m_File(NULL),
+m_Filename("")
+{
+}
+
+FFile::FFile() {
+    m_Data = new FFileData;
 }
 
 FFile::FFile(const char* filename, const char* mode) {
-    m_file = fopen(filename, mode);
+    m_Data = new FFileData;
+    m_Data->m_File = fopen(filename, mode);
 }
 
 FFile::~FFile() {
     Close();
+    delete m_Data;
 }
 
 void FFile::Attach(void* fp) {
-    m_file = fp;
+    m_Data->m_File = fp;
 }
 
 bool FFile::Close() {
     int result = 0;
-    if(m_file != NULL) {
-        result = fclose((FILE*)m_file);
-        m_file = NULL;
+    if(m_Data->m_File != NULL) {
+        result = fclose((FILE*)m_Data->m_File);
+        m_Data->m_File = NULL;
     }
     return (result == 0);
 }
 
 void FFile::Detach() {
-    m_file = NULL;
+    m_Data->m_File = NULL;
 }
 
 void* FFile::fp() {
-    return m_file;
+    return m_Data->m_File;
 }
 
 bool FFile::Eof() {
-    if(m_file == NULL)
+    if(m_Data->m_File == NULL)
         return true;
-    return feof((FILE*)m_file);
+    return feof((FILE*)m_Data->m_File);
 }
 
 bool FFile::Error() {
-    if(m_file == NULL) {
+    if(m_Data->m_File == NULL) {
         return false;
     }
-    bool result = (ferror((FILE*)m_file) != 0);
-    clearerr((FILE*)m_file);
+    bool result = (ferror((FILE*)m_Data->m_File) != 0);
+    clearerr((FILE*)m_Data->m_File);
     return result;
 }
 
 bool FFile::Flush() {
-    if(m_file == NULL) {
+    if(m_Data->m_File == NULL) {
         return false;
     }
-    int result = fflush((FILE*)m_file);
+    int result = fflush((FILE*)m_Data->m_File);
     return (result == 0);
 }
 
 bool FFile::IsOpened() {
-    return (m_file != NULL);
+    return (m_Data->m_File != NULL);
 }
 
 long FFile::Length() {
-    if (m_file == NULL)
+    if (m_Data->m_File == NULL)
         return 0;
     long curlen;
     long oldpos = Tell();
@@ -263,19 +254,19 @@ long FFile::Length() {
 }
 
 bool FFile::Open(const char* filename, const char* mode) {
-    m_file = (void*)fopen(filename, mode);
+    m_Data->m_File = (void*)fopen(filename, mode);
     return IsOpened();
 }
 
 unsigned int FFile::Read(void* buffer, unsigned int count) {
-    if(m_file == NULL) {
+    if(m_Data->m_File == NULL) {
         return 0;
     }
-    return fread(buffer, 1, count, (FILE*)m_file);
+    return fread(buffer, 1, count, (FILE*)m_Data->m_File);
 }
 
 bool FFile::ReadAll(syString& str) {
-    if(m_file == NULL) {
+    if(m_Data->m_File == NULL) {
         return false;
     }
     long len = Length();
@@ -295,7 +286,7 @@ bool FFile::ReadAll(syString& str) {
 }
 
 bool FFile::Seek(long ofs, ioCommon::SeekType mode) {
-    if(m_file == NULL) {
+    if(m_Data->m_File == NULL) {
         return false;
     }
     int origin;
@@ -310,7 +301,7 @@ bool FFile::Seek(long ofs, ioCommon::SeekType mode) {
         default:
             origin = SEEK_SET;
     }
-    int result = fseek((FILE*)m_file, ofs, origin);
+    int result = fseek((FILE*)m_Data->m_File, ofs, origin);
     return (result == 0);
 }
 
@@ -319,27 +310,50 @@ bool FFile::SeekEnd(long ofs)  {
 }
 
 long FFile::Tell() {
-    if(m_file == NULL)
+    if(m_Data->m_File == NULL)
         return 0;
-    return ftell((FILE*)m_file);
+    return ftell((FILE*)m_Data->m_File);
 }
 
 unsigned int FFile::Write(const void* buffer, unsigned int count) {
-    if(m_file == NULL)
+    if(m_Data->m_File == NULL)
         return 0;
-    return fwrite(buffer,1,count,(FILE*)m_file);
+    return fwrite(buffer,1,count,(FILE*)m_Data->m_File);
 }
 
 bool FFile::Write(const char* s) {
     return Write((const void*)(s), strlen(s));
 }
 
+bool FFile::Write(const syString& s) {
+    return Write(s.c_str(),s.length());
+}
+
 // *** TempFile ***
 
-TempFile::TempFile() :
-m_filename(""),
-m_tempfilename("")
-{ }
+class TempFileData {
+    public:
+        TempFileData();
+        FFile m_File;
+        syString m_Filename;
+        syString m_TempFilename;
+};
+
+TempFileData::TempFileData() :
+m_Filename(""),
+m_TempFilename("")
+{
+}
+
+TempFile::TempFile() {
+    m_Data = new TempFileData;
+}
+
+TempFile::~TempFile(){
+    Discard();
+    delete m_Data;
+}
+
 
 TempFile::TempFile(const char* filename) {
     Open(filename);
@@ -348,37 +362,41 @@ TempFile::TempFile(const char* filename) {
 bool TempFile::Open(const char* filename) {
     bool result = false;
     Discard();
-    m_filename = filename;
+    m_Data->m_Filename = filename;
     syString pathname = ioCommon::GetPathname(filename);
-    m_tempfilename = ioCommon::GetTemporaryFilename(pathname.c_str());
-    if(!m_tempfilename.empty()) {
-        result = m_File.Open(m_tempfilename.c_str(),"wb+");
+    m_Data->m_TempFilename = ioCommon::GetTemporaryFilename(pathname.c_str());
+    if(!m_Data->m_TempFilename.empty()) {
+        result = m_Data->m_File.Open(m_Data->m_TempFilename.c_str(),"wb+");
     }
     return result;
 }
 
 bool TempFile::IsOpened() {
-    return m_File.IsOpened();
+    return m_Data->m_File.IsOpened();
 }
 
 long TempFile::Length() {
-    return m_File.Length();
+    return m_Data->m_File.Length();
 }
 
 long TempFile::Seek(long ofs, ioCommon::SeekType mode) {
-    return m_File.Seek(ofs,mode);
+    return m_Data->m_File.Seek(ofs,mode);
 }
 
 long TempFile::Tell() {
-    return m_File.Tell();
+    return m_Data->m_File.Tell();
 }
 
 bool TempFile::Write(const void *p, unsigned int n) {
-    return m_File.Write(p, n);
+    return m_Data->m_File.Write(p, n);
 }
 
 bool TempFile::Write(const char* str) {
-    return m_File.Write(str);
+    return m_Data->m_File.Write(str);
+}
+
+bool TempFile::Write(const syString& s) {
+    return Write(s.c_str(),s.length());
 }
 
 bool TempFile::Commit(){
@@ -389,24 +407,24 @@ bool TempFile::Commit(){
 
     do {
         if(!IsOpened()) break;
-        m_File.Close();
-        if( !ioCommon::FileExists(m_tempfilename.c_str()) ) break;
+        m_Data->m_File.Close();
+        if( !ioCommon::FileExists(m_Data->m_TempFilename.c_str()) ) break;
 
         // Now to rename the files.
 
         // Step 1: Rename destination file to a new temporary filename
-        pathname = ioCommon::GetPathname(m_tempfilename.c_str());
+        pathname = ioCommon::GetPathname(m_Data->m_TempFilename.c_str());
         discardedfilename = ioCommon::GetTemporaryFilename(pathname.c_str());
-        if( ioCommon::FileExists(m_filename)) {
+        if( ioCommon::FileExists(m_Data->m_Filename)) {
             exists = true;
-            if( !ioCommon::RenameFile(m_filename.c_str(), discardedfilename.c_str()) ) break;
+            if( !ioCommon::RenameFile(m_Data->m_Filename.c_str(), discardedfilename.c_str()) ) break;
         }
 
         // Step 2: Rename source file to destination file
-        if( !ioCommon::RenameFile(m_tempfilename.c_str(), m_filename.c_str()) ) {
+        if( !ioCommon::RenameFile(m_Data->m_TempFilename.c_str(), m_Data->m_Filename.c_str()) ) {
 
             // On error, reverse Step 1.
-            ioCommon::RenameFile(discardedfilename.c_str(), m_filename.c_str());
+            ioCommon::RenameFile(discardedfilename.c_str(), m_Data->m_Filename.c_str());
             break;
         }
 
@@ -426,13 +444,10 @@ bool TempFile::Commit(){
 
 void TempFile::Discard(){
     if(IsOpened()) {
-        m_File.Close();
-        ioCommon::DeleteFile(m_tempfilename);
+        m_Data->m_File.Close();
+        ioCommon::DeleteFile(m_Data->m_TempFilename);
     }
-    m_filename.clear();
-    m_tempfilename.clear();
+    m_Data->m_Filename.clear();
+    m_Data->m_TempFilename.clear();
 }
 
-TempFile::~TempFile(){
-    Discard();
-}

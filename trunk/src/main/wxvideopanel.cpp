@@ -15,6 +15,7 @@
 #include <wx/bitmap.h>
 
 #include "wxvideopanel.h"
+
 #include "../saya/core/sythread.h"
 #include "../saya/core/sybitmap.h"
 #include "../saya/core/sentryfuncs.h"

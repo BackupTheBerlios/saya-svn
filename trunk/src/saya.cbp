@@ -106,30 +106,48 @@
 		<Unit filename="resources/wxplaybackcontrolpanel.fbp">
 			<Option target="Debug" />
 		</Unit>
-		<Unit filename="saya/avclip.cpp" />
+		<Unit filename="saya/avclip.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/avclip.h" />
 		<Unit filename="saya/avclips.h" />
 		<Unit filename="saya/avcommon.h" />
-		<Unit filename="saya/aveffect.cpp" />
+		<Unit filename="saya/aveffect.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/aveffect.h" />
-		<Unit filename="saya/aveffectdeclaration.cpp" />
+		<Unit filename="saya/aveffectdeclaration.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/aveffectdeclaration.h" />
-		<Unit filename="saya/aveffectparamdeclaration.cpp" />
+		<Unit filename="saya/aveffectparamdeclaration.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/aveffectparamdeclaration.h" />
 		<Unit filename="saya/aveffectparamdeclarations.h" />
 		<Unit filename="saya/aveffects.h" />
-		<Unit filename="saya/avresource.cpp" />
+		<Unit filename="saya/avresource.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/avresource.h" />
 		<Unit filename="saya/avresources.h" />
-		<Unit filename="saya/avsequence.cpp" />
+		<Unit filename="saya/avsequence.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/avsequence.h" />
-		<Unit filename="saya/avsettings.cpp" />
+		<Unit filename="saya/avsettings.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/avsettings.h" />
 		<Unit filename="saya/avtimeline.h" />
-		<Unit filename="saya/avtrack.cpp" />
+		<Unit filename="saya/avtrack.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/avtrack.h" />
 		<Unit filename="saya/avtracks.h" />
-		<Unit filename="saya/avtransition.cpp" />
+		<Unit filename="saya/avtransition.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/avtransition.h" />
 		<Unit filename="saya/configprovider.h" />
 		<Unit filename="saya/core/aborter.cpp">
@@ -222,35 +240,58 @@
 		</Unit>
 		<Unit filename="saya/core/videooutputdevice.h" />
 		<Unit filename="saya/fxparameterlist.h" />
-		<Unit filename="saya/inputmonitor.cpp" />
+		<Unit filename="saya/inputmonitor.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/inputmonitor.h" />
-		<Unit filename="saya/presetmanager.cpp" />
+		<Unit filename="saya/presetmanager.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/presetmanager.h" />
-		<Unit filename="saya/projectmanager.cpp" />
+		<Unit filename="saya/projectmanager.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/projectmanager.h" />
-		<Unit filename="saya/recentfileslist.cpp" />
+		<Unit filename="saya/recentfileslist.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/recentfileslist.h" />
 		<Unit filename="saya/sayaconfig.h" />
-		<Unit filename="saya/sayadebuglogger.cpp" />
+		<Unit filename="saya/sayadebuglogger.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/sayadebuglogger.h" />
 		<Unit filename="saya/sayaevthandler.h" />
-		<Unit filename="saya/serializable.cpp" />
+		<Unit filename="saya/serializable.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/serializable.h" />
-		<Unit filename="saya/serialized.cpp" />
+		<Unit filename="saya/serialized.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/serialized.h" />
-		<Unit filename="saya/smap.cpp" />
+		<Unit filename="saya/smap.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/smap.h" />
-		<Unit filename="saya/smapxstr.cpp" />
+		<Unit filename="saya/smapxstr.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/smapxstr.h" />
-		<Unit filename="saya/svector.cpp" />
+		<Unit filename="saya/sstrvector.cpp" />
+		<Unit filename="saya/sstrvector.h" />
 		<Unit filename="saya/svector.h" />
 		<Unit filename="saya/tinyxml/tinyxml.cpp" />
 		<Unit filename="saya/tinyxml/tinyxml.h" />
 		<Unit filename="saya/tinyxml/tinyxmlerror.cpp" />
 		<Unit filename="saya/tinyxml/tinyxmlparser.cpp" />
-		<Unit filename="saya/undohistory.cpp" />
+		<Unit filename="saya/undohistory.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/undohistory.h" />
-		<Unit filename="saya/vidproject.cpp" />
+		<Unit filename="saya/vidproject.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/vidproject.h" />
 		<Unit filename="todo.txt" />
 		<Extensions>

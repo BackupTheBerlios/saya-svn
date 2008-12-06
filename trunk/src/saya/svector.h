@@ -12,7 +12,7 @@
 
 #include "serializable.h"
 #include <vector>
-#include "core/systring.h"
+class syString;
 
 static const char* svector_name = "vector";
 
@@ -51,35 +51,6 @@ template <class T> class SVector : public serializable {
         };
 
         std::vector<T> data;
-};
-
-class SStringVector : public serializable {
-
-    public:
-
-        /** standard constructor */
-        SStringVector() {}
-
-        /** standard destructor */
-        virtual ~SStringVector() {}
-
-        virtual const char* GetTagName() const;
-
-        /** @see serializable::unserialize */
-        virtual bool unserialize(const char* src);
-
-        /** @see serializable::serialize */
-        virtual void serialize(serialized& dest) const;
-
-        syString& operator[](unsigned int i) {
-            return data[i];
-        }
-
-        void clear() {
-            data.clear();
-        };
-
-        std::vector<syString> data;
 };
 
 #endif

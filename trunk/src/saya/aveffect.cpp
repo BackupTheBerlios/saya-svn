@@ -10,7 +10,6 @@
 #include "aveffect.h"
 #include "fxparameterlist.h"
 #include "serialized.h"
-#include <map>
 
 AVEffect::AVEffect() {
     m_Parameters = new FXParameterList;

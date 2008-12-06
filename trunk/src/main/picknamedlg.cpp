@@ -9,14 +9,11 @@
 
 #ifndef WX_PRECOMP
     #include <wx/xrc/xmlres.h>
-    #include <wx/config.h>
-    #include <wx/filedlg.h>
-    #include <wx/aui/aui.h>
-    #include <wx/splitter.h>
-    #include <wx/treectrl.h>
+    #include <wx/textctrl.h>
+    #include <wx/string.h>
     #include <wx/sizer.h>
-    #include <wx/html/htmlwin.h>
 #endif
+
 #include "../saya/projectmanager.h"
 #include "app.h"
 #include "picknamedlg.h"

@@ -11,46 +11,13 @@
 #define APP_H
 
 #include <wx/app.h>
-#include <string>
-#include "../saya/projectmanager.h"
-#include "../saya/configprovider.h"
-#include "../saya/sayaconfig.h"
 
 class AppDebugLog;
 class syString;
-
-/** Our Implementation of SayaConfig with wxWidgets. @see SayaConfig */
-class AppConfig : public SayaConfig {
-    public:
-
-        /** Standard constructor. */
-        AppConfig(const char* application_name);
-
-        /** Reads configuration. @see SayaConfig::Read */
-        virtual syString Read(const char* key, const char* defaultvalue);
-
-        /** Writes configuration. @see SayaConfig::Read */
-        virtual bool Write(const char* key, const char* value);
-
-        /** Checks whether a configuration key exists. @see SayaConfig::Read */
-        virtual bool Exists(const char* key);
-
-        /** Standard destructor. */
-        virtual ~AppConfig();
-    private:
-        /** Our configuration object */
-        wxConfig* m_config;
-};
-
-/** Our Configuration object provider. @see SayaConfigProvider */
-class AppConfigProvider : public SayaConfigProvider {
-    public:
-        /** Creates a SayaConfig object */
-        virtual SayaConfig* Create(const char* application_name);
-
-        /** Virtual destructor. */
-        virtual ~AppConfigProvider() {}
-};
+class wxConfig;
+class AppConfig;
+class AppConfigProvider;
+extern wxFrame* CreateMainFrame();
 
 // *** Our App ***
 class App : public wxApp
@@ -65,7 +32,7 @@ class App : public wxApp
         virtual ~App();
     private:
         void OnExitApp(wxCommandEvent& event);
-        AppConfigProvider m_configprovider;
+        AppConfigProvider* m_configprovider;
         AppDebugLog* m_debuglog;
 };
 
