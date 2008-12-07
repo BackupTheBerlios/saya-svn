@@ -9,13 +9,23 @@
 
 #include "systring.h"
 #include <cstring>
+#include <cstdio>
+#include <cstdarg>
 
 class syStringHelper {
     public:
         static void assign(syString* dest, const char* str,bool useref = false);
         static void assign(syString* dest,const syString& copy);
         static void reset(syString* dest);
+        static unsigned int GetMinLength(const syString& s1, const syString& s2);
 };
+
+inline unsigned int syStringHelper::GetMinLength(const syString& s1, const syString& s2) {
+    unsigned int result = s1.m_Size;
+    if(result > s2.m_Size) result = s2.m_Size;
+    return result;
+}
+
 
 const int syString::npos = -1;
 
@@ -121,6 +131,23 @@ void syStringHelper::assign(syString* dest, const char* str,bool useref) {
     }
 }
 
+char syString::operator[](unsigned int i) const {
+    if(i > m_Size) {
+        return 0;
+    }
+    return m_Str[i];
+}
+
+char& syString::operator[](unsigned int i) {
+    if(m_UseRef) {
+        operator=(*this); // Copy-on-modify
+    }
+    if(i >= m_Size) {
+        return *((char*)NULL); // This is surely to generate a segfault!
+    }
+    return m_Str[i];
+}
+
 unsigned int syString::size() const {
     return m_Size;
 }
@@ -140,22 +167,24 @@ const char* syString::c_str() const {
     return m_Str;
 }
 
-bool syString::operator==(const syString& s) const {
-    if(m_Size != s.size()) {
-        return false;
-    }
-    return strcmp(c_str(), s.m_Str) == 0;
+const syString syString::operator+(const syString& s) const {
+    syString result(*this);
+    result += s;
+    return result;
 }
 
-bool syString::operator!=(const syString& s) const {
-    return !(operator==(s));
+const syString syString::operator+(const char* str) const {
+    syString result(*this);
+    result += str;
+    return result;
 }
 
-bool syString::compare(const syString& s) const {
-    return strcmp(c_str(), s.m_Str) < 0;
+const syString syString::operator+(const char c) const {
+    syString result(*this);
+    result += c;
+    return result;
 }
 
-/** Concatenation unary operator */
 syString& syString::operator+=(const syString& s) {
     if(!s.size()) return *this;
     unsigned paramlen = s.size();
@@ -166,7 +195,13 @@ syString& syString::operator+=(const syString& s) {
     char* newbuf = m_Str;
     if(newsize + 1 > m_Capacity) {
         unsigned int tmpcapacity = 1;
-        while(tmpcapacity < newsize + 1) { tmpcapacity <<=1; }
+        while(tmpcapacity < newsize + 1) {
+            if(tmpcapacity >= 1 << 16) {
+                tmpcapacity += 1 << 16;
+            } else {
+                tmpcapacity <<=1;
+            }
+        }
         m_Capacity = tmpcapacity;
         newbuf = new char[m_Capacity];
         strncpy(newbuf,m_Str,m_Size);
@@ -182,54 +217,78 @@ syString& syString::operator+=(const syString& s) {
     return *this;
 }
 
-syString& syString::operator<<(const syString& s) {
-    operator+=(s);
-    return *this;
+syString& syString::operator+=(const char* str) {
+    return operator+=(syString(str));
 }
 
-syString& syString::operator<<(const char* str) {
-    operator+=(syString(str,true));
-    return *this;
+syString& syString::operator+=(const char c) {
+    char buf[2];
+    buf[0] = c;
+    buf[1] = 0;
+    return operator+=(syString(buf, true));
 }
 
 syString& syString::append(const syString& s) {
-    return operator<<(s);
+    return operator+=(s);
 }
 
 syString& syString::append(const char* str) {
-    return operator<<(str);
+    return operator+=(syString(str));
 }
 
-/** Concatenation binary operator */
-const syString syString::operator+(const syString& s) const {
-    unsigned paramlen = s.size();
-    unsigned newsize = m_Size + paramlen;
-    char* newbuf = new char[newsize + 1];
-    strncpy(newbuf,m_Str,m_Size);
-    strncpy(newbuf + m_Size,s.m_Str, paramlen);
-    newbuf[newsize] = 0;
-    syString result;
-    result.m_Str = newbuf;
-    result.m_Size = newsize;
-    result.m_UseRef = false;
-    return result;
+syString& syString::append(const char c) {
+    return operator+=(c);
 }
 
-char syString::operator[](unsigned int i) const {
-    if(i > m_Size) {
-        return 0;
-    }
-    return m_Str[i];
+syString& syString::operator<<(const syString& s) {
+    return operator+=(s);
 }
 
-char& syString::operator[](unsigned int i) {
-    if(m_UseRef) {
-        operator=(*this); // Copy-on-modify
+syString& syString::operator<<(const char* str) {
+    return operator+=(syString(str));
+}
+
+syString& syString::operator<<(const char c) {
+    return operator+=(c);
+}
+
+syString& syString::operator<<(const int input) {
+    char buf[64];
+    snprintf(buf, 63, "%d", input);
+    return operator+=(syString(buf));
+}
+
+syString& syString::operator<<(const unsigned int input) {
+    char buf[64];
+    snprintf(buf, 63, "%u", input);
+    return operator+=(syString(buf));
+}
+
+syString& syString::operator<<(const long long input) {
+    char buf[64];
+    snprintf(buf, 63, "%lld", input);
+    return operator+=(syString(buf));
+}
+
+syString& syString::operator<<(const unsigned long long input) {
+    char buf[64];
+    snprintf(buf, 63, "%llu", input);
+    return operator+=(syString(buf));
+}
+
+syString& syString::operator<<(const double input) {
+    char buf[256];
+    snprintf(buf, 255, "%f", input);
+    return operator+=(syString(buf));
+}
+
+syString& syString::operator<<(const bool input) {
+    if(input) {
+        operator+=("1");
+    } else {
+        operator+=("0");
     }
-    if(i >= m_Size) {
-        return *((char*)NULL); // This is surely to generate a segfault!
-    }
-    return m_Str[i];
+    return *this;
 }
 
 int syString::find(const syString& needle, unsigned int pos) const {
@@ -250,6 +309,27 @@ int syString::find(char needle, unsigned int pos) const {
     return (result + pos - m_Str);
 }
 
+int syString::rfind(const syString& needle, int pos) const {
+    if(needle.empty()) return npos;
+    if(needle.size() > m_Size) return npos;
+    char c = needle[0];
+    unsigned int ns = needle.size();
+    if(pos == npos) pos = m_Size - ns;
+    while(pos >= 0) {
+        pos = rfind(c, pos);
+        if(pos < 0) { break; }
+        if(strncmp(needle.m_Str,m_Str + pos,ns)== 0) { break; }
+    }
+    return pos;
+}
+
+int syString::rfind(char needle, int pos) const {
+    if(pos == npos) pos = m_Size - 1;
+    char* ptr = &m_Str[pos];
+    while(pos >= 0 && *ptr!=needle) { --pos;--ptr; }
+    return pos;
+}
+
 const syString syString::substr(unsigned int pos, unsigned int n) const {
     if(pos + n > m_Size) {
         n = m_Size - pos;
@@ -263,6 +343,98 @@ const syString syString::substr(unsigned int pos, unsigned int n) const {
     syString result(tmpbuf, true);
     result.m_UseRef = false;
     return result;
+}
+
+bool syString::operator==(const syString& s) const {
+    if(m_Size != s.m_Size) return false;
+    if(!m_Size && !s.m_Size) return true;
+    unsigned int maxsize = m_Size;
+    if(maxsize < s.m_Size) maxsize = s.m_Size;
+    return strncmp(c_str(), s.m_Str,syStringHelper::GetMinLength(*this, s)) == 0;
+}
+
+bool syString::operator!=(const syString& s) const {
+    return !(operator==(s));
+}
+
+bool syString::operator<(const syString& s) const {
+    if(!m_Size && s.m_Size) return true; // The empty string loses
+    if(m_Size && !s.m_Size) return false;
+    if(!m_Size && !s.m_Size) return false; // Both are empty, then they're equal.
+    return strncmp(m_Str, s.m_Str, syStringHelper::GetMinLength(*this, s)) < 0;
+}
+
+bool syString::operator>(const syString& s) const {
+    if(!m_Size && s.m_Size) return false;
+    if(m_Size && !s.m_Size) return true;
+    if(!m_Size && !s.m_Size) return false;
+    return strncmp(m_Str, s.m_Str, syStringHelper::GetMinLength(*this, s)) > 0;
+}
+
+bool syString::operator<=(const syString& s) const {
+    if(!m_Size && s.m_Size) return true;
+    if(m_Size && !s.m_Size) return false;
+    if(!m_Size && !s.m_Size) return true;
+    return strncmp(m_Str, s.m_Str, syStringHelper::GetMinLength(*this, s)) <= 0;
+}
+
+bool syString::operator>=(const syString& s) const {
+    if(!m_Size && s.m_Size) return false;
+    if(m_Size && !s.m_Size) return true;
+    if(!m_Size && !s.m_Size) return true;
+    return strncmp(m_Str, s.m_Str, syStringHelper::GetMinLength(*this, s)) >= 0;
+}
+
+bool syString::operator!() const {
+    return !m_Size;
+}
+
+const syString syString::Printf(const char* format, ... ) {
+    syString s;
+    va_list arguments;
+    unsigned int numchars;
+    unsigned long bufsize = 2048; // We have to set a limit. 2K should be enough for most strings
+    char* buffer;
+    buffer = new char[bufsize + 1];
+
+    // vsnprintf is a version of sprintf that takes a variable number of arguments. Additionally,
+    // it allows you to set a limit on the buffer size used for storing the resulting syString.
+    // See http://linux.about.com/library/cmd/blcmdl3_vsnprintf.htm
+
+    va_start(arguments, format);
+    numchars = vsnprintf(buffer, bufsize, format, arguments);
+    va_end(arguments);
+
+    buffer[bufsize] = 0;
+
+    if(numchars < bufsize) {
+        buffer[numchars] = 0;
+    }
+    s = buffer;
+    delete[] buffer;
+    return s;
+}
+
+const syString syString::PrintfBig(unsigned long bufsize, const char* format, ... ) {
+    syString s;
+    va_list arguments;
+    unsigned int numchars;
+    if(bufsize <= 1) {
+        return syString("");
+    } else {
+        char* buffer = new char[bufsize]; // For big strings
+        va_start(arguments, format);
+        numchars = vsnprintf(buffer, bufsize - 1, format, arguments);
+        va_end(arguments);
+        if(numchars < bufsize - 1) {
+            buffer[numchars] = 0;
+        } else {
+            buffer[bufsize - 1] = 0;
+        }
+        s = syString(buffer);
+        delete[] buffer;
+    }
+    return s;
 }
 
 
@@ -287,26 +459,6 @@ syString ltrim(const syString& str,const syString& chars) {
   return str.substr(i,str.length());
 }
 
-int syString::rfind(const syString& needle, int pos) const {
-    if(needle.empty()) return npos;
-    if(needle.size() > m_Size) return npos;
-    char c = needle[0];
-    unsigned int ns = needle.size();
-    if(pos == npos) pos = m_Size - ns;
-    while(pos >= 0) {
-        pos = rfind(c, pos);
-        if(pos < 0) { break; }
-        if(strncmp(needle.m_Str,m_Str + pos,ns)== 0) { break; }
-    }
-    return pos;
-}
-
-int syString::rfind(char needle, int pos) const {
-    if(pos == npos) pos = m_Size - 1;
-    char* ptr = &m_Str[pos];
-    while(pos >= 0 && *ptr!=needle) { --pos;--ptr; }
-    return pos;
-}
 
 syString trim(const syString& str,const syString& chars)
 {

@@ -44,39 +44,6 @@ class syString {
         /** Returns the stored string */
         const char* c_str() const;
 
-        /** Compares the string with another. Used for std::maps. */
-        bool compare(const syString& s) const;
-
-        /** Comparison operator. */
-        bool operator==(const syString& s) const;
-
-        /** Comparison operator. */
-        bool operator!=(const syString& s) const;
-
-        /** Assignment operator (object version). */
-        syString& operator=(const syString& copy);
-
-        /** Assignment operator (const-char* version). */
-        syString& operator=(const char* str);
-
-        /** Concatenation unary operator */
-        syString& operator+=(const syString& s);
-
-        /** Concatenation binary operator */
-        const syString operator+(const syString& s) const;
-
-        /** Concatenation a-la stream */
-        syString& operator<<(const syString& s);
-
-        /** Concatenation a-la stream */
-        syString& operator<<(const char* str);
-
-        /** Concatenation a-la stream */
-        syString& append(const syString& s);
-
-        /** Concatenation a-la stream */
-        syString& append(const char* str);
-
         /** Returns the character from a given index. */
         char operator[](unsigned int i) const;
 
@@ -125,6 +92,96 @@ class syString {
         /** @brief Obtains the substring located at pos, with length at most n. */
         const syString substr(unsigned int pos = 0, unsigned int n = npos) const;
 
+        /** Comparison operator. */
+        bool operator==(const syString& s) const;
+
+        /** Comparison operator. */
+        bool operator!=(const syString& s) const;
+
+        /** Comparison operator. */
+        bool operator<(const syString& s) const;
+
+        /** Comparison operator. */
+        bool operator>(const syString& s) const;
+
+        /** Comparison operator. */
+        bool operator<=(const syString& s) const;
+
+        /** Comparison operator. */
+        bool operator>=(const syString& s) const;
+
+        /** Returns true if the string is empty. */
+        bool operator!() const;
+
+        /** Assignment operator. */
+        syString& operator=(const syString& copy);
+
+        /** Assignment operator. */
+        syString& operator=(const char* str);
+
+        /** Assignment operator. */
+        syString& operator=(const char c);
+
+        /** Concatenation binary operator. */
+        const syString operator+(const syString& s) const;
+
+        /** Concatenation binary operator. */
+        const syString operator+(const char* str) const;
+
+        /** Concatenation binary operator. */
+        const syString operator+(const char c) const;
+
+        /** Concatenation unary operator. */
+        syString& operator+=(const syString& s);
+
+        /** Concatenation unary operator. */
+        syString& operator+=(const char* str);
+
+        /** Concatenation unary operator. */
+        syString& operator+=(const char c);
+
+        /** Concatenation. */
+        syString& append(const syString& s);
+
+        /** Concatenation. */
+        syString& append(const char* str);
+
+        /** Concatenation. */
+        syString& append(const char c);
+
+        /** Stream-like concatenation. */
+        syString& operator<<(const syString& s);
+
+        /** Stream-like concatenation. */
+        syString& operator<<(const char* str);
+
+        /** Stream-like concatenation. */
+        syString& operator<<(const char c);
+
+        /** Stream-like concatenation. */
+        syString& operator<<(const int input);
+
+        /** Stream-like concatenation. */
+        syString& operator<<(const unsigned int input);
+
+        /** Stream-like concatenation. */
+        syString& operator<<(const long long input);
+
+        /** Stream-like concatenation. */
+        syString& operator<<(const unsigned long long input);
+
+        /** Stream-like concatenation. */
+        syString& operator<<(const double input);
+
+        /** Stream-like concatenation. */
+        syString& operator<<(const bool input);
+
+        /** Formats a string using sprintf syntax. 2Kbytes max. */
+        static const syString Printf(const char* format, ... );
+
+        /** Formats a string with maximum length of bufsize - 1, using sprintf syntax. */
+        static const syString PrintfBig(unsigned long bufsize, const char* format, ... );
+
         static const int npos;
     private:
         unsigned int m_Size;
@@ -137,13 +194,14 @@ struct ltsystr
 {
   bool operator()(const syString& s1, const syString& s2) const
   {
-    return s1.compare(s2);
+    return s1 < s2;
   }
 };
 
 syString rtrim(const syString& str, const syString& chars = " \r\n\t");
 syString ltrim(const syString& str, const syString& chars = " \r\n\t");
 syString trim(const syString& str, const syString& chars = " \r\n\t");
+
 
 
 

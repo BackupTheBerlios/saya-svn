@@ -278,13 +278,21 @@
 			<Option weight="20" />
 		</Unit>
 		<Unit filename="saya/smapxstr.h" />
-		<Unit filename="saya/sstrvector.cpp" />
+		<Unit filename="saya/sstrvector.cpp">
+			<Option weight="20" />
+		</Unit>
 		<Unit filename="saya/sstrvector.h" />
 		<Unit filename="saya/svector.h" />
-		<Unit filename="saya/tinyxml/tinyxml.cpp" />
+		<Unit filename="saya/tinyxml/tinyxml.cpp">
+			<Option weight="30" />
+		</Unit>
 		<Unit filename="saya/tinyxml/tinyxml.h" />
-		<Unit filename="saya/tinyxml/tinyxmlerror.cpp" />
-		<Unit filename="saya/tinyxml/tinyxmlparser.cpp" />
+		<Unit filename="saya/tinyxml/tinyxmlerror.cpp">
+			<Option weight="30" />
+		</Unit>
+		<Unit filename="saya/tinyxml/tinyxmlparser.cpp">
+			<Option weight="30" />
+		</Unit>
 		<Unit filename="saya/undohistory.cpp">
 			<Option weight="20" />
 		</Unit>

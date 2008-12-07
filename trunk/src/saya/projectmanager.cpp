@@ -164,7 +164,7 @@ bool ProjectManager::LoadConfig() {
         m_Data->m_LastProjectDir = cfg->Read(key.c_str(),"");
     unsigned int i;
     for(i = 1; i <= 9; i++) {
-        key = ioCommon::Printf("RecentProjects/File%u",i);
+        key = syString::Printf("RecentProjects/File%u",i);
         DebugLog(syString("Reading key: ") + key);
         if(cfg->Exists(key.c_str())) {
             tmpname = cfg->Read(key.c_str(),"");
@@ -192,7 +192,7 @@ bool ProjectManager::SaveConfig() {
     key = "";
     unsigned int i;
     for(i = 1; i <= 9; ++i) {
-        key = ioCommon::Printf("RecentProjects/File%u",i);
+        key = syString::Printf("RecentProjects/File%u",i);
         DebugLog(key.c_str());
         if(i>m_RecentFiles->size()) {
             cfg->Write(key.c_str(),"");

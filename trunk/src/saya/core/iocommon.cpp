@@ -108,7 +108,7 @@ const syString ioCommon::GetTemporaryFilename(const char* path, const char* pref
     }
     fntemplate.append(prefix);
     for(i = 0; i < i_max; i++) {
-        filename = fntemplate + syString(ioCommon::Printf("%6d",i).c_str());
+        filename = fntemplate + syString(syString::Printf("%6d",i).c_str());
         if(!ioCommon::FileExists(filename.c_str())) break; // Success!
     }
     if(i >= i_max) {
@@ -117,53 +117,6 @@ const syString ioCommon::GetTemporaryFilename(const char* path, const char* pref
     return syString(filename.c_str());
 }
 
-const syString ioCommon::Printf(const char* format, ... ) {
-    syString s;
-    va_list arguments;
-    unsigned int numchars;
-    unsigned long bufsize = 2048; // We have to set a limit. 2K should be enough for most strings
-    char* buffer;
-    buffer = new char[bufsize + 1];
-
-    // vsnprintf is a version of sprintf that takes a variable number of arguments. Additionally,
-    // it allows you to set a limit on the buffer size used for storing the resulting syString.
-    // See http://linux.about.com/library/cmd/blcmdl3_vsnprintf.htm
-
-    va_start(arguments, format);
-    numchars = vsnprintf(buffer, bufsize, format, arguments);
-    va_end(arguments);
-
-    buffer[bufsize] = 0;
-
-    if(numchars < bufsize) {
-        buffer[numchars] = 0;
-    }
-    s = buffer;
-    delete[] buffer;
-    return s;
-}
-
-const syString ioCommon::PrintfBig(unsigned long bufsize, const char* format, ... ) {
-    syString s;
-    va_list arguments;
-    unsigned int numchars;
-    if(bufsize <= 1) {
-        return syString("");
-    } else {
-        char* buffer = new char[bufsize]; // For big strings
-        va_start(arguments, format);
-        numchars = vsnprintf(buffer, bufsize - 1, format, arguments);
-        va_end(arguments);
-        if(numchars < bufsize - 1) {
-            buffer[numchars] = 0;
-        } else {
-            buffer[bufsize - 1] = 0;
-        }
-        s = syString(buffer);
-        delete[] buffer;
-    }
-    return s;
-}
 
 // *** FFile ***
 

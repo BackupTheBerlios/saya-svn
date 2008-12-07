@@ -100,13 +100,6 @@ class ioCommon {
           * opening the file.
           */
         static const syString GetTemporaryFilename(const char* path, const char* prefix = "_sayatmp");
-
-        /** Formats a string using sprintf syntax. 2Kbytes max. */
-        static const syString Printf(const char* format, ... );
-
-        /** Formats a string with maximum length of bufsize - 1, using sprintf syntax. */
-        static const syString PrintfBig(unsigned long bufsize, const char* format, ... );
-
 };
 
 
