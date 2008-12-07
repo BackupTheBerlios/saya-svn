@@ -32,8 +32,9 @@ class serializable_basic {
         virtual void serialize(serialized& dest) const = 0;
 };
 
-/** Class serialized is a wrapper for ostringstream. Its only purpose is to avoid the
- *  inclusion of the std header files.
+/** Class serialized was originally a wrapper for ostringstream. Its only purpose was to avoid the
+ *  inclusion of the std header files. Now ostringstream has been replaced with syStrng, and there
+ *  are plans to include JSON deserialization in this class.
  */
 class serialized {
     friend class serialized_innerdata;
