@@ -42,7 +42,6 @@
 #include "newprojectdlg.h"
 
 #include "wxplaybackcontrolpanel.h"
-#include <deque>
 
 
 using namespace std;

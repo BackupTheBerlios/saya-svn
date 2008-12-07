@@ -15,7 +15,6 @@
 #include "iocommon.h"
 #include "systring.h"
 #include <cstdio>
-#include <cstdarg>
 #include <string.h>
 
 using namespace std;
