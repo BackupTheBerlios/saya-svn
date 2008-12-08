@@ -10,12 +10,13 @@
 #ifndef systring_h
 #define systring_h
 class syStringHelper;
+
+/** @brief A not-so simple wrapper for a const char* (it's been growing).
+ *  syString allows passing strings as return values on the stack without having to include
+ *  the C++ syString headers. It also allows to use of simple strings for use as keys in
+ *  maps.
+ */
 class syString {
-    /** @brief A not-so simple wrapper for a const char* (it's been growing).
-     *  syString allows passing strings as return values on the stack without having to include
-     *  the C++ syString headers. It also allows to use of simple strings for use as keys in
-     *  maps.
-     */
 
     friend class syStringHelper;
     public:

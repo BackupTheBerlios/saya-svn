@@ -13,12 +13,10 @@
 class syString;
 class RecentFilesListData;
 
-/** RecentFilesList is a customized encapsulation of an std::deque of strings
- *  that handles a recently opened files list. It contains the
- *  clear, push_front, push_back, pop_front and pop_back methods,
- *  plus access to one of the items via the [] operator.
- *  Additionally, it prevents adding empty strings, duplicates,
- *  and includes a counter indicating the list's "version number".
+/** RecentFilesList implements a double-ended string queue
+ *  that handles a recently opened files list. Items added
+ *  are checked for duplicates before inclusion. Also,
+ *  it includes a counter to catch any changes in the list.
  */
 class RecentFilesList {
     public:
@@ -38,7 +36,7 @@ class RecentFilesList {
         /** Gets an item from the list
          *  @note The function is one-based.
          */
-        const syString& item(unsigned int i) const;
+        const syString item(unsigned int i) const;
 
         /** Gets the current list size. */
         unsigned int size() const;

@@ -124,7 +124,7 @@ class ProjectManager
         /** @brief sets the pointer for the program's main frame (window)
           *
           * Call this from your main program to specify which frame will
-          * std::stringreceive the events.
+          * receive the events.
           */
         void SetEventHandler(sayaEvtHandler* handler);
 

@@ -12,10 +12,6 @@ Rick
   Verify that VideoInputDevice, AudioInputDevice, VideoOutputDevice and AudioOutputDevice have the
   necessary functions to work.
 
-* Implement the AVController class for A/V playback.
-  The AVController class is needed to implement the video player. It should be much easier to write now
-  that we're going to use different threads for audio-in, audio-out, video-in and video-out.
-
 * Implement reverse playback in either AVController and/or AudioInputDevice, VideoInputDevice
 
 * Implement a default playback AVController and an encoder AVController for VidProject, so
@@ -24,10 +20,7 @@ Rick
 Rigo
 ====
 
-* Implement the thread unit tests.
-  Without them, we won't be able to efficiently debug the threads module.
-
-* Implement the visual controls for the Video Player.
+* Implement the jog control for the Video Player.
 
 Javier Galicia
 ==============
@@ -42,3 +35,10 @@ TASKS DONE
   VideoOutputDevice::LoadVideoData in videooutputdevice.cpp is being rewritten because we need
   a way to switch the input/output/temp bitmap addresses (lock-free if possible) so that reading the
   data from the source does not cause any delays with writing the data into the destination.
+
+* Implement the thread unit tests (Rigo)
+* Implement the visual controls for the Video Player (Rigo)
+
+* Implement the AVController class for A/V playback (Rick)
+  The AVController class is needed to implement the video player. It should be much easier to write now
+  that we're going to use different threads for audio-in, audio-out, video-in and video-out.

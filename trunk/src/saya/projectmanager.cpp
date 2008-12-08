@@ -15,8 +15,6 @@
 #include "core/avcontroller.h"
 #include "projectmanager.h"
 #include "vidproject.h"
-#include <list>
-#include <map>
 
 #include "core/systring.h"
 #include "sayaconfig.h"
