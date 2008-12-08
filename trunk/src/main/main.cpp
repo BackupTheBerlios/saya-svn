@@ -1361,7 +1361,7 @@ sayaYesNoCancel AppFrame::YesNoCancelMessageBox(const char* msg,const char* capt
     int answer = wxMessageBox(s2wx(msg), s2wx(caption), wxYES_NO | wxCANCEL | style, this);
     if(answer == wxYES) {
         result = sayaYes;
-    } else if(result == wxNO) {
+    } else if(answer == wxNO) {
         result = sayaNo;
     } else {
         result = sayaCancel;

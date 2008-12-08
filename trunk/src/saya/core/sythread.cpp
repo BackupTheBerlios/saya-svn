@@ -1573,7 +1573,7 @@ syThreadError syThread::Delete(int* rc) {
     // IsThreadDetached simply looks for the thread in a global list of joinable threads,
     // so it's 100% safe, even if the thread had already been deleted.
     bool isdetached = IsThreadDetached(this);
-    syThreadStatus status;
+    syThreadStatus status = syTHREADSTATUS_EXITED;
 
     {
         // To prevent a race condition between deleting a thread here and the thread deleting itself,

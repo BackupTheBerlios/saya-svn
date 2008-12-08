@@ -10,10 +10,9 @@
 #ifndef presetmanager_h
 #define presetmanager_h
 
-#include "sstrvector.h"
-#include "smapxstr.h"
+class SStringVector;
+class SMapStrStr;
 class syString;
-struct ltsystr;
 
 class PresetManager {
 
