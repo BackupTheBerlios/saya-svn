@@ -12,8 +12,6 @@
 #include "aveffectparamdeclarations.h"
 #include "serialized.h"
 
-using namespace std;
-
 AVEffectDeclaration::AVEffectDeclaration() {
     ParametersInfo = new AVEffectParamDeclarations;
 }

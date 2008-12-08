@@ -43,9 +43,6 @@
 
 #include "wxplaybackcontrolpanel.h"
 
-
-using namespace std;
-
 //helper functions
 enum wxbuildinfoformat {
     short_f, long_f };
@@ -671,7 +668,7 @@ wxPanel* AppFrame::CreateProjectPane() {
         long sashpos = defaultsashpos;
         m_cfg->Read(CFG_DEFAULT_PRJ_SASHPOS, &sashpos, defaultsashpos);
         if(sashpos==0) sashpos = defaultsashpos;
-        sashpos = min(curheight,max((long)20,sashpos));
+        sashpos = std::min(curheight,std::max((long)20,sashpos));
         splitter1->SetSashPosition(sashpos);
 	}
 

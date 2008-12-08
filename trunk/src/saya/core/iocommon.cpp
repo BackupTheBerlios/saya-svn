@@ -17,9 +17,6 @@
 #include <cstdio>
 #include <string.h>
 
-using namespace std;
-
-
 syString ioCommon::GetPathname(const char* fullpath) {
   syString s(fullpath);
   int i1 = s.rfind("/",s.length());

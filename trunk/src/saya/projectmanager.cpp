@@ -24,12 +24,9 @@
 #include "recentfileslist.h"
 #include "presetmanager.h"
 
-
 // For internationalization
 #include <libintl.h>
 //
-
-using namespace std;
 
 static bool s_IsAppShuttingDown = false;
 const char* APP_NAME = "SayaVideoEditor";

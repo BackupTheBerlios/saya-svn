@@ -12,8 +12,6 @@
 #include "avsettings.h"
 #include "smapxstr.h"
 
-using namespace std;
-
 AVSettings::AVSettings() {
     videocodecsettings = new SMapStrStr;
     audiocodecsettings = new SMapStrStr;

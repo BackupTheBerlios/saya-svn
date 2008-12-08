@@ -8,7 +8,6 @@
  **************************************************************/
 
 #include "smap.h"
-using namespace std;
 
 const char* tag_smapstr = "SMapStr";
 

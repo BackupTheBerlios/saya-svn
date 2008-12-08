@@ -8,7 +8,6 @@
  ****************************************************************/
 
 #include "aveffectparamdeclaration.h"
-using namespace std;
 
 AVEffectParamDeclaration::AVEffectParamDeclaration() {
 }

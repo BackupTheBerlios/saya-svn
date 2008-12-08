@@ -9,9 +9,6 @@
 
 #include "presetmanager.h"
 #include "core/systring.h"
-using namespace std;
-
-
 
 PresetManager::PresetManager() {
 }
