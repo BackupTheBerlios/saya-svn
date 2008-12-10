@@ -244,6 +244,8 @@
 			<Option weight="20" />
 		</Unit>
 		<Unit filename="saya/inputmonitor.h" />
+		<Unit filename="saya/playbackmanager.cpp" />
+		<Unit filename="saya/playbackmanager.h" />
 		<Unit filename="saya/presetmanager.cpp">
 			<Option weight="20" />
 		</Unit>

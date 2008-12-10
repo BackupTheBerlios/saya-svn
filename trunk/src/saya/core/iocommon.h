@@ -16,8 +16,6 @@
 #define iocommon_h
 
 class syString;
-class FFileData;
-class TempFileData;
 
 /** @brief Class for File handling functions
   *
@@ -110,7 +108,6 @@ class ioCommon {
   * @see wxFFile
   */
 class FFile {
-    friend class FFileData;
     public:
 
         /** Standard constructor */
@@ -215,7 +212,9 @@ class FFile {
 
 
     private:
-        FFileData* m_Data;
+        class Data;
+        friend class Data;
+        Data* m_Data;
 };
 
 /** @brief Generic temporary file object.
@@ -225,7 +224,6 @@ class FFile {
   * @see wxTempFile
   */
 class TempFile {
-    friend class TempFileData;
     public:
 
         /** Standard constructor */
@@ -289,7 +287,9 @@ class TempFile {
         /** Standard destructor. */
         ~TempFile();
     private:
-        TempFileData* m_Data;
+        class Data;
+        friend class Data;
+        Data* m_Data;
 };
 
 #endif

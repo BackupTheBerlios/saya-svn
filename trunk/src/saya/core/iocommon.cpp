@@ -115,26 +115,25 @@ const syString ioCommon::GetTemporaryFilename(const char* path, const char* pref
 
 
 // *** FFile ***
-
-class FFileData {
+class FFile::Data {
     public:
-        FFileData();
+        Data();
         void* m_File;
         syString m_Filename;
 };
 
-FFileData::FFileData() :
+FFile::Data::Data() :
 m_File(NULL),
 m_Filename("")
 {
 }
 
 FFile::FFile() {
-    m_Data = new FFileData;
+    m_Data = new Data;
 }
 
 FFile::FFile(const char* filename, const char* mode) {
-    m_Data = new FFileData;
+    m_Data = new Data;
     m_Data->m_File = fopen(filename, mode);
 }
 
@@ -280,22 +279,22 @@ bool FFile::Write(const syString& s) {
 
 // *** TempFile ***
 
-class TempFileData {
+class TempFile::Data {
     public:
-        TempFileData();
+        Data();
         FFile m_File;
         syString m_Filename;
         syString m_TempFilename;
 };
 
-TempFileData::TempFileData() :
+TempFile::Data::Data() :
 m_Filename(""),
 m_TempFilename("")
 {
 }
 
 TempFile::TempFile() {
-    m_Data = new TempFileData;
+    m_Data = new Data;
 }
 
 TempFile::~TempFile(){

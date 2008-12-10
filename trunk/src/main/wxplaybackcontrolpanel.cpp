@@ -25,6 +25,7 @@
 #include <wx/button.h>
 #include <wx/stattext.h>
 #include <wx/panel.h>
+#include "../saya/core/avcontroller.h"
 
 const int id_PLAYBACK_FIRSTFRAME = wxNewId();
 const int id_PLAYBACK_FASTREWIND = wxNewId();
@@ -115,7 +116,8 @@ wxPlaybackControlPanel::~wxPlaybackControlPanel()
 }
 
 wxVideoPlaybackPanel::wxVideoPlaybackPanel( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) :
-wxPlaybackControlPanel( parent, id, pos, size, style)
+wxPlaybackControlPanel( parent, id, pos, size, style),
+m_Controller(NULL)
 {
     m_VideoPanel = new wxVideoPanel(this);
     wxBoxSizer* hbox0 = NULL;
@@ -126,5 +128,17 @@ wxPlaybackControlPanel( parent, id, pos, size, style)
 	m_VBox->Fit(this);
 }
 
+void wxVideoPlaybackPanel::SetAVController(AVController* controller) {
+    if(m_Controller) {
+        delete m_Controller;
+    }
+    m_Controller = controller;
+}
+
+
 wxVideoPlaybackPanel::~wxVideoPlaybackPanel() {
+    if(m_Controller) {
+        delete m_Controller;
+        m_Controller = NULL;
+    }
 }

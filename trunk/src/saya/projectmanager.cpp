@@ -44,17 +44,20 @@ void ShutDownApp() {
 
 static ProjectManager* TheProjectManager = NULL;
 
-// ------------------------
-// begin ProjectManagerData
-//-------------------------
+// --------------------------
+// begin ProjectManager::Data
+//---------------------------
 
-class ProjectManagerData {
+class ProjectManager::Data {
     public:
         /** Constructor. */
-        ProjectManagerData(ProjectManager* parent);
+        Data(ProjectManager* parent);
 
         /** Destructor. */
-        ~ProjectManagerData();
+        ~Data();
+
+        /** Back pointer to ProjectManger */
+        ProjectManager* m_Parent;
 
         /** The currently opened project */
         VidProject* m_Project;
@@ -68,15 +71,16 @@ class ProjectManagerData {
         /** A pointer to the program's config provider */
         SayaConfigProvider* m_ConfigProvider;
 
-        ProjectManager* m_Parent;
-
         syString m_LastError;
 };
 
-ProjectManagerData::ProjectManagerData(ProjectManager* parent) : m_Parent(parent) {
+ProjectManager::Data::Data(ProjectManager* parent) :
+m_Parent(parent),
+m_EvtHandler(NULL),
+m_ConfigProvider(NULL) {
 }
 
-ProjectManagerData::~ProjectManagerData() {
+ProjectManager::Data::~Data() {
 }
 
 // ----------------------
@@ -89,7 +93,7 @@ ProjectManagerData::~ProjectManagerData() {
 
 ProjectManager::ProjectManager() {
     //ctor
-    m_Data = new ProjectManagerData(this);
+    m_Data = new Data(this);
     m_Data->m_Project = 0;
     m_RecentFiles = new RecentFilesList(9);
     m_RecentImports = new RecentFilesList(9);

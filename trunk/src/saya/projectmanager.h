@@ -18,7 +18,6 @@ class sayaDebugLogger;
 class RecentFilesList;
 class PresetManager;
 class AVController;
-class ProjectManagerData;
 
 /** Tells whether the application is shutting down. */
 bool IsAppShuttingDown();
@@ -43,7 +42,6 @@ extern const char* APP_SHOWOFFNAME; /** The application's name and tagline for s
   */
 class ProjectManager
 {
-    friend class ProjectManagerData;
     private:
         /** @brief Standard constructor.
           *
@@ -183,7 +181,9 @@ class ProjectManager
     protected:
 
     private:
-        ProjectManagerData* m_Data;
+        class Data;
+        friend class Data;
+        Data* m_Data;
 };
 
 #endif // PROJECTMANAGER_H
