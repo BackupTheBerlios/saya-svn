@@ -185,9 +185,7 @@ App::~App() {
 }
 
 void App::OnExitApp(wxCommandEvent& event) {
-    if(m_debuglog) {
-        DebugLog("Good bye.");
-        delete m_debuglog;
-    }
+    DebugLog("Good bye.");
+    delete m_debuglog;
     m_debuglog = NULL;
 }

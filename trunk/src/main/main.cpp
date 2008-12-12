@@ -737,9 +737,7 @@ AppFrame::~AppFrame() {
     ShutDownApp();
     ProjectManager::Unload();
     m_mgr->UnInit();
-    if(m_welcomedialog) {
-        delete m_welcomedialog;
-    }
+    delete m_welcomedialog;
     delete m_mgr;
     delete m_cfg;
 }
@@ -1307,10 +1305,8 @@ void AppFrame::OnAbout(wxCommandEvent &event) {
 
 void AppFrame::OnResourceTreeContextMenu(wxTreeEvent& event) {
     wxMenu *menu = wxXmlResource::Get()->LoadMenu(_T("resources_tree_menu"));
-    if(menu) {
-        PopupMenu(menu);
-        delete menu;
-    }
+    if(menu) PopupMenu(menu);
+    delete menu;
 }
 
 void AppFrame::OnUpdateProjectPaneUI(wxUpdateUIEvent& event) {
