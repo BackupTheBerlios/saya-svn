@@ -159,6 +159,7 @@
 			<Option weight="10" />
 		</Unit>
 		<Unit filename="saya/core/filevid.h" />
+		<Unit filename="saya/core/intl.h" />
 		<Unit filename="saya/core/iocommon.cpp">
 			<Option weight="10" />
 		</Unit>
