@@ -18,9 +18,12 @@
 #include <string.h>
 
 syString ioCommon::GetPathname(const char* fullpath) {
-  syString s(fullpath);
-  int i1 = s.rfind("/",s.length());
-  int i2 = s.rfind("\\",s.length());
+  return GetPathname(syString(fullpath,true));
+}
+
+syString ioCommon::GetPathname(const syString& fullpath) {
+  int i1 = fullpath.rfind("/");
+  int i2 = fullpath.rfind("\\");
   int i;
   syString result;
 
@@ -29,26 +32,30 @@ syString ioCommon::GetPathname(const char* fullpath) {
   if(i==syString::npos) {
     result = "";
   } else {
-    result = trim(rtrim(s.substr(0,i),"/\\")).c_str();
+    result = trim(rtrim(fullpath.substr(0,i),"/\\"));
   }
   return result;
 }
 
 syString ioCommon::GetFilename(const char* fullpath) {
-  syString s(fullpath);
-  int i1 = s.rfind("/",s.length());
-  int i2 = s.rfind("\\",s.length());
+  return GetFilename(syString(fullpath, true));
+}
+
+syString ioCommon::GetFilename(const syString& fullpath) {
+  int i1 = fullpath.rfind("/");
+  int i2 = fullpath.rfind("\\");
   int i;
   syString result;
 
   i = ( (i1==syString::npos) || (i2!=syString::npos && (i2 > i1) ) ) ? i2 : i1;
-  if(i!=syString::npos) {
+  if(i==syString::npos) {
     result = fullpath;
   } else {
-    result = trim(s.substr(i+1,s.length())).c_str();
+    result = trim(fullpath.substr(i+1,fullpath.length()));
   }
   return result;
 }
+
 // End of String functions
 
 const char* ioCommon::GetSeparator() {
@@ -67,8 +74,8 @@ bool ioCommon::FileExists(const char* filename) {
 
    if (infile != NULL)   {
       result = true;
+      fclose(infile);
    }
-   fclose(infile);
    return result;
 }
 
@@ -304,6 +311,7 @@ TempFile::~TempFile(){
 
 
 TempFile::TempFile(const char* filename) {
+    m_Data = new Data;
     Open(filename);
 }
 

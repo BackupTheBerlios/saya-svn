@@ -124,7 +124,7 @@ void NewProjectDlg::OnPjrPresetsChanged(wxCommandEvent& event) {
     }
     //disable all and put values
     else{
-        syString selPreset = wx2s(idNewPrjPresetsChoice->GetStringSelection());
+        syString selPreset(idNewPrjPresetsChoice->GetStringSelection());
         SMapStrStr values = ProjectManager::Get()->m_Presets->GetPresetData(selPreset.c_str());
 
         const syString* sp = values.find("idNewPrjAVSettings_width");
@@ -178,19 +178,19 @@ void NewProjectDlg::OnPrjSaveSettingsAsClicked(wxCommandEvent& event) {
     if(dlg->ShowModal() == wxID_OK){
         //save preset (veirification not neede)
         SMapStrStr configs;
-        configs["idNewPrjAVSettings_width"] = wx2s(idNewPrjAVSettings_widthTextCtrl->GetValue());
-        configs["idNewPrjAVSettings_height"] = wx2s(idNewPrjAVSettings_heightTextCtrl->GetValue());
-        configs["idNewPrjAVSettings_fps"] = wx2s(idNewPrjAVSettings_fpsComboBox->GetValue());
-        configs["idNewPrjAVSettings_interlacing"] = wx2s(idNewPrjAVSettings_interlacingChoice->GetStringSelection());
-        configs["idNewPrjAVSettings_pixelaspect"] = wx2s(idNewPrjAVSettings_pixelaspectTextCtrl->GetValue());
-        configs["idNewPrjAVSettings_samplerate"] = wx2s(idNewPrjAVSettings_samplerateComboBox->GetValue());
-        configs["idNewPrjAVSettings_samplesize"] = wx2s(idNewPrjAVSettings_samplesizeChoice->GetStringSelection());
-        configs["idNewPrjAVSettings_surround"] = wx2s(idNewPrjAVSettings_surroundChoice->GetStringSelection());
-        //configs["idNewPrjAVSettings_channels"] = wx2s(idNewPrjAVSettings_channelsSpinCtrl->GetValue());
-        configs["idNewPrjAVSettings_description"] = wx2s(idNewPrjAVSettings_descriptionTextCtrl->GetValue());
+        configs["idNewPrjAVSettings_width"] = idNewPrjAVSettings_widthTextCtrl->GetValue();
+        configs["idNewPrjAVSettings_height"] = idNewPrjAVSettings_heightTextCtrl->GetValue();
+        configs["idNewPrjAVSettings_fps"] = idNewPrjAVSettings_fpsComboBox->GetValue();
+        configs["idNewPrjAVSettings_interlacing"] = idNewPrjAVSettings_interlacingChoice->GetStringSelection();
+        configs["idNewPrjAVSettings_pixelaspect"] = idNewPrjAVSettings_pixelaspectTextCtrl->GetValue();
+        configs["idNewPrjAVSettings_samplerate"] = idNewPrjAVSettings_samplerateComboBox->GetValue();
+        configs["idNewPrjAVSettings_samplesize"] = idNewPrjAVSettings_samplesizeChoice->GetStringSelection();
+        configs["idNewPrjAVSettings_surround"] = idNewPrjAVSettings_surroundChoice->GetStringSelection();
+        //configs["idNewPrjAVSettings_channels"] = idNewPrjAVSettings_channelsSpinCtrl->GetValue();
+        configs["idNewPrjAVSettings_description"] = idNewPrjAVSettings_descriptionTextCtrl->GetValue();
 
 
-        ProjectManager::Get()->m_Presets->SaveNewPreset(wx2s(dlg->GetName()).c_str(), configs);
+        ProjectManager::Get()->m_Presets->SaveNewPreset(syString(dlg->GetName()), configs);
         int columns = idNewPrjPresetsChoice->GetCount();
         idNewPrjPresetsChoice->Append(dlg->GetName());
         idNewPrjPresetsChoice->Select(columns);

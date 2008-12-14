@@ -45,6 +45,7 @@ class ioCommon {
           * @return the pathname of the file.
           */
         static syString GetPathname(const char* fullpath);
+        static syString GetPathname(const syString& fullpath);
 
         /** @brief Gets the basename (filename and extension) for a filename.
           *
@@ -52,6 +53,7 @@ class ioCommon {
           * @return the name of the file, without path component.
           */
         static syString GetFilename(const char* fullpath);
+        static syString GetFilename(const syString& fullpath);
 
         /** @brief Checks for the existance of a file.
           *

@@ -31,7 +31,9 @@
 
 #include "../saya/core/systring.h"
 #include "../saya/core/intl.h"
+#include "../saya/core/iocommon.h"
 #include "../saya/core/config.h"
+#include "../saya/core/debuglog.h"
 #include "../saya/vidproject.h"
 #include "../saya/recentfileslist.h"
 #include "../saya/projectmanager.h"
@@ -52,7 +54,7 @@ int idProjectStatusChanged = XRCID("idProjectStatusChanged");
 
 syString wxbuildinfo(wxbuildinfoformat format)
 {
-    syString wxbuild = wx2s(wxVERSION_STRING);
+    syString wxbuild(wxVERSION_STRING);
 
     if (format == long_f )
     {
@@ -511,7 +513,7 @@ bool AppFrame::CreateMenuBar() {
         SetMenuBar(mbar);
         result = true;
     } else {
-        LoadFail(_T("main_menu_bar"));
+        LoadFail("main_menu_bar");
     }
     return result;
 }
@@ -521,7 +523,7 @@ bool AppFrame::CreateDialogs() {
     do {
         m_welcomedialog = new WelcomeDialog(this);
         if(!m_welcomedialog) {
-            LoadFail(_T("welcome_dialog"));
+            LoadFail("welcome_dialog");
             break;
         }
         result = true;
@@ -533,13 +535,9 @@ bool AppFrame::CreatePanels() {
     bool result = false;
     do {
         m_projectpanel = CreateProjectPane(); // wxXmlResource::Get()->LoadPanel(this,wxT("project_panel"));
-        if(!m_projectpanel) { LoadFail(_T("project_panel")); break; }
+        if(!m_projectpanel) { LoadFail("project_panel"); break; }
            m_monitorpanel = new wxVideoPlaybackPanel(this);
            m_effectspanel = new wxVideoPlaybackPanel(this);
-//         m_monitorpanel = wxXmlResource::Get()->LoadPanel(this,wxT("monitor_panel"));
-//         if(!m_monitorpanel) { LoadFail(_T("monitor_panel")); break; }
-//         m_effectspanel = wxXmlResource::Get()->LoadPanel(this,wxT("effects_panel"));
-//         if(!m_effectspanel) { LoadFail(_T("effects_panel")); break; }
 
         m_timelinepanel = new wxPanel(this, -1,wxDefaultPosition, wxSize(800,400));
         result = true;
@@ -683,9 +681,9 @@ long AppFrame::GetProjectPanelSashPos() {
     }
 }
 
-void AppFrame::LoadFail(wxString resourcename) {
+void AppFrame::LoadFail(const char* resourcename) {
     syString s;
-    s.Printf(_("Could not find the XRC resource '%s'!\nAre you sure the program was installed correctly?"),wx2c(resourcename));
+    s.Printf(_("Could not find the XRC resource '%s'!\nAre you sure the program was installed correctly?"),resourcename);
     syApp::Get()->ErrorMessageBox(s.c_str());
 }
 
@@ -794,7 +792,7 @@ void AppFrame::OnFileOpen(wxCommandEvent& event) {
     int dialogresult = myDialog.ShowModal();
     if(dialogresult == wxID_OK) {
         if(ProjectManager::Get()->CloseProject(false)) { // First close current project, ask to save, etc.
-            bool result = ProjectManager::Get()->LoadProject(wx2s(myDialog.GetPath()));
+            bool result = ProjectManager::Get()->LoadProject(syString(myDialog.GetPath()));
             if(!result) {
                 wxString msg;
                 msg.Printf(_w("Error opening file '%s'!"),myDialog.GetPath().c_str());
@@ -902,8 +900,8 @@ void AppFrame::SaveDefaultLayout(bool showmsg) {
     syApp::GetConfig()->WriteInt(key + "/width", rect.width);
     syApp::GetConfig()->WriteInt(key + "/height", rect.height);
 
-    wxString strlayout = m_mgr->SavePerspective();
-    syApp::GetConfig()->Write(CFG_PERSPECTIVE_DEFAULT, wx2s(strlayout));
+    syString strlayout(m_mgr->SavePerspective());
+    syApp::GetConfig()->Write(CFG_PERSPECTIVE_DEFAULT, strlayout);
     syApp::GetConfig()->WriteInt(CFG_DEFAULT_PRJ_SASHPOS,GetProjectPanelSashPos());
 
     if(showmsg) {
@@ -974,9 +972,9 @@ void AppFrame::OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event) {
             mySubMenu->Append(idFileClearRecentProjectList,_T("&Clear"),_w("Clears Recent Projects List"));
             mySubMenu->AppendSeparator();
             for(i = 1; i <= pmgr->m_RecentFiles->size(); ++i) {
-                wxString tmptext;
-                tmptext.Printf(_T("&%d ") + s2wx(pmgr->m_RecentFiles->item(i)),i);
-                mySubMenu->Append(wxID_FILE1 + i - 1,tmptext,wxEmptyString);
+                syString tmptext;
+                tmptext.Printf("&%d %s",i,pmgr->m_RecentFiles->item(i).c_str());
+                mySubMenu->Append(wxID_FILE1 + i - 1,s2wx(tmptext),wxEmptyString);
             }
             myItem->Enable(pmgr->m_RecentFiles->size() > 0);
         }
@@ -1008,9 +1006,9 @@ void AppFrame::OnRecentImportsMenuUpdateUI(wxUpdateUIEvent& event) {
             mySubMenu->Append(idFileClearRecentImportList,_T("&Clear"),_w("Clears Recent Imported Files List"));
             mySubMenu->AppendSeparator();
             for(i = 1; i <= pmgr->m_RecentImports->size(); ++i) {
-                wxString tmptext;
-                tmptext.Printf(_T("&%d ") + s2wx(pmgr->m_RecentImports->item(i)),i);
-                mySubMenu->Append(wxID_IMPORT1 + i -1,tmptext,wxEmptyString);
+                syString tmptext;
+                tmptext.Printf("&%d %s",i, pmgr->m_RecentImports->item(i).c_str());
+                mySubMenu->Append(wxID_IMPORT1 + i -1,s2wx(tmptext),wxEmptyString);
             }
         }
     }
@@ -1281,8 +1279,7 @@ void AppFrame::DoUpdateAppTitle() {
 
         syString filename(prj->GetFilename(),true);
         if(!filename.empty()) {
-            wxFileName fname(s2wx(filename));
-            title << " [" << wx2s(fname.GetFullName()) << "]";
+            title << " [" << ioCommon::GetFilename(filename) << "]";
         } else {
             title << " [" << _("untitled") << "]";
         }
@@ -1367,7 +1364,7 @@ syString AppFrame::ShowDialogSaveProjectAs() {
     wxFileDialog mydialog(this,_w("Save file as..."),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
     syString result = "";
     if(mydialog.ShowModal() == wxID_OK) {
-        result = wx2s(mydialog.GetPath());
+        result = mydialog.GetPath();
     }
     return result;
 }
@@ -1376,7 +1373,7 @@ syString AppFrame::ShowDialogSaveProjectCopyAs() {
     wxFileDialog mydialog(this,_w("Save Copy as..."),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
     syString result = "";
     if(mydialog.ShowModal() == wxID_OK) {
-        result = wx2s(mydialog.GetPath()); // Gets full path including filename
+        result = mydialog.GetPath(); // Gets full path including filename
     }
     return result;
 }

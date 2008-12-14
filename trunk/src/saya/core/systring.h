@@ -49,7 +49,7 @@ class syString {
         const char* c_str() const;
 
         /** Returns the character from a given index. */
-        char operator[](unsigned int i) const;
+        const char operator[](unsigned int i) const;
 
         /** Returns the character from a given index. */
         char& operator[](unsigned int i);
@@ -223,12 +223,16 @@ class syString {
         static const syString FormatBig(unsigned long bufsize, const char* format, ... );
 
         static const int npos;
+
     private:
         unsigned int m_Size;
         mutable unsigned int m_Capacity;
         bool m_UseRef;
         char* m_Str;
 };
+
+const syString operator+(const char* s1, const syString& s2);
+const syString operator+(const wchar_t* s1, const syString& s2);
 
 struct ltsystr
 {

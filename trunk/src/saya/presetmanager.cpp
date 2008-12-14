@@ -46,6 +46,15 @@ SMapStrStr PresetManager::GetPresetData(const char* preset) {
     return configs;
 }
 
+SMapStrStr GetPresetData(const syString& preset) {
+    return GetPresetData(preset.c_str());
+}
+
+
 bool PresetManager::SaveNewPreset(const char* preset, const SMapStrStr& data) {
+    return true;
+}
+
+bool PresetManager::SaveNewPreset(const syString& preset, const SMapStrStr& data) {
     return true;
 }

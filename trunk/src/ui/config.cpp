@@ -16,7 +16,7 @@ wxsyConfig::wxsyConfig(const char* application_name) : syConfig(application_name
 }
 
 syString wxsyConfig::Read(const char* key, const char* defaultvalue) const {
-    return wx2s(m_config->Read(s2wx(key),s2wx(defaultvalue)));
+    return syString(m_config->Read(s2wx(key),s2wx(defaultvalue)));
 }
 
 bool wxsyConfig::Write(const char* key, const char* value) {

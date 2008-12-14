@@ -14,6 +14,8 @@
 #include <cstdarg>
 #include <wchar.h>
 
+const char* syEmptyString = "";
+
 class syStringHelper {
     public:
         static void assign(syString* dest, const char* str,bool useref = false);
@@ -35,14 +37,14 @@ syString::syString() :
 m_Size(0),
 m_Capacity(0),
 m_UseRef(true),
-m_Str(NULL)
+m_Str(const_cast<char*>(syEmptyString))
 {
 }
 
 syString::syString(const char* str,bool useref) :
 m_Size(0),
 m_Capacity(0),
-m_Str(NULL)
+m_Str(const_cast<char*>(syEmptyString))
 {
     syStringHelper::assign(this,str, useref);
 }
@@ -126,7 +128,7 @@ syString& syString::operator=(const wchar_t* str) {
 void syString::clear() {
     syStringHelper::reset(this);
     m_UseRef = true;
-    m_Str = NULL;
+    m_Str = const_cast<char*>(syEmptyString);
     m_Size = 0;
 }
 
@@ -136,7 +138,9 @@ bool syString::empty() const {
 
 void syStringHelper::reset(syString* dest) {
     if(!dest->m_UseRef && dest->m_Str) {
-        delete[] dest->m_Str;
+        if(dest->m_Str != syEmptyString) {
+            delete[] dest->m_Str;
+        }
     }
     dest->m_Str = 0;
 }
@@ -169,7 +173,7 @@ void syStringHelper::assign(syString* dest, const char* str,bool useref) {
     }
 }
 
-char syString::operator[](unsigned int i) const {
+const char syString::operator[](unsigned int i) const {
     if(i > m_Size) {
         return 0;
     }
@@ -588,4 +592,12 @@ syString ltrim(const syString& str,const syString& chars) {
 syString trim(const syString& str,const syString& chars)
 {
   return ltrim(rtrim(str,chars),chars);
+}
+
+const syString operator+(const char* s1, const syString& s2) {
+    return syString(s1) + s2;
+}
+
+const syString operator+(const wchar_t* s1, const syString& s2) {
+    return syString(s1) + s2;
 }

@@ -31,8 +31,12 @@ class PresetManager {
         The value is a string, but it is well formed for every value type of every widget */
         SMapStrStr GetPresetData(const char* preset);
 
+        SMapStrStr GetPresetData(const syString& preset);
+
         /** Save new predefined setting */
         bool SaveNewPreset(const char* preset, const SMapStrStr& data);
+
+        bool SaveNewPreset(const syString& preset, const SMapStrStr& data);
 };
 
 #endif

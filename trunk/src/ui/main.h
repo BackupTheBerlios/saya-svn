@@ -56,7 +56,7 @@ class AppFrame: public wxFrame, public sayaEvtHandler
         bool CanRedo();                 /// Does the project have an item in the "redo" list?
 
         /// Shows an error about Loading an XML resource.
-        void LoadFail(wxString resourcename);
+        void LoadFail(const char* resourcename);
 
         /// Processes events related to Saya projects
         virtual void ProcessSayaEvent(sayaEventType id, void* data = NULL);
