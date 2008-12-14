@@ -104,13 +104,8 @@ m_Mutex(NULL)
 }
 
 syBitmap::~syBitmap() {
-    if(m_Data->m_XOffsets != NULL) {
-        delete[] m_Data->m_XOffsets;
-    }
-
-    if(m_Data->m_YOffsets != NULL) {
-        delete[] m_Data->m_YOffsets;
-    }
+    delete[] m_Data->m_XOffsets;
+    delete[] m_Data->m_YOffsets;
     delete m_Mutex;
     delete m_Data;
 }

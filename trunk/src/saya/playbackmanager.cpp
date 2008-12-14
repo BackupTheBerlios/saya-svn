@@ -28,10 +28,8 @@ m_PreviewMonitor(NULL) {
 }
 
 PlaybackManager::Data::~Data() {
-    if(m_InputMonitor)
-        delete m_InputMonitor;
-    if(m_PreviewMonitor)
-        delete m_PreviewMonitor;
+    delete m_InputMonitor;
+    delete m_PreviewMonitor;
 }
 
 

@@ -66,34 +66,8 @@
 		<Unit filename="drafts/undoredo.txt">
 			<Option target="Debug" />
 		</Unit>
-		<Unit filename="main/app.cpp">
-			<Option weight="100" />
-		</Unit>
-		<Unit filename="main/app.h" />
-		<Unit filename="main/debuglog.cpp" />
-		<Unit filename="main/debuglog.h" />
-		<Unit filename="main/main.cpp">
-			<Option weight="100" />
-		</Unit>
-		<Unit filename="main/main.h" />
-		<Unit filename="main/newprojectdlg.cpp" />
-		<Unit filename="main/newprojectdlg.h" />
-		<Unit filename="main/picknamedlg.cpp" />
-		<Unit filename="main/picknamedlg.h" />
-		<Unit filename="main/resources.cpp" />
-		<Unit filename="main/resources.h" />
-		<Unit filename="main/s2wx.cpp" />
-		<Unit filename="main/s2wx.h" />
-		<Unit filename="main/welcomedlg.cpp" />
-		<Unit filename="main/welcomedlg.h" />
-		<Unit filename="main/wx_pch.h">
-			<Option compile="1" />
-			<Option weight="0" />
-		</Unit>
-		<Unit filename="main/wxplaybackcontrolpanel.cpp" />
-		<Unit filename="main/wxplaybackcontrolpanel.h" />
-		<Unit filename="main/wxvideopanel.cpp" />
-		<Unit filename="main/wxvideopanel.h" />
+		<Unit filename="main.cpp" />
+		<Unit filename="main.h" />
 		<Unit filename="resources/debuglog.fbp">
 			<Option target="Debug" />
 		</Unit>
@@ -149,11 +123,12 @@
 			<Option weight="20" />
 		</Unit>
 		<Unit filename="saya/avtransition.h" />
-		<Unit filename="saya/configprovider.h" />
 		<Unit filename="saya/core/aborter.cpp">
 			<Option weight="10" />
 		</Unit>
 		<Unit filename="saya/core/aborter.h" />
+		<Unit filename="saya/core/app.cpp" />
+		<Unit filename="saya/core/app.h" />
 		<Unit filename="saya/core/atomic.h" />
 		<Unit filename="saya/core/audiobuffer.cpp">
 			<Option weight="10" />
@@ -176,6 +151,9 @@
 		</Unit>
 		<Unit filename="saya/core/avdevice.h" />
 		<Unit filename="saya/core/avtypes.h" />
+		<Unit filename="saya/core/config.h" />
+		<Unit filename="saya/core/debuglog.cpp" />
+		<Unit filename="saya/core/debuglog.h" />
 		<Unit filename="saya/core/filevid.cpp">
 			<Option weight="10" />
 		</Unit>
@@ -258,11 +236,6 @@
 			<Option weight="20" />
 		</Unit>
 		<Unit filename="saya/recentfileslist.h" />
-		<Unit filename="saya/sayaconfig.h" />
-		<Unit filename="saya/sayadebuglogger.cpp">
-			<Option weight="20" />
-		</Unit>
-		<Unit filename="saya/sayadebuglogger.h" />
 		<Unit filename="saya/sayaevthandler.h" />
 		<Unit filename="saya/serializable.cpp">
 			<Option weight="20" />
@@ -304,6 +277,36 @@
 		</Unit>
 		<Unit filename="saya/vidproject.h" />
 		<Unit filename="todo.txt" />
+		<Unit filename="ui/app.cpp">
+			<Option weight="100" />
+		</Unit>
+		<Unit filename="ui/app.h" />
+		<Unit filename="ui/config.cpp" />
+		<Unit filename="ui/config.h" />
+		<Unit filename="ui/debuglog.cpp" />
+		<Unit filename="ui/debuglog.h" />
+		<Unit filename="ui/main.cpp">
+			<Option weight="100" />
+		</Unit>
+		<Unit filename="ui/main.h" />
+		<Unit filename="ui/newprojectdlg.cpp" />
+		<Unit filename="ui/newprojectdlg.h" />
+		<Unit filename="ui/picknamedlg.cpp" />
+		<Unit filename="ui/picknamedlg.h" />
+		<Unit filename="ui/resources.cpp" />
+		<Unit filename="ui/resources.h" />
+		<Unit filename="ui/s2wx.cpp" />
+		<Unit filename="ui/s2wx.h" />
+		<Unit filename="ui/welcomedlg.cpp" />
+		<Unit filename="ui/welcomedlg.h" />
+		<Unit filename="ui/wx_pch.h">
+			<Option compile="1" />
+			<Option weight="0" />
+		</Unit>
+		<Unit filename="ui/wxplaybackcontrolpanel.cpp" />
+		<Unit filename="ui/wxplaybackcontrolpanel.h" />
+		<Unit filename="ui/wxvideopanel.cpp" />
+		<Unit filename="ui/wxvideopanel.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

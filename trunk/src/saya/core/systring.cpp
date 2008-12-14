@@ -70,7 +70,6 @@ syString& syString::operator=(const syString& copy) {
         syStringHelper::assign(this,copy.m_Str, false);
     }
     return *this;
-    return *this;
 }
 
 syString& syString::operator=(const char* str) {

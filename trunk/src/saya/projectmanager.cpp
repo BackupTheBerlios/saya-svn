@@ -11,15 +11,16 @@
 #pragma hdrstop
 #endif //__BORLANDC__
 
+#include "core/systring.h"
+#include "core/config.h"
+#include "core/debuglog.h"
+#include "core/app.h"
+
 #include "core/iocommon.h"
 #include "core/avcontroller.h"
 #include "projectmanager.h"
 #include "vidproject.h"
 
-#include "core/systring.h"
-#include "sayaconfig.h"
-#include "configprovider.h"
-#include "sayadebuglogger.h"
 #include "sayaevthandler.h"
 #include "recentfileslist.h"
 #include "presetmanager.h"
@@ -28,21 +29,13 @@
 #include <libintl.h>
 //
 
-static bool s_IsAppShuttingDown = false;
 const char* APP_NAME = "SayaVideoEditor";
 const char* APP_VENDOR = "Rick Garcia";
 const char* APP_SHOWNAME = "Saya";
 const char* APP_SHOWOFFNAME = "SayaVE Ain't Yet Another Video Editor";
 
-bool IsAppShuttingDown() {
-    return s_IsAppShuttingDown;
-}
 
-void ShutDownApp() {
-    s_IsAppShuttingDown = true;
-}
-
-static ProjectManager* TheProjectManager = NULL;
+static ProjectManager* TheProjectManager = 0;
 
 // --------------------------
 // begin ProjectManager::Data
@@ -68,16 +61,13 @@ class ProjectManager::Data {
         /** A pointer to the program's event handler */
         sayaEvtHandler* m_EvtHandler;
 
-        /** A pointer to the program's config provider */
-        SayaConfigProvider* m_ConfigProvider;
-
         syString m_LastError;
 };
 
 ProjectManager::Data::Data(ProjectManager* parent) :
 m_Parent(parent),
-m_EvtHandler(NULL),
-m_ConfigProvider(NULL) {
+m_EvtHandler(0)
+{
 }
 
 ProjectManager::Data::~Data() {
@@ -98,8 +88,7 @@ ProjectManager::ProjectManager() {
     m_RecentFiles = new RecentFilesList(9);
     m_RecentImports = new RecentFilesList(9);
     m_Presets = new PresetManager;
-    m_Data->m_EvtHandler = NULL;
-    m_Data->m_ConfigProvider = NULL;
+    m_Data->m_EvtHandler = 0;
     m_ClearUndoHistoryOnSave = true;
 
 }
@@ -114,26 +103,20 @@ ProjectManager::~ProjectManager() {
     delete m_Data;
 }
 
-void ProjectManager::SetConfigProvider(SayaConfigProvider* provider) {
-    m_Data->m_ConfigProvider = provider;
-}
-
 void ProjectManager::SetEventHandler(sayaEvtHandler* handler) {
     m_Data->m_EvtHandler = handler;
 }
 
 ProjectManager* ProjectManager::Get() {
-    if(TheProjectManager == NULL && !IsAppShuttingDown()) {
+    if(TheProjectManager == 0 && !IsAppShuttingDown()) {
         TheProjectManager = new ProjectManager();
     }
     return TheProjectManager;
 }
 
 void ProjectManager::Unload() {
-    if(TheProjectManager != NULL) {
-        delete TheProjectManager;
-        TheProjectManager = NULL;
-    }
+    delete TheProjectManager;
+    TheProjectManager = 0;
 }
 
 VidProject* ProjectManager::GetProject() {
@@ -141,7 +124,7 @@ VidProject* ProjectManager::GetProject() {
 }
 
 bool ProjectManager::HasProject() {
-    return (m_Data->m_Project != NULL);
+    return (m_Data->m_Project != 0);
 }
 
 const syString ProjectManager::GetLastProjectDir() {
@@ -150,10 +133,7 @@ const syString ProjectManager::GetLastProjectDir() {
 
 bool ProjectManager::LoadConfig() {
     // TODO (rick#1#): Load configuration for the project manager
-    if(!m_Data->m_ConfigProvider) {
-        return false; // ERROR!
-    }
-    SayaConfig* cfg = m_Data->m_ConfigProvider->Create(APP_NAME);
+    syConfig* cfg = syApp::Get()->CreateConfig();
     syString key;
     syString tmpname;
 
@@ -177,10 +157,7 @@ bool ProjectManager::LoadConfig() {
 
 bool ProjectManager::SaveConfig() {
     // TODO (rick#1#): Save configuration for the project manager
-    if(!m_Data->m_ConfigProvider) {
-        return false; // ERROR!
-    }
-    SayaConfig* cfg = m_Data->m_ConfigProvider->Create(APP_NAME);
+    syConfig* cfg = syApp::Get()->CreateConfig();
     syString key;
 
     // Save last used directory
@@ -209,7 +186,7 @@ bool ProjectManager::LoadProject(const syString& filename) {
     bool result = false;
     CloseProject(true); // Close any project we have in memory
     VidProject* prj = VidProject::Load(filename.c_str(),m_Data->m_LastError);
-    if(prj != NULL) {
+    if(prj != 0) {
         m_RecentFiles->Add(filename.c_str());
         m_Data->m_LastProjectDir = ioCommon::GetPathname(filename.c_str()); // Extract last project directory from opened file path
         m_Data->m_Project = prj;
@@ -261,7 +238,7 @@ bool ProjectManager::SaveProjectCopy(const syString& filename) {
 
 bool ProjectManager::InteractiveSaveProject() {
 
-    if(m_Data->m_Project == NULL) return true; // No error, since there's no file to save
+    if(m_Data->m_Project == 0) return true; // No error, since there's no file to save
     bool result = false;
     if(m_Data->m_Project->IsNew()) {
         result = InteractiveSaveProjectAs();
@@ -283,11 +260,11 @@ bool ProjectManager::InteractiveSaveProject() {
 }
 
 bool ProjectManager::InteractiveSaveProjectAs() {
-    if(m_Data->m_Project == NULL)
+    if(m_Data->m_Project == 0)
         return true;
     bool result = false;
     syString filename("");
-    if(m_Data->m_EvtHandler != NULL) {
+    if(m_Data->m_EvtHandler != 0) {
         filename = m_Data->m_EvtHandler->ShowDialogSaveProjectAs();
     }
     if(!filename.empty()) {
@@ -297,11 +274,11 @@ bool ProjectManager::InteractiveSaveProjectAs() {
 }
 
 bool ProjectManager::InteractiveSaveProjectCopy() {
-    if(m_Data->m_Project == NULL)
+    if(m_Data->m_Project == 0)
         return true;
     bool result = false;
     syString filename("");
-    if(m_Data->m_EvtHandler != NULL) {
+    if(m_Data->m_EvtHandler != 0) {
         filename = m_Data->m_EvtHandler->ShowDialogSaveProjectCopyAs();
     }
     if(!filename.empty()) {
@@ -317,7 +294,7 @@ bool ProjectManager::CloseProject(bool force) {
     // If not modified (or forced), return success.
     if(!result) {
         sayaYesNoCancel answer = sayaNo;
-        if(m_Data->m_EvtHandler != NULL) {
+        if(m_Data->m_EvtHandler != 0) {
             m_Data->m_EvtHandler->YesNoCancelMessageBox(gettext("Project has been modified. Save?\nChoose 'Cancel' "
             "to continue working on the project."),
             gettext("Save project?"),false);
@@ -325,7 +302,7 @@ bool ProjectManager::CloseProject(bool force) {
         if(answer == sayaYes) {
             result = InteractiveSaveProject();
             if(!result) {
-                if(m_Data->m_EvtHandler != NULL) {
+                if(m_Data->m_EvtHandler != 0) {
                     m_Data->m_EvtHandler->ErrorMessageBox(gettext("Could not save file! Project will not be closed."), gettext("Info"));
                 }
             }
@@ -336,7 +313,7 @@ bool ProjectManager::CloseProject(bool force) {
     }
     if(result) {
         delete m_Data->m_Project;
-        m_Data->m_Project = NULL;
+        m_Data->m_Project = 0;
     }
     OnProjectStatusModified();
     return result;

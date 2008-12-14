@@ -12,7 +12,6 @@
 
 class syString;
 class VidProject;
-class SayaConfigProvider;
 class sayaEvtHandler;
 class sayaDebugLogger;
 class RecentFilesList;
@@ -125,12 +124,6 @@ class ProjectManager
           * receive the events.
           */
         void SetEventHandler(sayaEvtHandler* handler);
-
-        /** Sets the Configuration provider.
-          *
-          * @note You MUST call this method from your program after creating the project manager.
-          */
-        void SetConfigProvider(SayaConfigProvider* provider);
 
         /** Gets the last used project directory */
         const syString GetLastProjectDir();

@@ -104,10 +104,8 @@ bool AudioOutputDevice::AllocateResources() {
 
 void AudioOutputDevice::FreeResources() {
     FreeAudioData();
-    if(m_Data->m_Buffer) {
-        delete m_Data->m_Buffer;
-        m_Data->m_Buffer = NULL;
-    }
+    delete m_Data->m_Buffer;
+    m_Data->m_Buffer = NULL;
 }
 
 bool AudioOutputDevice::AllocateAudioData() {

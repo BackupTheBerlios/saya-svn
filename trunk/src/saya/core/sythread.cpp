@@ -359,26 +359,11 @@ unsigned long syGetTime() {
         GetSystemTimeAsFileTime(&ft);
         // To obtain the seconds, we divide by 10,000,000
         // (which is 1 second / 10 nanoseconds used by the WIN API)
-        // But we need to use 64-bit math which C++ lacks!
-        // Luckily, we have algebra on our side :)
+        // Thankfully, GCC provides us with 64-bit integers.
 
-        // 2^32 / 10,000,000 = 429.4967296
-        // hi * 2^32 / 10,000,000 =
-        //        = hi * 429.4967296
-        //        = hi * (429 + 0.4967296)
-        //        = hi * 429 + hi*0.496 + hi*.0007296
-        //        = hi*0.0007296 + hi*0.496 + hi*429 // We reverse the order for greater precision
-        //          57/78125 + 62/125 + 419 = 429.4967296. // We're lucky, it's 100% exact!
-        //        = ((hi*57)/78125) + ((hi*62)/125) + (hi* 429)
-        //
-        //        Finally, ((hi << 32) + low) / 10,000,000 =
-        //       (low / 10000000) + ((hi*57)/78125) + ((hi*62)/125) + (hi* 429)
-
-        unsigned long low = ft.dwLowDateTime;
-
-        // We spare the highest 16 bits - we don't want to overflow the calculation.
-        unsigned long hi  = ft.dwHighDateTime & 0x0ffff;
-        result = (low / 10000000) + ((hi*57)/78125) + ((hi*62)/125) + (hi* 429);
+        unsigned long long t = ft.dwHighDateTime;
+        t = ((t <<32) | ft.dwLowDateTime) / 10000000;
+        result = t & 0xFFFFFFFF;
     #else
         // Here we call the posix function gettimeofday which returns the time in seconds and microseconds.
         // We're just using the seconds right now.

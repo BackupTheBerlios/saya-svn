@@ -39,7 +39,7 @@ class sayaEvtHandler {
         virtual ~sayaEvtHandler() {}
 
         /** Event processing function */
-        virtual void ProcessSayaEvent(sayaEventType id, void* data = NULL) = 0;
+        virtual void ProcessSayaEvent(sayaEventType id, void* data = 0) = 0;
 
         /** Shows an Error message box */
         virtual void ErrorMessageBox(const char* msg,const char* caption) = 0;

@@ -1,5 +1,5 @@
 /***************************************************************
- * Name:      sayadebuglogger.h
+ * Name:      debuglog.h
  * Purpose:   Declaration for the sayaDebugLogger class
  * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * Created:   2008-09-11
@@ -7,8 +7,8 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
-#ifndef sayadebuglogger_h
-#define sayadebuglogger_h
+#ifndef sydebuglog_h
+#define sydebuglog_h
 
 class syString;
 
@@ -18,7 +18,7 @@ void DebugLog(const char* msg);
 /** Adds a message to the currently-assigned debug log (syString version) */
 void DebugLog(const syString& msg);
 
-class sayaDebugLogger {
+class syDebugLog {
     public:
 
         /** Adds a message to the debug log */
@@ -32,13 +32,16 @@ class sayaDebugLogger {
           * Call this from your main program to specify an object which will do the
           * debug logging.
           */
-        static void SetDebugLogger(sayaDebugLogger* logger);
+        static void SetDebugLog(syDebugLog* log);
+
+        /** Deletes the current debug log from memory. */
+        static void DeleteDebugLog();
 
         /** Standard constructor */
-        sayaDebugLogger() {}
+        syDebugLog() {}
 
         /** Standard destructor */
-        virtual ~sayaDebugLogger();
+        virtual ~syDebugLog();
 };
 
 #endif

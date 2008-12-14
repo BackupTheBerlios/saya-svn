@@ -1,6 +1,6 @@
 /***************************************************************
  * Name:      sayaconfig.h
- * Purpose:   Definition for the SayaConfig class
+ * Purpose:   Definition for the syConfig class
  * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * Created:   2008-09-11
  * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
@@ -10,20 +10,20 @@
 #ifndef sayaconfig_h
 #define sayaconfig_h
 
-#include <string>
+#include "systring.h"
 
 /** Abstract Cross-platform Configuration class.
   *
   * @note All strings passed and received are ANSI strings in multibyte format.
   */
-class SayaConfig {
+class syConfig {
     public:
 
         /** Standard constructor */
-        SayaConfig(const char* application_name) {}
+        syConfig(const char* application_name) {}
 
         /** Standard destructor */
-        virtual ~SayaConfig() {};
+        virtual ~syConfig() {};
 
         /** @brief Reads a string configuration value.
           *
