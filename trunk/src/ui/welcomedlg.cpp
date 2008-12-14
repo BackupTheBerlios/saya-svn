@@ -9,7 +9,6 @@
 
 #ifndef WX_PRECOMP
     #include <wx/xrc/xmlres.h>
-    #include <wx/config.h>
     #include <wx/filedlg.h>
     #include <wx/sizer.h>
     #include <wx/html/htmlwin.h>

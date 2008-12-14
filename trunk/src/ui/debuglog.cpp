@@ -23,7 +23,6 @@
     #include <wx/gdicmn.h>
     #include <wx/settings.h>
     #include <wx/sizer.h>
-    #include <wx/config.h>
     #include <wx/frame.h>
     #include <wx/app.h>
 #endif

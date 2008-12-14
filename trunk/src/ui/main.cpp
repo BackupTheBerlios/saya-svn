@@ -19,7 +19,6 @@
 #ifndef WX_PRECOMP
     #include <wx/app.h>
     #include <wx/xrc/xmlres.h>
-    #include <wx/config.h>
     #include <wx/filedlg.h>
     #include <wx/aui/aui.h>
     #include <wx/splitter.h>
