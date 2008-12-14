@@ -31,13 +31,13 @@ void AVSettings::serialize(serialized& dest) const {
 
 //    string result;
 //
-//    result = syString::Printf("<AVSettings width=\"%u\" height=\"%u\" pixelaspect=\"%f\" fps=\"%f\">",
+//    result = syString::Format("<AVSettings width=\"%u\" height=\"%u\" pixelaspect=\"%f\" fps=\"%f\">",
 //        width, height, pixelaspect, fps);
-//    result += syString::PrintfBig(65536,"<vidformat type=\"%s\">%s</vidformat>",
+//    result += syString::FormatBig(65536,"<vidformat type=\"%s\">%s</vidformat>",
 //              vidformat.c_str(),formatsettings->serialize().c_str());
-//    result += syString::PrintfBig(65536,"<videocodec type=\"%s\">%s</videocodec>",
+//    result += syString::FormatBig(65536,"<videocodec type=\"%s\">%s</videocodec>",
 //              videocodec.c_str(),videocodecsettings->serialize().c_str());
-//    result += syString::PrintfBig(65536,"<audiocodec type=\"%s\">%s</audiocodec>",
+//    result += syString::FormatBig(65536,"<audiocodec type=\"%s\">%s</audiocodec>",
 //              audiocodec.c_str(),audiocodecsettings->serialize().c_str());
 //    result += "</AVSettings>";
 //    return result;

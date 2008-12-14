@@ -466,7 +466,7 @@ bool syString::operator!() const {
     return !m_Size;
 }
 
-const syString syString::Printf(const char* format, ... ) {
+const syString& syString::Printf(const char* format, ... ) {
     syString s;
     va_list arguments;
     unsigned int numchars;
@@ -487,9 +487,9 @@ const syString syString::Printf(const char* format, ... ) {
     if(numchars < bufsize) {
         buffer[numchars] = 0;
     }
-    s = buffer;
+    operator=(buffer);
     delete[] buffer;
-    return s;
+    return *this;
 }
 
 const syString syString::Format(const char* format, ... ) {
@@ -518,7 +518,31 @@ const syString syString::Format(const char* format, ... ) {
     return s;
 }
 
-const syString syString::PrintfBig(unsigned long bufsize, const char* format, ... ) {
+const syString& syString::PrintfBig(unsigned long bufsize, const char* format, ... ) {
+    syString s;
+    va_list arguments;
+    unsigned int numchars;
+    if(bufsize <= 1) {
+        operator=("");
+        return *this;
+    } else {
+        char* buffer = new char[bufsize]; // For big strings
+        va_start(arguments, format);
+        numchars = vsnprintf(buffer, bufsize - 1, format, arguments);
+        va_end(arguments);
+        if(numchars < bufsize - 1) {
+            buffer[numchars] = 0;
+        } else {
+            buffer[bufsize - 1] = 0;
+        }
+        operator=(buffer);
+        delete[] buffer;
+    }
+    return *this;
+}
+
+
+const syString syString::FormatBig(unsigned long bufsize, const char* format, ... ) {
     syString s;
     va_list arguments;
     unsigned int numchars;

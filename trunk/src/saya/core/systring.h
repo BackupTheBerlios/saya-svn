@@ -211,13 +211,16 @@ class syString {
         syString& operator<<(const bool input);
 
         /** Formats a string using sprintf syntax. 2Kbytes max. */
-        static const syString Printf(const char* format, ... );
+        const syString& Printf(const char* format, ... );
 
         /** Formats a string using sprintf syntax. 2Kbytes max. */
         static const syString Format(const char* format, ... );
 
         /** Formats a string with maximum length of bufsize - 1, using sprintf syntax. */
-        static const syString PrintfBig(unsigned long bufsize, const char* format, ... );
+        const syString& PrintfBig(unsigned long bufsize, const char* format, ... );
+
+        /** Formats a string with maximum length of bufsize - 1, using sprintf syntax. */
+        static const syString FormatBig(unsigned long bufsize, const char* format, ... );
 
         static const int npos;
     private:
