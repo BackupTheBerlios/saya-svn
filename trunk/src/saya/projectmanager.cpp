@@ -11,6 +11,7 @@
 #pragma hdrstop
 #endif //__BORLANDC__
 
+#include "core/intl.h"
 #include "core/systring.h"
 #include "core/config.h"
 #include "core/debuglog.h"
@@ -26,14 +27,7 @@
 #include "presetmanager.h"
 
 // For internationalization
-#include <libintl.h>
 //
-
-const char* APP_NAME = "SayaVideoEditor";
-const char* APP_VENDOR = "Rick Garcia";
-const char* APP_SHOWNAME = "Saya";
-const char* APP_SHOWOFFNAME = "SayaVE Ain't Yet Another Video Editor";
-
 
 static ProjectManager* TheProjectManager = 0;
 
@@ -193,7 +187,7 @@ bool ProjectManager::LoadProject(const syString& filename) {
         result = true;
     } else {
         if(m_Data->m_EvtHandler) {
-            m_Data->m_EvtHandler->ErrorMessageBox(m_Data->m_LastError.c_str(),gettext("Error loading project"));
+            m_Data->m_EvtHandler->ErrorMessageBox(m_Data->m_LastError.c_str(),_("Error loading project"));
         }
     }
     OnProjectStatusModified();
@@ -246,8 +240,8 @@ bool ProjectManager::InteractiveSaveProject() {
         result = SaveProject();
         if(!result) {
             bool answer = false;
-            syString msg = gettext("Couldn't save the file! Try with a different name?");
-            syString caption = gettext("Error Saving");
+            syString msg = _("Couldn't save the file! Try with a different name?");
+            syString caption = _("Error Saving");
             if(m_Data->m_EvtHandler) {
                 answer = m_Data->m_EvtHandler->YesNoMessageBox(msg.c_str(),caption.c_str(),true);
             }
@@ -295,15 +289,15 @@ bool ProjectManager::CloseProject(bool force) {
     if(!result) {
         sayaYesNoCancel answer = sayaNo;
         if(m_Data->m_EvtHandler != 0) {
-            m_Data->m_EvtHandler->YesNoCancelMessageBox(gettext("Project has been modified. Save?\nChoose 'Cancel' "
+            m_Data->m_EvtHandler->YesNoCancelMessageBox(_("Project has been modified. Save?\nChoose 'Cancel' "
             "to continue working on the project."),
-            gettext("Save project?"),false);
+            _("Save project?"),false);
         }
         if(answer == sayaYes) {
             result = InteractiveSaveProject();
             if(!result) {
                 if(m_Data->m_EvtHandler != 0) {
-                    m_Data->m_EvtHandler->ErrorMessageBox(gettext("Could not save file! Project will not be closed."), gettext("Info"));
+                    m_Data->m_EvtHandler->ErrorMessageBox(_("Could not save file! Project will not be closed."), _("Info"));
                 }
             }
         } else {

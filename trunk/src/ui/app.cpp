@@ -22,9 +22,11 @@
     #include <wx/app.h>
     #include <wx/log.h>
     #include <wx/image.h>
+    #include <wx/msgdlg.h>
 #endif
 
 #include "../saya/core/systring.h"
+#include "../saya/core/intl.h"
 #include "../saya/core/config.h"
 #include "../saya/playbackmanager.h"
 #include "../saya/projectmanager.h"
@@ -32,10 +34,16 @@
 #include "resources.h"
 #include "debuglog.h"
 #include "config.h"
+#include "s2wx.h"
 
 extern wxFrame* CreateMainFrame();
 
 IMPLEMENT_APP_NO_MAIN(wxApp)
+
+const char* APP_NAME = "SayaVideoEditor";
+const char* APP_VENDOR = "Rick Garcia";
+const char* APP_SHOWNAME = "Saya";
+const char* APP_SHOWOFFNAME = "SayaVE Ain't Yet Another Video Editor";
 
 // ---------------------
 // begin wxSayaApp::Data
@@ -100,22 +108,18 @@ wxSayaApp::~wxSayaApp() {
 }
 
 const char* wxSayaApp::GetApplicationName() const {
-    static const char* APP_NAME = "SayaVideoEditor";
     return APP_NAME;
 }
 
 const char* wxSayaApp::GetApplicationDisplayName() const {
-    static const char* APP_SHOWNAME = "Saya";
     return APP_SHOWNAME;
 }
 
 const char* wxSayaApp::GetApplicationVendor() const {
-    static const char* APP_VENDOR = "Rick Garcia";
     return APP_VENDOR;
 }
 
 const char* wxSayaApp::GetApplicationShowOffName() const {
-    static const char* APP_SHOWOFFNAME = "SayaVE Ain't Yet Another Video Editor";
     return APP_SHOWOFFNAME;
 }
 
@@ -124,25 +128,24 @@ syConfig* wxSayaApp::CreateConfig() const {
 }
 
 syDebugLog* wxSayaApp::CreateDebugLog() const {
-    m_Data->m_DebugLog = new AppDebugLog;
-    wxTheApp->SetTopWindow(reinterpret_cast<wxFrame*>(m_Data->m_DebugLog));
-    return m_Data->m_DebugLog;
+    syDebugLog* log = m_Data->m_DebugLog = new AppDebugLog;
+    return log;
 }
 
 bool wxSayaApp::OnInit(int argc, const char** argv) {
     bool result = false;
     do {
         // Init Project Manager and Playback Manager.
-        DebugLog("Initializing Resources path...");
+        DebugLog(_("Initializing Resources path..."));
         syInitResourcesPaths();
-        DebugLog("Initializing File system handlers...");
+        DebugLog(_("Initializing File system handlers..."));
         wxFileSystem::AddHandler(new wxZipFSHandler);
         wxFileSystem::AddHandler(new wxMemoryFSHandler);
         wxImage::AddHandler(new wxPNGHandler);
-        DebugLog("Initializing XML Resource handlers...");
+        DebugLog(_("Initializing XML Resource handlers..."));
         wxXmlResource::Get()->InitAllHandlers();
 
-        DebugLog("Initializing Image handlers...");
+        DebugLog(_("Initializing Image handlers..."));
         wxInitAllImageHandlers();
 
         DebugLog("Loading resources...");
@@ -153,8 +156,8 @@ bool wxSayaApp::OnInit(int argc, const char** argv) {
         ProjectManager::Get();
 
         if(!ProjectManager::Get()->LoadConfig()) {
-            wxLogError(_("WARNING: Could not read configuration!"));
-            DebugLog("WARNING: Could not read configuration!");
+            ErrorMessageBox(_("WARNING: Could not read configuration!"));
+            ErrorMessageBox(_("WARNING: Could not read configuration!"));
         }
 
         DebugLog("Initializing Playback Manager...");
@@ -190,6 +193,13 @@ void wxSayaApp::Run() {
     wxTheApp->OnRun();
 }
 
+void wxSayaApp::ErrorMessageBox(const char* str) const {
+    wxLogError(s2wx(str));
+}
+
+void wxSayaApp::MessageBox(const syString& message, const syString& caption) const {
+    wxMessageBox(s2wx(message),s2wx(caption));
+}
 // -------------
 // end wxSayaApp
 // -------------

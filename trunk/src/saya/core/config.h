@@ -31,7 +31,20 @@ class syConfig {
           * @param defaultvalue The default value to return, if the value is not found.
           * @return The value of the read configuration.
           */
-        virtual syString Read(const char* key, const char* defaultvalue) = 0;
+        virtual syString Read(const char* key, const char* defaultvalue) const = 0;
+        syString Read(const syString& key, const char* defaultvalue) const;
+
+        virtual unsigned int ReadUint(const char* key, unsigned int defaultvalue = 0)  const = 0;
+        unsigned int ReadUint(const syString& key, unsigned int defaultvalue = 0) const;
+
+        virtual int ReadInt(const char* key, int defaultvalue = 0)  const = 0;
+        int ReadInt(const syString& key, int defaultvalue = 0) const;
+
+        virtual bool ReadBool(const char* key, bool defaultvalue = false) const = 0;
+        bool ReadBool(const syString& key, bool defaultvalue = false) const;
+
+        virtual double ReadFloat(const char* key, double defaultvalue = 0.0) const = 0;
+        double ReadFloat(const syString& key, double defaultvalue = 0.0) const;
 
         /** @brief Writes a string configuration value.
           *
@@ -40,13 +53,28 @@ class syConfig {
           * @return true on success; false otherwise.
           */
         virtual bool Write(const char* key, const char* value) = 0;
+        virtual bool Write(const syString& key, const char* value);
+        virtual bool Write(const syString& key, const syString& value);
+
+        virtual bool WriteUint(const char* key, unsigned int value)  = 0;
+        virtual bool WriteUint(const syString& key, unsigned int value);
+
+        virtual bool WriteInt(const char* key, int value) = 0;
+        virtual bool WriteInt(const syString& key, int value);
+
+        virtual bool WriteBool(const char* key, bool value) = 0;
+        virtual bool WriteBool(const syString& key, bool value);
+
+        virtual bool WriteFloat(const char* key, double value) = 0;
+        virtual bool WriteFloat(const syString& key, double value);
 
         /** @brief Checks if a configuration key exists.
           *
           * @param key The key to search in the config.
           * @return true if the key exists; false otherwise.
           */
-        virtual bool Exists(const char* key) = 0;
+        virtual bool Exists(const char* key) const = 0;
+        bool Exists(const syString& key) const;
 };
 
 #endif

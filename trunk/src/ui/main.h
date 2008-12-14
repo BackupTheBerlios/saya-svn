@@ -138,7 +138,6 @@ class AppFrame: public wxFrame, public sayaEvtHandler
         void OnUpdateProjectPaneUI(wxUpdateUIEvent& event);
 
         wxAuiManager *m_mgr;
-        wxConfig* m_cfg;
         bool m_hadproject;
         bool m_panes_status_checked;
         bool m_layouthidden;

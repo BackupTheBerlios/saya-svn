@@ -8,9 +8,11 @@
  **************************************************************/
 
 #include "systring.h"
+#include <cstdlib>
 #include <cstring>
 #include <cstdio>
 #include <cstdarg>
+#include <wchar.h>
 
 class syStringHelper {
     public:
@@ -53,6 +55,19 @@ m_Str(NULL)
     syStringHelper::assign(this,copy.m_Str,false);
 }
 
+syString::syString(const wchar_t* str) :
+m_Size(0),
+m_Capacity(0),
+m_Str(NULL)
+{
+    unsigned int size = (wcslen(str) * MB_CUR_MAX + 1);
+    char buf[size]; // str has 4 bytes per character. Doubling that should be enough for an UTF-8 string.
+    wcstombs(buf, str, size);
+    buf[size - 1] = 0;
+    syStringHelper::assign(this,(const char*) buf, false);
+}
+
+
 syString::~syString() {
     syStringHelper::reset(this);
 }
@@ -81,6 +96,30 @@ syString& syString::operator=(const char* str) {
     }
     syStringHelper::reset(this);
     syStringHelper::assign(this,str, false);
+    return *this;
+}
+
+syString& syString::operator=(const char c) {
+    char buf[2];
+    buf[0] = c;
+    buf[1] = 0;
+    return operator=((const char*)buf);
+}
+
+syString& syString::operator=(const wchar_t c) {
+    wchar_t buf[2];
+    buf[0] = c;
+    buf[1] = 0;
+    return operator=((const wchar_t*)buf);
+}
+
+syString& syString::operator=(const wchar_t* str) {
+    syStringHelper::reset(this);
+    unsigned int size = (wcslen(str) * MB_CUR_MAX + 1);
+    char buf[size]; // str has 4 bytes per character. Doubling that should be enough for an UTF-8 string.
+    wcstombs(buf, str, size);
+    buf[size - 1] = 0;
+    syStringHelper::assign(this,(const char*) buf, false);
     return *this;
 }
 
@@ -184,6 +223,18 @@ const syString syString::operator+(const char c) const {
     return result;
 }
 
+const syString syString::operator+(const wchar_t c) const {
+    syString result(*this);
+    result += c;
+    return result;
+}
+
+const syString syString::operator+(const wchar_t* str) const {
+    syString result(*this);
+    result += str;
+    return result;
+}
+
 syString& syString::operator+=(const syString& s) {
     if(!s.size()) return *this;
     unsigned paramlen = s.size();
@@ -220,11 +271,22 @@ syString& syString::operator+=(const char* str) {
     return operator+=(syString(str));
 }
 
+syString& syString::operator+=(const wchar_t* str) {
+    return operator+=(syString(str));
+}
+
 syString& syString::operator+=(const char c) {
     char buf[2];
     buf[0] = c;
     buf[1] = 0;
     return operator+=(syString(buf, true));
+}
+
+syString& syString::operator+=(const wchar_t c) {
+    wchar_t buf[2];
+    buf[0] = c;
+    buf[1] = 0;
+    return operator+=(syString(buf));
 }
 
 syString& syString::append(const syString& s) {
@@ -235,7 +297,15 @@ syString& syString::append(const char* str) {
     return operator+=(syString(str));
 }
 
+syString& syString::append(const wchar_t* str) {
+    return operator+=(syString(str));
+}
+
 syString& syString::append(const char c) {
+    return operator+=(c);
+}
+
+syString& syString::append(const wchar_t c) {
     return operator+=(c);
 }
 
@@ -247,7 +317,15 @@ syString& syString::operator<<(const char* str) {
     return operator+=(syString(str));
 }
 
+syString& syString::operator<<(const wchar_t* str) {
+    return operator+=(syString(str));
+}
+
 syString& syString::operator<<(const char c) {
+    return operator+=(c);
+}
+
+syString& syString::operator<<(const wchar_t c) {
     return operator+=(c);
 }
 
@@ -414,6 +492,32 @@ const syString syString::Printf(const char* format, ... ) {
     return s;
 }
 
+const syString syString::Format(const char* format, ... ) {
+    syString s;
+    va_list arguments;
+    unsigned int numchars;
+    unsigned long bufsize = 2048; // We have to set a limit. 2K should be enough for most strings
+    char* buffer;
+    buffer = new char[bufsize + 1];
+
+    // vsnprintf is a version of sprintf that takes a variable number of arguments. Additionally,
+    // it allows you to set a limit on the buffer size used for storing the resulting syString.
+    // See http://linux.about.com/library/cmd/blcmdl3_vsnprintf.htm
+
+    va_start(arguments, format);
+    numchars = vsnprintf(buffer, bufsize, format, arguments);
+    va_end(arguments);
+
+    buffer[bufsize] = 0;
+
+    if(numchars < bufsize) {
+        buffer[numchars] = 0;
+    }
+    s = buffer;
+    delete[] buffer;
+    return s;
+}
+
 const syString syString::PrintfBig(unsigned long bufsize, const char* format, ... ) {
     syString s;
     va_list arguments;
@@ -436,7 +540,6 @@ const syString syString::PrintfBig(unsigned long bufsize, const char* format, ..
     return s;
 }
 
-
 // The following syString functions were taken from a personal syString library of mine - Rick.
 syString rtrim(const syString& str,const syString& chars) {
   if( chars.empty() || str.empty() ) return str;
@@ -457,7 +560,6 @@ syString ltrim(const syString& str,const syString& chars) {
   }
   return str.substr(i,str.length());
 }
-
 
 syString trim(const syString& str,const syString& chars)
 {

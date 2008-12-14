@@ -74,27 +74,27 @@ bool WelcomeDialog::Show(bool show) {
 
 void WelcomeDialog::RefreshRecentFilesList() {
     if(IsAppShuttingDown()) return;
-    wxString tmps = wxEmptyString;
-    wxString curfile;
+    syString tmps;
+    syString curfile;
 
     RecentFilesList& items = *ProjectManager::Get()->m_RecentFiles;
     size_t i;
     for(i = 1; i <=9 && (i<= items.size()); ++i) {
-        curfile = s2wx(items.item(i));
-        if(!curfile.IsEmpty()) {
-            wxString prjtitle = s2wx(ProjectManager::Get()->GetOfflineProjectTitle(wx2s(curfile)));
-            if(prjtitle.IsEmpty()) {
+        curfile = items.item(i);
+        if(!curfile.empty()) {
+            syString prjtitle = ProjectManager::Get()->GetOfflineProjectTitle(curfile);
+            if(prjtitle.empty()) {
                 prjtitle = _("(Untitled)");
             }
-            tmps += wxString::Format(_T("<li><a href=\"sayarecent://%d\">%s</a><br /><small>%s</small></li>"),i,prjtitle.c_str(),curfile.c_str());
+            tmps += syString::Format("<li><a href=\"sayarecent://%d\">%s</a><br /><small>%s</small></li>",i,prjtitle.c_str(),curfile.c_str());
         }
     }
-    if(!tmps.IsEmpty()) {
-        tmps = _T("<ol>") + tmps + _T("</ol>");
+    if(!tmps.empty()) {
+        tmps = syString("<ol>") + tmps + "</ol>";
     }
     wxHtmlWindow* myhtml = XRCCTRL(*this,"idWelcomeRecentProjects",wxHtmlWindow);
     if(myhtml) {
-        myhtml->SetPage(tmps);
+        myhtml->SetPage(s2wx(tmps));
     }
 }
 

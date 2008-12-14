@@ -30,6 +30,9 @@ class syString {
          */
         syString(const char* str,bool useref = false);
 
+        /** Constructs an UTF-8 string based on a wide character string. */
+        syString(const wchar_t* str);
+
         /** Copy Constructor. */
         syString(const syString& copy);
 
@@ -121,7 +124,13 @@ class syString {
         syString& operator=(const char* str);
 
         /** Assignment operator. */
+        syString& operator=(const wchar_t* str);
+
+        /** Assignment operator. */
         syString& operator=(const char c);
+
+        /** Assignment operator. */
+        syString& operator=(const wchar_t c);
 
         /** Concatenation binary operator. */
         const syString operator+(const syString& s) const;
@@ -129,8 +138,14 @@ class syString {
         /** Concatenation binary operator. */
         const syString operator+(const char* str) const;
 
+        /** Concatenation binary operator (wide-character version). */
+        const syString operator+(const wchar_t* str) const;
+
         /** Concatenation binary operator. */
         const syString operator+(const char c) const;
+
+        /** Concatenation binary operator. */
+        const syString operator+(const wchar_t c) const;
 
         /** Concatenation unary operator. */
         syString& operator+=(const syString& s);
@@ -138,8 +153,14 @@ class syString {
         /** Concatenation unary operator. */
         syString& operator+=(const char* str);
 
+        /** Concatenation unary operator (wide-character version). */
+        syString& operator+=(const wchar_t* str);
+
         /** Concatenation unary operator. */
         syString& operator+=(const char c);
+
+        /** Concatenation unary operator (wide-character version). */
+        syString& operator+=(const wchar_t c);
 
         /** Concatenation. */
         syString& append(const syString& s);
@@ -150,6 +171,12 @@ class syString {
         /** Concatenation. */
         syString& append(const char c);
 
+        /** Concatenation. */
+        syString& append(const wchar_t c);
+
+        /** Concatenation. */
+        syString& append(const wchar_t* str);
+
         /** Stream-like concatenation. */
         syString& operator<<(const syString& s);
 
@@ -157,7 +184,13 @@ class syString {
         syString& operator<<(const char* str);
 
         /** Stream-like concatenation. */
+        syString& operator<<(const wchar_t* str);
+
+        /** Stream-like concatenation. */
         syString& operator<<(const char c);
+
+        /** Stream-like concatenation. */
+        syString& operator<<(const wchar_t c);
 
         /** Stream-like concatenation. */
         syString& operator<<(const int input);
@@ -179,6 +212,9 @@ class syString {
 
         /** Formats a string using sprintf syntax. 2Kbytes max. */
         static const syString Printf(const char* format, ... );
+
+        /** Formats a string using sprintf syntax. 2Kbytes max. */
+        static const syString Format(const char* format, ... );
 
         /** Formats a string with maximum length of bufsize - 1, using sprintf syntax. */
         static const syString PrintfBig(unsigned long bufsize, const char* format, ... );

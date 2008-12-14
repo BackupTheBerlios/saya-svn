@@ -24,13 +24,6 @@ bool IsAppShuttingDown();
 /** Sets the flag that forbids a new Project Manager instance to be created. */
 void ShutDownApp();
 
-extern const char* APP_NAME; /** The application's name. */
-extern const char* APP_VENDOR; /** The application vendor's name (that would be moi) */
-extern const char* APP_SHOWNAME; /** The application's official name */
-extern const char* APP_SHOWOFFNAME; /** The application's name and tagline for showing off */
-
-
-
 /** @class ProjectManager
   * @brief The main class that handles project loading and saving.
   *

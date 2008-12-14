@@ -23,7 +23,7 @@
 #include "projectmanager.h"
 
 #include "tinyxml/tinyxml.h"
-#include <libintl.h>
+#include "core/intl.h"
 
 // --------------------
 // Begin VidProjectData
@@ -329,21 +329,21 @@ VidProject* VidProject::Load(const char* filename, syString &errortext) {
     FFile myfile;
     do {
         if(!ioCommon::FileExists(filename)) {
-            errortext = syString::Printf(gettext("Error: Could not find file '%s'!"),filename);
+            errortext = syString::Printf(_("Error: Could not find file '%s'!"),filename);
             break;
         }
         if(!myfile.Open(filename)) {
-            errortext = syString::Printf(gettext("Error: Could not open file '%s'!"),filename);
+            errortext = syString::Printf(_("Error: Could not open file '%s'!"),filename);
             break;
         }
         if(!myfile.ReadAll(data)) {
-            errortext = syString::Printf(gettext("Error: Could not read file '%s'!"),filename);
+            errortext = syString::Printf(_("Error: Could not read file '%s'!"),filename);
             break;
         }
         myfile.Close();
         result = nextproject->unserialize(data);
         if(!result) {
-            errortext = syString::Printf(gettext("Error: File '%s' contains invalid data!"),filename);
+            errortext = syString::Printf(_("Error: File '%s' contains invalid data!"),filename);
         } else {
             nextproject->m_Data->m_Filename = filename;
             nextproject->ResetModified();

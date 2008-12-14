@@ -12,11 +12,6 @@
 
 #include "../saya/core/app.h"
 
-class AppDebugLog;
-class syString;
-class wxConfig;
-class wxSyConfig;
-
 class wxSayaApp: public syApp
 {
     public:
@@ -53,10 +48,16 @@ class wxSayaApp: public syApp
 
         /** Destructor. */
         virtual ~wxSayaApp();
+
+        /** Shows an error message box. */
+        void ErrorMessageBox(const char* str) const;
+
+        /** Shows a standard message box. */
+        void MessageBox(const syString& message, const syString& caption) const;
+
     private:
         class Data;
         friend class Data;
         Data* m_Data;
 };
-
 #endif // ui_app_h

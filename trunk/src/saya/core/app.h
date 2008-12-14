@@ -12,11 +12,23 @@
 
 class syDebugLog;
 class syConfig;
+class syString;
+
+/** The application's name. This must be implemented in your personalized app.cpp*/
+extern const char* APP_NAME;
+/** The application vendor's name (that would be moi). This must be implemented in your personalized app.cpp */
+extern const char* APP_VENDOR;
+/** The application's official name. This must be implemented in your personalized app.cpp */
+extern const char* APP_SHOWNAME;
+/** The application's name and tagline for showing off. This must be implemented in your personalized app.cpp */
+extern const char* APP_SHOWOFFNAME;
 
 /** An alias for syApp::IsAppShuttingDown().
  *  @see syApp::IsAppShuttingDown()
  */
 bool IsAppShuttingDown();
+
+void syMessageBox(const syString& caption, const syString& message);
 
 class syApp
 {
@@ -45,6 +57,7 @@ class syApp
          */
         int Start(int argc, const char** argv);
 
+        static syConfig* GetConfig();
         /** @brief Creates a config handler.
          *  Called by Start() just before calling OnInit().
          */
@@ -83,6 +96,15 @@ class syApp
 
         /** Destructor. */
         virtual ~syApp();
+
+        /** Shows an error message box. */
+        virtual void ErrorMessageBox(const char* str) const = 0;
+
+        /** Shows an error message box. Calls the above function. */
+        void ErrorMessageBox(const syString& s) const;
+
+        /** Shows a standard message box. */
+        virtual void MessageBox(const syString& message, const syString& caption) const = 0;
 
     protected:
         static int Result;

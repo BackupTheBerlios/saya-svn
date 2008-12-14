@@ -25,6 +25,7 @@
     #include <wx/sizer.h>
     #include <wx/config.h>
     #include <wx/frame.h>
+    #include <wx/app.h>
 #endif
 
 #include "s2wx.h"
@@ -48,6 +49,7 @@ wxFrame(NULL, wxID_ANY, wxT("Debug Log"), wxDefaultPosition, wxSize( 539,399 ), 
 
 	this->SetSizer( bSizer1 );
 	this->Layout();
+	wxTheApp->SetTopWindow(this);
     this->Show();
 }
 
@@ -65,6 +67,9 @@ void AppDebugLog::DebugLog(const wxString& msg) {
     wxString s;
     s = wxString(_T("[")) + t.Format(_T("%Y-%m-%d %H:%M:%S")) + _T("] : ") + msg + _T("\n");
     m_log->AppendText(s);
+    if(!wxTheApp->IsMainLoopRunning()) {
+        this->Update();
+    }
 }
 
 void AppDebugLog::OnClose(wxCloseEvent& event) {

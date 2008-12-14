@@ -20,14 +20,38 @@ class wxsyConfig : public syConfig {
         /** Standard constructor. */
         wxsyConfig(const char* application_name);
 
-        /** Reads configuration. @see syConfig::Read */
-        virtual syString Read(const char* key, const char* defaultvalue);
+        /** Reads a configuration value. @see syConfig */
+        virtual syString Read(const char* key, const char* defaultvalue) const;
+
+        /** Reads a configuration value. @see syConfig */
+        virtual unsigned int ReadUint(const char* key, unsigned int defaultvalue = 0)  const;
+
+        /** Reads a configuration value. @see syConfig */
+        virtual int ReadInt(const char* key, int defaultvalue = 0)  const;
+
+        /** Reads a configuration value. @see syConfig */
+        virtual bool ReadBool(const char* key, bool defaultvalue = false) const;
+
+        /** Reads a configuration value. @see syConfig */
+        virtual double ReadFloat(const char* key, double defaultvalue = 0.0) const;
 
         /** Writes configuration. @see syConfig::Read */
         virtual bool Write(const char* key, const char* value);
 
+        /** Reads a configuration value. @see syConfig */
+        virtual bool WriteUint(const char* key, unsigned int value);
+
+        /** Reads a configuration value. @see syConfig */
+        virtual bool WriteInt(const char* key, int value);
+
+        /** Reads a configuration value. @see syConfig */
+        virtual bool WriteBool(const char* key, bool value);
+
+        /** Reads a configuration value. @see syConfig */
+        virtual bool WriteFloat(const char* key, double value);
+
         /** Checks whether a configuration key exists. @see syConfig::Read */
-        virtual bool Exists(const char* key);
+        virtual bool Exists(const char* key) const;
 
         /** Standard destructor. */
         virtual ~wxsyConfig();

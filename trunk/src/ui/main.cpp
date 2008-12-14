@@ -25,13 +25,14 @@
     #include <wx/splitter.h>
     #include <wx/treectrl.h>
     #include <wx/sizer.h>
-    #include <wx/log.h>
     #include <wx/menu.h>
     #include <wx/msgdlg.h>
     #include <wx/aui/aui.h>
 #endif
 
 #include "../saya/core/systring.h"
+#include "../saya/core/intl.h"
+#include "../saya/core/config.h"
 #include "../saya/vidproject.h"
 #include "../saya/recentfileslist.h"
 #include "../saya/projectmanager.h"
@@ -50,24 +51,24 @@ enum wxbuildinfoformat {
 
 int idProjectStatusChanged = XRCID("idProjectStatusChanged");
 
-wxString wxbuildinfo(wxbuildinfoformat format)
+syString wxbuildinfo(wxbuildinfoformat format)
 {
-    wxString wxbuild(wxVERSION_STRING);
+    syString wxbuild = wx2s(wxVERSION_STRING);
 
     if (format == long_f )
     {
 #if defined(__WXMSW__)
-        wxbuild << _T("-Windows");
+        wxbuild << "-Windows";
 #elif defined(__WXMAC__)
-        wxbuild << _T("-Mac");
+        wxbuild << "-Mac";
 #elif defined(__UNIX__)
-        wxbuild << _T("-Linux");
+        wxbuild << "-Linux";
 #endif
 
 #if wxUSE_UNICODE
-        wxbuild << _T("-Unicode build");
+        wxbuild << "-Unicode build";
 #else
-        wxbuild << _T("-ANSI build");
+        wxbuild << "-ANSI build";
 #endif // wxUSE_UNICODE
     }
 
@@ -81,7 +82,7 @@ int main_RegisterId(int id)
 }
 
 wxFrame* CreateMainFrame() {
-    AppFrame* frame = new AppFrame(NULL, _("Saya - Unsheathe your Creativity"));
+    AppFrame* frame = new AppFrame(NULL, _w("Saya - Unsheathe your Creativity"));
     wxTheApp->SetTopWindow(frame);
     ProjectManager::Get()->SetEventHandler(frame);
     return frame;
@@ -89,11 +90,11 @@ wxFrame* CreateMainFrame() {
 
 
 
-const wxString CFG_LAYOUTS = _T("Layouts");
-const wxString CFG_LAYOUT_DEFAULT = CFG_LAYOUTS + _T("/Default");
-const wxString CFG_LOCATION = CFG_LAYOUT_DEFAULT + _T("/Location");
-const wxString CFG_PERSPECTIVE_DEFAULT = CFG_LAYOUT_DEFAULT + _T("/Perspective");
-const wxString CFG_DEFAULT_PRJ_SASHPOS = CFG_LAYOUT_DEFAULT + _T("/PrjSashPos");
+const syString CFG_LAYOUTS = "Layouts";
+const syString CFG_LAYOUT_DEFAULT = CFG_LAYOUTS + "/Default";
+const syString CFG_LOCATION = CFG_LAYOUT_DEFAULT + "/Location";
+const syString CFG_PERSPECTIVE_DEFAULT = CFG_LAYOUT_DEFAULT + "/Perspective";
+const syString CFG_DEFAULT_PRJ_SASHPOS = CFG_LAYOUT_DEFAULT + "/PrjSashPos";
 
 int idFileNew = XRCID("idFileNew");
 int idNewProject = XRCID("idNewProject");
@@ -273,7 +274,7 @@ int idWindowTimelinesMenu = XRCID("idWindowTimelinesMenu");
 int idProjectPane = XRCID("idProjectPane");
 int idPrjSplitter = XRCID("idPrjSplitter");
 int idPrjResourcesTree = XRCID("idPrjResourcesTree");
-wxString g_statustext;
+syString g_statustext;
 
 BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_CLOSE(AppFrame::OnClose)
@@ -476,7 +477,6 @@ m_recentimportsmodcounter(0)
     m_mgr = new wxAuiManager;
     bool result = false;
     do {
-        m_cfg = new wxConfig(s2wx(APP_NAME));
         if(!CreateMenuBar()) break;
         if(!CreateDialogs()) break;
         CreateStatusBar(2);
@@ -489,8 +489,8 @@ m_recentimportsmodcounter(0)
         CreateDockAreas();
 
         // Update Status bar
-        SetStatusText(wxbuildinfo(short_f), 1);
-        g_statustext = _("Welcome to ") + s2wx(APP_SHOWNAME) + _T("! ^_^");
+        SetStatusText(s2wx(wxbuildinfo(short_f)), 1);
+        g_statustext << _("Welcome to ") << APP_SHOWNAME << "! ^_^";
         UpdateStatustext();
 
 
@@ -553,26 +553,25 @@ void AppFrame::CreateDockAreas() {
      // add the panes to the manager
 //   m_mgr->SetDockSizeConstraint(0.3,0.45);
     m_mgr->AddPane(m_projectpanel, wxAuiPaneInfo().
-                            Name(wxT("Project")).Caption(_("Project")).
+                            Name(wxT("Project")).Caption(_w("Project")).
                               BestSize(wxSize(200, 300)).MaximizeButton().MinimizeButton().PinButton().
                               Left().Layer(1));
     m_mgr->AddPane(m_monitorpanel, wxAuiPaneInfo().
-                            Name(wxT("Monitor")).Caption(_("Monitor / Preview")).
+                            Name(wxT("Monitor")).Caption(_w("Monitor / Preview")).
                               BestSize(wxSize(250, 300)).MaximizeButton().MinimizeButton().PinButton().
                               Bottom().Layer(1));
     m_mgr->AddPane(m_effectspanel, wxAuiPaneInfo().
-                            Name(wxT("Effects")).Caption(_("Effects Monitor")).
+                            Name(wxT("Effects")).Caption(_w("Effects Monitor")).
                               BestSize(wxSize(250, 300)).MaximizeButton().MinimizeButton().PinButton().
                               Bottom().Layer(1));
-    m_mgr->AddPane(m_timelinepanel, wxAuiPaneInfo().Name(wxT("MainPane")).CentrePane().MinSize(wxSize(500,200)).MaximizeButton().Caption(_("Timeline")).CaptionVisible(true));
+    m_mgr->AddPane(m_timelinepanel, wxAuiPaneInfo().Name(wxT("MainPane")).CentrePane().MinSize(wxSize(500,200)).MaximizeButton().Caption(_w("Timeline")).CaptionVisible(true));
 }
 
 bool AppFrame::LoadDefaultLayout(bool firsttime) {
     bool result = false;
-    wxString strlayout;
-    m_cfg->Read(CFG_PERSPECTIVE_DEFAULT, &strlayout, wxEmptyString);
-    if(!strlayout.IsEmpty()) {
-        result = m_mgr->LoadPerspective(strlayout,false);
+    syString strlayout = syApp::GetConfig()->Read(CFG_PERSPECTIVE_DEFAULT.c_str(), "");
+    if(!strlayout.empty()) {
+        result = m_mgr->LoadPerspective(s2wx(strlayout),false);
     }
     if(firsttime)
     {
@@ -624,12 +623,12 @@ wxPanel* AppFrame::CreateProjectPane() {
 
 	m_ResourcesTree = new wxTreeCtrl( dir_panel, idPrjResourcesTree, wxDefaultPosition, wxDefaultSize, wxTR_DEFAULT_STYLE );
 
-	wxTreeItemId daroot = m_ResourcesTree->AddRoot(_("Resources"), -1, -1, NULL);
-	m_ResourcesTree->AppendItem(daroot, _("Sequences"),-1,-1,NULL);
-	m_ResourcesTree->AppendItem(daroot, _("Videos"),-1,-1,NULL);
-	m_ResourcesTree->AppendItem(daroot, _("Images"),-1,-1,NULL);
-	m_ResourcesTree->AppendItem(daroot, _("Sound"),-1,-1,NULL);
-	m_ResourcesTree->AppendItem(daroot, _("Other"),-1,-1,NULL);
+	wxTreeItemId daroot = m_ResourcesTree->AddRoot(_w("Resources"), -1, -1, NULL);
+	m_ResourcesTree->AppendItem(daroot, _w("Sequences"),-1,-1,NULL);
+	m_ResourcesTree->AppendItem(daroot, _w("Videos"),-1,-1,NULL);
+	m_ResourcesTree->AppendItem(daroot, _w("Images"),-1,-1,NULL);
+	m_ResourcesTree->AppendItem(daroot, _w("Sound"),-1,-1,NULL);
+	m_ResourcesTree->AppendItem(daroot, _w("Other"),-1,-1,NULL);
 
 	bSizer4->Add( m_ResourcesTree, 1, wxEXPAND, 5 );
 
@@ -667,7 +666,7 @@ wxPanel* AppFrame::CreateProjectPane() {
         long curheight = GetRect().GetHeight();
         long defaultsashpos =  curheight / 2;
         long sashpos = defaultsashpos;
-        m_cfg->Read(CFG_DEFAULT_PRJ_SASHPOS, &sashpos, defaultsashpos);
+        sashpos = syApp::GetConfig()->ReadUint(CFG_DEFAULT_PRJ_SASHPOS, defaultsashpos);
         if(sashpos==0) sashpos = defaultsashpos;
         sashpos = std::min(curheight,std::max((long)20,sashpos));
         splitter1->SetSashPosition(sashpos);
@@ -686,9 +685,9 @@ long AppFrame::GetProjectPanelSashPos() {
 }
 
 void AppFrame::LoadFail(wxString resourcename) {
-    wxString s;
-    s.Printf(_("Could not find the XRC resource '%s'!\nAre you sure the program was installed correctly?"),resourcename.c_str());
-    wxLogError(s);
+    syString s;
+    s.Printf(_("Could not find the XRC resource '%s'!\nAre you sure the program was installed correctly?"),wx2c(resourcename));
+    syApp::Get()->ErrorMessageBox(s.c_str());
 }
 
 wxMenu* AppFrame::FindMenu(const wxString name) {
@@ -710,12 +709,12 @@ void AppFrame::LoadAndSetFrameSize() {
 
     // load stored size or defaults
     wxRect rect;
-    wxString key = CFG_LOCATION;
-    if (m_cfg->Exists (key)) {
-        rect.x = m_cfg->Read (key + _T("/xpos"), rect.x);
-        rect.y = m_cfg->Read (key + _T("/ypos"), rect.y);
-        rect.width = m_cfg->Read (key + _T("/width"), rect.width);
-        rect.height = m_cfg->Read (key + _T("/height"), rect.height);
+    syString key = CFG_LOCATION;
+    if (syApp::GetConfig()->Exists (key)) {
+        rect.x = syApp::GetConfig()->ReadInt(key + "/xpos", rect.x);
+        rect.y = syApp::GetConfig()->ReadInt(key + "/ypos", rect.y);
+        rect.width = syApp::GetConfig()->ReadInt(key + "/width", rect.width);
+        rect.height = syApp::GetConfig()->ReadInt(key + "/height", rect.height);
     } else {
         nocfg = true;
     }
@@ -740,7 +739,6 @@ AppFrame::~AppFrame() {
     m_mgr->UnInit();
     delete m_welcomedialog;
     delete m_mgr;
-    delete m_cfg;
 }
 
 bool AppFrame::IsClipSelected() {
@@ -793,15 +791,15 @@ void AppFrame::OnFileOpen(wxCommandEvent& event) {
     if(IsAppShuttingDown())
         return;
     wxString lastdir = s2wx(ProjectManager::Get()->GetLastProjectDir());
-    wxFileDialog myDialog(this, _("Choose a project"), lastdir, _T(""), _T("*.saya"), wxFD_DEFAULT_STYLE, wxDefaultPosition, wxDefaultSize, _T("opendlg"));
+    wxFileDialog myDialog(this, _w("Choose a project"), lastdir, _T(""), _T("*.saya"), wxFD_DEFAULT_STYLE, wxDefaultPosition, wxDefaultSize, _T("opendlg"));
     int dialogresult = myDialog.ShowModal();
     if(dialogresult == wxID_OK) {
         if(ProjectManager::Get()->CloseProject(false)) { // First close current project, ask to save, etc.
             bool result = ProjectManager::Get()->LoadProject(wx2s(myDialog.GetPath()));
             if(!result) {
                 wxString msg;
-                msg.Printf(_("Error opening file '%s'!"),myDialog.GetPath().c_str());
-                wxMessageBox(msg,_("Error"),wxCANCEL | wxICON_ERROR,this);
+                msg.Printf(_w("Error opening file '%s'!"),myDialog.GetPath().c_str());
+                wxMessageBox(msg,_w("Error"),wxCANCEL | wxICON_ERROR,this);
             }
             DoUpdateAppTitle();
         }
@@ -820,8 +818,8 @@ void AppFrame::OnOpenRecentFile(wxCommandEvent &event) {
         bool result = ProjectManager::Get()->LoadRecentProject(fileno);
         if(!result) {
             wxString msg;
-            msg.Printf(_("Error opening file '%s'!"),ProjectManager::Get()->m_RecentFiles->item(fileno).c_str());
-            wxMessageBox(msg,_("Error"),wxCANCEL | wxICON_ERROR,this);
+            msg.Printf(_w("Error opening file '%s'!"),ProjectManager::Get()->m_RecentFiles->item(fileno).c_str());
+            wxMessageBox(msg,_w("Error"),wxCANCEL | wxICON_ERROR,this);
         }
         DoUpdateAppTitle();
     }
@@ -891,7 +889,7 @@ void AppFrame::OnSaveFrameLayout(wxCommandEvent& event) {
 }
 
 void AppFrame::UpdateStatustext() {
-    SetStatusText (g_statustext, 0);
+    SetStatusText (s2wx(g_statustext), 0);
 }
 
 void AppFrame::SaveDefaultLayout(bool showmsg) {
@@ -899,19 +897,19 @@ void AppFrame::SaveDefaultLayout(bool showmsg) {
         return;
     }
     wxRect rect = GetRect();
-    wxString key = CFG_LOCATION;
-    m_cfg->Write(key + _T("/xpos"), rect.x);
-    m_cfg->Write(key + _T("/ypos"), rect.y);
-    m_cfg->Write(key + _T("/width"), rect.width);
-    m_cfg->Write(key + _T("/height"), rect.height);
+    syString key = CFG_LOCATION;
+    syApp::GetConfig()->WriteInt(key + "/xpos", rect.x);
+    syApp::GetConfig()->WriteInt(key + "/ypos", rect.y);
+    syApp::GetConfig()->WriteInt(key + "/width", rect.width);
+    syApp::GetConfig()->WriteInt(key + "/height", rect.height);
 
     wxString strlayout = m_mgr->SavePerspective();
-    m_cfg->Write(CFG_PERSPECTIVE_DEFAULT, strlayout);
-    m_cfg->Write(CFG_DEFAULT_PRJ_SASHPOS,GetProjectPanelSashPos());
+    syApp::GetConfig()->Write(CFG_PERSPECTIVE_DEFAULT, wx2s(strlayout));
+    syApp::GetConfig()->WriteInt(CFG_DEFAULT_PRJ_SASHPOS,GetProjectPanelSashPos());
 
     if(showmsg) {
-        wxMessageBox (_("Current Layout has been saved."),
-                      _("Save Layout"), wxOK);
+        wxMessageBox (_w("Current Layout has been saved."),
+                      _w("Save Layout"), wxOK);
     }
 }
 
@@ -974,7 +972,7 @@ void AppFrame::OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event) {
                 myItem->SetSubMenu(mySubMenu);
             }
             size_t i = 0;
-            mySubMenu->Append(idFileClearRecentProjectList,_T("&Clear"),_("Clears Recent Projects List"));
+            mySubMenu->Append(idFileClearRecentProjectList,_T("&Clear"),_w("Clears Recent Projects List"));
             mySubMenu->AppendSeparator();
             for(i = 1; i <= pmgr->m_RecentFiles->size(); ++i) {
                 wxString tmptext;
@@ -1008,7 +1006,7 @@ void AppFrame::OnRecentImportsMenuUpdateUI(wxUpdateUIEvent& event) {
                 myItem->SetSubMenu(mySubMenu);
             }
             size_t i = 0;
-            mySubMenu->Append(idFileClearRecentImportList,_T("&Clear"),_("Clears Recent Imported Files List"));
+            mySubMenu->Append(idFileClearRecentImportList,_T("&Clear"),_w("Clears Recent Imported Files List"));
             mySubMenu->AppendSeparator();
             for(i = 1; i <= pmgr->m_RecentImports->size(); ++i) {
                 wxString tmptext;
@@ -1272,35 +1270,36 @@ void AppFrame::ShowWelcomeDialog() {
 void AppFrame::DoUpdateAppTitle() {
     if(IsAppShuttingDown())
         return;
-    wxString title;
-    wxString modified_str = wxEmptyString;
+    syString title;
+    syString modified_str;
     VidProject* prj = ProjectManager::Get()->GetProject();
 
     if(prj) {
         if(prj->IsModified()) {
-            modified_str = _T("* ");
+            modified_str = "* ";
         }
-        title = modified_str + s2wx(prj->GetTitle());
+        title << modified_str << prj->GetTitle();
 
         syString filename(prj->GetFilename(),true);
         if(!filename.empty()) {
             wxFileName fname(s2wx(filename));
-            fname.GetFullName();
-            title += _T(" [") + fname.GetFullName() + _T("]");
+            title << " [" << wx2s(fname.GetFullName()) << "]";
         } else {
-            title += wxString(_T(" [")) + _("untitled") + _T("]");
+            title << " [" << _("untitled") << "]";
         }
-        title += _T(" - ");
-        title += s2wx(APP_SHOWNAME);
+        title << " - ";
+        title << APP_SHOWNAME;
     } else {
-        title = s2wx(APP_SHOWOFFNAME);
+        title << APP_SHOWOFFNAME;
     }
-    SetTitle(title);
+    SetTitle(s2wx(title));
 }
 
 void AppFrame::OnAbout(wxCommandEvent &event) {
-    wxString msg = wxbuildinfo(long_f);
-    wxMessageBox(msg, _("Welcome to..."));
+    syString msg;
+    msg << syApp::Get()->GetApplicationShowOffName() << "\n" << " by " << syApp::Get()->GetApplicationVendor() << "\n";
+    msg << wxbuildinfo(long_f);
+    syMessageBox(msg, _("Welcome to..."));
 }
 
 void AppFrame::OnResourceTreeContextMenu(wxTreeEvent& event) {
@@ -1366,7 +1365,7 @@ sayaYesNoCancel AppFrame::YesNoCancelMessageBox(const char* msg,const char* capt
 }
 
 syString AppFrame::ShowDialogSaveProjectAs() {
-    wxFileDialog mydialog(this,_("Save file as..."),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
+    wxFileDialog mydialog(this,_w("Save file as..."),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
     syString result = "";
     if(mydialog.ShowModal() == wxID_OK) {
         result = wx2s(mydialog.GetPath());
@@ -1375,7 +1374,7 @@ syString AppFrame::ShowDialogSaveProjectAs() {
 }
 
 syString AppFrame::ShowDialogSaveProjectCopyAs() {
-    wxFileDialog mydialog(this,_("Save Copy as..."),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
+    wxFileDialog mydialog(this,_w("Save Copy as..."),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
     syString result = "";
     if(mydialog.ShowModal() == wxID_OK) {
         result = wx2s(mydialog.GetPath()); // Gets full path including filename

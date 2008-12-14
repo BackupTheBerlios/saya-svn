@@ -10,10 +10,12 @@
 #include "app.h"
 #include "systring.h"
 #include "debuglog.h"
+#include "config.h"
 
 namespace sayaStaticData {
     static syApp* TheApp = 0;
     static volatile bool s_IsAppShuttingDown = false;
+    static syConfig* TheConfig = 0;
 };
 
 /** Destroys an syApp object along with it. This class is exception-safe and is guaranteed to succeed. */
@@ -52,6 +54,14 @@ int syApp::Start(int argc, const char** argv) {
     return Result;
 }
 
+syConfig* syApp::GetConfig() {
+    if(IsAppShuttingDown()) return 0;
+    if(!sayaStaticData::TheConfig) {
+        sayaStaticData::TheConfig = syApp::Get()->CreateConfig();
+    }
+    return sayaStaticData::TheConfig;
+}
+
 bool syApp::OnInit(int argc, const char** argv) {
     return true;
 }
@@ -61,6 +71,8 @@ void syApp::OnExit() {}
 syApp::~syApp() {
     if(sayaStaticData::TheApp == this)
         sayaStaticData::TheApp = 0;
+    delete sayaStaticData::TheConfig;
+    sayaStaticData::TheConfig = 0;
     syDebugLog::DeleteDebugLog();
 }
 
@@ -74,4 +86,12 @@ bool syApp::IsAppShuttingDown() {
 
 void syApp::ShutDown() {
     sayaStaticData::s_IsAppShuttingDown = true;
+}
+
+void syApp::ErrorMessageBox(const syString& s) const {
+    return ErrorMessageBox(s.c_str());
+}
+
+void syMessageBox(const syString& caption, const syString& message) {
+    return syApp::Get()->MessageBox(caption, message);
 }
