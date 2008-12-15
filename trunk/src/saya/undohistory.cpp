@@ -9,8 +9,8 @@
 
 #include "core/systring.h"
 #include "undohistory.h"
-#include "serializable.h"
-#include "serialized.h"
+#include "timeline/serializable.h"
+#include "timeline/serialized.h"
 #include <deque>
 
 /** @class UndoState

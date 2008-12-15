@@ -11,7 +11,7 @@
 #define avsequence_h
 
 #include "serializable.h"
-#include "core/systring.h"
+#include "../core/systring.h"
 class AVTracks;
 
 class AVSequence: public serializable {

@@ -7,7 +7,7 @@
  * License:   GPL version 3 or later
  ****************************************************************/
 
-#include "core/iocommon.h"
+#include "../core/iocommon.h"
 
 #include "avsettings.h"
 #include "smapxstr.h"

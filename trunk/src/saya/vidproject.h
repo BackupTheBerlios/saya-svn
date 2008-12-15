@@ -10,7 +10,7 @@
 #ifndef VIDPROJECT_H
 #define VIDPROJECT_H
 
-#include "serializable.h"
+#include "timeline/serializable.h"
 
 class VidProject;
 class VidProjectData;

@@ -12,7 +12,7 @@
 
 #include "serializable.h"
 #include "serialized.h"
-#include "core/systring.h"
+#include "../core/systring.h"
 #include <map>
 
 class SMapUintStrData;

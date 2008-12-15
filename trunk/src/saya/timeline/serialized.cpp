@@ -8,7 +8,7 @@
  ***********************************************************/
 
 #include "serialized.h"
-#include "core/systring.h"
+#include "../core/systring.h"
 
 // --------------------------
 // begin serialized_innerdata

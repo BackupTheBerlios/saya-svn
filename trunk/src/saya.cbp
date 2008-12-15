@@ -80,49 +80,49 @@
 		<Unit filename="resources/wxplaybackcontrolpanel.fbp">
 			<Option target="Debug" />
 		</Unit>
-		<Unit filename="saya/avclip.cpp">
+		<Unit filename="saya/timeline/avclip.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya/avclip.h" />
-		<Unit filename="saya/avclips.h" />
-		<Unit filename="saya/avcommon.h" />
-		<Unit filename="saya/aveffect.cpp">
+		<Unit filename="saya/timeline/avclip.h" />
+		<Unit filename="saya/timeline/avclips.h" />
+		<Unit filename="saya/timeline/avcommon.h" />
+		<Unit filename="saya/timeline/aveffect.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya/aveffect.h" />
-		<Unit filename="saya/aveffectdeclaration.cpp">
+		<Unit filename="saya/timeline/aveffect.h" />
+		<Unit filename="saya/timeline/aveffectdeclaration.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya/aveffectdeclaration.h" />
-		<Unit filename="saya/aveffectparamdeclaration.cpp">
+		<Unit filename="saya/timeline/aveffectdeclaration.h" />
+		<Unit filename="saya/timeline/aveffectparamdeclaration.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya/aveffectparamdeclaration.h" />
-		<Unit filename="saya/aveffectparamdeclarations.h" />
-		<Unit filename="saya/aveffects.h" />
-		<Unit filename="saya/avresource.cpp">
+		<Unit filename="saya/timeline/aveffectparamdeclaration.h" />
+		<Unit filename="saya/timeline/aveffectparamdeclarations.h" />
+		<Unit filename="saya/timeline/aveffects.h" />
+		<Unit filename="saya/timeline/avresource.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya/avresource.h" />
-		<Unit filename="saya/avresources.h" />
-		<Unit filename="saya/avsequence.cpp">
+		<Unit filename="saya/timeline/avresource.h" />
+		<Unit filename="saya/timeline/avresources.h" />
+		<Unit filename="saya/timeline/avsequence.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya/avsequence.h" />
-		<Unit filename="saya/avsettings.cpp">
+		<Unit filename="saya/timeline/avsequence.h" />
+		<Unit filename="saya/timeline/avsettings.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya/avsettings.h" />
-		<Unit filename="saya/avtimeline.h" />
-		<Unit filename="saya/avtrack.cpp">
+		<Unit filename="saya/timeline/avsettings.h" />
+		<Unit filename="saya/timeline/avtimeline.h" />
+		<Unit filename="saya/timeline/avtrack.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya/avtrack.h" />
-		<Unit filename="saya/avtracks.h" />
-		<Unit filename="saya/avtransition.cpp">
+		<Unit filename="saya/timeline/avtrack.h" />
+		<Unit filename="saya/timeline/avtracks.h" />
+		<Unit filename="saya/timeline/avtransition.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya/avtransition.h" />
+		<Unit filename="saya/timeline/avtransition.h" />
 		<Unit filename="saya/core/aborter.cpp">
 			<Option weight="10" />
 		</Unit>
@@ -219,7 +219,7 @@
 			<Option weight="10" />
 		</Unit>
 		<Unit filename="saya/core/videooutputdevice.h" />
-		<Unit filename="saya/fxparameterlist.h" />
+		<Unit filename="saya/timeline/fxparameterlist.h" />
 		<Unit filename="saya/inputmonitor.cpp">
 			<Option weight="20" />
 		</Unit>
@@ -239,27 +239,27 @@
 		</Unit>
 		<Unit filename="saya/recentfileslist.h" />
 		<Unit filename="saya/sayaevthandler.h" />
-		<Unit filename="saya/serializable.cpp">
+		<Unit filename="saya/timeline/serializable.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya/serializable.h" />
-		<Unit filename="saya/serialized.cpp">
+		<Unit filename="saya/timeline/serializable.h" />
+		<Unit filename="saya/timeline/serialized.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya/serialized.h" />
-		<Unit filename="saya/smap.cpp">
+		<Unit filename="saya/timeline/serialized.h" />
+		<Unit filename="saya/timeline/smap.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya/smap.h" />
-		<Unit filename="saya/smapxstr.cpp">
+		<Unit filename="saya/timeline/smap.h" />
+		<Unit filename="saya/timeline/smapxstr.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya/smapxstr.h" />
-		<Unit filename="saya/sstrvector.cpp">
+		<Unit filename="saya/timeline/smapxstr.h" />
+		<Unit filename="saya/timeline/sstrvector.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya/sstrvector.h" />
-		<Unit filename="saya/svector.h" />
+		<Unit filename="saya/timeline/sstrvector.h" />
+		<Unit filename="saya/timeline/svector.h" />
 		<Unit filename="saya/tinyxml/tinyxml.cpp">
 			<Option weight="30" />
 		</Unit>

@@ -10,14 +10,15 @@
 #include "core/iocommon.h"
 #include "core/systring.h"
 
-#include "avcommon.h"
+#include "timeline/avcommon.h"
+#include "timeline/avsettings.h"
+#include "timeline/avresource.h"
+#include "timeline/avresources.h"
+#include "timeline/avsequence.h"
+#include "timeline/avtimeline.h"
+
 #include "vidproject.h"
-#include "avsettings.h"
 #include "undohistory.h"
-#include "avresource.h"
-#include "avresources.h"
-#include "avsequence.h"
-#include "avtimeline.h"
 #include "inputmonitor.h"
 
 #include "projectmanager.h"

@@ -9,7 +9,7 @@
 
 #include "sstrvector.h"
 #include "serialized.h"
-#include "core/systring.h"
+#include "../core/systring.h"
 #include <vector>
 
 class SStringVectorData {

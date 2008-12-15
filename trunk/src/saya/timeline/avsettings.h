@@ -12,7 +12,7 @@
 
 #include "avcommon.h"
 #include "serializable.h"
-#include "core/systring.h"
+#include "../core/systring.h"
 
 class SMapStrStr;
 

@@ -9,7 +9,7 @@
 
 #include "avsettings.h"
 #include "avresource.h"
-#include "core/systring.h"
+#include "../core/systring.h"
 
 AVResource::AVResource() {
 }

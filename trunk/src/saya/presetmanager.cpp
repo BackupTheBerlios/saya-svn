@@ -9,8 +9,8 @@
 
 #include "presetmanager.h"
 #include "core/systring.h"
-#include "sstrvector.h"
-#include "smapxstr.h"
+#include "timeline/sstrvector.h"
+#include "timeline/smapxstr.h"
 
 PresetManager::PresetManager() {
 }

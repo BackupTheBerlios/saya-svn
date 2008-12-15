@@ -28,8 +28,8 @@
 #include "../saya/core/systring.h"
 #include "../saya/projectmanager.h"
 #include "../saya/presetmanager.h"
-#include "../saya/smapxstr.h"
-#include "../saya/sstrvector.h"
+#include "../saya/timeline/smapxstr.h"
+#include "../saya/timeline/sstrvector.h"
 #include "s2wx.h"
 
 // #include "app.h"
