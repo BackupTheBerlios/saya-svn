@@ -34,7 +34,6 @@
 #include "resources.h"
 #include "debuglog.h"
 #include "config.h"
-#include "s2wx.h"
 
 extern wxFrame* CreateMainFrame();
 
@@ -194,11 +193,11 @@ void wxSayaApp::Run() {
 }
 
 void wxSayaApp::ErrorMessageBox(const char* str) const {
-    wxLogError(s2wx(str));
+    wxLogError(wxString(str,wxConvUTF8));
 }
 
 void wxSayaApp::MessageBox(const syString& message, const syString& caption) const {
-    wxMessageBox(s2wx(message),s2wx(caption));
+    wxMessageBox(message,caption);
 }
 // -------------
 // end wxSayaApp

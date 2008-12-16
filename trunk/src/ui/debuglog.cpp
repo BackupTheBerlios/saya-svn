@@ -27,7 +27,7 @@
     #include <wx/app.h>
 #endif
 
-#include "s2wx.h"
+#include "../saya/core/systring.h"
 #include "debuglog.h"
 #include <wx/datetime.h>
 
@@ -54,17 +54,17 @@ wxFrame(NULL, wxID_ANY, wxT("Debug Log"), wxDefaultPosition, wxSize( 539,399 ), 
 
 
 void AppDebugLog::DebugLog(const char* msg) {
-    DebugLog(s2wx(msg));
+    DebugLog(wxString(msg, wxConvUTF8));
 }
 
 void AppDebugLog::DebugLog(const syString& msg) {
-    DebugLog(s2wx(msg));
+    DebugLog(wxString(msg));
 }
 
 void AppDebugLog::DebugLog(const wxString& msg) {
     wxDateTime t = wxDateTime::Now();
-    wxString s;
-    s = wxString(_T("[")) + t.Format(_T("%Y-%m-%d %H:%M:%S")) + _T("] : ") + msg + _T("\n");
+    syString s;
+    s << "[" << syString(t.Format(_T("%Y-%m-%d %H:%M:%S"))) << "] : " << syString(msg) << "\n";
     m_log->AppendText(s);
     if(!wxTheApp->IsMainLoopRunning()) {
         this->Update();

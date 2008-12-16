@@ -39,6 +39,7 @@
 			<Add option="-DWXUSINGDLL" />
 			<Add option="-DwxUSE_UNICODE" />
 			<Add option="-DTIXML_USE_STL" />
+			<Add option="-DSY_WXSTRING_COMPATIBILITY" />
 			<Add directory="$(#wx.include)" />
 			<Add directory="$(#wx)/contrib/include" />
 			<Add directory="$(#wx)/lib/gcc_dll/mswu" />
@@ -80,49 +81,6 @@
 		<Unit filename="resources/wxplaybackcontrolpanel.fbp">
 			<Option target="Debug" />
 		</Unit>
-		<Unit filename="saya/timeline/avclip.cpp">
-			<Option weight="20" />
-		</Unit>
-		<Unit filename="saya/timeline/avclip.h" />
-		<Unit filename="saya/timeline/avclips.h" />
-		<Unit filename="saya/timeline/avcommon.h" />
-		<Unit filename="saya/timeline/aveffect.cpp">
-			<Option weight="20" />
-		</Unit>
-		<Unit filename="saya/timeline/aveffect.h" />
-		<Unit filename="saya/timeline/aveffectdeclaration.cpp">
-			<Option weight="20" />
-		</Unit>
-		<Unit filename="saya/timeline/aveffectdeclaration.h" />
-		<Unit filename="saya/timeline/aveffectparamdeclaration.cpp">
-			<Option weight="20" />
-		</Unit>
-		<Unit filename="saya/timeline/aveffectparamdeclaration.h" />
-		<Unit filename="saya/timeline/aveffectparamdeclarations.h" />
-		<Unit filename="saya/timeline/aveffects.h" />
-		<Unit filename="saya/timeline/avresource.cpp">
-			<Option weight="20" />
-		</Unit>
-		<Unit filename="saya/timeline/avresource.h" />
-		<Unit filename="saya/timeline/avresources.h" />
-		<Unit filename="saya/timeline/avsequence.cpp">
-			<Option weight="20" />
-		</Unit>
-		<Unit filename="saya/timeline/avsequence.h" />
-		<Unit filename="saya/timeline/avsettings.cpp">
-			<Option weight="20" />
-		</Unit>
-		<Unit filename="saya/timeline/avsettings.h" />
-		<Unit filename="saya/timeline/avtimeline.h" />
-		<Unit filename="saya/timeline/avtrack.cpp">
-			<Option weight="20" />
-		</Unit>
-		<Unit filename="saya/timeline/avtrack.h" />
-		<Unit filename="saya/timeline/avtracks.h" />
-		<Unit filename="saya/timeline/avtransition.cpp">
-			<Option weight="20" />
-		</Unit>
-		<Unit filename="saya/timeline/avtransition.h" />
 		<Unit filename="saya/core/aborter.cpp">
 			<Option weight="10" />
 		</Unit>
@@ -155,6 +113,8 @@
 		<Unit filename="saya/core/config.h" />
 		<Unit filename="saya/core/debuglog.cpp" />
 		<Unit filename="saya/core/debuglog.h" />
+		<Unit filename="saya/core/dialogs.cpp" />
+		<Unit filename="saya/core/dialogs.h" />
 		<Unit filename="saya/core/filevid.cpp">
 			<Option weight="10" />
 		</Unit>
@@ -219,7 +179,6 @@
 			<Option weight="10" />
 		</Unit>
 		<Unit filename="saya/core/videooutputdevice.h" />
-		<Unit filename="saya/timeline/fxparameterlist.h" />
 		<Unit filename="saya/inputmonitor.cpp">
 			<Option weight="20" />
 		</Unit>
@@ -239,6 +198,50 @@
 		</Unit>
 		<Unit filename="saya/recentfileslist.h" />
 		<Unit filename="saya/sayaevthandler.h" />
+		<Unit filename="saya/timeline/avclip.cpp">
+			<Option weight="20" />
+		</Unit>
+		<Unit filename="saya/timeline/avclip.h" />
+		<Unit filename="saya/timeline/avclips.h" />
+		<Unit filename="saya/timeline/avcommon.h" />
+		<Unit filename="saya/timeline/aveffect.cpp">
+			<Option weight="20" />
+		</Unit>
+		<Unit filename="saya/timeline/aveffect.h" />
+		<Unit filename="saya/timeline/aveffectdeclaration.cpp">
+			<Option weight="20" />
+		</Unit>
+		<Unit filename="saya/timeline/aveffectdeclaration.h" />
+		<Unit filename="saya/timeline/aveffectparamdeclaration.cpp">
+			<Option weight="20" />
+		</Unit>
+		<Unit filename="saya/timeline/aveffectparamdeclaration.h" />
+		<Unit filename="saya/timeline/aveffectparamdeclarations.h" />
+		<Unit filename="saya/timeline/aveffects.h" />
+		<Unit filename="saya/timeline/avresource.cpp">
+			<Option weight="20" />
+		</Unit>
+		<Unit filename="saya/timeline/avresource.h" />
+		<Unit filename="saya/timeline/avresources.h" />
+		<Unit filename="saya/timeline/avsequence.cpp">
+			<Option weight="20" />
+		</Unit>
+		<Unit filename="saya/timeline/avsequence.h" />
+		<Unit filename="saya/timeline/avsettings.cpp">
+			<Option weight="20" />
+		</Unit>
+		<Unit filename="saya/timeline/avsettings.h" />
+		<Unit filename="saya/timeline/avtimeline.h" />
+		<Unit filename="saya/timeline/avtrack.cpp">
+			<Option weight="20" />
+		</Unit>
+		<Unit filename="saya/timeline/avtrack.h" />
+		<Unit filename="saya/timeline/avtracks.h" />
+		<Unit filename="saya/timeline/avtransition.cpp">
+			<Option weight="20" />
+		</Unit>
+		<Unit filename="saya/timeline/avtransition.h" />
+		<Unit filename="saya/timeline/fxparameterlist.h" />
 		<Unit filename="saya/timeline/serializable.cpp">
 			<Option weight="20" />
 		</Unit>
@@ -297,8 +300,6 @@
 		<Unit filename="ui/picknamedlg.h" />
 		<Unit filename="ui/resources.cpp" />
 		<Unit filename="ui/resources.h" />
-		<Unit filename="ui/s2wx.cpp" />
-		<Unit filename="ui/s2wx.h" />
 		<Unit filename="ui/welcomedlg.cpp" />
 		<Unit filename="ui/welcomedlg.h" />
 		<Unit filename="ui/wx_pch.h">

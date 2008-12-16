@@ -18,7 +18,6 @@
 #include "../saya/recentfileslist.h"
 #include "../saya/projectmanager.h"
 
-#include "s2wx.h"
 #include "welcomedlg.h"
 
 int idWelcomeDialog = XRCID("welcome_dialog");
@@ -93,7 +92,7 @@ void WelcomeDialog::RefreshRecentFilesList() {
     }
     wxHtmlWindow* myhtml = XRCCTRL(*this,"idWelcomeRecentProjects",wxHtmlWindow);
     if(myhtml) {
-        myhtml->SetPage(s2wx(tmps));
+        myhtml->SetPage(tmps);
     }
 }
 

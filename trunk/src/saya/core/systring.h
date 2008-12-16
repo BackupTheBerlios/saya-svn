@@ -9,7 +9,12 @@
 
 #ifndef systring_h
 #define systring_h
+
+class syString;
 class syStringHelper;
+#ifdef SY_WXSTRING_COMPATIBILITY
+class wxString;
+#endif
 
 /** @brief A not-so simple wrapper for a const char* (it's been growing).
  *  syString allows passing strings as return values on the stack without having to include
@@ -223,6 +228,11 @@ class syString {
         static const syString FormatBig(unsigned long bufsize, const char* format, ... );
 
         static const int npos;
+
+        #ifdef SY_WXSTRING_COMPATIBILITY
+        operator wxString() const;
+        explicit syString(const wxString& s);
+        #endif
 
     private:
         unsigned int m_Size;

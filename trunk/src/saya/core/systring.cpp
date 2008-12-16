@@ -7,6 +7,10 @@
  * License:   wxWindows license
  **************************************************************/
 
+#ifdef SY_WXSTRING_COMPATIBILITY
+    #include <wx/string.h>
+#endif
+
 #include "systring.h"
 #include <cstdlib>
 #include <cstring>
@@ -601,3 +605,14 @@ const syString operator+(const char* s1, const syString& s2) {
 const syString operator+(const wchar_t* s1, const syString& s2) {
     return syString(s1) + s2;
 }
+
+#ifdef SY_WXSTRING_COMPATIBILITY
+syString::operator wxString() const {
+    return wxString(this->c_str(),wxConvUTF8);
+}
+
+syString::syString(const wxString& s) {
+    syStringHelper::assign(this, s.mb_str());
+}
+
+#endif

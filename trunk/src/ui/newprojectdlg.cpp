@@ -30,7 +30,6 @@
 #include "../saya/presetmanager.h"
 #include "../saya/timeline/smapxstr.h"
 #include "../saya/timeline/sstrvector.h"
-#include "s2wx.h"
 
 // #include "app.h"
 #include "newprojectdlg.h"
@@ -128,43 +127,43 @@ void NewProjectDlg::OnPjrPresetsChanged(wxCommandEvent& event) {
         SMapStrStr values = ProjectManager::Get()->m_Presets->GetPresetData(selPreset.c_str());
 
         const syString* sp = values.find("idNewPrjAVSettings_width");
-        if(sp) {idNewPrjAVSettings_widthTextCtrl->SetValue(s2wx(*sp)); }
+        if(sp) {idNewPrjAVSettings_widthTextCtrl->SetValue(*sp); }
         idNewPrjAVSettings_widthTextCtrl->Disable();
 
         sp = values.find("idNewPrjAVSettings_height");
-        if(sp) {idNewPrjAVSettings_heightTextCtrl->SetValue(s2wx(*sp));}
+        if(sp) {idNewPrjAVSettings_heightTextCtrl->SetValue(*sp);}
         idNewPrjAVSettings_heightTextCtrl->Disable();
 
         sp = values.find("idNewPrjAVSettings_fps");
-        if(sp) {idNewPrjAVSettings_fpsComboBox->SetValue(s2wx(*sp));}
+        if(sp) {idNewPrjAVSettings_fpsComboBox->SetValue(*sp);}
         idNewPrjAVSettings_fpsComboBox->Disable();
 
         sp = values.find("idNewPrjAVSettings_interlacing");
-        if(sp) {idNewPrjAVSettings_interlacingChoice->SetStringSelection(s2wx(*sp));}
+        if(sp) {idNewPrjAVSettings_interlacingChoice->SetStringSelection(*sp);}
         idNewPrjAVSettings_interlacingChoice->Disable();
 
         sp = values.find("idNewPrjAVSettings_pixelaspect");
-        if(sp) {idNewPrjAVSettings_pixelaspectTextCtrl->SetValue(s2wx(*sp));}
+        if(sp) {idNewPrjAVSettings_pixelaspectTextCtrl->SetValue(*sp);}
         idNewPrjAVSettings_pixelaspectTextCtrl->Disable();
 
         sp = values.find("idNewPrjAVSettings_samplerate");
-        if(sp) {idNewPrjAVSettings_samplerateComboBox->SetValue(s2wx(*sp));}
+        if(sp) {idNewPrjAVSettings_samplerateComboBox->SetValue(*sp);}
         idNewPrjAVSettings_samplerateComboBox->Disable();
 
         sp = values.find("idNewPrjAVSettings_samplesize");
-        if(sp) {idNewPrjAVSettings_samplesizeChoice->SetStringSelection(s2wx(*sp));}
+        if(sp) {idNewPrjAVSettings_samplesizeChoice->SetStringSelection(*sp);}
         idNewPrjAVSettings_samplesizeChoice->Disable();
 
         sp = values.find("idNewPrjAVSettings_surround");
-        if(sp) {idNewPrjAVSettings_surroundChoice->SetStringSelection(s2wx(*sp));}
+        if(sp) {idNewPrjAVSettings_surroundChoice->SetStringSelection(*sp);}
         idNewPrjAVSettings_surroundChoice->Disable();
 
         //iter = values.find("idNewPrjAVSettings_channels");
-        //if(sp){idNewPrjAVSettings_channels->SetValue(s2wx(*sp));}
+        //if(sp){idNewPrjAVSettings_channels->SetValue(*sp);}
         //idNewPrjAVSettings_channelsSpinCtrl->Disable();
 
         sp = values.find("idNewPrjAVSettings_description");
-        if(sp) {idNewPrjAVSettings_descriptionTextCtrl->SetValue(s2wx(*sp));}
+        if(sp) {idNewPrjAVSettings_descriptionTextCtrl->SetValue(*sp);}
         idNewPrjAVSettings_descriptionTextCtrl->Disable();
     }
 }
@@ -200,11 +199,11 @@ void NewProjectDlg::OnPrjSaveSettingsAsClicked(wxCommandEvent& event) {
 bool NewProjectDlg::LoadPresets(){
     SStringVector presets = ProjectManager::Get()->m_Presets->GetPresets();
 
-    idNewPrjPresetsChoice->Append(wxString(_T("<Custom>")));
+    idNewPrjPresetsChoice->Append(syString("<Custom>"));
     unsigned int i, imax;
 
     for(i=0, imax = presets.size(); i < imax; ++i){
-        idNewPrjPresetsChoice->Append(s2wx(presets[i]));
+        idNewPrjPresetsChoice->Append(presets[i]);
     }
 
     //select custom preset by default
