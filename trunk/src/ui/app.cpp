@@ -28,6 +28,7 @@
 #include "../saya/core/systring.h"
 #include "../saya/core/intl.h"
 #include "../saya/core/config.h"
+#include "../saya/core/dialogs.h"
 #include "../saya/playbackmanager.h"
 #include "../saya/projectmanager.h"
 #include "app.h"
@@ -156,7 +157,6 @@ bool wxSayaApp::OnInit(int argc, const char** argv) {
 
         if(!ProjectManager::Get()->LoadConfig()) {
             ErrorMessageBox(_("WARNING: Could not read configuration!"));
-            ErrorMessageBox(_("WARNING: Could not read configuration!"));
         }
 
         DebugLog("Initializing Playback Manager...");
@@ -199,6 +199,22 @@ void wxSayaApp::ErrorMessageBox(const char* str) const {
 void wxSayaApp::MessageBox(const syString& message, const syString& caption) const {
     wxMessageBox(message,caption);
 }
+
+syFileDialogResult wxSayaApp::FileSelector(
+    const syString& message,
+    const syString& default_path,
+    const syString& default_filename,
+    const syString& default_extension,
+    const syString& wildcard,
+    int flags,
+    void* parent,
+    int x,
+    int y)
+{
+    #warning TODO:Implement wxSayaApp::FileSelector
+}
+
+
 // -------------
 // end wxSayaApp
 // -------------

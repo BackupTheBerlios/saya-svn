@@ -204,7 +204,7 @@ const syString UndoHistoryClass::GetOpname(unsigned int idx) const {
     if(idx < m_Data->m_queue->data.size()) {
         return m_Data->m_queue->data[idx].nextOp;
     }
-    return syString("");
+    return "";
 }
 
 bool UndoHistoryClass::Undo(syString& data, const syString& curstatedata) {
@@ -262,14 +262,14 @@ const syString UndoHistoryClass::GetUndoOpname() const {
     if(m_Data->m_State && m_Data->m_queue->data.size() >= m_Data->m_State) {
         return m_Data->m_queue->data[m_Data->m_State - 1].nextOp;
     }
-    return syString("");
+    return "";
 }
 
 const syString UndoHistoryClass::GetRedoOpname() const {
     if(!IsNextEof()) {
         return m_Data->m_queue->data[m_Data->m_State].nextOp;
     }
-    return syString("");
+    return "";
 }
 
 UndoHistoryQueue::UndoHistoryQueue() {

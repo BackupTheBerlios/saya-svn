@@ -110,3 +110,17 @@ const syString syFileDialogResult::operator[](unsigned int idx) {
     return m_Data->operator[](idx);
 }
 
+syFileDialogResult syFileSelector(
+    const syString& message,
+    const syString& default_path,
+    const syString& default_filename,
+    const syString& default_extension,
+    const syString& wildcard,
+    int flags,
+    void* parent,
+    int x,
+    int y)
+{
+    return syApp::Get()->FileSelector(message,default_path,default_filename,default_extension,
+        wildcard, flags, parent, x, y);
+}

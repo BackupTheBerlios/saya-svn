@@ -28,12 +28,15 @@ class syString {
         /** Standard constructor. */
         syString();
 
-        /** @brief const-char constructor.
+        /** const-char constructor and implicit converter. */
+        syString(const char* str);
+
+        /** @brief const-char constructor with optional pass-by-reference flag.
          *  @param str the string to use as data for our "container".
          *  @param useref Tells the constructor whether to just copy the pointer (true), or copy the data (false).
          *         Default false.
          */
-        syString(const char* str,bool useref = false);
+        syString(const char* str,bool useref);
 
         /** Constructs an UTF-8 string based on a wide character string. */
         syString(const wchar_t* str);

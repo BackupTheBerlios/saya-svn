@@ -55,6 +55,17 @@ class wxSayaApp: public syApp
         /** Shows a standard message box. */
         void MessageBox(const syString& message, const syString& caption) const;
 
+        syFileDialogResult FileSelector(
+            const syString& message,
+            const syString& default_path,
+            const syString& default_filename,
+            const syString& default_extension,
+            const syString& wildcard,
+            int flags,
+            void* parent,
+            int x,
+            int y);
+
     private:
         class Data;
         friend class Data;

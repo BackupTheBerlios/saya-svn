@@ -13,6 +13,7 @@
 class syDebugLog;
 class syConfig;
 class syString;
+class syFileDialogResult;
 
 /** The application's name. This must be implemented in your personalized app.cpp*/
 extern const char* APP_NAME;
@@ -105,6 +106,19 @@ class syApp
 
         /** Shows a standard message box. */
         virtual void MessageBox(const syString& message, const syString& caption) const = 0;
+
+        /** Shows a File selection dialog. */
+        virtual syFileDialogResult FileSelector(
+            const syString& message,
+            const syString& default_path,
+            const syString& default_filename,
+            const syString& default_extension,
+            const syString& wildcard,
+            int flags,
+            void* parent,
+            int x,
+            int y) = 0;
+
 
     protected:
         static int Result;

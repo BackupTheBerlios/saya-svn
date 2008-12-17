@@ -98,4 +98,26 @@ class syFileDialogResult {
         Data* m_Data;
 };
 
+/** @brief Shows a file selector dialog. This is a wrapper for syApp::FileSelector.
+ *  @param message The message to show in the dialog.
+ *  @param default_path The default path to choose the files from.
+ *  @param default_filename The filename to choose by default.
+ *  @param default_extension The extension that the filename will have by default.
+ *  @param wildcard The filter used to show the files in the dialog.
+ *  @param flags A combination of the flags listed in the syFILEDIALOG_FLAGS enum.
+ *  @param parent The parent window of the dialog. void* type used for extensibility.
+ *  @param x The dialog's starting x position. -1 = center.
+ *  @param y The dialog's starting y position.
+ */
+syFileDialogResult syFileSelector(
+    const syString& message,
+    const syString& default_path = "",
+    const syString& default_filename = "",
+    const syString& default_extension = "",
+    const syString& wildcard = "*.*",
+    int flags = 0,
+    void* parent = 0,
+    int x = -1,
+    int y = -1);
+
 #endif

@@ -50,7 +50,7 @@ void FileVID::LoadCurrentFrame(){
 
 bool FileVID::SetFile(const char* filename) {
     if(IsOk()) { return false; } // File can't be changed while playing!
-    m_Data->m_Filename = syString(filename);
+    m_Data->m_Filename = filename;
     return true;
 }
 

@@ -111,13 +111,13 @@ const syString ioCommon::GetTemporaryFilename(const char* path, const char* pref
     }
     fntemplate.append(prefix);
     for(i = 0; i < i_max; i++) {
-        filename = fntemplate + syString::Format("%6d",i).c_str();
-        if(!ioCommon::FileExists(filename.c_str())) break; // Success!
+        filename = fntemplate + syString::Format("%6d",i);
+        if(!ioCommon::FileExists(filename)) break; // Success!
     }
     if(i >= i_max) {
         filename.clear(); // Failed
     }
-    return syString(filename.c_str());
+    return filename;
 }
 
 

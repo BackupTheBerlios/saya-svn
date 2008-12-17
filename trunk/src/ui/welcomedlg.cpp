@@ -88,7 +88,7 @@ void WelcomeDialog::RefreshRecentFilesList() {
         }
     }
     if(!tmps.empty()) {
-        tmps = syString("<ol>") + tmps + "</ol>";
+        tmps = "<ol>" + tmps + "</ol>";
     }
     wxHtmlWindow* myhtml = XRCCTRL(*this,"idWelcomeRecentProjects",wxHtmlWindow);
     if(myhtml) {

@@ -45,6 +45,14 @@ m_Str(const_cast<char*>(syEmptyString))
 {
 }
 
+syString::syString(const char* str) :
+m_Size(0),
+m_Capacity(0),
+m_Str(const_cast<char*>(syEmptyString))
+{
+    syStringHelper::assign(this,str, false);
+}
+
 syString::syString(const char* str,bool useref) :
 m_Size(0),
 m_Capacity(0),

@@ -138,7 +138,7 @@ bool ProjectManager::LoadConfig() {
     unsigned int i;
     for(i = 1; i <= 9; i++) {
         key.Printf("RecentProjects/File%u",i);
-        DebugLog(syString("Reading key: ") + key);
+        DebugLog("Reading key: " + key);
         if(cfg->Exists(key.c_str())) {
             tmpname = cfg->Read(key.c_str(),"");
             m_RecentFiles->Add(tmpname.c_str(),false);

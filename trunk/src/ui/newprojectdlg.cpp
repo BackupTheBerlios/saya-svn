@@ -199,7 +199,7 @@ void NewProjectDlg::OnPrjSaveSettingsAsClicked(wxCommandEvent& event) {
 bool NewProjectDlg::LoadPresets(){
     SStringVector presets = ProjectManager::Get()->m_Presets->GetPresets();
 
-    idNewPrjPresetsChoice->Append(syString("<Custom>"));
+    idNewPrjPresetsChoice->Append(syString("<Custom>", true));
     unsigned int i, imax;
 
     for(i=0, imax = presets.size(); i < imax; ++i){
