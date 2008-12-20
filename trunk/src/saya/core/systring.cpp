@@ -20,15 +20,18 @@
 
 const char* syEmptyString = "";
 
-class syStringHelper {
+class syString::Helper {
     public:
+        static void assign(syString* dest, const char* str,unsigned int newsize, bool useref);
         static void assign(syString* dest, const char* str,bool useref = false);
         static void assign(syString* dest,const syString& copy);
+        static unsigned int GetCapacity(unsigned int newsize);
         static void reset(syString* dest);
+        static inline void reserve(syString* dest, unsigned int n);
         static unsigned int GetMinLength(const syString& s1, const syString& s2);
 };
 
-inline unsigned int syStringHelper::GetMinLength(const syString& s1, const syString& s2) {
+inline unsigned int syString::Helper::GetMinLength(const syString& s1, const syString& s2) {
     unsigned int result = s1.m_Size;
     if(result > s2.m_Size) result = s2.m_Size;
     return result;
@@ -50,7 +53,7 @@ m_Size(0),
 m_Capacity(0),
 m_Str(const_cast<char*>(syEmptyString))
 {
-    syStringHelper::assign(this,str, false);
+    Helper::assign(this,str, false);
 }
 
 syString::syString(const char* str,bool useref) :
@@ -58,7 +61,7 @@ m_Size(0),
 m_Capacity(0),
 m_Str(const_cast<char*>(syEmptyString))
 {
-    syStringHelper::assign(this,str, useref);
+    Helper::assign(this,str, useref);
 }
 
 syString::syString(const syString& copy) :
@@ -66,7 +69,7 @@ m_Size(0),
 m_Capacity(0),
 m_Str(NULL)
 {
-    syStringHelper::assign(this,copy.m_Str,false);
+    Helper::assign(this,copy.m_Str,false);
 }
 
 syString::syString(const wchar_t* str) :
@@ -78,25 +81,44 @@ m_Str(NULL)
     char buf[size]; // str has 4 bytes per character. Doubling that should be enough for an UTF-8 string.
     wcstombs(buf, str, size);
     buf[size - 1] = 0;
-    syStringHelper::assign(this,(const char*) buf, false);
+    Helper::assign(this,(const char*) buf, false);
 }
+
+#ifdef SY_WXSTRING_COMPATIBILITY
+syString::operator wxString() const {
+    return wxString(this->c_str(),wxConvUTF8);
+}
+
+syString::syString(const wxString& s) :
+m_Size(0),
+m_Capacity(0),
+m_Str(const_cast<char*>(syEmptyString))
+{
+    Helper::assign(this, s.mb_str());
+}
+
+syString& syString::operator=(const wxString& s) {
+    Helper::assign(this, s.mb_str());
+    return *this;
+}
+
+#endif
 
 
 syString::~syString() {
-    syStringHelper::reset(this);
+    Helper::reset(this);
 }
 
 syString& syString::operator=(const syString& copy) {
     if(&copy == this) {
         syString tmps(m_Str, false);
-        syStringHelper::reset(this);
+        Helper::reset(this);
+        tmps.m_UseRef = true;
         m_UseRef = false;
         m_Str = tmps.m_Str;
         m_Size = tmps.m_Size;
-        tmps.m_UseRef = true;
     } else {
-        syStringHelper::reset(this);
-        syStringHelper::assign(this,copy.m_Str, false);
+        Helper::assign(this,copy.m_Str, copy.m_Size, false);
     }
     return *this;
 }
@@ -108,8 +130,7 @@ syString& syString::operator=(const char* str) {
         }
         return operator=(syString(*this));
     }
-    syStringHelper::reset(this);
-    syStringHelper::assign(this,str, false);
+    Helper::assign(this, str, false);
     return *this;
 }
 
@@ -128,17 +149,16 @@ syString& syString::operator=(const wchar_t c) {
 }
 
 syString& syString::operator=(const wchar_t* str) {
-    syStringHelper::reset(this);
     unsigned int size = (wcslen(str) * MB_CUR_MAX + 1);
     char buf[size]; // str has 4 bytes per character. Doubling that should be enough for an UTF-8 string.
     wcstombs(buf, str, size);
     buf[size - 1] = 0;
-    syStringHelper::assign(this,(const char*) buf, false);
+    Helper::assign(this,(const char*) buf, false);
     return *this;
 }
 
 void syString::clear() {
-    syStringHelper::reset(this);
+    Helper::reset(this);
     m_UseRef = true;
     m_Str = const_cast<char*>(syEmptyString);
     m_Size = 0;
@@ -148,39 +168,94 @@ bool syString::empty() const {
     return (m_Size == 0);
 }
 
-void syStringHelper::reset(syString* dest) {
+inline unsigned int syString::Helper::GetCapacity(unsigned int newsize) {
+    unsigned int tmpcapacity = 2;
+    while(tmpcapacity < newsize + 1) {
+        tmpcapacity <<= 1;
+    }
+    --tmpcapacity; // We do this to keep our memory allocated in chunks of powers of 2.
+    // Note that we can decrement it by one because we compared with newsize + 1 and
+    // not just newsize.
+    return tmpcapacity;
+}
+
+inline void syString::Helper::reset(syString* dest) {
     if(!dest->m_UseRef && dest->m_Str) {
         if(dest->m_Str != syEmptyString) {
             delete[] dest->m_Str;
         }
     }
+    dest->m_Capacity = 0;
     dest->m_Str = 0;
 }
 
-void syStringHelper::assign(syString* dest, const syString& copy) {
-    syStringHelper::assign(dest,copy.m_Str, false);
+inline void syString::Helper::reserve(syString* dest, unsigned int n) {
+    if(dest->m_Capacity < n || dest->m_UseRef) {
+        char* buf = new char[n + 1];
+        unsigned int oldsize = dest->m_Size;
+        strncpy(buf,dest->m_Str,dest->m_Size);
+        buf[dest->m_Size] = 0;
+        Helper::reset(dest);
+        dest->m_Capacity = n;
+        dest->m_UseRef = false;
+        dest->m_Str = buf;
+        dest->m_Size = oldsize;
+    }
 }
 
-void syStringHelper::assign(syString* dest, const char* str,bool useref) {
+inline void syString::Helper::assign(syString* dest, const syString& copy) {
+    syString::Helper::assign(dest,copy.m_Str, copy.m_Size, false);
+}
+
+inline void syString::Helper::assign(syString* dest, const char* str,bool useref) {
+    unsigned int original_size = 0;
+    if(str) {
+        original_size = strlen(str);
+    }
+    syString::Helper::assign(dest,str,original_size, useref);
+}
+
+inline void syString::Helper::assign(syString* dest, const char* str,unsigned int newsize, bool useref) {
     if(useref && str == dest->m_Str) return;
+
+    // Free the memory occupied by dest if:
+    // a) the new string is an empty string
+    // b) The new data won't fit in the existing buffer
+    // c) We're using a referenced string (in this case, the pointer is reset to NULL).
+    if(dest->m_Str && (!newsize || newsize > dest->m_Capacity || dest->m_UseRef)) {
+        syString::Helper::reset(dest);
+    }
     dest->m_UseRef = useref;
     if(dest->m_UseRef) {
+        // Assign by referencing.
         dest->m_Str = const_cast<char*>(str);
-        dest->m_Size = strlen(str);
+        dest->m_Size = newsize;
     } else {
-        dest->m_Size = 0;
-        if(str) {
-            dest->m_Size = strlen(str);
-        }
-        if(dest->m_Size) {
-            char* tmp = new char[dest->m_Size + 1];
-            if(str) {
-                strncpy(tmp,str,dest->m_Size);
+        // Assign by copying.
+
+        // Do we have anything to copy?
+        if(newsize && str) {
+            dest->m_Size = newsize;
+            if(!dest->m_Str) {
+                // If there's a buffer already, no need to allocate a new one (the data already fits).
+                dest->m_Str = new char[dest->m_Size + 1];
+
+                // Set the capacity equal to the destination string's size. This is, the size of the
+                // allocated buffer, MINUS one (for the trailing zero).
+                dest->m_Capacity = dest->m_Size;
             }
-            tmp[dest->m_Size] = 0;
-            dest->m_Str = tmp;
+
+            // Copy the string...
+            strncpy(dest->m_Str,str,dest->m_Size);
+
+            // And set the terminating zero (very important!).
+            dest->m_Str[dest->m_Size] = 0;
         } else {
-            dest->clear();
+            // Nothing to copy, let's use an empty string.
+            dest->m_Size = 0;
+            dest->m_Capacity = 0;
+            dest->m_UseRef = true;
+            dest->m_Str = const_cast<char*>(syEmptyString);
         }
     }
 }
@@ -211,9 +286,6 @@ unsigned int syString::length() const {
 }
 
 unsigned int syString::capacity() const {
-    if(m_Size > m_Capacity) {
-        m_Capacity = m_Size + 1;
-    }
     return m_Capacity;
 }
 
@@ -222,25 +294,29 @@ const char* syString::c_str() const {
 }
 
 const syString syString::operator+(const syString& s) const {
-    syString result(*this);
+    syString result;
+    result.reserve(m_Size + s.m_Size);
+    result = *this;
     result += s;
     return result;
 }
 
 const syString syString::operator+(const char* str) const {
-    syString result(*this);
-    result += str;
-    return result;
+    return operator+(syString(str, true));
 }
 
 const syString syString::operator+(const char c) const {
-    syString result(*this);
+    syString result;
+    result.reserve(m_Size + 1);
+    result = *this;
     result += c;
     return result;
 }
 
 const syString syString::operator+(const wchar_t c) const {
-    syString result(*this);
+    syString result;
+    result.reserve(m_Size + 4);
+    result = *this;
     result += c;
     return result;
 }
@@ -251,34 +327,20 @@ const syString syString::operator+(const wchar_t* str) const {
     return result;
 }
 
+void syString::reserve(unsigned int n) {
+    Helper::reserve(this,n);
+}
+
+
 syString& syString::operator+=(const syString& s) {
     if(!s.size()) return *this;
-    unsigned paramlen = s.size();
+    unsigned paramlen = s.m_Size;
     unsigned newsize = m_Size + paramlen;
-    if(m_Capacity < m_Size) {
-        m_Capacity = m_Size;
-    }
     char* newbuf = m_Str;
-    if(newsize + 1 > m_Capacity) {
-        unsigned int tmpcapacity = 1;
-        while(tmpcapacity < newsize + 1) {
-            if(tmpcapacity >= 1 << 16) {
-                tmpcapacity += 1 << 16;
-            } else {
-                tmpcapacity <<=1;
-            }
-        }
-        m_Capacity = tmpcapacity;
-        newbuf = new char[m_Capacity];
-        strncpy(newbuf,m_Str,m_Size);
+    if(newsize > m_Capacity) {
+        Helper::reserve(this, Helper::GetCapacity(newsize));
     }
     strncpy(newbuf + m_Size,s.m_Str, paramlen);
-    newbuf[newsize] = 0;
-
-    if(newbuf != m_Str) {
-        syStringHelper::reset(this);
-        m_Str = newbuf;
-    }
     m_Size = newsize;
     return *this;
 }
@@ -443,7 +505,7 @@ bool syString::operator==(const syString& s) const {
     if(!m_Size && !s.m_Size) return true;
     unsigned int maxsize = m_Size;
     if(maxsize < s.m_Size) maxsize = s.m_Size;
-    return strncmp(c_str(), s.m_Str,syStringHelper::GetMinLength(*this, s)) == 0;
+    return strncmp(c_str(), s.m_Str,syString::Helper::GetMinLength(*this, s)) == 0;
 }
 
 bool syString::operator!=(const syString& s) const {
@@ -454,28 +516,28 @@ bool syString::operator<(const syString& s) const {
     if(!m_Size && s.m_Size) return true; // The empty string loses
     if(m_Size && !s.m_Size) return false;
     if(!m_Size && !s.m_Size) return false; // Both are empty, then they're equal.
-    return strncmp(m_Str, s.m_Str, syStringHelper::GetMinLength(*this, s)) < 0;
+    return strncmp(m_Str, s.m_Str, syString::Helper::GetMinLength(*this, s)) < 0;
 }
 
 bool syString::operator>(const syString& s) const {
     if(!m_Size && s.m_Size) return false;
     if(m_Size && !s.m_Size) return true;
     if(!m_Size && !s.m_Size) return false;
-    return strncmp(m_Str, s.m_Str, syStringHelper::GetMinLength(*this, s)) > 0;
+    return strncmp(m_Str, s.m_Str, syString::Helper::GetMinLength(*this, s)) > 0;
 }
 
 bool syString::operator<=(const syString& s) const {
     if(!m_Size && s.m_Size) return true;
     if(m_Size && !s.m_Size) return false;
     if(!m_Size && !s.m_Size) return true;
-    return strncmp(m_Str, s.m_Str, syStringHelper::GetMinLength(*this, s)) <= 0;
+    return strncmp(m_Str, s.m_Str, syString::Helper::GetMinLength(*this, s)) <= 0;
 }
 
 bool syString::operator>=(const syString& s) const {
     if(!m_Size && s.m_Size) return false;
     if(m_Size && !s.m_Size) return true;
     if(!m_Size && !s.m_Size) return true;
-    return strncmp(m_Str, s.m_Str, syStringHelper::GetMinLength(*this, s)) >= 0;
+    return strncmp(m_Str, s.m_Str, syString::Helper::GetMinLength(*this, s)) >= 0;
 }
 
 bool syString::operator!() const {
@@ -613,14 +675,3 @@ const syString operator+(const char* s1, const syString& s2) {
 const syString operator+(const wchar_t* s1, const syString& s2) {
     return syString(s1) + s2;
 }
-
-#ifdef SY_WXSTRING_COMPATIBILITY
-syString::operator wxString() const {
-    return wxString(this->c_str(),wxConvUTF8);
-}
-
-syString::syString(const wxString& s) {
-    syStringHelper::assign(this, s.mb_str());
-}
-
-#endif

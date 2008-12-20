@@ -11,7 +11,6 @@
 #define systring_h
 
 class syString;
-class syStringHelper;
 #ifdef SY_WXSTRING_COMPATIBILITY
 class wxString;
 #endif
@@ -22,8 +21,6 @@ class wxString;
  *  maps.
  */
 class syString {
-
-    friend class syStringHelper;
     public:
         /** Standard constructor. */
         syString();
@@ -70,6 +67,9 @@ class syString {
 
         /** Returns the current buffer's capacity. */
         unsigned int capacity() const;
+
+        /** Reallocates the string with a larger capacity. */
+        void reserve(unsigned int n);
 
         /** @brief Returns the position of string <i>needle</i>  in the string.
          *  Returns syString::npos (-1) if <i>needle</i> was not found.
@@ -235,9 +235,12 @@ class syString {
         #ifdef SY_WXSTRING_COMPATIBILITY
         operator wxString() const;
         explicit syString(const wxString& s);
+        syString& operator=(const wxString& s);
         #endif
 
     private:
+        class Helper;
+        friend class Helper;
         unsigned int m_Size;
         mutable unsigned int m_Capacity;
         bool m_UseRef;
