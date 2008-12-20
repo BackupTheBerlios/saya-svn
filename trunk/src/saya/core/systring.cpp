@@ -51,6 +51,7 @@ m_Str(const_cast<char*>(syEmptyString))
 syString::syString(const char* str) :
 m_Size(0),
 m_Capacity(0),
+m_UseRef(true),
 m_Str(const_cast<char*>(syEmptyString))
 {
     Helper::assign(this,str, false);
@@ -59,6 +60,7 @@ m_Str(const_cast<char*>(syEmptyString))
 syString::syString(const char* str,bool useref) :
 m_Size(0),
 m_Capacity(0),
+m_UseRef(true),
 m_Str(const_cast<char*>(syEmptyString))
 {
     Helper::assign(this,str, useref);
@@ -67,7 +69,8 @@ m_Str(const_cast<char*>(syEmptyString))
 syString::syString(const syString& copy) :
 m_Size(0),
 m_Capacity(0),
-m_Str(NULL)
+m_UseRef(true),
+m_Str(const_cast<char*>(syEmptyString))
 {
     Helper::assign(this,copy.m_Str,false);
 }
@@ -75,7 +78,8 @@ m_Str(NULL)
 syString::syString(const wchar_t* str) :
 m_Size(0),
 m_Capacity(0),
-m_Str(NULL)
+m_UseRef(true),
+m_Str(const_cast<char*>(syEmptyString))
 {
     unsigned int size = (wcslen(str) * MB_CUR_MAX + 1);
     char buf[size]; // str has 4 bytes per character. Doubling that should be enough for an UTF-8 string.
@@ -92,6 +96,7 @@ syString::operator wxString() const {
 syString::syString(const wxString& s) :
 m_Size(0),
 m_Capacity(0),
+m_UseRef(true),
 m_Str(const_cast<char*>(syEmptyString))
 {
     Helper::assign(this, s.mb_str());
@@ -193,8 +198,10 @@ inline void syString::Helper::reserve(syString* dest, unsigned int n) {
     if(dest->m_Capacity < n || dest->m_UseRef) {
         char* buf = new char[n + 1];
         unsigned int oldsize = dest->m_Size;
-        strncpy(buf,dest->m_Str,dest->m_Size);
-        buf[dest->m_Size] = 0;
+        if(oldsize) {
+            strncpy(buf,dest->m_Str,oldsize);
+        }
+        buf[oldsize] = 0;
         Helper::reset(dest);
         dest->m_Capacity = n;
         dest->m_UseRef = false;
@@ -217,47 +224,49 @@ inline void syString::Helper::assign(syString* dest, const char* str,bool useref
 
 inline void syString::Helper::assign(syString* dest, const char* str,unsigned int newsize, bool useref) {
     if(useref && str == dest->m_Str) return;
+    if(!str) newsize = 0;
+    if(!newsize) { // Special case: Empty string.
+        dest->m_Size = 0;
 
-    // Free the memory occupied by dest if:
-    // a) the new string is an empty string
-    // b) The new data won't fit in the existing buffer
-    // c) We're using a referenced string (in this case, the pointer is reset to NULL).
-    if(dest->m_Str && (!newsize || newsize > dest->m_Capacity || dest->m_UseRef)) {
-        syString::Helper::reset(dest);
-    }
-    dest->m_UseRef = useref;
-    if(dest->m_UseRef) {
-        // Assign by referencing.
-        dest->m_Str = const_cast<char*>(str);
-        dest->m_Size = newsize;
-    } else {
-        // Assign by copying.
-
-        // Do we have anything to copy?
-        if(newsize && str) {
-            dest->m_Size = newsize;
-            if(!dest->m_Str) {
-                // If there's a buffer already, no need to allocate a new one (the data already fits).
-                dest->m_Str = new char[dest->m_Size + 1];
-
-                // Set the capacity equal to the destination string's size. This is, the size of the
-                // allocated buffer, MINUS one (for the trailing zero).
-                dest->m_Capacity = dest->m_Size;
-            }
-
-            // Copy the string...
-            strncpy(dest->m_Str,str,dest->m_Size);
-
-            // And set the terminating zero (very important!).
-            dest->m_Str[dest->m_Size] = 0;
-        } else {
-            // Nothing to copy, let's use an empty string.
-            dest->m_Size = 0;
-            dest->m_Capacity = 0;
+        // Assign to syEmptyString ONLY if we're using a reference.
+        // This is to avoid freeing the buffer needlessly.
+        if(!dest->m_Str || dest->m_UseRef) {
             dest->m_UseRef = true;
             dest->m_Str = const_cast<char*>(syEmptyString);
+            dest->m_Capacity = 0;
+        } else {
+            dest->m_Str[0] = 0;
         }
+        return;
     }
+
+    if(useref) { // Assign by referencing.
+        syString::Helper::reset(dest); // Free used memory
+        dest->m_UseRef = true;
+        dest->m_Capacity = 0;
+        dest->m_Size = newsize;
+        dest->m_Str = const_cast<char*>(str);
+        return;
+    }
+
+    // Assign by copying.
+
+    if(newsize > dest->m_Capacity || dest->m_UseRef) {
+        syString::Helper::reset(dest);
+        dest->m_Str = new char[newsize + 1];
+
+        // Set the capacity equal to the destination string's size. This is, the size of the
+        // allocated buffer, MINUS one (for the trailing zero).
+        dest->m_Capacity = newsize;
+    }
+    dest->m_UseRef = false;
+    dest->m_Size = newsize;
+
+    // Copy the string...
+    strncpy(dest->m_Str,str,dest->m_Size);
+
+    // And set the terminating zero (very important!).
+    dest->m_Str[dest->m_Size] = 0;
 }
 
 const char syString::operator[](unsigned int i) const {
