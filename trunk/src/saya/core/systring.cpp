@@ -336,11 +336,11 @@ syString& syString::operator+=(const syString& s) {
     if(!s.size()) return *this;
     unsigned paramlen = s.m_Size;
     unsigned newsize = m_Size + paramlen;
-    char* newbuf = m_Str;
     if(newsize > m_Capacity) {
         Helper::reserve(this, Helper::GetCapacity(newsize));
     }
-    strncpy(newbuf + m_Size,s.m_Str, paramlen);
+    strncpy(m_Str + m_Size,s.m_Str, paramlen);
+    m_Str[newsize] = 0;
     m_Size = newsize;
     return *this;
 }

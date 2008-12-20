@@ -29,8 +29,6 @@ extern const char* APP_SHOWOFFNAME;
  */
 bool IsAppShuttingDown();
 
-void syMessageBox(const syString& caption, const syString& message);
-
 class syApp
 {
     public:
@@ -98,14 +96,17 @@ class syApp
         /** Destructor. */
         virtual ~syApp();
 
-        /** Shows an error message box. */
-        virtual void ErrorMessageBox(const char* str) const = 0;
+        /** @brief Shows a standard message box.
+         *  @see syDIALOG_ICON_TYPES
+         *  @see syDIALOG_BUTTON_TYPES
+         */
+        virtual int MessageBox(const syString& message, const syString& caption,unsigned int flags,void* parent) const = 0;
 
-        /** Shows an error message box. Calls the above function. */
-        void ErrorMessageBox(const syString& s) const;
+        /** Shows an plain, OS-friendly error message box. */
+        virtual void ErrorMessageBox(const syString& message) const = 0;
 
-        /** Shows a standard message box. */
-        virtual void MessageBox(const syString& message, const syString& caption) const = 0;
+        /** Shows a temporary message in your main window's status bar. */
+        virtual void LogStatus(const syString& message) const = 0;
 
         /** Shows a File selection dialog. */
         virtual syFileDialogResult FileSelector(

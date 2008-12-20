@@ -124,3 +124,15 @@ syFileDialogResult syFileSelector(
     return syApp::Get()->FileSelector(message,default_path,default_filename,default_extension,
         wildcard, flags, parent, x, y);
 }
+
+int syMessageBox(const syString& message, const syString& caption,unsigned int flags,void* parent) {
+    return syApp::Get()->MessageBox(message, caption,flags, parent);
+}
+
+void syErrorMessageBox(const syString& message) {
+    syApp::Get()->ErrorMessageBox(message);
+}
+
+void syLogStatus(const syString& message) {
+    syApp::Get()->LogStatus(message);
+}

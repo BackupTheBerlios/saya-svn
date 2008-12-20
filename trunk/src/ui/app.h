@@ -11,6 +11,7 @@
 #define ui_app_h
 
 #include "../saya/core/app.h"
+#include "../saya/core/dialogs.h"
 
 class wxSayaApp: public syApp
 {
@@ -49,11 +50,17 @@ class wxSayaApp: public syApp
         /** Destructor. */
         virtual ~wxSayaApp();
 
-        /** Shows an error message box. */
-        void ErrorMessageBox(const char* str) const;
+        /** @brief Shows a standard message box.
+         *  @see syDIALOG_ICON_TYPES
+         *  @see syDIALOG_BUTTON_TYPES
+         */
+        virtual int MessageBox(const syString& message, const syString& caption,unsigned int flags = syOK,void* parent = 0) const;
 
-        /** Shows a standard message box. */
-        void MessageBox(const syString& message, const syString& caption) const;
+        /** Shows an plain, OS-friendly error message box. Use this in case you messed up with your UI-toolkit.*/
+        virtual void ErrorMessageBox(const syString& message) const;
+
+        /** Shows a temporary message in your main window's status bar. */
+        virtual void LogStatus(const syString& message) const;
 
         syFileDialogResult FileSelector(
             const syString& message,

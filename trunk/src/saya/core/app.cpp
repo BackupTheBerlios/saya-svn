@@ -87,11 +87,3 @@ bool syApp::IsAppShuttingDown() {
 void syApp::ShutDown() {
     sayaStaticData::s_IsAppShuttingDown = true;
 }
-
-void syApp::ErrorMessageBox(const syString& s) const {
-    return ErrorMessageBox(s.c_str());
-}
-
-void syMessageBox(const syString& caption, const syString& message) {
-    return syApp::Get()->MessageBox(caption, message);
-}

@@ -18,7 +18,7 @@
 #ifndef core_dialogs_h
 #define core_dialogs_h
 
-class syString;
+#include "systring.h"
 
 enum syDIALOG_BUTTON_TYPES {
     syYES_DEFAULT       = 0x00,
@@ -55,13 +55,19 @@ enum syFILEDIALOG_FLAGS {
 };
 
 /** @brief Pops up a message dialog, waiting for user input.
- *  @return The code corresponding to the button pressed. */
-int syMessageBox(const syString& message, const syString& caption,unsigned int flags,void* parent);
+ *  @return The code corresponding to the button pressed.
+ *  @note This is a wrapper for syApp::MessageBox. @see syApp::MessageBox.
+ */
+int syMessageBox(const syString& message, const syString& caption,unsigned int flags = syOK,void* parent = 0);
 
-/** Pops up an aggressive message box. For use with errors when starting up the application. */
+/** @brief Shows an plain, OS-friendly error message box. Use this in case you messed up with your UI-toolkit.
+ *  @note This is a wrapper for syApp::ErrorMessageBox. @see syApp::ErrorMessageBox.
+ */
 void syErrorMessageBox(const syString& message);
 
-/** Changes the statusbar of the main frame, showing a message. */
+/** @brief Changes the statusbar of the main frame, showing a message.
+ *  @note This is a wrapper for syApp::LogStatus. @see syApp::LogStatus.
+ */
 void syLogStatus(const syString& message);
 
 /** This is the class that returns from a File Dialog call. */

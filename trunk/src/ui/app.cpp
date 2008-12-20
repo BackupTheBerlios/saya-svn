@@ -149,24 +149,24 @@ bool wxSayaApp::OnInit(int argc, const char** argv) {
         DebugLog(_("Initializing Image handlers..."));
         wxInitAllImageHandlers();
 
-        DebugLog("Loading resources...");
+        DebugLog(_("Loading resources..."));
         if(!m_Data->LoadXRCResources())
             break;
 
-        DebugLog("Initializing Project Manager...");
+        DebugLog(_("Initializing Project Manager..."));
         ProjectManager::Get();
 
         if(!ProjectManager::Get()->LoadConfig()) {
             ErrorMessageBox(_("WARNING: Could not read configuration!"));
         }
 
-        DebugLog("Initializing Playback Manager...");
+        DebugLog(_("Initializing Playback Manager..."));
         m_Data->CreatePlaybackManager();
 
-        DebugLog("Creating main frame...");
+        DebugLog(_("Creating main frame..."));
         CreateMainFrame();
 
-        DebugLog("Initialization finished.");
+        DebugLog(_("Initialization finished."));
         result = true;
     }while(false);
 	return result;
@@ -174,7 +174,7 @@ bool wxSayaApp::OnInit(int argc, const char** argv) {
 
 /** Exits the main loop on the next iteration. */
 void wxSayaApp::Exit(bool now) {
-    DebugLog("Good bye.");
+    DebugLog(_("Good bye."));
     if(wxTheApp) {
         if(now) {
             wxTheApp->Exit();
@@ -193,13 +193,18 @@ void wxSayaApp::Run() {
     wxTheApp->OnRun();
 }
 
-void wxSayaApp::ErrorMessageBox(const char* str) const {
-    wxLogError(wxString(str,wxConvUTF8));
+int wxSayaApp::MessageBox(const syString& message, const syString& caption,unsigned int flags,void* parent) const {
+    return wxMessageBox(message, caption, flags, reinterpret_cast<wxWindow*>(parent));
 }
 
-void wxSayaApp::MessageBox(const syString& message, const syString& caption) const {
-    wxMessageBox(message,caption);
+void wxSayaApp::ErrorMessageBox(const syString& message) const {
+    wxLogError(wxString(message));
 }
+
+void wxSayaApp::LogStatus(const syString& message) const {
+    wxLogStatus(wxString(message));
+}
+
 
 syFileDialogResult wxSayaApp::FileSelector(
     const syString& message,
