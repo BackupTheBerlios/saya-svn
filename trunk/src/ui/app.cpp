@@ -23,6 +23,7 @@
     #include <wx/log.h>
     #include <wx/image.h>
     #include <wx/msgdlg.h>
+    #include <wx/filedlg.h>
 #endif
 
 #include "../saya/core/systring.h"
@@ -211,9 +212,25 @@ syFileDialogResult wxSayaApp::FileSelector(
     int x,
     int y)
 {
-    #warning TODO:Implement wxSayaApp::FileSelector
+    syFileDialogResult result;
+    if(flags & syFD_MULTIPLE) {
+        wxFileDialog mydialog((wxWindow*)parent, message, default_path, default_filename, wildcard, flags, wxPoint(x, y));
+        int resultcode = mydialog.ShowModal();
+        if(resultcode == wxID_OK) {
+            wxArrayString chosenfiles;
+            mydialog.GetFilenames(chosenfiles);
+            for(unsigned int i = 0, imax = chosenfiles.GetCount(); i < imax; ++i) {
+                result.AddFile(syString(chosenfiles[i]));
+            }
+        }
+    } else {
+        syString resultingfilename(wxFileSelector(wxString(message), wxString(default_path), wxString(default_filename), wxString(default_extension), wxString(wildcard), flags, reinterpret_cast<wxWindow*>(parent), x, y));
+        if(!resultingfilename.empty()) {
+            result.AddFile(resultingfilename);
+        }
+    }
+    return result;
 }
-
 
 // -------------
 // end wxSayaApp
