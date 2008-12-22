@@ -14,6 +14,8 @@ class syDebugLog;
 class syConfig;
 class syString;
 class syFileDialogResult;
+class syEvent;
+class syEvtHandler;
 
 /** The application's name. This must be implemented in your personalized app.cpp*/
 extern const char* APP_NAME;
@@ -90,8 +92,21 @@ class syApp
         /** @brief Exit routine. Called just before the object is destroyed. */
         virtual void OnExit();
 
-        /** This is your application's main loop. It should set Result on exit.*/
+        /** This enters the application's main loop. It should set Result on exit.*/
         virtual void Run() = 0;
+
+        /** Returns true if there are unprocessed events in the event queue. */
+        bool Pending() const;
+
+        /** @brief Process the first available event in the event queue.
+         */
+        void ProcessNextEvent() const;
+
+        /** Posts an event to the event queue. */
+        virtual void PostEvent(syEvtHandler* handler, syEvent& event) = 0;
+
+        /** Returns true if the application's main loop is running. */
+        virtual bool IsMainLoopRunning() const = 0;
 
         /** Destructor. */
         virtual ~syApp();
@@ -108,6 +123,12 @@ class syApp
         /** Shows a temporary message in your main window's status bar. */
         virtual void LogStatus(const syString& message) const = 0;
 
+        /** Sets the application's main window. */
+        virtual void SetTopWindow(void* window) = 0;
+
+        /** Gets the application's main window. */
+        virtual void* GetTopWindow() const = 0;
+
         /** Shows a File selection dialog. */
         virtual syFileDialogResult FileSelector(
             const syString& message,
@@ -118,7 +139,7 @@ class syApp
             int flags,
             void* parent,
             int x,
-            int y) = 0;
+            int y) const = 0;
 
 
     protected:

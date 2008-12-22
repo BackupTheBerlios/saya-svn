@@ -17,17 +17,14 @@
 
 
 #ifndef WX_PRECOMP
-    #include <wx/xrc/xmlres.h>
     #include <wx/string.h>
     #include <wx/textctrl.h>
-    #include <wx/gdicmn.h>
-    #include <wx/settings.h>
     #include <wx/sizer.h>
     #include <wx/frame.h>
-    #include <wx/app.h>
 #endif
 
 #include "../saya/core/systring.h"
+#include "../saya/core/app.h"
 #include "debuglog.h"
 #include <wx/datetime.h>
 
@@ -48,7 +45,7 @@ wxFrame(NULL, wxID_ANY, wxT("Debug Log"), wxDefaultPosition, wxSize( 539,399 ), 
 
 	this->SetSizer( bSizer1 );
 	this->Layout();
-	wxTheApp->SetTopWindow(this);
+	syApp::Get()->SetTopWindow(this);
     this->Show();
 }
 
@@ -66,7 +63,7 @@ void AppDebugLog::DebugLog(const wxString& msg) {
     syString s;
     s << "[" << syString(t.Format(_T("%Y-%m-%d %H:%M:%S"))) << "] : " << syString(msg) << "\n";
     m_log->AppendText(s);
-    if(!wxTheApp->IsMainLoopRunning()) {
+    if(!syApp::Get()->IsMainLoopRunning()) {
         this->Update();
     }
 }

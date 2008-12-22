@@ -136,3 +136,7 @@ void syErrorMessageBox(const syString& message) {
 void syLogStatus(const syString& message) {
     syApp::Get()->LogStatus(message);
 }
+
+syFileDialogResult::operator const syString() const {
+    return (*m_Data)[0];
+}

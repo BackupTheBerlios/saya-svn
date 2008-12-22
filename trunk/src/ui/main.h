@@ -14,74 +14,54 @@
     #include <wx/frame.h>
 #endif
 
-#include "../saya/sayaevthandler.h"
-#include "../saya/core/app.h"
+#include "../saya/core/events.h"
 
 class syString;
 class ProjectManager;
-
 class WelcomeDialog;
 class wxUpdateUIEvent;
 class wxPanel;
 class wxTreeCtrl;
 class wxTreeEvent;
 class wxAuiManager;
-extern int idExitApp;
 
-class AppFrame: public wxFrame, public sayaEvtHandler
-{
+class syProjectStatusEvent;
+
+class AppFrame: public wxFrame, public syEvtHandler {
     public:
         AppFrame(wxFrame *frame, const wxString& title);
+        ~AppFrame();
         void OnFrameLayout (wxCommandEvent& event);
         void UpdateStatustext();
         bool SaveProject();
         bool SaveProjectAs();
         bool SaveProjectCopy();
 
-        bool IsClipSelected();          /// True if one or more timeline clips are selected
-        bool IsClipboardSet();          /** True if clipboard contains a resource clip or a timeline clip
+        bool IsClipSelected();          ///< True if one or more timeline clips are selected
+        bool IsClipboardSet();          /**< True if clipboard contains a resource clip or a timeline clip
                                          *  (resource clips will paste into timeline clips) */
-        bool IsSelectionMultiple();     /** True if Selection covers more than one timeline clip, or even full tracks
+        bool IsSelectionMultiple();     /**< True if Selection covers more than one timeline clip, or even full tracks
                                          *  - or if more than one resource clip is selected */
-        bool IsResourceClipSelected();  /// True if a resource clip is selected
-        bool IsTimelineActive();        /// True if the active window is the timeline window
-        bool IsResourceWindowActive();  /// True if the active window is the resource window
-        bool IsMonitorActive();         /// True if the active window is the monitor window
-        bool IsRenderMonitorActive();   /// True if the *render* monitor is active
-        bool IsClipMonitorActive();     /// True if the *clip* monitor is active
-                                        /// (render and clip monitors can't be active (selected) at the same time)
-        bool IsEffectsWindowActive();   /// True if the effects monitor/window is active
-        bool IsTitleWindowActive();     /// True if the title window is active
-        bool CanUndo();                 /// Does the project have an item in the "undo" list?
-        bool CanRedo();                 /// Does the project have an item in the "redo" list?
+        bool IsResourceClipSelected();  ///< True if a resource clip is selected
+        bool IsTimelineActive();        ///< True if the active window is the timeline window
+        bool IsResourceWindowActive();  ///< True if the active window is the resource window
+        bool IsMonitorActive();         ///< True if the active window is the monitor window
+        bool IsRenderMonitorActive();   ///< True if the *render* monitor is active
+        bool IsClipMonitorActive();     ///< True if the *clip* monitor is active
+                                        ///< (render and clip monitors can't be active (selected) at the same time)
+        bool IsEffectsWindowActive();   ///< True if the effects monitor/window is active
+        bool IsTitleWindowActive();     ///< True if the title window is active
+        bool CanUndo();                 ///< Does the project have an item in the "undo" list?
+        bool CanRedo();                 ///< Does the project have an item in the "redo" list?
 
         /// Shows an error about Loading an XML resource.
         void LoadFail(const char* resourcename);
 
-        /// Processes events related to Saya projects
-        virtual void ProcessSayaEvent(sayaEventType id, void* data = NULL);
-
-        /// Shows an error message box.
-        virtual void ErrorMessageBox(const char* msg,const char* caption);
-
-        /// Shows a Yes/No message box.
-        virtual bool YesNoMessageBox(const char* msg,const char* caption,bool exclamation);
-
-        /// Shows a Yes/No/Cancel message box.
-        virtual sayaYesNoCancel YesNoCancelMessageBox(const char* msg,const char* caption,bool exclamation);
-
-        /// Shows "Save Project As" dialog.
-        virtual syString ShowDialogSaveProjectAs();
-
-        /// Shows "Save Project Copy As" dialog.
-        virtual syString ShowDialogSaveProjectCopyAs();
+        void OnProjectStatusChanged(syProjectStatusEvent& event);
 
         wxMenu* FindMenu(const wxString name);
-        ~AppFrame();
         ProjectManager* m_prjMan;
     private:
-
-        sayaEvtHandler* m_handler;
         wxPanel* CreateProjectPane(); /// Creates the project pane
         wxPanel* m_projectpanel; /// Project Panel
         wxPanel* m_monitorpanel; /// Monitor Panel
@@ -123,7 +103,6 @@ class AppFrame: public wxFrame, public sayaEvtHandler
 
         void DoUpdateAppTitle();
         // UpdateUI events
-        void OnProjectStatusChanged(wxUpdateUIEvent& event);
 
         void OnFileMenuUpdateUI(wxUpdateUIEvent& event);
         void OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event);

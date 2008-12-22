@@ -85,7 +85,7 @@ bool ioCommon::FileExists(const syString& filename) {
 
 bool ioCommon::DeleteFile(const char* filename) {
     if(!ioCommon::FileExists(filename)) return false;
-    return ( ::remove(filename) != 0 );
+    return ( ::remove(filename) == 0 );
 }
 
 bool ioCommon::DeleteFile(const syString& filename) {
@@ -93,7 +93,7 @@ bool ioCommon::DeleteFile(const syString& filename) {
 }
 
 bool ioCommon::RenameFile(const char* oldname, const char* newname) {
-    return ( ::rename(oldname, newname) != 0 );
+    return ( ::rename(oldname, newname) == 0 );
 }
 
 const syString ioCommon::GetTemporaryFilename(const char* path, const char* prefix) {
@@ -111,7 +111,7 @@ const syString ioCommon::GetTemporaryFilename(const char* path, const char* pref
     }
     fntemplate.append(prefix);
     for(i = 0; i < i_max; i++) {
-        filename = fntemplate + syString::Format("%6d",i);
+        filename = fntemplate + syString::Format("%06d",i);
         if(!ioCommon::FileExists(filename)) break; // Success!
     }
     if(i >= i_max) {

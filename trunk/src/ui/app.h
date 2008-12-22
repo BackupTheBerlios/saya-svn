@@ -50,6 +50,18 @@ class wxSayaApp: public syApp
         /** Destructor. */
         virtual ~wxSayaApp();
 
+        /** Posts an event to the event queue. */
+        virtual void PostEvent(syEvtHandler* handler, syEvent& event);
+
+        /** Sets the application's main window. */
+        virtual void SetTopWindow(void* window);
+
+        /** Gets the application's main window. */
+        virtual void* GetTopWindow() const;
+
+        /** Returns true if the application's main loop is running. */
+        virtual bool IsMainLoopRunning() const;
+
         /** @brief Shows a standard message box.
          *  @see syDIALOG_ICON_TYPES
          *  @see syDIALOG_BUTTON_TYPES
@@ -71,7 +83,7 @@ class wxSayaApp: public syApp
             int flags,
             void* parent,
             int x,
-            int y);
+            int y) const;
 
     private:
         class Data;

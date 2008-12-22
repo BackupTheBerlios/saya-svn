@@ -30,6 +30,7 @@
 #include "../saya/core/intl.h"
 #include "../saya/core/config.h"
 #include "../saya/core/dialogs.h"
+#include "../saya/core/eventqueue.h"
 #include "../saya/playbackmanager.h"
 #include "../saya/projectmanager.h"
 #include "app.h"
@@ -37,9 +38,25 @@
 #include "debuglog.h"
 #include "config.h"
 
+int idsyEventpassed = wxNewId();
+
 extern wxFrame* CreateMainFrame();
 
-IMPLEMENT_APP_NO_MAIN(wxApp)
+class wxMyApp : public wxApp {
+    public:
+        void OnSayaEvent(wxCommandEvent& event);
+        DECLARE_EVENT_TABLE()
+};
+
+BEGIN_EVENT_TABLE(wxMyApp, wxApp)
+    EVT_MENU(idsyEventpassed, wxMyApp::OnSayaEvent)
+END_EVENT_TABLE()
+
+void wxMyApp::OnSayaEvent(wxCommandEvent& event) {
+    syEvtQueue::ProcessNextEvent();
+}
+
+IMPLEMENT_APP_NO_MAIN(wxMyApp)
 
 const char* APP_NAME = "SayaVideoEditor";
 const char* APP_VENDOR = "Rick Garcia";
@@ -59,11 +76,13 @@ class wxSayaApp::Data {
         void CreatePlaybackManager();
         int wxResult;
         syDebugLog* m_DebugLog;
+        void* m_TopWindow;
 };
 
 wxSayaApp::Data::Data() :
 m_PlaybackManager(0),
-m_DebugLog(0)
+m_DebugLog(0),
+m_TopWindow(0)
 {
     int dummy = 0;
     wxResult = wxEntryStart(dummy, (char**)0);
@@ -190,11 +209,11 @@ void wxSayaApp::OnExit() {
 
 void wxSayaApp::Run() {
     Result = 0;
-    wxTheApp->OnRun();
+    wxTheApp->MainLoop();
 }
 
 int wxSayaApp::MessageBox(const syString& message, const syString& caption,unsigned int flags,void* parent) const {
-    return wxMessageBox(message, caption, flags, reinterpret_cast<wxWindow*>(parent));
+    return wxMessageBox(message, caption, flags, static_cast<wxWindow*>(parent));
 }
 
 void wxSayaApp::ErrorMessageBox(const syString& message) const {
@@ -215,7 +234,7 @@ syFileDialogResult wxSayaApp::FileSelector(
     int flags,
     void* parent,
     int x,
-    int y)
+    int y) const
 {
     syFileDialogResult result;
     if(flags & syFD_MULTIPLE) {
@@ -229,12 +248,33 @@ syFileDialogResult wxSayaApp::FileSelector(
             }
         }
     } else {
-        syString resultingfilename(wxFileSelector(wxString(message), wxString(default_path), wxString(default_filename), wxString(default_extension), wxString(wildcard), flags, reinterpret_cast<wxWindow*>(parent), x, y));
+        syString resultingfilename(wxFileSelector(wxString(message), wxString(default_path), wxString(default_filename), wxString(default_extension), wxString(wildcard), flags, static_cast<wxWindow*>(parent), x, y));
         if(!resultingfilename.empty()) {
             result.AddFile(resultingfilename);
         }
     }
     return result;
+}
+
+void wxSayaApp::SetTopWindow(void* window) {
+    m_Data->m_TopWindow = window;
+    if(wxTheApp) {
+        wxTheApp->SetTopWindow(static_cast<wxWindow*>(window));
+    }
+}
+
+void* wxSayaApp::GetTopWindow() const {
+    return m_Data->m_TopWindow;
+}
+
+bool wxSayaApp::IsMainLoopRunning() const {
+    return wxTheApp->IsMainLoopRunning();
+}
+
+void wxSayaApp::PostEvent(syEvtHandler* handler, syEvent& event) {
+    syEvtQueue::PostEvent(handler, event);
+    wxCommandEvent tmpevent(wxEVT_COMMAND_MENU_SELECTED, idsyEventpassed);
+    wxPostEvent(wxTheApp, tmpevent); // This will enable wxWidgets to wake up with Saya events just as with wxWidgets events.
 }
 
 // -------------

@@ -11,6 +11,8 @@
 #include "systring.h"
 #include "debuglog.h"
 #include "config.h"
+#include "eventqueue.h"
+#include "sentryfuncs.h"
 
 namespace sayaStaticData {
     static syApp* TheApp = 0;
@@ -86,4 +88,12 @@ bool syApp::IsAppShuttingDown() {
 
 void syApp::ShutDown() {
     sayaStaticData::s_IsAppShuttingDown = true;
+}
+
+bool syApp::Pending() const {
+    return syEvtQueue::Pending();
+}
+
+void syApp::ProcessNextEvent() const {
+    syEvtQueue::ProcessNextEvent();
 }

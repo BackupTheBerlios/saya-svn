@@ -16,13 +16,14 @@
 #include "core/config.h"
 #include "core/debuglog.h"
 #include "core/app.h"
-
+#include "core/dialogs.h"
 #include "core/iocommon.h"
 #include "core/avcontroller.h"
+
 #include "projectmanager.h"
 #include "vidproject.h"
 
-#include "sayaevthandler.h"
+#include "saya_events.h"
 #include "recentfileslist.h"
 #include "presetmanager.h"
 
@@ -52,19 +53,19 @@ class ProjectManager::Data {
         /** The last used project directory */
         syString m_LastProjectDir;
 
-        /** A pointer to the program's event handler */
-        sayaEvtHandler* m_EvtHandler;
-
         syString m_LastError;
+
+        syEvtHandler* m_EventHandler;
 };
 
 ProjectManager::Data::Data(ProjectManager* parent) :
 m_Parent(parent),
-m_EvtHandler(0)
+m_EventHandler(0)
 {
 }
 
 ProjectManager::Data::~Data() {
+    m_EventHandler = 0;
 }
 
 // ----------------------
@@ -82,7 +83,6 @@ ProjectManager::ProjectManager() {
     m_RecentFiles = new RecentFilesList(9);
     m_RecentImports = new RecentFilesList(9);
     m_Presets = new PresetManager;
-    m_Data->m_EvtHandler = 0;
     m_ClearUndoHistoryOnSave = true;
 
 }
@@ -95,10 +95,6 @@ ProjectManager::~ProjectManager() {
     delete m_RecentImports;
     delete m_RecentFiles;
     delete m_Data;
-}
-
-void ProjectManager::SetEventHandler(sayaEvtHandler* handler) {
-    m_Data->m_EvtHandler = handler;
 }
 
 ProjectManager* ProjectManager::Get() {
@@ -186,9 +182,7 @@ bool ProjectManager::LoadProject(const syString& filename) {
         m_Data->m_Project = prj;
         result = true;
     } else {
-        if(m_Data->m_EvtHandler) {
-            m_Data->m_EvtHandler->ErrorMessageBox(m_Data->m_LastError.c_str(),_("Error loading project"));
-        }
+        syMessageBox(m_Data->m_LastError.c_str(),_("Error loading project"), syOK | syICON_EXCLAMATION);
     }
     OnProjectStatusModified();
     return result;
@@ -242,9 +236,7 @@ bool ProjectManager::InteractiveSaveProject() {
             bool answer = false;
             syString msg = _("Couldn't save the file! Try with a different name?");
             syString caption = _("Error Saving");
-            if(m_Data->m_EvtHandler) {
-                answer = m_Data->m_EvtHandler->YesNoMessageBox(msg.c_str(),caption.c_str(),true);
-            }
+            answer = syYES == syMessageBox(msg.c_str(),caption.c_str(),syYES_NO | syICON_QUESTION);
             if(answer) {
                 result = InteractiveSaveProjectAs();
             }
@@ -257,10 +249,7 @@ bool ProjectManager::InteractiveSaveProjectAs() {
     if(m_Data->m_Project == 0)
         return true;
     bool result = false;
-    syString filename("");
-    if(m_Data->m_EvtHandler != 0) {
-        filename = m_Data->m_EvtHandler->ShowDialogSaveProjectAs();
-    }
+    syString filename = syFileSelector(_("Save File as..."),"","","saya","*.saya",syFD_SAVE | syFD_OVERWRITE_PROMPT,syApp::Get()->GetTopWindow());
     if(!filename.empty()) {
         result = SaveProjectAs(filename);
     }
@@ -271,10 +260,7 @@ bool ProjectManager::InteractiveSaveProjectCopy() {
     if(m_Data->m_Project == 0)
         return true;
     bool result = false;
-    syString filename("");
-    if(m_Data->m_EvtHandler != 0) {
-        filename = m_Data->m_EvtHandler->ShowDialogSaveProjectCopyAs();
-    }
+    syString filename = syFileSelector(_("Save Copy as..."),"","","saya","*.saya",syFD_SAVE | syFD_OVERWRITE_PROMPT,syApp::Get()->GetTopWindow());
     if(!filename.empty()) {
         result = SaveProjectCopy(filename);
     }
@@ -287,21 +273,17 @@ bool ProjectManager::CloseProject(bool force) {
     bool result = (force || !(m_Data->m_Project->IsModified()));
     // If not modified (or forced), return success.
     if(!result) {
-        sayaYesNoCancel answer = sayaNo;
-        if(m_Data->m_EvtHandler != 0) {
-            m_Data->m_EvtHandler->YesNoCancelMessageBox(_("Project has been modified. Save?\nChoose 'Cancel' "
+        int answer = syNO;
+        answer = syMessageBox(_("Project has been modified. Save?\nChoose 'Cancel' "
             "to continue working on the project."),
-            _("Save project?"),false);
-        }
-        if(answer == sayaYes) {
+            _("Save project?"),syYES_NO_CANCEL);
+        if(answer == syYES) {
             result = InteractiveSaveProject();
             if(!result) {
-                if(m_Data->m_EvtHandler != 0) {
-                    m_Data->m_EvtHandler->ErrorMessageBox(_("Could not save file! Project will not be closed."), _("Info"));
-                }
+                syMessageBox(_("Could not save file! Project will not be closed."), _("Info"),syOK | syICON_EXCLAMATION);
             }
         } else {
-            result = (answer == sayaNo); // if user chooses No (don't save), return success.
+            result = (answer == syNO); // if user chooses No (don't save), return success.
             // else (user chooses Cancel) return failure.
         }
     }
@@ -318,9 +300,14 @@ const char* ProjectManager::GetLastError() const {
 }
 
 void ProjectManager::OnProjectStatusModified() {
-    if(m_Data->m_EvtHandler) {
-        m_Data->m_EvtHandler->ProcessSayaEvent(sayaevt_ProjectStatusChanged);
+    if(m_Data->m_EventHandler) {
+        syProjectStatusEvent event;
+        syApp::Get()->PostEvent(m_Data->m_EventHandler, event);
     }
+}
+
+void ProjectManager::SetEventHandler(syEvtHandler* handler) {
+    m_Data->m_EventHandler = handler;
 }
 
 // ------------------

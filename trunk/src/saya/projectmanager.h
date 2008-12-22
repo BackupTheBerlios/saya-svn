@@ -12,11 +12,11 @@
 
 class syString;
 class VidProject;
-class sayaEvtHandler;
 class sayaDebugLogger;
 class RecentFilesList;
 class PresetManager;
 class AVController;
+class syEvtHandler;
 
 /** Tells whether the application is shutting down. */
 bool IsAppShuttingDown();
@@ -111,13 +111,6 @@ class ProjectManager
           */
         bool SaveConfig();
 
-        /** @brief sets the pointer for the program's main frame (window)
-          *
-          * Call this from your main program to specify which frame will
-          * receive the events.
-          */
-        void SetEventHandler(sayaEvtHandler* handler);
-
         /** Gets the last used project directory */
         const syString GetLastProjectDir();
 
@@ -163,6 +156,9 @@ class ProjectManager
 
         /** Called whenever the project's status or filename have changed. */
         void OnProjectStatusModified();
+
+        /** Sets a handler to receive the events. */
+        void SetEventHandler(syEvtHandler* handler);
 
     protected:
 

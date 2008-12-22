@@ -17,7 +17,6 @@
 
 
 #ifndef WX_PRECOMP
-    #include <wx/app.h>
     #include <wx/xrc/xmlres.h>
     #include <wx/filedlg.h>
     #include <wx/aui/aui.h>
@@ -29,11 +28,15 @@
     #include <wx/aui/aui.h>
 #endif
 
+#include "../saya/core/app.h"
 #include "../saya/core/systring.h"
 #include "../saya/core/intl.h"
 #include "../saya/core/iocommon.h"
 #include "../saya/core/config.h"
 #include "../saya/core/debuglog.h"
+#include "../saya/core/evtregistry.h"
+
+#include "../saya/saya_events.h"
 #include "../saya/vidproject.h"
 #include "../saya/recentfileslist.h"
 #include "../saya/projectmanager.h"
@@ -48,8 +51,6 @@
 //helper functions
 enum wxbuildinfoformat {
     short_f, long_f };
-
-int idProjectStatusChanged = XRCID("idProjectStatusChanged");
 
 syString wxbuildinfo(wxbuildinfoformat format)
 {
@@ -83,8 +84,7 @@ int main_RegisterId(int id)
 
 wxFrame* CreateMainFrame() {
     AppFrame* frame = new AppFrame(NULL, _w("Saya - Unsheathe your Creativity"));
-    wxTheApp->SetTopWindow(frame);
-    ProjectManager::Get()->SetEventHandler(frame);
+    syApp::Get()->SetTopWindow(frame);
     return frame;
 }
 
@@ -454,8 +454,6 @@ BEGIN_EVENT_TABLE(AppFrame, wxFrame)
     EVT_UPDATE_UI(idWindowProject, AppFrame::OnWindowMenuUpdateUI)
     EVT_UPDATE_UI(idWindowTimelinesMenu, AppFrame::OnWindowMenuUpdateUI)
 
-    EVT_UPDATE_UI(idProjectStatusChanged, AppFrame::OnProjectStatusChanged)
-
 //  Project pane events
 
     EVT_UPDATE_UI(idProjectPane, AppFrame:: OnUpdateProjectPaneUI)
@@ -493,8 +491,6 @@ m_recentimportsmodcounter(0)
         g_statustext << _("Welcome to ") << APP_SHOWNAME << "! ^_^";
         UpdateStatustext();
 
-
-
         m_FactoryDefaultLayout = m_mgr->SavePerspective();
         LoadDefaultLayout(true);
 
@@ -503,6 +499,9 @@ m_recentimportsmodcounter(0)
     if(!result) {
         Destroy();
     }
+    syConnect(this, -1, &AppFrame::OnProjectStatusChanged);
+    ProjectManager::Get()->SetEventHandler(this);
+    ShowLayout(false);
 }
 
 bool AppFrame::CreateMenuBar() {
@@ -569,11 +568,9 @@ bool AppFrame::LoadDefaultLayout(bool firsttime) {
     if(!strlayout.empty()) {
         result = m_mgr->LoadPerspective(strlayout,false);
     }
-    if(firsttime)
-    {
-        wxUpdateUIEvent tmpevent(idProjectStatusChanged);
-        wxPostEvent(this,tmpevent);
-//        OnProjectStatusChanged(tmpevent);
+    if(firsttime) {
+        syProjectStatusEvent event;
+        syApp::Get()->PostEvent(static_cast<syEvtHandler*>(this), event);
     }
     m_mgr->Update();
     return result;
@@ -730,6 +727,7 @@ void AppFrame::LoadAndSetFrameSize() {
 }
 
 AppFrame::~AppFrame() {
+    ProjectManager::Get()->SetEventHandler(0);
     syApp::ShutDown();
     ProjectManager::Unload();
     m_mgr->UnInit();
@@ -832,8 +830,8 @@ void AppFrame::OnFileClose(wxCommandEvent& event) {
     if(IsAppShuttingDown())
         return;
     ProjectManager::Get()->CloseProject(false);
-    wxUpdateUIEvent tmpevent(idProjectStatusChanged);
-    wxPostEvent(this,tmpevent);
+    syProjectStatusEvent evt;
+    syApp::Get()->PostEvent(this, evt);
 }
 
 
@@ -1213,7 +1211,7 @@ void AppFrame::OnWindowMenuUpdateUI(wxUpdateUIEvent& event) {
 
 }
 
-void AppFrame::OnProjectStatusChanged(wxUpdateUIEvent& event) {
+void AppFrame::OnProjectStatusChanged(syProjectStatusEvent& event) {
     if(IsAppShuttingDown())
         return;
     if(m_hadproject != ProjectManager::Get()->HasProject() || !m_panes_status_checked) {
@@ -1313,68 +1311,3 @@ void AppFrame::OnUpdateProjectPaneUI(wxUpdateUIEvent& event) {
         thepane->Enable(enablePane);
     }
 }
-
-void AppFrame::ProcessSayaEvent(sayaEventType id, void* data) {
-    switch(id) {
-        case sayaevt_ProjectStatusChanged:
-            {
-                wxUpdateUIEvent event(idProjectStatusChanged);
-                wxPostEvent(this,event);
-            }
-        break;
-        default:;
-    }
-}
-
-void AppFrame::ErrorMessageBox(const char* msg,const char* caption) {
-    wxMessageBox(syString(msg, true), syString(caption, true), wxCANCEL | wxICON_ERROR, this);
-}
-
-bool AppFrame::YesNoMessageBox(const char* msg,const char* caption,bool exclamation) {
-    int style;
-    if(exclamation) {
-        style = wxICON_EXCLAMATION;
-    } else {
-        style = wxICON_QUESTION;
-    }
-    int result = wxMessageBox(syString(msg, true), syString(caption, true), wxYES_NO | style, this);
-    return (result == wxYES);
-}
-
-sayaYesNoCancel AppFrame::YesNoCancelMessageBox(const char* msg,const char* caption,bool exclamation) {
-    int style;
-    sayaYesNoCancel result;
-    if(exclamation) {
-        style = wxICON_EXCLAMATION;
-    } else {
-        style = wxICON_QUESTION;
-    }
-    int answer = wxMessageBox(syString(msg, true), syString(caption, true), wxYES_NO | wxCANCEL | style, this);
-    if(answer == wxYES) {
-        result = sayaYes;
-    } else if(answer == wxNO) {
-        result = sayaNo;
-    } else {
-        result = sayaCancel;
-    }
-    return result;
-}
-
-syString AppFrame::ShowDialogSaveProjectAs() {
-    wxFileDialog mydialog(this,_w("Save file as..."),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
-    syString result = "";
-    if(mydialog.ShowModal() == wxID_OK) {
-        result = mydialog.GetPath();
-    }
-    return result;
-}
-
-syString AppFrame::ShowDialogSaveProjectCopyAs() {
-    wxFileDialog mydialog(this,_w("Save Copy as..."),wxEmptyString,wxEmptyString,_T("*.saya"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxFD_CHANGE_DIR);
-    syString result = "";
-    if(mydialog.ShowModal() == wxID_OK) {
-        result = mydialog.GetPath(); // Gets full path including filename
-    }
-    return result;
-}
-

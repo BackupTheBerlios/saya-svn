@@ -115,6 +115,10 @@
 		<Unit filename="saya/core/debuglog.h" />
 		<Unit filename="saya/core/dialogs.cpp" />
 		<Unit filename="saya/core/dialogs.h" />
+		<Unit filename="saya/core/eventqueue.h" />
+		<Unit filename="saya/core/events.cpp" />
+		<Unit filename="saya/core/events.h" />
+		<Unit filename="saya/core/evtregistry.h" />
 		<Unit filename="saya/core/filevid.cpp">
 			<Option weight="10" />
 		</Unit>
@@ -197,7 +201,7 @@
 			<Option weight="20" />
 		</Unit>
 		<Unit filename="saya/recentfileslist.h" />
-		<Unit filename="saya/sayaevthandler.h" />
+		<Unit filename="saya/saya_events.h" />
 		<Unit filename="saya/timeline/avclip.cpp">
 			<Option weight="20" />
 		</Unit>

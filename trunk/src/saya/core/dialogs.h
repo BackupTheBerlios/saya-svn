@@ -99,6 +99,8 @@ class syFileDialogResult {
 
         /** Returns the file corresponding to the given index number (zero-based). */
         const syString operator[](unsigned int idx);
+
+        operator const syString() const;
     private:
         class Data;
         Data* m_Data;
