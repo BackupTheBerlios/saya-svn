@@ -1,11 +1,11 @@
-/***************************************************************
+/*******************************************************************
  * Name:      inputmonitor.h
- * Purpose:   Declaration for the InputMonitor class
+ * Purpose:   Declaration for the AVPlayer and InputMonitor classes
  * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * Created:   2008-04-30
  * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * License:   GPL version 3 or later
- **************************************************************/
+ ******************************************************************/
 
 #ifndef inputmonitor_h
 #define inputmonitor_h
@@ -15,9 +15,9 @@ class syString;
 #include "core/avcontroller.h"
 #include "core/events.h"
 
-class syMonitorEvent : public syEvent {
+class AVPlayerEvent : public syEvent {
     public:
-        enum MonitorEventId {
+        enum PlayerEventId {
             idStop = 0, /**< Stops playback. */
             idPlay = 1, /**< Starts/Resumes playback. */
             idPause = 2, /**< Pauses playback. */
@@ -32,12 +32,23 @@ class syMonitorEvent : public syEvent {
             idSetSpeed = 9 /**< Sets speed. The parameter is a fixed point integer, where 1000 = 1.0x. */
         };
         long long ExtraParam;
-        syMonitorEvent(MonitorEventId id, long long extra = 0) : syEvent(id), ExtraParam(extra) {}
-        syMonitorEvent* clone() { return new syMonitorEvent(*this); }
-        virtual ~syMonitorEvent() {}
+        AVPlayerEvent(PlayerEventId id, long long extra = 0) : syEvent(id), ExtraParam(extra) {}
+        AVPlayerEvent* clone() { return new AVPlayerEvent(*this); }
+        virtual ~AVPlayerEvent() {}
 };
 
-class InputMonitor : public AVController, public syEvtHandler {
+class AVPlayer : public AVController, public syEvtHandler {
+    public:
+        AVPlayer();
+        virtual ~AVPlayer();
+    private:
+        class Data;
+        friend class Data;
+        Data* m_Data;
+
+};
+
+class InputMonitor : public AVPlayer {
     public:
 
         /** Default constructor. */

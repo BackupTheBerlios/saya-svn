@@ -47,3 +47,12 @@ It will have a RenderedVid object, probably tied to the current project.
 control widgets to them.
 
 2.7) Test!
+
+Update (22/Dec/2008):
+
+* New classes have been created: PlaybackManager. AVPlayer, InputMonitor, syEvtHandler.
+* TODO: Make PlaybackManager a singleton.
+* TODO: Make the AVPlayers get destroyed ONLY by PlaybackManager (that's its role after all)
+* TODO: Once PlaybackManager is stable, begin tying the events between the playback panels
+  and the AVPlayers.
+* TODO: Test!

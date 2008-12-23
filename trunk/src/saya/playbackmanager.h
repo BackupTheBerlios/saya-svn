@@ -10,15 +10,15 @@
 #ifndef playback_manager_h
 #define playback_manager_h
 
-class AVController;
+class AVPlayer;
 
 class PlaybackManager {
     public:
         PlaybackManager();
         ~PlaybackManager();
 
-        AVController* GetInputMonitor() const;
-        AVController* GetPreviewMonitor() const;
+        AVPlayer* GetInputMonitor() const;
+        AVPlayer* GetPreviewMonitor() const;
 
     private:
         class Data;

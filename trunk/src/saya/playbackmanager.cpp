@@ -14,8 +14,8 @@
 class PlaybackManager::Data {
     public:
         PlaybackManager* m_Parent;
-        AVController* m_InputMonitor;
-        AVController* m_PreviewMonitor;
+        AVPlayer* m_InputMonitor;
+        AVPlayer* m_PreviewMonitor;
         Data(PlaybackManager* parent);
         ~Data();
 };
@@ -41,10 +41,10 @@ PlaybackManager::~PlaybackManager() {
     delete m_Data;
 }
 
-AVController* PlaybackManager::GetInputMonitor() const {
+AVPlayer* PlaybackManager::GetInputMonitor() const {
     return m_Data->m_InputMonitor;
 }
 
-AVController* PlaybackManager::GetPreviewMonitor() const {
+AVPlayer* PlaybackManager::GetPreviewMonitor() const {
     return NULL;
 }

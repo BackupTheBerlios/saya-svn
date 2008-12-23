@@ -13,105 +13,144 @@
 #include "core/systring.h"
 #include "core/evtregistry.h"
 #include "core/dialogs.h"
-// ----------------------
-// Begin InputMonitorData
-// ----------------------
+// --------------------
+// Begin AVPlayer::Data
+// --------------------
 
-class InputMonitor::Data : public syEvtHandler {
+class AVPlayer::Data : public syEvtHandler {
     public:
-        Data(InputMonitor* parent);
+        Data(AVPlayer* parent);
         ~Data();
-        InputMonitor* m_Parent;
-        syString m_File;
-        FileVID* m_VID;
-        void OnStop(syMonitorEvent& event);
-        void OnPlay(syMonitorEvent& event);
-        void OnPause(syMonitorEvent& event);
-        void OnGotoFirstFrame(syMonitorEvent& event);
-        void OnGotoLastFrame(syMonitorEvent& event);
-        void OnGotoNextFrame(syMonitorEvent& event);
-        void OnGotoPrevFrame(syMonitorEvent& event);
-        void OnFastForward(syMonitorEvent& event);
-        void OnFastRewind(syMonitorEvent& event);
-        void OnGotoSpecificFrame(syMonitorEvent& event);
-        void OnGotoSpecificTime(syMonitorEvent& event);
-        void OnSetSpeed(syMonitorEvent& event);
+        AVPlayer* m_Parent;
+        void OnStop(AVPlayerEvent& event);
+        void OnPlay(AVPlayerEvent& event);
+        void OnPause(AVPlayerEvent& event);
+        void OnGotoFirstFrame(AVPlayerEvent& event);
+        void OnGotoLastFrame(AVPlayerEvent& event);
+        void OnGotoNextFrame(AVPlayerEvent& event);
+        void OnGotoPrevFrame(AVPlayerEvent& event);
+        void OnFastForward(AVPlayerEvent& event);
+        void OnFastRewind(AVPlayerEvent& event);
+        void OnGotoSpecificFrame(AVPlayerEvent& event);
+        void OnGotoSpecificTime(AVPlayerEvent& event);
+        void OnSetSpeed(AVPlayerEvent& event);
 };
 
-InputMonitor::Data::Data(InputMonitor* parent) : m_Parent(parent)
+AVPlayer::Data::Data(AVPlayer* parent) : m_Parent(parent)
 {
     m_Parent->m_Delegate = this;
-    m_VID = new FileVID();
-    syConnect(this, syMonitorEvent::idStop, &InputMonitor::Data::OnStop);
-    syConnect(this, syMonitorEvent::idPlay, &InputMonitor::Data::OnPlay);
-    syConnect(this, syMonitorEvent::idPause, &InputMonitor::Data::OnPause);
-    syConnect(this, syMonitorEvent::idGotoFirstFrame, &InputMonitor::Data::OnGotoFirstFrame);
-    syConnect(this, syMonitorEvent::idGotoLastFrame, &InputMonitor::Data::OnGotoLastFrame);
-    syConnect(this, syMonitorEvent::idGotoNextFrame, &InputMonitor::Data::OnGotoNextFrame);
-    syConnect(this, syMonitorEvent::idGotoPrevFrame, &InputMonitor::Data::OnGotoPrevFrame);
-    syConnect(this, syMonitorEvent::idFastForward, &InputMonitor::Data::OnFastForward);
-    syConnect(this, syMonitorEvent::idFastRewind, &InputMonitor::Data::OnFastRewind);
-    syConnect(this, syMonitorEvent::idGotoSpecificFrame, &InputMonitor::Data::OnGotoSpecificFrame);
-    syConnect(this, syMonitorEvent::idGotoSpecificTime, &InputMonitor::Data::OnGotoSpecificTime);
-    syConnect(this, syMonitorEvent::idSetSpeed, &InputMonitor::Data::OnSetSpeed);
+    syConnect(this, AVPlayerEvent::idStop, &AVPlayer::Data::OnStop);
+    syConnect(this, AVPlayerEvent::idPlay, &AVPlayer::Data::OnPlay);
+    syConnect(this, AVPlayerEvent::idPause, &AVPlayer::Data::OnPause);
+    syConnect(this, AVPlayerEvent::idGotoFirstFrame, &AVPlayer::Data::OnGotoFirstFrame);
+    syConnect(this, AVPlayerEvent::idGotoLastFrame, &AVPlayer::Data::OnGotoLastFrame);
+    syConnect(this, AVPlayerEvent::idGotoNextFrame, &AVPlayer::Data::OnGotoNextFrame);
+    syConnect(this, AVPlayerEvent::idGotoPrevFrame, &AVPlayer::Data::OnGotoPrevFrame);
+    syConnect(this, AVPlayerEvent::idFastForward, &AVPlayer::Data::OnFastForward);
+    syConnect(this, AVPlayerEvent::idFastRewind, &AVPlayer::Data::OnFastRewind);
+    syConnect(this, AVPlayerEvent::idGotoSpecificFrame, &AVPlayer::Data::OnGotoSpecificFrame);
+    syConnect(this, AVPlayerEvent::idGotoSpecificTime, &AVPlayer::Data::OnGotoSpecificTime);
+    syConnect(this, AVPlayerEvent::idSetSpeed, &AVPlayer::Data::OnSetSpeed);
+}
+
+AVPlayer::Data::~Data() {
+    DisconnectEvents();
+}
+
+void AVPlayer::Data::OnStop(AVPlayerEvent& event) {
+    syMessageBox("You pressed Stop.");
+}
+
+void AVPlayer::Data::OnPlay(AVPlayerEvent& event) {
+    syMessageBox("You pressed Play.");
+}
+
+void AVPlayer::Data::OnPause(AVPlayerEvent& event) {
+    syMessageBox("You pressed Paused.");
+}
+
+void AVPlayer::Data::OnGotoFirstFrame(AVPlayerEvent& event) {
+    syMessageBox("You pressed [<.");
+}
+
+void AVPlayer::Data::OnGotoLastFrame(AVPlayerEvent& event) {
+    syMessageBox("You pressed >].");
+}
+
+void AVPlayer::Data::OnGotoNextFrame(AVPlayerEvent& event) {
+    syMessageBox("You pressed >.");
+}
+
+void AVPlayer::Data::OnGotoPrevFrame(AVPlayerEvent& event) {
+    syMessageBox("You pressed <.");
+}
+
+void AVPlayer::Data::OnFastForward(AVPlayerEvent& event) {
+    syMessageBox("You pressed >>.");
+}
+
+void AVPlayer::Data::OnFastRewind(AVPlayerEvent& event) {
+    syMessageBox("You pressed <<.");
+}
+
+void AVPlayer::Data::OnGotoSpecificFrame(AVPlayerEvent& event) {
+    syMessageBox("You wanted to go to a specific frame.");
+}
+
+void AVPlayer::Data::OnGotoSpecificTime(AVPlayerEvent& event) {
+    syMessageBox("You wanted to go to a specific time.");
+}
+
+void AVPlayer::Data::OnSetSpeed(AVPlayerEvent& event) {
+    syMessageBox("You wanted to set the playback speed.");
+}
+
+// ------------------
+// End AVPlayer::Data
+// ------------------
+
+// --------------
+// Begin AVPlayer
+// --------------
+AVPlayer::AVPlayer() : m_Data(new AVPlayer::Data(this))
+{
+}
+
+AVPlayer::~AVPlayer() {
+    delete m_Data;
+}
+
+// ------------
+// End AVPlayer
+// ------------
+
+// ------------------------
+// Begin InputMonitor::Data
+// ------------------------
+
+class InputMonitor::Data {
+    public:
+        syString m_File;
+        InputMonitor* m_Parent;
+        FileVID* m_VID;
+        Data(InputMonitor* parent);
+        ~Data();
+};
+
+InputMonitor::Data::Data(InputMonitor* parent) :
+m_File(""),
+m_Parent(parent),
+m_VID(new FileVID())
+{
 }
 
 InputMonitor::Data::~Data() {
     delete m_VID;
-    DisconnectEvents();
-}
-void InputMonitor::Data::OnStop(syMonitorEvent& event) {
-    syMessageBox("You pressed Stop.");
 }
 
-void InputMonitor::Data::OnPlay(syMonitorEvent& event) {
-    syMessageBox("You pressed Play.");
-}
-
-void InputMonitor::Data::OnPause(syMonitorEvent& event) {
-    syMessageBox("You pressed Paused.");
-}
-
-void InputMonitor::Data::OnGotoFirstFrame(syMonitorEvent& event) {
-    syMessageBox("You pressed [<.");
-}
-
-void InputMonitor::Data::OnGotoLastFrame(syMonitorEvent& event) {
-    syMessageBox("You pressed >].");
-}
-
-void InputMonitor::Data::OnGotoNextFrame(syMonitorEvent& event) {
-    syMessageBox("You pressed >.");
-}
-
-void InputMonitor::Data::OnGotoPrevFrame(syMonitorEvent& event) {
-    syMessageBox("You pressed <.");
-}
-
-void InputMonitor::Data::OnFastForward(syMonitorEvent& event) {
-    syMessageBox("You pressed >>.");
-}
-
-void InputMonitor::Data::OnFastRewind(syMonitorEvent& event) {
-    syMessageBox("You pressed <<.");
-}
-
-void InputMonitor::Data::OnGotoSpecificFrame(syMonitorEvent& event) {
-    syMessageBox("You wanted to go to a specific frame.");
-}
-
-void InputMonitor::Data::OnGotoSpecificTime(syMonitorEvent& event) {
-    syMessageBox("You wanted to go to a specific time.");
-}
-
-void InputMonitor::Data::OnSetSpeed(syMonitorEvent& event) {
-    syMessageBox("You wanted to set the playback speed.");
-}
-
-
-// --------------------
-// End InputMonitorData
-// --------------------
+// ----------------------
+// End InputMonitor::Data
+// ----------------------
 
 // ------------------
 // Begin InputMonitor

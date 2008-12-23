@@ -129,12 +129,9 @@ m_Controller(NULL)
 }
 
 void wxVideoPlaybackPanel::SetAVController(AVController* controller) {
-    delete m_Controller;
     m_Controller = controller;
 }
 
-
 wxVideoPlaybackPanel::~wxVideoPlaybackPanel() {
-    delete m_Controller;
     m_Controller = NULL;
 }
