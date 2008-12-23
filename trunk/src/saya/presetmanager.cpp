@@ -12,6 +12,7 @@
 #include "timeline/sstrvector.h"
 #include "timeline/smapxstr.h"
 
+// TODO: Complete the PresetManager implementation (this is a stub)
 PresetManager::PresetManager() {
 }
 
@@ -20,7 +21,6 @@ PresetManager::~PresetManager() {
 
 SStringVector PresetManager::GetPresets() {
     SStringVector presets;
-
     presets.push_back("Predef 1");
     presets.push_back("Predef 2");
     presets.push_back("Predef 3");

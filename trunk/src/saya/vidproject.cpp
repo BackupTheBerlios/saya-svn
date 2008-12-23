@@ -370,7 +370,7 @@ bool VidProject::Save() {
     if(result) {
         m_Data->m_OriginalXML = serialize();
         ResetModified();
-        if(ProjectManager::Get()->m_ClearUndoHistoryOnSave) {
+        if(ProjectManager::Get()->GetClearUndoHistoryOnSave()) {
             ClearUndoHistory();
         }
     }
@@ -383,7 +383,7 @@ bool VidProject::SaveAs(const char* filename) {
         m_Data->m_Filename = filename;
         m_Data->m_IsModified = false;
         ProjectManager::Get()->OnProjectStatusModified(); // Update status and filename
-        if(ProjectManager::Get()->m_ClearUndoHistoryOnSave) {
+        if(ProjectManager::Get()->GetClearUndoHistoryOnSave()) {
             ClearUndoHistory();
         }
     }

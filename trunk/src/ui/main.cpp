@@ -498,10 +498,11 @@ m_recentimportsmodcounter(0)
     }while(false);
     if(!result) {
         Destroy();
+    } else {
+        syConnect(this, -1, &AppFrame::OnProjectStatusChanged);
+        ProjectManager::Get()->SetEventHandler(this);
+        ShowLayout(false);
     }
-    syConnect(this, -1, &AppFrame::OnProjectStatusChanged);
-    ProjectManager::Get()->SetEventHandler(this);
-    ShowLayout(false);
 }
 
 bool AppFrame::CreateMenuBar() {
@@ -727,9 +728,7 @@ void AppFrame::LoadAndSetFrameSize() {
 }
 
 AppFrame::~AppFrame() {
-    ProjectManager::Get()->SetEventHandler(0);
-    syApp::ShutDown();
-    ProjectManager::Unload();
+    syApp::Get()->Exit(false);
     m_mgr->UnInit();
     delete m_welcomedialog;
     delete m_mgr;
@@ -813,7 +812,7 @@ void AppFrame::OnOpenRecentFile(wxCommandEvent &event) {
         bool result = ProjectManager::Get()->LoadRecentProject(fileno);
         if(!result) {
             syString msg;
-            msg.Printf(_("Error opening file '%s'!"),ProjectManager::Get()->m_RecentFiles->item(fileno).c_str());
+            msg.Printf(_("Error opening file '%s'!"),ProjectManager::Get()->GetRecentFiles()->item(fileno).c_str());
             wxMessageBox(msg,_w("Error"),wxCANCEL | wxICON_ERROR,this);
         }
         DoUpdateAppTitle();
@@ -823,7 +822,7 @@ void AppFrame::OnOpenRecentFile(wxCommandEvent &event) {
 void AppFrame::OnClearRecentProjectList(wxCommandEvent &event) {
     if(IsAppShuttingDown())
         return;
-    ProjectManager::Get()->m_RecentFiles->clear();
+    ProjectManager::Get()->GetRecentFiles()->clear();
 }
 
 void AppFrame::OnFileClose(wxCommandEvent& event) {
@@ -851,7 +850,6 @@ void AppFrame::OnClose(wxCloseEvent &event) {
     if(willveto) {
         event.Veto();
     } else {
-        syApp::Get()->Exit(false);
         Destroy();
     }
 }
@@ -950,7 +948,7 @@ void AppFrame::OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event) {
     ProjectManager* pmgr = ProjectManager::Get();
     if(!pmgr)
         return;
-    if(pmgr->m_RecentFiles->UpdateCounter(m_recentfilesmodcounter)) {
+    if(pmgr->GetRecentFiles()->UpdateCounter(m_recentfilesmodcounter)) {
         wxMenuItem* myItem = GetMenuBar()-> FindItem(idFileOpenRecentProject);
         if(myItem) {
             wxMenu* mySubMenu = myItem->GetSubMenu();
@@ -969,12 +967,12 @@ void AppFrame::OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event) {
             size_t i = 0;
             mySubMenu->Append(idFileClearRecentProjectList,_T("&Clear"),_w("Clears Recent Projects List"));
             mySubMenu->AppendSeparator();
-            for(i = 1; i <= pmgr->m_RecentFiles->size(); ++i) {
+            for(i = 1; i <= pmgr->GetRecentFiles()->size(); ++i) {
                 syString tmptext;
-                tmptext.Printf("&%d %s",i,pmgr->m_RecentFiles->item(i).c_str());
+                tmptext.Printf("&%d %s",i,pmgr->GetRecentFiles()->item(i).c_str());
                 mySubMenu->Append(wxID_FILE1 + i - 1,tmptext,wxEmptyString);
             }
-            myItem->Enable(pmgr->m_RecentFiles->size() > 0);
+            myItem->Enable(pmgr->GetRecentFiles()->size() > 0);
         }
     }
 }
@@ -984,7 +982,7 @@ void AppFrame::OnRecentImportsMenuUpdateUI(wxUpdateUIEvent& event) {
     ProjectManager* pmgr = ProjectManager::Get();
     if(!pmgr)
         return;
-    if(pmgr->m_RecentImports->UpdateCounter(m_recentimportsmodcounter)) {
+    if(pmgr->GetRecentImports()->UpdateCounter(m_recentimportsmodcounter)) {
         wxMenuItem* myItem = GetMenuBar()-> FindItem(idFileImportRecent);
         if(myItem) {
             wxMenu* mySubMenu = myItem->GetSubMenu();
@@ -1003,15 +1001,15 @@ void AppFrame::OnRecentImportsMenuUpdateUI(wxUpdateUIEvent& event) {
             size_t i = 0;
             mySubMenu->Append(idFileClearRecentImportList,_T("&Clear"),_w("Clears Recent Imported Files List"));
             mySubMenu->AppendSeparator();
-            for(i = 1; i <= pmgr->m_RecentImports->size(); ++i) {
+            for(i = 1; i <= pmgr->GetRecentImports()->size(); ++i) {
                 syString tmptext;
-                tmptext.Printf("&%d %s",i, pmgr->m_RecentImports->item(i).c_str());
+                tmptext.Printf("&%d %s",i, pmgr->GetRecentImports()->item(i).c_str());
                 mySubMenu->Append(wxID_IMPORT1 + i -1,tmptext,wxEmptyString);
             }
         }
     }
     wxMenuBar* mbar = GetMenuBar();
-    mbar->Enable(idFileImportRecent,pmgr->m_RecentImports->size() > 0 && (pmgr->HasProject()));
+    mbar->Enable(idFileImportRecent,pmgr->GetRecentImports()->size() > 0 && (pmgr->HasProject()));
 }
 
 void AppFrame::OnEditMenuUpdateUI(wxUpdateUIEvent& event) {

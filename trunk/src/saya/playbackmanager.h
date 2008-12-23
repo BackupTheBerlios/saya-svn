@@ -13,8 +13,11 @@
 class AVPlayer;
 
 class PlaybackManager {
-    public:
+    private:
         PlaybackManager();
+    public:
+        static PlaybackManager* Get();
+        static void Unload();
         ~PlaybackManager();
 
         AVPlayer* GetInputMonitor() const;

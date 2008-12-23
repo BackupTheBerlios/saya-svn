@@ -75,7 +75,7 @@ void WelcomeDialog::RefreshRecentFilesList() {
     syString tmps;
     syString curfile;
 
-    RecentFilesList& items = *ProjectManager::Get()->m_RecentFiles;
+    RecentFilesList& items = *(ProjectManager::Get()->GetRecentFiles());
     size_t i;
     for(i = 1; i <=9 && (i<= items.size()); ++i) {
         curfile = items.item(i);

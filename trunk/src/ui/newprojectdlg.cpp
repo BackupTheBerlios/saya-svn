@@ -124,7 +124,7 @@ void NewProjectDlg::OnPjrPresetsChanged(wxCommandEvent& event) {
     //disable all and put values
     else{
         syString selPreset(idNewPrjPresetsChoice->GetStringSelection());
-        SMapStrStr values = ProjectManager::Get()->m_Presets->GetPresetData(selPreset.c_str());
+        SMapStrStr values = ProjectManager::Get()->GetPresets()->GetPresetData(selPreset.c_str());
 
         const syString* sp = values.find("idNewPrjAVSettings_width");
         if(sp) {idNewPrjAVSettings_widthTextCtrl->SetValue(*sp); }
@@ -189,7 +189,7 @@ void NewProjectDlg::OnPrjSaveSettingsAsClicked(wxCommandEvent& event) {
         configs["idNewPrjAVSettings_description"] = idNewPrjAVSettings_descriptionTextCtrl->GetValue();
 
 
-        ProjectManager::Get()->m_Presets->SaveNewPreset(syString(dlg->GetName()), configs);
+        ProjectManager::Get()->GetPresets()->SaveNewPreset(syString(dlg->GetName()), configs);
         int columns = idNewPrjPresetsChoice->GetCount();
         idNewPrjPresetsChoice->Append(dlg->GetName());
         idNewPrjPresetsChoice->Select(columns);
@@ -197,7 +197,7 @@ void NewProjectDlg::OnPrjSaveSettingsAsClicked(wxCommandEvent& event) {
 }
 
 bool NewProjectDlg::LoadPresets(){
-    SStringVector presets = ProjectManager::Get()->m_Presets->GetPresets();
+    SStringVector presets = ProjectManager::Get()->GetPresets()->GetPresets();
 
     idNewPrjPresetsChoice->Append(syString("<Custom>", true));
     unsigned int i, imax;

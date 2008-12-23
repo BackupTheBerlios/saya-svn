@@ -9,7 +9,14 @@
 
 #include "playbackmanager.h"
 #include "inputmonitor.h"
+#include "core/app.h"
 #include <cstddef>
+
+// ---------------------------
+// begin PlaybackManager::Data
+// ---------------------------
+
+static PlaybackManager* g_PlaybackManager = 0;
 
 class PlaybackManager::Data {
     public:
@@ -32,6 +39,26 @@ PlaybackManager::Data::~Data() {
     delete m_PreviewMonitor;
 }
 
+// -------------------------
+// end PlaybackManager::Data
+// -------------------------
+
+// ---------------------
+// begin PlaybackManager
+// ---------------------
+
+PlaybackManager* PlaybackManager::Get() {
+    if(!g_PlaybackManager) {
+        if(!IsAppShuttingDown()) {
+            g_PlaybackManager = new PlaybackManager();
+        }
+    }
+    return g_PlaybackManager;
+}
+
+void PlaybackManager::Unload() {
+    delete g_PlaybackManager;
+}
 
 PlaybackManager::PlaybackManager() {
     m_Data = new Data(this);
@@ -39,6 +66,7 @@ PlaybackManager::PlaybackManager() {
 
 PlaybackManager::~PlaybackManager() {
     delete m_Data;
+    g_PlaybackManager = 0;
 }
 
 AVPlayer* PlaybackManager::GetInputMonitor() const {
@@ -48,3 +76,7 @@ AVPlayer* PlaybackManager::GetInputMonitor() const {
 AVPlayer* PlaybackManager::GetPreviewMonitor() const {
     return NULL;
 }
+
+// -------------------
+// end PlaybackManager
+// -------------------

@@ -71,6 +71,7 @@ bool syApp::OnInit(int argc, const char** argv) {
 void syApp::OnExit() {}
 
 syApp::~syApp() {
+    ShutDown();
     if(sayaStaticData::TheApp == this)
         sayaStaticData::TheApp = 0;
     delete sayaStaticData::TheConfig;

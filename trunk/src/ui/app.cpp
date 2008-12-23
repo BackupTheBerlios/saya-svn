@@ -72,15 +72,12 @@ class wxSayaApp::Data {
         Data();
         ~Data();
         bool LoadXRCResources();
-        PlaybackManager* m_PlaybackManager;
-        void CreatePlaybackManager();
         int wxResult;
         syDebugLog* m_DebugLog;
         void* m_TopWindow;
 };
 
 wxSayaApp::Data::Data() :
-m_PlaybackManager(0),
 m_DebugLog(0),
 m_TopWindow(0)
 {
@@ -88,12 +85,9 @@ m_TopWindow(0)
     wxResult = wxEntryStart(dummy, (char**)0);
 }
 
-void wxSayaApp::Data::CreatePlaybackManager() {
-    m_PlaybackManager = new PlaybackManager();
-}
-
 wxSayaApp::Data::~Data() {
-    delete m_PlaybackManager;
+    PlaybackManager::Unload();
+    ProjectManager::Unload();
     wxEntryCleanup();
 }
 
@@ -180,7 +174,7 @@ bool wxSayaApp::OnInit(int argc, const char** argv) {
         }
 
         DebugLog(_("Initializing Playback Manager..."));
-        m_Data->CreatePlaybackManager();
+        PlaybackManager::Get();
 
         DebugLog(_("Creating main frame..."));
         CreateMainFrame();
@@ -193,7 +187,6 @@ bool wxSayaApp::OnInit(int argc, const char** argv) {
 
 /** Exits the main loop on the next iteration. */
 void wxSayaApp::Exit(bool now) {
-    DebugLog(_("Good bye."));
     if(wxTheApp) {
         if(now) {
             wxTheApp->Exit();
@@ -201,9 +194,12 @@ void wxSayaApp::Exit(bool now) {
             wxTheApp->ExitMainLoop();
         }
     }
+    DebugLog(_("Good bye."));
 }
 
 void wxSayaApp::OnExit() {
+    ProjectManager::Get()->SaveConfig();
+    ProjectManager::Get()->CloseProject(true);
     wxTheApp->OnExit();
 }
 
@@ -272,6 +268,7 @@ bool wxSayaApp::IsMainLoopRunning() const {
 }
 
 void wxSayaApp::PostEvent(syEvtHandler* handler, syEvent& event) {
+    if(!handler || IsAppShuttingDown()) return;
     syEvtQueue::PostEvent(handler, event);
     wxCommandEvent tmpevent(wxEVT_COMMAND_MENU_SELECTED, idsyEventpassed);
     wxPostEvent(wxTheApp, tmpevent); // This will enable wxWidgets to wake up with Saya events just as with wxWidgets events.

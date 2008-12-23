@@ -53,19 +53,40 @@ class ProjectManager::Data {
         /** The last used project directory */
         syString m_LastProjectDir;
 
+        /** The last error we stumbled upon. */
         syString m_LastError;
 
+        /** The application's main event handler (usually the main window). */
         syEvtHandler* m_EventHandler;
+
+        /** The list of the recently-opened projects. */
+        RecentFilesList m_RecentFiles;
+
+        /** The list of the recently-imported files. */
+        RecentFilesList m_RecentImports;
+
+        /** Our Video/Audio presets manager. */
+        PresetManager m_Presets;
+
+        bool m_ClearUndoHistoryOnSave;
 };
 
 ProjectManager::Data::Data(ProjectManager* parent) :
 m_Parent(parent),
-m_EventHandler(0)
+m_Project(0),
+m_LastProjectDir(""),
+m_LastError(""),
+m_EventHandler(0),
+m_RecentFiles(9),
+m_RecentImports(9),
+m_ClearUndoHistoryOnSave(true)
 {
 }
 
 ProjectManager::Data::~Data() {
     m_EventHandler = 0;
+    delete m_Project;
+    m_Project = 0;
 }
 
 // ----------------------
@@ -76,24 +97,13 @@ ProjectManager::Data::~Data() {
 // begin ProjectManager
 //---------------------
 
-ProjectManager::ProjectManager() {
-    //ctor
-    m_Data = new Data(this);
-    m_Data->m_Project = 0;
-    m_RecentFiles = new RecentFilesList(9);
-    m_RecentImports = new RecentFilesList(9);
-    m_Presets = new PresetManager;
-    m_ClearUndoHistoryOnSave = true;
-
+ProjectManager::ProjectManager() :
+m_Data(new Data(this))
+{
 }
 
 ProjectManager::~ProjectManager() {
     //dtor
-    SaveConfig();
-    CloseProject(true);
-    delete m_Presets;
-    delete m_RecentImports;
-    delete m_RecentFiles;
     delete m_Data;
 }
 
@@ -109,15 +119,15 @@ void ProjectManager::Unload() {
     TheProjectManager = 0;
 }
 
-VidProject* ProjectManager::GetProject() {
+VidProject* ProjectManager::GetProject() const {
     return m_Data->m_Project;
 }
 
-bool ProjectManager::HasProject() {
+bool ProjectManager::HasProject() const {
     return (m_Data->m_Project != 0);
 }
 
-const syString ProjectManager::GetLastProjectDir() {
+const syString ProjectManager::GetLastProjectDir() const {
     return m_Data->m_LastProjectDir;;
 }
 
@@ -137,7 +147,7 @@ bool ProjectManager::LoadConfig() {
         DebugLog("Reading key: " + key);
         if(cfg->Exists(key.c_str())) {
             tmpname = cfg->Read(key.c_str(),"");
-            m_RecentFiles->Add(tmpname.c_str(),false);
+            m_Data->m_RecentFiles.Add(tmpname.c_str(),false);
         }
     }
 
@@ -160,10 +170,10 @@ bool ProjectManager::SaveConfig() {
     for(i = 1; i <= 9; ++i) {
         key.Printf("RecentProjects/File%u",i);
         DebugLog(key.c_str());
-        if(i>m_RecentFiles->size()) {
+        if(i>m_Data->m_RecentFiles.size()) {
             cfg->Write(key.c_str(),"");
         } else {
-            cfg->Write(key.c_str(),m_RecentFiles->item(i).c_str());
+            cfg->Write(key.c_str(),m_Data->m_RecentFiles.item(i).c_str());
         }
     }
 
@@ -177,7 +187,7 @@ bool ProjectManager::LoadProject(const syString& filename) {
     CloseProject(true); // Close any project we have in memory
     VidProject* prj = VidProject::Load(filename.c_str(),m_Data->m_LastError);
     if(prj != 0) {
-        m_RecentFiles->Add(filename.c_str());
+        m_Data->m_RecentFiles.Add(filename.c_str());
         m_Data->m_LastProjectDir = ioCommon::GetPathname(filename.c_str()); // Extract last project directory from opened file path
         m_Data->m_Project = prj;
         result = true;
@@ -197,8 +207,8 @@ const syString ProjectManager::GetOfflineProjectTitle(const char* filename) {
 }
 
 bool ProjectManager::LoadRecentProject(int fileno) {
-    if(fileno <= 0 || fileno > (int)m_RecentFiles->size()) { return false; }
-    syString filename = m_RecentFiles->item(fileno);
+    if(fileno <= 0 || fileno > static_cast<int>(m_Data->m_RecentFiles.size())) { return false; }
+    syString filename = m_Data->m_RecentFiles.item(fileno);
     if(filename.empty())
         return false;
     bool result = LoadProject(filename);
@@ -309,6 +319,34 @@ void ProjectManager::OnProjectStatusModified() {
 void ProjectManager::SetEventHandler(syEvtHandler* handler) {
     m_Data->m_EventHandler = handler;
 }
+
+/** A list of the most recently opened project files. */
+RecentFilesList* ProjectManager::GetRecentFiles() const {
+    if(!this || !m_Data) return 0;
+    return &(m_Data->m_RecentFiles);
+}
+
+/** A list of the most recently imported clips. */
+RecentFilesList* ProjectManager::GetRecentImports() const {
+    if(!this || !m_Data) return 0;
+    return &(m_Data->m_RecentFiles);
+}
+
+/** Retutns the Audio/Video Presets handler */
+PresetManager* ProjectManager::GetPresets() const {
+    return &(m_Data->m_Presets);
+}
+
+/** Tells whether to clear the Undo History after the project's successfully saved. */
+void ProjectManager::SetClearUndoHistoryOnSave(bool flag) {
+    m_Data->m_ClearUndoHistoryOnSave = flag;
+}
+
+/** Gets the "clear undo history on save" status. */
+bool ProjectManager::GetClearUndoHistoryOnSave() const {
+    return m_Data->m_ClearUndoHistoryOnSave;
+}
+
 
 // ------------------
 // end ProjectManager

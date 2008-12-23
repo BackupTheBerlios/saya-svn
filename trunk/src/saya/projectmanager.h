@@ -112,7 +112,7 @@ class ProjectManager
         bool SaveConfig();
 
         /** Gets the last used project directory */
-        const syString GetLastProjectDir();
+        const syString GetLastProjectDir() const;
 
         // Recent Projects and Imported files
 
@@ -121,13 +121,13 @@ class ProjectManager
         const syString GetOfflineProjectTitle(const char* filename);
 
         /** A list of the most recently opened project files. */
-        RecentFilesList* m_RecentFiles;
+        RecentFilesList* GetRecentFiles() const;
 
         /** A list of the most recently imported clips. */
-        RecentFilesList* m_RecentImports;
+        RecentFilesList* GetRecentImports() const;
 
-        /** The object to access the current video presets */
-        PresetManager* m_Presets;
+        /** Retutns the Audio/Video Presets handler */
+        PresetManager* GetPresets() const;
 
         /** @brief Gets the current project manager instance, or creates one.
           *
@@ -143,16 +143,13 @@ class ProjectManager
         static void Unload();
 
         /** Gets the pointer for the active project. */
-        VidProject* GetProject();
+        VidProject* GetProject() const;
 
         /** Tells whether there's an active project or not. */
-        bool HasProject();
+        bool HasProject() const;
 
         /** Gets the last program error */
         const char* GetLastError() const;
-
-        /** Tells whether to clear the Undo History after the project's successfully saved. */
-        bool m_ClearUndoHistoryOnSave;
 
         /** Called whenever the project's status or filename have changed. */
         void OnProjectStatusModified();
@@ -160,7 +157,11 @@ class ProjectManager
         /** Sets a handler to receive the events. */
         void SetEventHandler(syEvtHandler* handler);
 
-    protected:
+        /** Tells whether to clear the Undo History after the project's successfully saved. */
+        void SetClearUndoHistoryOnSave(bool flag);
+
+        /** Gets the "clear undo history on save" status. */
+        bool GetClearUndoHistoryOnSave() const;
 
     private:
         class Data;
