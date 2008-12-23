@@ -11,6 +11,7 @@
  *            The same concept is explained at http://www.newty.de/fpt/functor.html
  ************************************************************************************/
 #include <typeinfo>
+#include <set>
 #include <map>
 #include <deque>
 #include "systring.h"
@@ -61,8 +62,10 @@ class syEvtHandler::Data {
     public:
         typedef std::map<int, syFunctorBase*>intFunctorMap;
         typedef std::map<syString, intFunctorMap, ltsystr> FunctorMap;
+        typedef std::set<syEvtHandler*> EventHandlerSet;
         FunctorMap m_Handlers;
-        Data() {}
+        unsigned int m_DisabledCount;
+        Data() : m_DisabledCount(0) {}
         ~Data();
         void AddEventHandler(const char* eventclass, int EventId, syFunctorBase* handlerfunc);
         void RemoveEventHandler(const char* eventclass, int EventId);
@@ -128,20 +131,37 @@ inline void syEvtHandler::Data::ProcessEvent(syEvent& evt) {
 // begin syEvtHandler
 // ------------------
 
-syEvtHandler::syEvtHandler() : m_Data(new Data) {
+syEvtHandler::syEvtHandler() : m_Delegate(0), m_Data(new Data) {
 }
 
 syEvtHandler::~syEvtHandler() {
-    syDisconnectEvents();
+    m_Delegate = 0;
+    DisconnectEvents();
     delete m_Data;
     m_Data = 0;
 }
 
 void syEvtHandler::ProcessEvent(syEvent& evt) {
-    m_Data->ProcessEvent(evt);
+    if(!this) return;
+    if(!m_Data || m_Data->m_DisabledCount > 0) return;
+    if(m_Delegate) {
+        m_Delegate->ProcessEvent(evt);
+    } else {
+        m_Data->ProcessEvent(evt);
+    }
 }
 
-void syEvtHandler::syDisconnectEvents() {
+void syEvtHandler::DisableEventHandling() {
+    ++(m_Data->m_DisabledCount);
+}
+
+void syEvtHandler::RestoreEventHandling() {
+    if(m_Data->m_DisabledCount > 0) {
+        --(m_Data->m_DisabledCount);
+    }
+}
+
+void syEvtHandler::DisconnectEvents() {
     m_Data->RemoveAllHandlers();
 }
 

@@ -33,11 +33,26 @@ class syEvtHandler {
         void ProcessEvent(syEvent& evt);
 
         /** Disconnects all events from the current object. */
-        void syDisconnectEvents();
+        void DisconnectEvents();
 
         /** Destructor. */
         virtual ~syEvtHandler();
 
+        /** @brief Temporarily disables event handling.
+         *  This function has a counter that stores how many times in a row it's been disabled,
+         *  so you don't need to worry about checking the state.
+         */
+        void DisableEventHandling();
+
+        /** @brief Restores event handling. */
+        void RestoreEventHandling();
+
+    protected:
+        /** @brief The delegate handler for the current object.
+         * Event handlers can have a delegate that will take care of their events for them.
+         * This can be useful for extending the Private-Implementation pattern to event handling.
+         */
+        syEvtHandler* m_Delegate;
     private:
         void AddEventHandler(const char* eventclass, int EventId, syFunctorBase* handlerfunc);
         void RemoveEventHandler(const char* eventclass, int EventId);

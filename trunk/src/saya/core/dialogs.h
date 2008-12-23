@@ -58,7 +58,7 @@ enum syFILEDIALOG_FLAGS {
  *  @return The code corresponding to the button pressed.
  *  @note This is a wrapper for syApp::MessageBox. @see syApp::MessageBox.
  */
-int syMessageBox(const syString& message, const syString& caption,unsigned int flags = syOK,void* parent = 0);
+int syMessageBox(const syString& message, const syString& caption = "MessageBox",unsigned int flags = syOK,void* parent = 0);
 
 /** @brief Shows an plain, OS-friendly error message box. Use this in case you messed up with your UI-toolkit.
  *  @note This is a wrapper for syApp::ErrorMessageBox. @see syApp::ErrorMessageBox.
