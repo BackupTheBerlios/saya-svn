@@ -16,11 +16,11 @@
 const unsigned int VideoOutputDevice::MaxWidth = 10240;
 const unsigned int VideoOutputDevice::MaxHeight = 10240;
 
-// ---------------------------
-// Begin VideoOutputDeviceData
-// ---------------------------
+// -----------------------------
+// Begin VideoOutputDevice::Data
+// -----------------------------
 
-class VideoOutputDeviceData {
+class VideoOutputDevice::Data {
 
     public:
 
@@ -38,13 +38,13 @@ class VideoOutputDeviceData {
         // This will simplify handling the buffer. Besides, we have m_InputMutex and m_OutputMutex inherited
         // from AVDevice.
 
-        VideoOutputDeviceData() {
+        Data() {
             m_InputBitmap = new syBitmap;
             m_OutputBitmap = new syBitmap;
             m_ExtraBitmap = new syBitmap;
         }
 
-        ~VideoOutputDeviceData() {
+        ~Data() {
             delete m_ExtraBitmap;
             delete m_OutputBitmap;
             delete m_InputBitmap;
@@ -55,7 +55,7 @@ class VideoOutputDeviceData {
         void SwapOutputAndExtraBitmaps();
 };
 
-void VideoOutputDeviceData::SwapInputAndExtraBitmaps() {
+void VideoOutputDevice::Data::SwapInputAndExtraBitmaps() {
     syBitmap* tmpbmp;
     // We need to spin for this operation since the output thread might swap the output and the extra
     // bitmaps.
@@ -68,7 +68,7 @@ void VideoOutputDeviceData::SwapInputAndExtraBitmaps() {
     syAtomic::MemoryBarrier();
 }
 
-void VideoOutputDeviceData::SwapOutputAndExtraBitmaps() {
+void VideoOutputDevice::Data::SwapOutputAndExtraBitmaps() {
     syBitmap* tmpbmp;
     // We need to spin for this operation since the input thread might swap the input and extra
     // bitmaps.
@@ -80,16 +80,16 @@ void VideoOutputDeviceData::SwapOutputAndExtraBitmaps() {
     syAtomic::MemoryBarrier();
 }
 
-void VideoOutputDeviceData::CheckForNewData() {
+void VideoOutputDevice::Data::CheckForNewData() {
     if(syAtomic::bool_CAS((bool*)&m_NewInput,true,false)) {
         // The input thread wrote into m_ExtraBitmap; we must swap and process the output.
         SwapOutputAndExtraBitmaps();
     }
 }
 
-// -------------------------
-// End VideoOutputDeviceData
-// -------------------------
+// ---------------------------
+// End VideoOutputDevice::Data
+// ---------------------------
 
 VideoOutputDevice::VideoOutputDevice() : AVDevice(),
 m_ColorFormat(vcfRGB32),
@@ -99,7 +99,7 @@ m_ChangingSize(false)
 {
     m_IsVideo = true;
     m_IsOutput = true;
-    m_Data = new VideoOutputDeviceData;
+    m_Data = new Data;
 }
 
 VideoOutputDevice::~VideoOutputDevice() {

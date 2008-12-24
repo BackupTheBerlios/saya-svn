@@ -28,6 +28,7 @@
     #include <wx/aui/aui.h>
 #endif
 
+#include <memory>
 #include "../saya/core/app.h"
 #include "../saya/core/systring.h"
 #include "../saya/core/intl.h"
@@ -1295,9 +1296,12 @@ void AppFrame::OnAbout(wxCommandEvent &event) {
 }
 
 void AppFrame::OnResourceTreeContextMenu(wxTreeEvent& event) {
+
     wxMenu *menu = wxXmlResource::Get()->LoadMenu(_T("resources_tree_menu"));
-    if(menu) PopupMenu(menu);
-    delete menu;
+    std::auto_ptr<wxMenu> tmpptr(menu);
+    if(menu) {
+        PopupMenu(menu);
+    }
 }
 
 void AppFrame::OnUpdateProjectPaneUI(wxUpdateUIEvent& event) {

@@ -11,6 +11,8 @@
 #pragma hdrstop
 #endif //__BORLANDC__
 
+#include <memory>
+
 #include "core/intl.h"
 #include "core/systring.h"
 #include "core/config.h"
@@ -26,6 +28,7 @@
 #include "saya_events.h"
 #include "recentfileslist.h"
 #include "presetmanager.h"
+
 
 // For internationalization
 //
@@ -104,6 +107,7 @@ m_Data(new Data(this))
 
 ProjectManager::~ProjectManager() {
     //dtor
+    TheProjectManager = 0;
     delete m_Data;
 }
 
@@ -116,7 +120,6 @@ ProjectManager* ProjectManager::Get() {
 
 void ProjectManager::Unload() {
     delete TheProjectManager;
-    TheProjectManager = 0;
 }
 
 VidProject* ProjectManager::GetProject() const {
@@ -134,50 +137,53 @@ const syString ProjectManager::GetLastProjectDir() const {
 bool ProjectManager::LoadConfig() {
     // TODO (rick#1#): Load configuration for the project manager
     syConfig* cfg = syApp::Get()->CreateConfig();
-    syString key;
-    syString tmpname;
+    {
+        std::auto_ptr<syConfig> tmpptr(cfg);
+        syString key;
+        syString tmpname;
 
-    // Read last used directory
-    key = "paths/LastProjectDir";
-    if (cfg->Exists(key.c_str()))
-        m_Data->m_LastProjectDir = cfg->Read(key.c_str(),"");
-    unsigned int i;
-    for(i = 1; i <= 9; i++) {
-        key.Printf("RecentProjects/File%u",i);
-        DebugLog("Reading key: " + key);
-        if(cfg->Exists(key.c_str())) {
-            tmpname = cfg->Read(key.c_str(),"");
-            m_Data->m_RecentFiles.Add(tmpname.c_str(),false);
+        // Read last used directory
+        key = "paths/LastProjectDir";
+        if (cfg->Exists(key.c_str()))
+            m_Data->m_LastProjectDir = cfg->Read(key.c_str(),"");
+        unsigned int i;
+        for(i = 1; i <= 9; i++) {
+            key.Printf("RecentProjects/File%u",i);
+            DebugLog("Reading key: " + key);
+            if(cfg->Exists(key.c_str())) {
+                tmpname = cfg->Read(key.c_str(),"");
+                m_Data->m_RecentFiles.Add(tmpname.c_str(),false);
+            }
         }
     }
-
-    delete cfg;
     return true;
 }
 
 bool ProjectManager::SaveConfig() {
     // TODO (rick#1#): Save configuration for the project manager
     syConfig* cfg = syApp::Get()->CreateConfig();
-    syString key;
+    {
+        std::auto_ptr<syConfig> tmpptr(cfg);
 
-    // Save last used directory
-    cfg->Write("paths/LastProjectDir",m_Data->m_LastProjectDir.c_str());
+        syString key;
 
-    // Save Recent Projects list
+        // Save last used directory
+        cfg->Write("paths/LastProjectDir",m_Data->m_LastProjectDir.c_str());
 
-    key = "";
-    unsigned int i;
-    for(i = 1; i <= 9; ++i) {
-        key.Printf("RecentProjects/File%u",i);
-        DebugLog(key.c_str());
-        if(i>m_Data->m_RecentFiles.size()) {
-            cfg->Write(key.c_str(),"");
-        } else {
-            cfg->Write(key.c_str(),m_Data->m_RecentFiles.item(i).c_str());
+        // Save Recent Projects list
+
+        key = "";
+        unsigned int i;
+        for(i = 1; i <= 9; ++i) {
+            key.Printf("RecentProjects/File%u",i);
+            DebugLog(key.c_str());
+            if(i>m_Data->m_RecentFiles.size()) {
+                cfg->Write(key.c_str(),"");
+            } else {
+                cfg->Write(key.c_str(),m_Data->m_RecentFiles.item(i).c_str());
+            }
         }
     }
-
-    delete cfg;
     return true;
 }
 

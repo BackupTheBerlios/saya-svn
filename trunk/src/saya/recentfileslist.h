@@ -11,7 +11,6 @@
 #define recentfileslist_h
 
 class syString;
-class RecentFilesListData;
 
 /** RecentFilesList implements a double-ended string queue
  *  that handles a recently opened files list. Items added
@@ -48,7 +47,8 @@ class RecentFilesList {
         bool UpdateCounter(unsigned int& destinationcounter);
 
     private:
-        RecentFilesListData* m_Data;
+        class Data;
+        Data* m_Data;
 };
 
 #endif

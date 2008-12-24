@@ -143,7 +143,7 @@ wxVideoPanel::wxVideoPanel(wxWindow *parent) : wxPanel(parent),
 wxVideoPanel::~wxVideoPanel() {
     delete m_Video;
     delete m_Bitmap;
-    m_Demo->ShutDown();
+    // m_Demo->ShutDown(); // Commented because the destructor now calls ShutDown() by default.
     delete m_Demo;
     m_Video = NULL;
 }

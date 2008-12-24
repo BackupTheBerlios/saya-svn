@@ -22,7 +22,6 @@
 #include "videocolorformat.h"
 
 class sySafeMutex;
-class syBitmapData;
 
 /** Stretching strategy for pasting bitmaps */
 enum syStretchMode {
@@ -187,7 +186,9 @@ class syBitmap {
         mutable sySafeMutex* m_Mutex;
 
     private:
-        syBitmapData* m_Data;
+        class Data;
+        friend class Data;
+        Data* m_Data;
 };
 
 #endif

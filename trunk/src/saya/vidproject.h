@@ -15,7 +15,6 @@
 class VidProject;
 class VidProjectData;
 class AVSettings;
-class InputMonitor;
 class syString;
 
 /** @class VidProject
@@ -175,8 +174,6 @@ class VidProject:public serializable
 
         /** Is the project new (it hasn't been saved yet)? */
         bool IsNew() const;
-
-        InputMonitor* GetInputMonitor() const;
 
         /** The export settings for the current project. @see AVSettings */
         AVSettings* m_ExportSettings;

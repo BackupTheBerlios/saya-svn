@@ -29,14 +29,15 @@ class PlaybackManager::Data {
 
 PlaybackManager::Data::Data(PlaybackManager* parent) :
 m_Parent(parent),
-m_InputMonitor(NULL),
+m_InputMonitor(new InputMonitor),
 m_PreviewMonitor(NULL) {
-    m_InputMonitor = new InputMonitor;
 }
 
 PlaybackManager::Data::~Data() {
     delete m_InputMonitor;
+    m_InputMonitor = 0;
     delete m_PreviewMonitor;
+    m_PreviewMonitor = 0;
 }
 
 // -------------------------
@@ -65,16 +66,18 @@ PlaybackManager::PlaybackManager() {
 }
 
 PlaybackManager::~PlaybackManager() {
-    delete m_Data;
     g_PlaybackManager = 0;
+    delete m_Data;
 }
 
 AVPlayer* PlaybackManager::GetInputMonitor() const {
+    if(IsAppShuttingDown()) return 0;
     return m_Data->m_InputMonitor;
 }
 
 AVPlayer* PlaybackManager::GetPreviewMonitor() const {
-    return NULL;
+    if(IsAppShuttingDown()) return 0;
+    return 0;
 }
 
 // -------------------

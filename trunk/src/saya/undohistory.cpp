@@ -50,18 +50,18 @@ class UndoHistoryQueue : public serializable {
         std::deque<UndoState> data;
 };
 
-// --------------------------
-// begin UndoHistoryClassData
-// --------------------------
+// ----------------------------
+// begin UndoHistoryClass::Data
+// ----------------------------
 
-class UndoHistoryClassData {
+class UndoHistoryClass::Data {
     public:
 
         /** Standard constructor. */
-        UndoHistoryClassData(UndoHistoryClass* parent, unsigned long maxsize);
+        Data(UndoHistoryClass* parent, unsigned long maxsize);
 
         /** Standard destructor. */
-        ~UndoHistoryClassData();
+        ~Data();
 
         /** @brief Removes a saved state from the bottom of the undo stack.
           *
@@ -82,7 +82,7 @@ class UndoHistoryClassData {
         unsigned int m_State;
 
         /** The Undo queue */
-        UndoHistoryQueue* m_queue;
+        UndoHistoryQueue m_queue;
 
         /** The Maximum size allowed (in bytes) for the undo stack. */
         unsigned long m_MaxSize;
@@ -93,32 +93,29 @@ class UndoHistoryClassData {
         UndoHistoryClass* m_Parent;
 };
 
-UndoHistoryClassData::UndoHistoryClassData(UndoHistoryClass* parent, unsigned long maxsize) :
+UndoHistoryClass::Data::Data(UndoHistoryClass* parent, unsigned long maxsize) :
 m_State(0),
-m_queue(NULL),
 m_MaxSize(maxsize),
 m_UsedSize(0),
 m_Parent(parent)
 {
-    m_queue = new UndoHistoryQueue;
 }
 
-UndoHistoryClassData::~UndoHistoryClassData() {
-    delete m_queue;
+UndoHistoryClass::Data::~Data() {
 }
 
-void UndoHistoryClassData::CheckMemUsage() {
+void UndoHistoryClass::Data::CheckMemUsage() {
     // Check memory usage, and wipe as many entries from the beginning as necessary.
 
-    while(m_queue->data.size() > 2 && m_UsedSize >= m_MaxSize) {
+    while(m_queue.data.size() > 2 && m_UsedSize >= m_MaxSize) {
         PopFront();
     }
 }
 
-void UndoHistoryClassData::PopBack() {
+void UndoHistoryClass::Data::PopBack() {
     unsigned long freedmemory;
-    freedmemory = m_queue->data[m_queue->data.size() - 1].data.size()*2*sizeof(char);
-    m_queue->data.pop_back();
+    freedmemory = m_queue.data[m_queue.data.size() - 1].data.size()*2*sizeof(char);
+    m_queue.data.pop_back();
     if(m_UsedSize <= freedmemory) {
         m_UsedSize = 0;
     } else {
@@ -126,12 +123,12 @@ void UndoHistoryClassData::PopBack() {
     }
 }
 
-void UndoHistoryClassData::PopFront() {
-    if(!m_queue->data.size())
+void UndoHistoryClass::Data::PopFront() {
+    if(!m_queue.data.size())
         return;
     unsigned long freedmemory;
-    freedmemory = m_queue->data[0].data.size() * 2*sizeof(char);
-    m_queue->data.pop_front();
+    freedmemory = m_queue.data[0].data.size() * 2*sizeof(char);
+    m_queue.data.pop_front();
     if(m_State) {
         m_State--; // Shift state index, too!
     }
@@ -142,16 +139,16 @@ void UndoHistoryClassData::PopFront() {
     }
 }
 
-// ------------------------
-// end UndoHistoryClassData
-// ------------------------
+// --------------------------
+// end UndoHistoryClass::Data
+// --------------------------
 
 
 
 
 
 UndoHistoryClass::UndoHistoryClass(unsigned long maxsize) {
-    m_Data = new UndoHistoryClassData(this, maxsize);
+    m_Data = new UndoHistoryClass::Data(this, maxsize);
 }
 
 void UndoHistoryClass::Clear() {
@@ -171,44 +168,44 @@ bool UndoHistoryClass::CanRedo() const {
 }
 
 bool UndoHistoryClass::IsEof() const {
-    if(m_Data->m_State > m_Data->m_queue->data.size()) {
-        m_Data->m_State = m_Data->m_queue->data.size();
+    if(m_Data->m_State > m_Data->m_queue.data.size()) {
+        m_Data->m_State = m_Data->m_queue.data.size();
     }
-    return (m_Data->m_State == m_Data->m_queue->data.size());
+    return (m_Data->m_State == m_Data->m_queue.data.size());
 }
 
 bool UndoHistoryClass::IsNextEof() const {
-    if(m_Data->m_State > m_Data->m_queue->data.size()) {
-        m_Data->m_State = m_Data->m_queue->data.size();
+    if(m_Data->m_State > m_Data->m_queue.data.size()) {
+        m_Data->m_State = m_Data->m_queue.data.size();
     }
-    return ((m_Data->m_State + 1) >= m_Data->m_queue->data.size());
+    return ((m_Data->m_State + 1) >= m_Data->m_queue.data.size());
 }
 
 bool UndoHistoryClass::RestoreFromCurrentSlot(syString& data) {
     if(IsEof()) return false;
-    data = m_Data->m_queue->data[m_Data->m_State].data;
+    data = m_Data->m_queue.data[m_Data->m_State].data;
     return true;
 }
 
 void UndoHistoryClass::SaveIntoCurrentSlot(const char* Opname, const syString& data) {
     UndoState tmpstate(Opname,data);
     if(!IsEof()) {
-        m_Data->m_queue->data[m_Data->m_State] = tmpstate;
+        m_Data->m_queue.data[m_Data->m_State] = tmpstate;
     } else {
-        m_Data->m_queue->data.push_back(tmpstate);
+        m_Data->m_queue.data.push_back(tmpstate);
         m_Data->m_UsedSize +=  data.size()*2*sizeof(char);
     }
 }
 
 const syString UndoHistoryClass::GetOpname(unsigned int idx) const {
-    if(idx < m_Data->m_queue->data.size()) {
-        return m_Data->m_queue->data[idx].nextOp;
+    if(idx < m_Data->m_queue.data.size()) {
+        return m_Data->m_queue.data[idx].nextOp;
     }
     return "";
 }
 
 bool UndoHistoryClass::Undo(syString& data, const syString& curstatedata) {
-    if(!m_Data->m_queue->data.size() || !m_Data->m_State) {
+    if(!m_Data->m_queue.data.size() || !m_Data->m_State) {
         return false;
     }
 
@@ -248,7 +245,7 @@ void UndoHistoryClass::PushUndo(const char* Opname,const syString& data) {
         SaveIntoCurrentSlot(Opname, data);
     } else {
 //      else just rename current slot's transition.
-        m_Data->m_queue->data[m_Data->m_State].nextOp = Opname;
+        m_Data->m_queue.data[m_Data->m_State].nextOp = Opname;
     }
 
 //    3. ++curpos;
@@ -259,15 +256,15 @@ void UndoHistoryClass::PushUndo(const char* Opname,const syString& data) {
 
 
 const syString UndoHistoryClass::GetUndoOpname() const {
-    if(m_Data->m_State && m_Data->m_queue->data.size() >= m_Data->m_State) {
-        return m_Data->m_queue->data[m_Data->m_State - 1].nextOp;
+    if(m_Data->m_State && m_Data->m_queue.data.size() >= m_Data->m_State) {
+        return m_Data->m_queue.data[m_Data->m_State - 1].nextOp;
     }
     return "";
 }
 
 const syString UndoHistoryClass::GetRedoOpname() const {
     if(!IsNextEof()) {
-        return m_Data->m_queue->data[m_Data->m_State].nextOp;
+        return m_Data->m_queue.data[m_Data->m_State].nextOp;
     }
     return "";
 }

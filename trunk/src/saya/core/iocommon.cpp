@@ -407,3 +407,14 @@ void TempFile::Discard(){
     m_Data->m_TempFilename.clear();
 }
 
+bool TempFile::Write(const char* filename, const char* data) {
+    TempFile tmpfile(filename);
+    if(!tmpfile.IsOpened()) return false;
+    if(!tmpfile.Write(data)) {
+        tmpfile.Discard();
+        return false;
+    }
+    return true;
+}
+
+

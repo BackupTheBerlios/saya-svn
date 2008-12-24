@@ -10,12 +10,14 @@
 #ifndef RESOURCES_H
 #define RESOURCES_H
 
-class wxString;
+class syString;
 class wxBitmap;
-extern wxString ResourcesPath;
-extern wxString ResourcesImgPath;
+extern syString ResourcesPath;
+extern syString ResourcesImgPath;
 
-wxBitmap* syLoadImage(const wxString& filename);
+wxBitmap* syLoadImage(const syString& filename);
+wxBitmap* syLoadImage(const char* filename);
+
 void syInitResourcesPaths();
 
 #endif

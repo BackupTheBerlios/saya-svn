@@ -32,6 +32,7 @@ class syEventItem {
         syEventItem(const syEventItem& copy) : m_Event(copy.m_Event->clone()), m_Recipient(copy.m_Recipient) {}
         syEventItem& operator=(const syEventItem& copy) {
             delete m_Event;
+            m_Event = 0;
             m_Event = copy.m_Event->clone();
             m_Recipient = copy.m_Recipient;
             return *this;
@@ -87,8 +88,7 @@ inline void syEvtHandler::Data::RemoveEventHandler(const char* eventclass, int E
     if(i != m_Handlers.end()) {
         intFunctorMap::iterator j = i->second.find(EventId);
         if(j != i->second.end()) {
-            syFunctorBase* functor = j->second;
-            delete functor;
+            delete j->second;
             j->second = 0;
         }
     }

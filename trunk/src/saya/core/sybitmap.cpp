@@ -22,10 +22,10 @@
 #include <math.h>
 #include <cstddef>
 
-class syBitmapData {
+class syBitmap::Data {
 
     public:
-        syBitmapData();
+        Data();
 
         /** Width in pixels */
         unsigned int m_Width;
@@ -73,7 +73,7 @@ class syBitmapData {
         mutable unsigned long m_XOffsetsSize;
 };
 
-syBitmapData::syBitmapData() :
+syBitmap::Data::Data() :
     m_Width(0),
     m_Height(0),
     m_ColorFormat(vcfBGR32),
@@ -89,17 +89,15 @@ syBitmapData::syBitmapData() :
 {}
 
 syBitmap::syBitmap() :
-m_Mutex(NULL)
+m_Mutex(new sySafeMutex(true)),
+m_Data(new Data)
 {
-    m_Data = new syBitmapData;
-    m_Mutex = new sySafeMutex(true);
 }
 
 syBitmap::syBitmap(unsigned int width,unsigned int height,VideoColorFormat colorformat) :
-m_Mutex(NULL)
+m_Mutex(new sySafeMutex(true)),
+m_Data(new Data)
 {
-    m_Data = new syBitmapData;
-    m_Mutex = new sySafeMutex(true);
     Realloc(width, height, colorformat);
 }
 

@@ -64,8 +64,6 @@ class VidProjectData {
         /** The data for the resources used in the project. */
         AVResources* m_Resources;
 
-        InputMonitor* m_InputMonitor;
-
         /** Project's Title */
         syString m_Title;
 
@@ -79,18 +77,15 @@ m_IsModified(false),
 m_UndoHistory(NULL),
 m_Timeline(NULL),
 m_Resources(NULL),
-m_InputMonitor(NULL),
 m_Title(""),
 m_Filename("")
 {
     m_UndoHistory = new UndoHistoryClass;
     m_Timeline = new AVTimeline;
     m_Resources = new AVResources;
-    m_InputMonitor = new InputMonitor;
 }
 
 VidProjectData::~VidProjectData() {
-    delete m_InputMonitor;
     delete m_Resources;
     delete m_Timeline;
     delete m_UndoHistory;
@@ -115,13 +110,7 @@ bool VidProjectData::SaveToFile(const char* filename) {
     bool result = false;
     do {
         data = m_Parent->serialize();
-        TempFile tmpfile(filename);
-        if(!tmpfile.IsOpened()) break;
-        if(!tmpfile.Write(data.c_str())) {
-            tmpfile.Discard();
-            break;
-        }
-        result = tmpfile.Commit();
+        result = TempFile::Write(filename, data.c_str());
     }while(false);
     return result;
 }
@@ -401,10 +390,6 @@ bool VidProject::SaveCopy(const char* filename) {
 
 bool VidProject::SaveCopy(const syString& filename) {
     return SaveCopy(filename.c_str());
-}
-
-InputMonitor* VidProject::GetInputMonitor() const {
-    return m_Data->m_InputMonitor;
 }
 
 const char* VidProject::GetTitle() const {

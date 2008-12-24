@@ -150,8 +150,20 @@ bool wxSayaApp::OnInit(int argc, const char** argv) {
     bool result = false;
     do {
         // Init Project Manager and Playback Manager.
+        DebugLog(_("Initializing Playback Manager..."));
+        PlaybackManager::Get();
+
+        DebugLog(_("Initializing Project Manager..."));
+        ProjectManager::Get();
+
         DebugLog(_("Initializing Resources path..."));
         syInitResourcesPaths();
+
+        if(!ProjectManager::Get()->LoadConfig()) {
+            ErrorMessageBox(_("WARNING: Could not read configuration!"));
+        }
+
+
         DebugLog(_("Initializing File system handlers..."));
         wxFileSystem::AddHandler(new wxZipFSHandler);
         wxFileSystem::AddHandler(new wxMemoryFSHandler);
@@ -165,16 +177,6 @@ bool wxSayaApp::OnInit(int argc, const char** argv) {
         DebugLog(_("Loading resources..."));
         if(!m_Data->LoadXRCResources())
             break;
-
-        DebugLog(_("Initializing Project Manager..."));
-        ProjectManager::Get();
-
-        if(!ProjectManager::Get()->LoadConfig()) {
-            ErrorMessageBox(_("WARNING: Could not read configuration!"));
-        }
-
-        DebugLog(_("Initializing Playback Manager..."));
-        PlaybackManager::Get();
 
         DebugLog(_("Creating main frame..."));
         CreateMainFrame();

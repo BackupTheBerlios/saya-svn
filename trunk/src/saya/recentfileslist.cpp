@@ -19,18 +19,18 @@
 /** Defines the maximum capacity for a Recent Files list */
 const unsigned int RecentFilesListCapacity = 9;
 
-// -------------------------
-// begin RecentFilesListData
-// -------------------------
+// ---------------------------
+// begin RecentFilesList::Data
+// ---------------------------
 
 /** A lightweight double-ended string queue replacing std::deque */
-class RecentFilesListData {
+class RecentFilesList::Data {
     public:
         /** Constructor. */
-        RecentFilesListData(unsigned long capacity);
+        Data(unsigned long capacity);
 
         /** Destructor. */
-        ~RecentFilesListData();
+        ~Data();
 
         /** Gets the update-counter. */
         unsigned long GetCounter();
@@ -72,7 +72,7 @@ class RecentFilesListData {
         syString* m_Items;
 };
 
-RecentFilesListData::RecentFilesListData(unsigned long capacity) {
+RecentFilesList::Data::Data(unsigned long capacity) {
     if(capacity < 1) capacity = 1;
     if(capacity > 100) capacity = 100;
     m_Capacity = capacity;
@@ -82,30 +82,30 @@ RecentFilesListData::RecentFilesListData(unsigned long capacity) {
     m_Beginning = 0;
 }
 
-RecentFilesListData::~RecentFilesListData() {
+RecentFilesList::Data::~Data() {
     delete[] m_Items;
     m_Items = 0;
 }
 
-unsigned long RecentFilesListData::GetCounter() {
+unsigned long RecentFilesList::Data::GetCounter() {
     return m_Counter;
 }
 
-unsigned long RecentFilesListData::size() {
+unsigned long RecentFilesList::Data::size() {
     return m_Size;
 }
 
-unsigned long RecentFilesListData::GetCapacity() {
+unsigned long RecentFilesList::Data::GetCapacity() {
     return m_Capacity;
 }
 
-const syString RecentFilesListData::items(unsigned int i) {
+const syString RecentFilesList::Data::items(unsigned int i) {
     if(i >= m_Size) return "";
     i = (i + m_Beginning) % (m_Capacity);
     return m_Items[i];
 }
 
-bool RecentFilesListData::push_front(const syString& s, bool unique) {
+bool RecentFilesList::Data::push_front(const syString& s, bool unique) {
     if(unique && find(s)>=0) return false;
     if(m_Size >= m_Capacity) {
         pop_back(); // There's always a vacancy
@@ -121,7 +121,7 @@ bool RecentFilesListData::push_front(const syString& s, bool unique) {
     return true;
 }
 
-bool RecentFilesListData::push_back(const syString& s, bool unique) {
+bool RecentFilesList::Data::push_back(const syString& s, bool unique) {
     if(m_Size >= m_Capacity) return false;
     if(unique && find(s)>=0) return false;
     m_Items[(m_Beginning + m_Size) % m_Capacity] = s;
@@ -130,14 +130,14 @@ bool RecentFilesListData::push_back(const syString& s, bool unique) {
     return true;
 }
 
-bool RecentFilesListData::push(const syString& s, bool unique, bool from_front) {
+bool RecentFilesList::Data::push(const syString& s, bool unique, bool from_front) {
     if(from_front) {
         return push_front(s, unique);
     }
     return push_back(s, unique);
 }
 
-int RecentFilesListData::find(const syString& s) {
+int RecentFilesList::Data::find(const syString& s) {
     if(!m_Size) return -1;
     int result = -1;
     for(unsigned int i = 0; i < m_Size; ++i) {
@@ -149,14 +149,14 @@ int RecentFilesListData::find(const syString& s) {
     return result;
 }
 
-void RecentFilesListData::pop_back() {
+void RecentFilesList::Data::pop_back() {
     if(m_Size) {
         --m_Size;
     }
     ++m_Counter;
 }
 
-void RecentFilesListData::pop_front() {
+void RecentFilesList::Data::pop_front() {
     if(m_Size) {
         --m_Size;
         m_Beginning = (m_Beginning + 1) % m_Capacity;
@@ -164,18 +164,18 @@ void RecentFilesListData::pop_front() {
     ++m_Counter;
 }
 
-void RecentFilesListData::clear() {
+void RecentFilesList::Data::clear() {
     m_Beginning = 0;
     m_Size = 0;
     ++m_Counter;
 }
 
 // -------------------------
-// end RecentFilesListData
+// end RecentFilesList::Data
 // -------------------------
 
 RecentFilesList::RecentFilesList(unsigned int capacity) {
-    m_Data = new RecentFilesListData(capacity);
+    m_Data = new RecentFilesList::Data(capacity);
 }
 
 RecentFilesList::~RecentFilesList() {

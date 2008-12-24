@@ -9,19 +9,22 @@
 
 #include "resources.h"
 
-
-#include <wx/string.h>
+#include "../saya/core/systring.h"
 #include <wx/bitmap.h>
 
-wxString ResourcesPath;
-wxString ResourcesImgPath;
+syString ResourcesPath;
+syString ResourcesImgPath;
 
 void syInitResourcesPaths() {
-    ResourcesPath = wxString(wxT("resources/"));
-    ResourcesImgPath = ResourcesPath + wxT("img/");
+    ResourcesPath = "resources/";
+    ResourcesImgPath = ResourcesPath + "img/";
 }
 
-wxBitmap* syLoadImage(const wxString& filename) {
-    wxBitmap* bmp = new wxBitmap(ResourcesImgPath + filename, wxBITMAP_TYPE_ANY);
+wxBitmap* syLoadImage(const syString& filename) {
+    wxBitmap* bmp = new wxBitmap(wxString(ResourcesImgPath + filename), wxBITMAP_TYPE_ANY);
     return bmp;
+}
+
+wxBitmap* syLoadImage(const char* filename) {
+    return syLoadImage(syString(filename));
 }

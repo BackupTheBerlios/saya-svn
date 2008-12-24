@@ -277,6 +277,13 @@ class TempFile {
           */
         bool Write(const syString& s);
 
+        /** @brief Writes a string into a file.
+          * @param filename The filename to write onto.
+          * @param data The data to be written.
+          * @return true on success, false otherwise.
+          */
+        static bool Write(const char* filename, const char* data);
+
         /** @brief Saves the data under the specified file.
           *
           * @return true on success; false otherwise.

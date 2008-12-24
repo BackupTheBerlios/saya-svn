@@ -7,6 +7,8 @@
  * License:   wxWindows license
  **************************************************************************************/
 
+#include <memory>
+
 #include "wxplaybackcontrolpanel.h"
 #include "wxvideopanel.h"
 #include "resources.h"
@@ -58,32 +60,25 @@ m_VideoPanel(NULL)
 	  defaultbuttonstyle = wxBORDER_NONE;
     #endif
 
-    wxBitmap* imgfirstframe = syLoadImage(wxT("btn_firstframe.png"));
-    wxBitmap* imgfastrewind = syLoadImage(wxT("btn_fastrewind.png"));
-    wxBitmap* imgprevframe = syLoadImage(wxT("btn_prevframe.png"));
-    wxBitmap* imgplay = syLoadImage(wxT("btn_play.png"));
-    wxBitmap* imgnextframe = syLoadImage(wxT("btn_nextframe.png"));
-    wxBitmap* imgfastforward = syLoadImage(wxT("btn_fastforward.png"));
-    wxBitmap* imglastframe = syLoadImage(wxT("btn_lastframe.png"));
-
     wxSize defaultbuttonsize(26,26);
+    {
+        wxBitmap* imgfirstframe  = syLoadImage("btn_firstframe.png");  std::auto_ptr<wxBitmap> ptr1(imgfirstframe);
+        wxBitmap* imgfastrewind  = syLoadImage("btn_fastrewind.png");  std::auto_ptr<wxBitmap> ptr2(imgfastrewind);
+        wxBitmap* imgprevframe   = syLoadImage("btn_prevframe.png");   std::auto_ptr<wxBitmap> ptr3(imgprevframe);
+        wxBitmap* imgplay        = syLoadImage("btn_play.png");        std::auto_ptr<wxBitmap> ptr4(imgplay);
+        wxBitmap* imgnextframe   = syLoadImage("btn_nextframe.png");   std::auto_ptr<wxBitmap> ptr5(imgnextframe);
+        wxBitmap* imgfastforward = syLoadImage("btn_fastforward.png"); std::auto_ptr<wxBitmap> ptr6(imgfastforward);
+        wxBitmap* imglastframe   = syLoadImage("btn_lastframe.png");   std::auto_ptr<wxBitmap> ptr7(imglastframe);
 
-	m_btnFirstFrame = new wxBitmapButton( this, wxID_ANY, *imgfirstframe, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
-	m_btnFirstFrame->SetBitmapHover(*imgfirstframe);
-	m_btnFastRewind = new wxBitmapButton( this, wxID_ANY, *imgfastrewind, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
-	m_btnPreviousFrame = new wxBitmapButton( this, wxID_ANY, *imgprevframe, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
-	m_btnPlay = new wxBitmapButton( this, wxID_ANY, *imgplay, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
-	m_btnNextFrame = new wxBitmapButton( this, wxID_ANY, *imgnextframe, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
-	m_btnFastForward = new wxBitmapButton( this, wxID_ANY, *imgfastforward, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
-	m_btnLastFrame = new wxBitmapButton( this, wxID_ANY, *imglastframe, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
-
-	delete imglastframe;
-	delete imgfastforward;
-	delete imgnextframe;
-	delete imgplay;
-	delete imgprevframe;
-	delete imgfastrewind;
-	delete imgfirstframe;
+        m_btnFirstFrame = new wxBitmapButton( this, wxID_ANY, *imgfirstframe, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
+        m_btnFirstFrame->SetBitmapHover(*imgfirstframe);
+        m_btnFastRewind = new wxBitmapButton( this, wxID_ANY, *imgfastrewind, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
+        m_btnPreviousFrame = new wxBitmapButton( this, wxID_ANY, *imgprevframe, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
+        m_btnPlay = new wxBitmapButton( this, wxID_ANY, *imgplay, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
+        m_btnNextFrame = new wxBitmapButton( this, wxID_ANY, *imgnextframe, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
+        m_btnFastForward = new wxBitmapButton( this, wxID_ANY, *imgfastforward, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
+        m_btnLastFrame = new wxBitmapButton( this, wxID_ANY, *imglastframe, wxDefaultPosition, defaultbuttonsize, defaultbuttonstyle );
+    }
 
 	m_Shuttle = new wxSlider( this, wxID_ANY, 50, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
 	m_txtShuttle = new wxStaticText( this, wxID_ANY, wxT("[Display]"), wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT );

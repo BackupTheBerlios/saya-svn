@@ -27,6 +27,7 @@ m_IsShuttingDown(false)
 }
 
 AVDevice::~AVDevice() {
+    ShutDown();
     delete m_OutputMutex;
     delete m_InputMutex;
 }

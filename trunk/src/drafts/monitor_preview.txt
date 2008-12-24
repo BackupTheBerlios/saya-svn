@@ -51,8 +51,8 @@ control widgets to them.
 Update (22/Dec/2008):
 
 * New classes have been created: PlaybackManager. AVPlayer, InputMonitor, syEvtHandler.
-* TODO: Make PlaybackManager a singleton.
-* TODO: Make the AVPlayers get destroyed ONLY by PlaybackManager (that's its role after all)
+* [done, 23/Dec/2008] Make PlaybackManager a singleton
+* [done, 23/Dec/2008) TODO: Make the AVPlayers get destroyed ONLY by PlaybackManager (that's its role after all)
 * TODO: Once PlaybackManager is stable, begin tying the events between the playback panels
   and the AVPlayers.
 * TODO: Test!

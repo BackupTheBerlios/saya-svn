@@ -17,7 +17,6 @@
 class syBitmap;
 class syMutex;
 class VideoOutputDevice;
-class VideoOutputDeviceData;
 
 /**
  * @brief Generic wrapper for a Video Output device.
@@ -137,11 +136,12 @@ class VideoOutputDevice : public AVDevice {
         unsigned int m_Height;
 
     private:
-
         /** flag that forbids playback when changing the device size */
         bool m_ChangingSize;
 
-        VideoOutputDeviceData* m_Data;
+        class Data;
+        friend class Data;
+        Data* m_Data;
 };
 
 #endif

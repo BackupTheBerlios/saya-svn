@@ -11,7 +11,6 @@
 #define UNDOHISTORY_H
 
 class syString;
-class UndoHistoryClassData;
 class UndoHistoryClass {
     public:
         /** As default, the maximum size reserved for history is 16 megabytes */
@@ -97,7 +96,8 @@ class UndoHistoryClass {
         /** Standard destructor. */
         ~UndoHistoryClass() {};
     private:
-        UndoHistoryClassData* m_Data;
+        class Data;
+        Data* m_Data;
 };
 
 #endif
