@@ -63,25 +63,38 @@ void AVPlayer::Data::OnStop(AVPlayerEvent& event) {
 
 void AVPlayer::Data::OnPlay(AVPlayerEvent& event) {
     syMessageBox("You pressed Play.");
+    m_Parent->Play(1.0, 0, false); // Speed, duration, muted
 }
 
 void AVPlayer::Data::OnPause(AVPlayerEvent& event) {
+    m_Parent->Pause();
     syMessageBox("You pressed Pause.");
 }
 
 void AVPlayer::Data::OnGotoFirstFrame(AVPlayerEvent& event) {
+    m_Parent->Pause();
+    m_Parent->Seek(0);
     syMessageBox("You pressed [<.");
 }
 
 void AVPlayer::Data::OnGotoLastFrame(AVPlayerEvent& event) {
+    m_Parent->Pause();
+    m_Parent->Seek(0, true);
     syMessageBox("You pressed >].");
 }
 
 void AVPlayer::Data::OnGotoNextFrame(AVPlayerEvent& event) {
+    m_Parent->Pause();
+//        virtual unsigned long GetFrameIndex(avtime_t time);
+//        virtual avtime_t GetTimeFromFrameIndex(unsigned long  frame, bool fromend = false);
+
+
+
     syMessageBox("You pressed >.");
 }
 
 void AVPlayer::Data::OnGotoPrevFrame(AVPlayerEvent& event) {
+    m_Parent->Pause();
     syMessageBox("You pressed <.");
 }
 
@@ -118,6 +131,7 @@ AVPlayer::AVPlayer() : m_Data(new AVPlayer::Data(this))
 
 AVPlayer::~AVPlayer() {
     delete m_Data;
+    ShutDown();
 }
 
 // ------------

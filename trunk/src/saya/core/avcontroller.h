@@ -10,6 +10,8 @@
 #ifndef avcontroller_h
 #define avcontroller_h
 
+#include "avtypes.h"
+
 class VideoInputDevice;
 class VideoOutputDevice;
 class AudioInputDevice;
@@ -75,52 +77,52 @@ class AVController {
         /** @brief Plays video at given speed for the given duration.
          *
          *  @param speed Desired playback speed (can be negative). 1.0 = normal. If 0, playback is paused.
-         *  @param duration Playback duration, in milliseconds. 0 = Unlimited.
+         *  @param duration Playback duration, in nanoseconds. 0 = Unlimited.
          *  @param muted Whether playback should be video-only (default false).
          *  @note  Only valid for non-encoding output devices.
          */
-        void Play(float speed = 1.0,unsigned long duration = 0,bool muted = false);
+        void Play(float speed = 1.0, avtime_t duration = 0,bool muted = false);
 
         /** @brief Plays only video (not audio) at given speed for the given duration.
          *
          *  @param speed Desired playback speed (can be negative). 1.0 = normal. If 0, playback is paused.
-         *  @param duration Playback duration, in milliseconds. 0 = Unlimited.
+         *  @param duration Playback duration, in nanoseconds. 0 = Unlimited.
          *  @note  Only valid for non-encoding VideoOutputDevices.
          */
-        void PlayVideo(float speed = 1.0,unsigned long duration = 0);
+        void PlayVideo(float speed = 1.0, avtime_t duration = 0);
 
         /** @brief Plays only audio (not video) at given speed for the given duration.
          *
          *  @param speed Desired playback speed (can be negative). 1.0 = normal. If 0, playback is paused.
-         *  @param duration Playback duration, in milliseconds. 0 = Unlimited.
+         *  @param duration Playback duration, in nanoseconds. 0 = Unlimited.
          *  @note  Only valid for non-encoding AudioOutputDevices.
          */
-        void PlayAudio(float speed = 1.0,unsigned long duration = 0);
+        void PlayAudio(float speed = 1.0, avtime_t duration = 0);
 
         /** @brief Encodes video and audio at given speed for the given duration.
          *
          *  @param speed Desired playback speed (can be negative). 1.0 = normal. If 0, no output is sent.
-         *  @param duration Duration of the data stream, in milliseconds. 0 = Unlimited.
+         *  @param duration Duration of the data stream, in nanoseconds. 0 = Unlimited.
          *  @param muted Whether we should encode video only (default false).
          *  @note  This function is only valid for non-encoding output devices.
          */
-        void Encode(float speed = 1.0,unsigned long duration = 0,bool muted = false);
+        void Encode(float speed = 1.0, avtime_t duration = 0,bool muted = false);
 
         /** @brief Encodes only video (not audio) at given speed for the given duration.
          *
          *  @param speed Desired playback speed (can be negative). 1.0 = normal. If 0, no output is sent.
-         *  @param duration Duration of the data stream, in milliseconds. 0 = Unlimited.
+         *  @param duration Duration of the data stream, in nanoseconds. 0 = Unlimited.
          *  @note  This function is only valid for non-encoding output devices.
          */
-        void EncodeVideo(float speed = 1.0,unsigned long duration = 0);
+        void EncodeVideo(float speed = 1.0, avtime_t duration = 0);
 
         /** @brief Plays only audio (not video) at given speed for the given duration.
          *
          *  @param speed Desired playback speed (can be negative). 1.0 = normal. If 0, no output is sent.
-         *  @param duration Duration of the data stream, in milliseconds. 0 = Unlimited.
+         *  @param duration Duration of the data stream, in nanoseconds. 0 = Unlimited.
          *  @note  This function is only valid for non-encoding output devices.
          */
-        void EncodeAudio(float speed = 1.0,unsigned long duration = 0);
+        void EncodeAudio(float speed = 1.0, avtime_t duration = 0);
 
         /** @brief Sends a snapshot of the current frame to the VideoOutputDevice.
          *
@@ -143,47 +145,97 @@ class AVController {
          */
         void Stop();
 
+        /** @brief Gets the video frame corresponding to the given time.
+         *  @param time Instant in time where we want to get the frame index.
+         *  @return The frame index (zero-based) corresponding to the given time.
+         *  @note This is a wrapper for VideoInputDevice::GetFrameIndex().
+         */
+        unsigned long GetVideoFrameIndex(avtime_t time);
+
+        /** @brief Gets the time corresponding to a given frame.
+         *  @param The frame index (zero-based) where we want to get the time.
+         *  @param fromend Boolean telling the device to seek from the end rather than the beginning.
+         *  @return The instant in time from the video start corresponding to the given frame.
+         *  @note This is a wrapper for VideoInputDevice::GetTimeFromFrameIndex().
+         */
+        avtime_t GetTimeFromVideoFrameIndex(unsigned long  frame, bool fromend = false);
+
+        /** @brief Gets the video current time.
+         *  In theory it should be the same as the audio, unless they were seeked with different times.
+         */
+        avtime_t GetCurrentVideoTime();
+
+        /** @brief Gets the audio current time.
+         *  In theory it should be the same as the video, unless they were seeked with different times.
+         */
+        avtime_t GetCurrentAudioTime();
+
+        /** Gets the video frame that is currently being played. */
+        unsigned long GetCurrentVideoFrame();
+
         /** @brief Seeks the Input to a given point in time.
          *
-         *  @param time The time in milliseconds to jump to.
+         *  @param time The time in nanoseconds to jump to.
          *  @param fromend Are we seeking from the end of the stream?
          *  @return the resulting position in time.
          *  @note  For playback, playback will be paused.
          *  @warning During an encoding operation, all seeks are invalid.
          */
-        unsigned long Seek(unsigned long time,bool fromend = false);
+        avtime_t Seek(avtime_t time,bool fromend = false);
 
         /** @brief Seeks the Input Video to a given point in time.
          *
-         *  @param time The time in milliseconds to jump to.
+         *  @param time The time in nanoseconds to jump to.
          *  @param fromend Are we seeking from the end of the stream?
          *  @return the resulting position in time.
          *  @note  For playback, playback will be paused.
          *  @warning During an encoding operation, all seeks are invalid.
          */
-        unsigned long SeekVideo(unsigned long time,bool fromend = false);
+        avtime_t SeekVideo(avtime_t time,bool fromend = false);
 
         /** @brief Seeks the Input Audio to a given point in time.
          *
-         *  @param time The time in milliseconds to jump to.
+         *  @param time The time in nanoseconds to jump to.
          *  @param fromend Are we seeking from the end of the stream?
          *  @return the resulting position in time.
          *  @note  For playback, playback will be paused.
          *  @warning During an encoding operation, all seeks are invalid.
          */
-        unsigned long SeekAudio(unsigned long time,bool fromend = false);
+        avtime_t SeekAudio(avtime_t time,bool fromend = false);
 
-        /** @brief Gets the input length in milliseconds.
+        /** @brief Seeks to the time corresponding to a determinate video frame.
+         *
+         *  @param frame The frame to seek to.
+         *  @param fromend Boolean telling the device to seek from the end rather than the beginning.
+         *  @return The current instant in time where the current frame will be read.
+         */
+        avtime_t SeekFrame(unsigned long frame,bool fromend = false);
+
+        /** @brief Seeks video only to a determinate video frame.
+         *
+         *  @param frame The frame to seek to.
+         *  @param fromend Boolean telling the device to seek from the end rather than the beginning.
+         *  @return The current instant in time where the current frame will be read.
+         */
+        avtime_t SeekVideoFrame(unsigned long frame,bool fromend = false);
+
+        /** Seeks to the time corresponding to a relative video frame (positive fast forwards, negative rewinds) */
+        avtime_t SeekFrameRelative(long frame);
+
+        /** Seeks video only to the time corresponding to a relative video frame (positive fast forwards, negative rewinds) */
+        avtime_t SeekVideoFrameRelative(long frame);
+
+        /** @brief Gets the input length in nanoseconds.
          *
          *  @note If the video and audio are of different lengths, the greatest is used.
          */
-        unsigned long GetLength();
+        avtime_t GetLength();
 
-        /** Gets the video length in milliseconds. */
-        unsigned long GetVideoLength();
+        /** Gets the video length in nanoseconds. */
+        avtime_t GetVideoLength();
 
-        /** Gets the audio length in milliseconds. */
-        unsigned long GetAudioLength();
+        /** Gets the audio length in nanoseconds. */
+        avtime_t GetAudioLength();
 
         /** @brief Returns the end-of-file status for the input.
          *
