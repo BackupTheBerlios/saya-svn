@@ -355,7 +355,8 @@ void AVControllerData::PlaybackAudioInLoop() {
     while(!syThread::MustAbort() && m_AudioEnabled && !m_Stop) {
         while(m_Pause) {
             if(!m_AudioInThread->SelfPause()) return;
-            // TODO: Implement AVControllerData::PlaybackAudioInLoop()
+            #warning TODO: Implement AVControllerData::PlaybackAudioInLoop()
+            syMicroSleep(1); // Remove this line after PlaybackAudioInLoop() has been implemented.
         }
     }
 }
@@ -365,7 +366,7 @@ void AVControllerData::PlaybackVideoInLoop() {
     unsigned long curvideoframe,nextvideoframe;
 
     starttime = syGetTicks();
-    curaudiopos = curvideopos = m_StartVideoPos;
+    m_CurrentVideoPos = curaudiopos = curvideopos = m_StartVideoPos;
     nextaudiopos = curaudiopos;
     nextvideoframe = 0;
     curvideoframe = 0;
@@ -375,7 +376,7 @@ void AVControllerData::PlaybackVideoInLoop() {
     }
 
     if(m_StutterMode && m_AudioEnabled) {
-        curaudiopos = m_AudioIn->Seek(curvideopos);
+        m_CurrentAudioPos = curaudiopos = m_AudioIn->Seek(curvideopos);
     }
 
     while(!syThread::MustAbort() && m_VideoEnabled && !m_Stop && m_VideoIn && m_VideoOut) {
@@ -412,12 +413,11 @@ void AVControllerData::PlaybackVideoInLoop() {
         }
 
         // Seek to the calculated video position.
-        curvideopos = m_VideoIn->Seek(curvideopos);
+        m_CurrentVideoPos = curvideopos = m_VideoIn->Seek(curvideopos);
 
         if(m_StutterMode && m_AudioEnabled) {
             // Seek to the calculated audio position.
-            curaudiopos = m_AudioIn->Seek(curvideopos);
-
+            m_CurrentAudioPos = curaudiopos = m_AudioIn->Seek(curvideopos);
         }
     }
 }
@@ -828,25 +828,34 @@ avtime_t AVController::SeekAudio(avtime_t time,bool fromend) {
 }
 
 avtime_t AVController::SeekFrame(unsigned long frame,bool fromend) {
-    #warning TODO: Implement AVController::SeekFrame
-    return 0;
+    if(IsEncoder()) { return 0; }
+    avtime_t result = Seek(GetTimeFromVideoFrameIndex(frame, fromend));
+    return result;
 }
 
 avtime_t AVController::SeekVideoFrame(unsigned long frame,bool fromend) {
-    #warning TODO: Implement AVController::SeekVideoFrame
-    return 0;
+    if(IsEncoder()) { return 0; }
+    avtime_t result = SeekVideo(GetTimeFromVideoFrameIndex(frame, fromend));
+    return result;
 }
 
 avtime_t AVController::SeekFrameRelative(long frame) {
-    #warning TODO: Implement AVController::SeekFrameRelative
-    return 0;
+    if(IsEncoder()) { return 0; }
+    Pause();
+    frame += GetCurrentVideoFrame();
+    if(frame < 0) { frame = 0; }
+    avtime_t result = Seek(GetTimeFromVideoFrameIndex(frame));
+    return result;
 }
 
 avtime_t AVController::SeekVideoFrameRelative(long frame) {
-    #warning TODO: Implement AVController::SeekVideoFrameRelative
-    return 0;
+    if(IsEncoder()) { return 0; }
+    Pause();
+    frame += GetCurrentVideoFrame();
+    if(frame < 0) { frame = 0; }
+    avtime_t result = SeekVideo(GetTimeFromVideoFrameIndex(frame));
+    return result;
 }
-
 
 avtime_t AVController::GetLength() {
     avtime_t videolength = GetVideoLength();
