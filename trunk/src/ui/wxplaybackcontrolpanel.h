@@ -15,7 +15,7 @@ class wxBitmapButton;
 class wxStaticText;
 class wxVideoPanel;
 class wxBoxSizer;
-class AVController;
+class AVPlayer;
 
 extern const int id_PLAYBACK_FIRSTFRAME;
 extern const int id_PLAYBACK_FASTREWIND;
@@ -44,7 +44,6 @@ class wxPlaybackControlPanel : public wxPanel {
 		 * You must initialize it to something else in your derived class' constructor.
 		 */
 		wxPanel* m_VideoPanel;
-
 	public:
 		wxPlaybackControlPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL);
 		virtual ~wxPlaybackControlPanel();
@@ -54,14 +53,18 @@ class wxVideoPlaybackPanel : public wxPlaybackControlPanel {
 
     protected:
         wxVideoPanel* GetVideoPanel();
-        AVController* m_Controller;
+        AVPlayer* m_Player;
     public:
         wxVideoPlaybackPanel( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL );
         /** @brief Assigns an AVController object to the panel.
          *  @note The Panel will NOT take ownership of the controller. Deletion must be done somewhere else.
          */
-        void SetAVController(AVController* controller);
+        void SetAVPlayer(AVPlayer* player);
         virtual ~wxVideoPlaybackPanel();
+    private:
+        class Data;
+        friend class Data;
+        Data* m_Data;
 };
 
 #endif //WXPLAYBACKCONTROLPANEL_H

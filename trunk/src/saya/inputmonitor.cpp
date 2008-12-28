@@ -66,7 +66,7 @@ void AVPlayer::Data::OnPlay(AVPlayerEvent& event) {
 }
 
 void AVPlayer::Data::OnPause(AVPlayerEvent& event) {
-    syMessageBox("You pressed Paused.");
+    syMessageBox("You pressed Pause.");
 }
 
 void AVPlayer::Data::OnGotoFirstFrame(AVPlayerEvent& event) {

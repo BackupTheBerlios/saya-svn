@@ -18,18 +18,19 @@ class syString;
 class AVPlayerEvent : public syEvent {
     public:
         enum PlayerEventId {
-            idStop = 0, /**< Stops playback. */
-            idPlay = 1, /**< Starts/Resumes playback. */
-            idPause = 2, /**< Pauses playback. */
-            idGotoFirstFrame = 1, /**< Goes to the clip's first frame. */
-            idGotoLastFrame = 2, /**< Goes to the clip's last frame. */
-            idGotoNextFrame = 3, /**< Skips forward one frame. */
-            idGotoPrevFrame = 4, /**< Skips back one frame. */
-            idFastForward = 5, /**< Fast Forwards at 2X. */
-            idFastRewind = 6, /** < Fast Rewinds at 2X. */
-            idGotoSpecificFrame = 7, /**< Jumps to a specific frame. The parameter indicates the frame to go to. */
-            idGotoSpecificTime = 8, /**< Jumps to a specific time. The parameter is the nanoseconds from the start. */
-            idSetSpeed = 9 /**< Sets speed. The parameter is a fixed point integer, where 1000 = 1.0x. */
+            idNone = 0,
+            idStop = 1, /**< Stops playback. */
+            idPlay = 2, /**< Starts/Resumes playback. */
+            idPause = 3, /**< Pauses playback. */
+            idGotoFirstFrame = 4, /**< Goes to the clip's first frame. */
+            idGotoLastFrame = 5, /**< Goes to the clip's last frame. */
+            idGotoNextFrame = 6, /**< Skips forward one frame. */
+            idGotoPrevFrame = 7, /**< Skips back one frame. */
+            idFastForward = 8, /**< Fast Forwards at 2X. */
+            idFastRewind = 9, /** < Fast Rewinds at 2X. */
+            idGotoSpecificFrame = 10, /**< Jumps to a specific frame. The parameter indicates the frame to go to. */
+            idGotoSpecificTime = 11, /**< Jumps to a specific time. The parameter is the nanoseconds from the start. */
+            idSetSpeed = 12 /**< Sets speed. The parameter is a fixed point integer, where 1000 = 1.0x. */
         };
         long long ExtraParam;
         AVPlayerEvent(PlayerEventId id, long long extra = 0) : syEvent(id), ExtraParam(extra) {}

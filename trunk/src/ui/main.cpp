@@ -41,6 +41,7 @@
 #include "../saya/vidproject.h"
 #include "../saya/recentfileslist.h"
 #include "../saya/projectmanager.h"
+#include "../saya/playbackmanager.h"
 
 #include "main.h"
 #include "welcomedlg.h"
@@ -534,11 +535,12 @@ bool AppFrame::CreateDialogs() {
 bool AppFrame::CreatePanels() {
     bool result = false;
     do {
-        m_projectpanel = CreateProjectPane(); // wxXmlResource::Get()->LoadPanel(this,wxT("project_panel"));
+        m_projectpanel = CreateProjectPane();
         if(!m_projectpanel) { LoadFail("project_panel"); break; }
-           m_monitorpanel = new wxVideoPlaybackPanel(this);
            m_effectspanel = new wxVideoPlaybackPanel(this);
-
+           m_monitorpanel = new wxVideoPlaybackPanel(this);
+           static_cast<wxVideoPlaybackPanel*>(m_effectspanel)->SetAVPlayer(PlaybackManager::Get()->GetInputMonitor());
+           static_cast<wxVideoPlaybackPanel*>(m_monitorpanel)->SetAVPlayer(PlaybackManager::Get()->GetPreviewMonitor());
         m_timelinepanel = new wxPanel(this, -1,wxDefaultPosition, wxSize(800,400));
         result = true;
     }while(false);
