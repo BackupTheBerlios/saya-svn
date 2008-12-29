@@ -515,6 +515,7 @@ class syThread {
 
         /** @brief Starts the thread execution. Needs Create() to be called first.
          *
+         *  @note If the thread is pause, Run() will resume execution.
          *  @note This function can only be called from another thread context.
          */
         syThreadError Run();

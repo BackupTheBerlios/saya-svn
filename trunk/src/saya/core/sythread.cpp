@@ -1304,12 +1304,12 @@ syThreadError syThread::Run() {
         }
         lock.Lock();
         m_Data->m_ThreadStatus = syTHREADSTATUS_CREATED;
-        m_Data->m_PauseRequested = false;
-        m_Data->m_StopRequested = false;
     }
-    if(m_Data->m_ThreadStatus != syTHREADSTATUS_CREATED) {
+    if(m_Data->m_ThreadStatus == syTHREADSTATUS_RUNNING) {
         result = syTHREAD_RUNNING;
     } else {
+        m_Data->m_PauseRequested = false;
+        m_Data->m_StopRequested = false;
         m_Data->m_ThreadStatus = syTHREADSTATUS_RUNNING;
         result = syTHREAD_NO_ERROR;
         m_Data->m_ResumeCondition.Signal();

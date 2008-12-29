@@ -8,11 +8,14 @@
  **************************************************************/
 
 #include "core/sythread.h"
-#include "inputmonitor.h"
 #include "core/filevid.h"
 #include "core/systring.h"
 #include "core/evtregistry.h"
 #include "core/dialogs.h"
+#include "core/debuglog.h"
+
+#include "inputmonitor.h"
+
 // --------------------
 // Begin AVPlayer::Data
 // --------------------
@@ -58,64 +61,61 @@ AVPlayer::Data::~Data() {
 }
 
 void AVPlayer::Data::OnStop(AVPlayerEvent& event) {
-    syMessageBox("You pressed Stop.");
+    DebugLog("You pressed Stop.");
 }
 
 void AVPlayer::Data::OnPlay(AVPlayerEvent& event) {
-    syMessageBox("You pressed Play.");
+    DebugLog("You pressed Play.");
     m_Parent->Play(1.0, 0, false); // Speed, duration, muted
 }
 
 void AVPlayer::Data::OnPause(AVPlayerEvent& event) {
     m_Parent->Pause();
-    syMessageBox("You pressed Pause.");
+    DebugLog("You pressed Pause.");
 }
 
 void AVPlayer::Data::OnGotoFirstFrame(AVPlayerEvent& event) {
     m_Parent->Pause();
     m_Parent->Seek(0);
-    syMessageBox("You pressed [<.");
+    DebugLog("You pressed [<.");
 }
 
 void AVPlayer::Data::OnGotoLastFrame(AVPlayerEvent& event) {
     m_Parent->Pause();
     m_Parent->Seek(0, true);
-    syMessageBox("You pressed >].");
+    DebugLog("You pressed >].");
 }
 
 void AVPlayer::Data::OnGotoNextFrame(AVPlayerEvent& event) {
-    m_Parent->Pause();
-//        virtual unsigned long GetFrameIndex(avtime_t time);
-//        virtual avtime_t GetTimeFromFrameIndex(unsigned long  frame, bool fromend = false);
-
-
-
-    syMessageBox("You pressed >.");
+    m_Parent->SeekFrameRelative(1);
+    DebugLog("You pressed >.");
 }
 
 void AVPlayer::Data::OnGotoPrevFrame(AVPlayerEvent& event) {
-    m_Parent->Pause();
-    syMessageBox("You pressed <.");
+    m_Parent->SeekFrameRelative(-1);
+    DebugLog("You pressed <.");
 }
 
 void AVPlayer::Data::OnFastForward(AVPlayerEvent& event) {
-    syMessageBox("You pressed >>.");
+    DebugLog("You pressed >>.");
+    m_Parent->Play(2.0);
 }
 
 void AVPlayer::Data::OnFastRewind(AVPlayerEvent& event) {
-    syMessageBox("You pressed <<.");
+    DebugLog("You pressed <<.");
+    m_Parent->Play(-2.0);
 }
 
 void AVPlayer::Data::OnGotoSpecificFrame(AVPlayerEvent& event) {
-    syMessageBox("You wanted to go to a specific frame.");
+    DebugLog("You wanted to go to a specific frame.");
 }
 
 void AVPlayer::Data::OnGotoSpecificTime(AVPlayerEvent& event) {
-    syMessageBox("You wanted to go to a specific time.");
+    DebugLog("You wanted to go to a specific time.");
 }
 
 void AVPlayer::Data::OnSetSpeed(AVPlayerEvent& event) {
-    syMessageBox("You wanted to set the playback speed.");
+    DebugLog("You wanted to set the playback speed.");
 }
 
 // ------------------
