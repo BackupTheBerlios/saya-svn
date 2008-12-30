@@ -48,6 +48,14 @@ class DemoVideo1 : public VideoInputDevice {
         void LoadCurrentFrame();
 };
 
+VideoInputDevice* CreateDemoVID() {
+    return new DemoVideo1;
+}
+
+namespace DummyDemoVideo1 {
+    bool dummybool = VideoInputDevice::RegisterVID("VID://Demo", &CreateDemoVID);
+};
+
 DemoVideo1::DemoVideo1() {
     m_Width = 200;
     m_Height = 100;

@@ -9,6 +9,7 @@
 
 #include "nullvid.h"
 #include "sybitmap.h"
+#include "systring.h"
 
 NullVID::NullVID() {
     m_Width = 32;
@@ -22,3 +23,11 @@ NullVID::~NullVID(){
 void NullVID::LoadCurrentFrame(){
     m_Bitmap->Clear();
 }
+
+VideoInputDevice* CreateNullVID() {
+    return new NullVID;
+}
+
+namespace DummyNullVID{
+    bool dummybool = VideoInputDevice::RegisterVID("", &CreateNullVID);
+};

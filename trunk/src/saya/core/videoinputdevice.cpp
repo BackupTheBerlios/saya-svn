@@ -12,8 +12,44 @@
 #include "videoinputdevice.h"
 #include "videooutputdevice.h"
 #include "sythread.h"
+#include "systring.h"
 #include <cmath>
 #include <cstddef>
+#include <map>
+
+// ------------------------
+// begin register functions
+// ------------------------
+
+typedef std::map<syString, VIDFactoryFunction, ltsystr> VIDFactoryMap;
+
+bool s_VIDFactory_init = false;
+static VIDFactoryMap s_VIDFactory;
+
+bool VideoInputDevice::RegisterVID(const char* url, VIDFactoryFunction func) {
+    if(!s_VIDFactory_init) {
+        s_VIDFactory.clear();
+        s_VIDFactory_init = true;
+    }
+    syString tmp(url);
+    s_VIDFactory[tmp] = func;
+    return true;
+}
+
+void VideoInputDevice::UnregisterVID(const char* url) {
+    s_VIDFactory.erase(syString(url));
+}
+
+VideoInputDevice* VideoInputDevice::CreateVID(const char* url) {
+    VIDFactoryMap::const_iterator it = s_VIDFactory.find(syString(url));
+    if(it != s_VIDFactory.end()) {
+        return it->second();
+    }
+    return 0;
+}
+// ----------------------
+// end register functions
+// ----------------------
 
 VideoInputDevice::VideoInputDevice() : AVDevice(),
 m_Bitmap(NULL),
@@ -100,6 +136,11 @@ unsigned long VideoInputDevice::GetHeight() const {
 
 float VideoInputDevice::GetPixelAspect() const {
     return m_PixelAspect;
+}
+
+/** Gets the resource's framerate. */
+float VideoInputDevice::GetFramesPerSecond() const {
+    return m_FramesPerSecond;
 }
 
 

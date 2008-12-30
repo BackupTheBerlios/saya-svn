@@ -13,16 +13,12 @@
 #include "videoinputdevice.h"
 class syString;
 
-// TODO: Add support to add "file video handlers"
 // TODO: Complete implementation of FileVID
-
-class FileVIDData;
 
 /**
  * FileVID is a derivate of VideoInputDevice. It handles video files.
  */
 class FileVID : public VideoInputDevice {
-    friend class FileVIDData;
     public:
 
         /** Standard constructor. */
@@ -50,11 +46,28 @@ class FileVID : public VideoInputDevice {
          */
         virtual void FreeResources();
 
+        /** @brief Gets the frame corresponding to the given time.
+         *  @param time Instant in time where we want to get the frame index.
+         *  @return The frame index (zero-based) corresponding to the given time.
+         *  @note This function overrides VideoInputDevice::GetFrameIndex.
+         */
+        virtual unsigned long GetFrameIndex(avtime_t time);
+
+        /** @brief Gets the time corresponding to a given frame.
+         *  @param The frame index (zero-based) where we want to get the time.
+         *  @param fromend Boolean telling the device to seek from the end rather than the beginning.
+         *  @return The instant in time from the video start corresponding to the given frame.
+         *  @note This function overrides VideoInputDevice::GetTimeFromFrameIndex.
+         */
+        virtual avtime_t GetTimeFromFrameIndex(unsigned long  frame, bool fromend = false);
+
     protected:
         void LoadCurrentFrame();
 
     private:
-        FileVIDData* m_Data;
+        class Data;
+        friend class Data;
+        Data* m_Data;
 };
 
 #endif

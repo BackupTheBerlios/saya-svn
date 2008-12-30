@@ -18,6 +18,9 @@
 class sySafeMutex;
 class syBitmap;
 class VideoOutputDevice;
+class VideoInputDevice;
+
+typedef VideoInputDevice* (*VIDFactoryFunction)();
 
 /**
  * VideoInputDevice is the base class for video frame providers, be it images or movies (flash animations
@@ -73,6 +76,9 @@ class VideoInputDevice : public AVDevice {
         /** Gets the resource's pixel aspect ratio. */
         float GetPixelAspect() const;
 
+        /** Gets the resource's framerate. */
+        float GetFramesPerSecond() const;
+
         /** @brief Sends the current frame to the specified VideoOutputDevice.
          *
          * This routine just calls LoadCurrentFrame() and then
@@ -105,6 +111,21 @@ class VideoInputDevice : public AVDevice {
          *  For variable framerate, you must override this method.
          */
         virtual avtime_t GetTimeFromFrameIndex(unsigned long  frame, bool fromend = false);
+
+        /** @brief Registers a Video Input Device factory with a specific URL.
+         *  @param url The string to register the factory with.
+         *  @param func The factory function to register.
+         *  @return true always; The return value was added to help initializer functions.
+         */
+        static bool RegisterVID(const char* url, VIDFactoryFunction func);
+
+        /** @brief Unregisters a Video Input Device factory with a specific URL.
+         *  @param url The string to unregister the factory.
+         */
+        static void UnregisterVID(const char* url);
+
+        /** @brief Creates a VideoInputDevice registered with a specific URL. */
+        static VideoInputDevice* CreateVID(const char* url);
 
     protected:
 
