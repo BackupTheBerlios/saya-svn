@@ -102,6 +102,9 @@ class AVDevice : public syAborter {
          */
         void Stop() const;
 
+        /** Aborts all operations of all AVDevices. */
+        static void ShutDownAll();
+
     protected:
 
         /** @brief If true, all tasks must abort IMMEDIATELY!

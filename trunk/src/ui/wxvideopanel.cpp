@@ -86,7 +86,6 @@ wxVideoOutputDevice::wxVideoOutputDevice(wxVideoPanel* panel) : VideoOutputDevic
 }
 
 wxVideoOutputDevice::~wxVideoOutputDevice() {
-    ShutDown();
 }
 
 bool wxVideoOutputDevice::Connect() {
@@ -119,7 +118,14 @@ void wxVideoOutputDevice::RenderVideoData(const syBitmap* bitmap) {
     if (m_Width == 0 || m_Height == 0) {
         return;
     }
-    m_Panel->LoadData(bitmap); // Copy the data to the wxPanel's internal bitmap
+    if(m_Panel) {
+        m_Panel->LoadData(bitmap); // Copy the data to the wxPanel's internal bitmap
+    }
+}
+
+void wxVideoOutputDevice::Detach() {
+    ShutDown();
+    m_Panel = 0;
 }
 
 // *** Begin wxVideoPanel code ***
@@ -131,29 +137,27 @@ wxVideoPanel::wxVideoPanel(wxWindow *parent) : wxPanel(parent),
         m_BufferChanged(false),
         m_PaintingDemo(false),
         m_Bitmap(NULL),
-        m_NativeFormat(vcfBGR24)
-{
+        m_NativeFormat(
 #ifdef __WIN32__
-    m_NativeFormat = vcfRGB24; // Windows uses RGB
+        vcfRGB24
 #else
-    m_NativeFormat = vcfBGR24; // X11 devices use BGR
+        vcfBGR24
 #endif
-
-    m_Demo = new DemoVideo1;
-    m_Demo->Init();
-    m_PaintingDemo = false;
+        )
+{
     m_Bitmap = new syBitmap();
     m_Video = new wxVideoOutputDevice(this);
     m_Video->Init();
-    Demo();
 }
 
 wxVideoPanel::~wxVideoPanel() {
-    delete m_Video;
+    m_Video->Detach();
+    m_Video = 0;
+    // We'll let the static class AVDeviceRegistry take care of the deletion.
+    // We do this because the InputMonitor is managed by PlaybackManager, and it still has access to
+    // the devices. And since this object will be deleted first, we need to shut down m_Video but not delete it,
+    // to avoid leaving PlaybackManager with a dangling pointer.
     delete m_Bitmap;
-    // m_Demo->ShutDown(); // Commented because the destructor now calls ShutDown() by default.
-    delete m_Demo;
-    m_Video = NULL;
 }
 
 void wxVideoPanel::OnPaint(wxPaintEvent &event) {
@@ -193,7 +197,6 @@ void wxVideoPanel::OnIdle(wxIdleEvent &event) {
         m_BufferChanged = false;
         Refresh();
     }
-    Demo();
 }
 
 void wxVideoPanel::LoadData(const syBitmap* bitmap) {
@@ -209,18 +212,6 @@ void wxVideoPanel::LoadData(const syBitmap* bitmap) {
             }
         }
         FlagForRepaint();
-    }
-}
-
-void wxVideoPanel::Demo() {
-    if (!m_Video || m_PaintingDemo) {
-        return;
-    }
-    if (m_Video->GetWidth() != 0 && m_Video->GetHeight() != 0) {
-        m_PaintingDemo = true;
-        m_Demo->SendCurrentFrame(m_Video);
-        m_PaintingDemo = false;
-        syMilliSleep(10);
     }
 }
 
@@ -244,4 +235,8 @@ void wxVideoPanel::OnSize(wxSizeEvent& event) {
 
 void wxVideoPanel::FlagForRepaint() {
     m_BufferChanged = true;
+}
+
+wxVideoOutputDevice* wxVideoPanel::GetVideo() {
+    return m_Video;
 }

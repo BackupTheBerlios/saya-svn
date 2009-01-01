@@ -160,6 +160,7 @@ m_VID(new FileVID())
 
 InputMonitor::Data::~Data() {
     delete m_VID;
+    m_VID = 0;
 }
 
 // ----------------------
@@ -174,6 +175,7 @@ InputMonitor::InputMonitor() {
     m_ReservedVideoIn = true;
     m_ReservedAudioIn = true;
     m_Data = new Data(this);
+    m_Data->m_VID->SetFile(syString("VID://Demo"));
 }
 
 InputMonitor::~InputMonitor() {
@@ -191,6 +193,10 @@ bool InputMonitor::SetFile(syString filename) {
 
 const syString InputMonitor::GetFile() const {
     return m_Data->m_File;
+}
+
+void InputMonitor::Init(VideoOutputDevice* videoout, AudioOutputDevice* audioout) {
+
 }
 
 // ----------------

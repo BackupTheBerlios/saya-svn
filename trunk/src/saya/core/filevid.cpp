@@ -64,11 +64,6 @@ FileVID::~FileVID(){
     delete m_Data;
 }
 
-void FileVID::LoadCurrentFrame(){
-    // TODO: Implement FileVID::LoadCurrentFrame
-    m_Bitmap->Clear();
-}
-
 bool FileVID::SetFile(const char* filename) {
     if(IsOk()) { return false; } // File can't be changed while playing!
     m_Data->SetFilename(filename);
@@ -112,7 +107,6 @@ bool FileVID::AllocateResources() {
 void FileVID::FreeResources() {
     // Free Resources here
     if(m_Data->m_VirtualVID) {
-        m_Data->m_VirtualVID->ShutDown();
         m_Data->ClearVirtualVID();
     } else {
         VideoInputDevice::FreeResources();
@@ -134,4 +128,23 @@ avtime_t FileVID::GetTimeFromFrameIndex(unsigned long  frame, bool fromend) {
         return m_Data->m_VirtualVID->GetTimeFromFrameIndex(frame, fromend);
     }
     return VideoInputDevice::GetTimeFromFrameIndex(frame, fromend);
+}
+
+void FileVID::LoadCurrentFrame() {
+    if(m_Data->m_VirtualVID) {
+        m_Data->m_VirtualVID->SendCurrentFrame(static_cast<syBitmap*>(0));
+    } else {
+        // TODO: Implement FileVID::LoadCurrentFrame
+        m_Bitmap->Clear();
+    }
+}
+
+avtime_t FileVID::SeekResource(avtime_t time) {
+    if(m_Data->m_VirtualVID) {
+        return m_Data->m_VirtualVID->Seek(time);
+    } else {
+        // This is a stub
+        // here should go the CODEC call.
+        return time;
+    }
 }

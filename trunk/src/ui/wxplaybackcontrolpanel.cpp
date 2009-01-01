@@ -240,6 +240,9 @@ m_Data(new Data(this))
 
 void wxVideoPlaybackPanel::SetAVPlayer(AVPlayer* player) {
     m_Player = player;
+    if(m_Player) {
+        m_Player->SetVideoOut(static_cast<wxVideoPanel*>(m_VideoPanel)->GetVideo());
+    }
 }
 
 wxVideoPlaybackPanel::~wxVideoPlaybackPanel() {

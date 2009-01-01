@@ -10,9 +10,60 @@
  *            input/output buffering classes.
  **************************************************************/
 
+#include <cstddef>
+#include <set>
 #include "avdevice.h"
 #include "sythread.h"
-#include <cstddef>
+#include "app.h"
+
+// ----------------------
+// begin AVDeviceRegistry
+// ----------------------
+
+class AVDeviceRegistry {
+    public:
+        typedef std::set<AVDevice*> AVDeviceSet;
+        AVDeviceSet m_Devices;
+        AVDeviceRegistry();
+        ~AVDeviceRegistry();
+        void Register(AVDevice* device);
+        void Unregister(AVDevice* device);
+        volatile bool m_DevicesBeingShutDown;
+        void UnregisterAll();
+};
+
+AVDeviceRegistry::AVDeviceRegistry() {
+    m_Devices.clear();
+    m_DevicesBeingShutDown = false;
+}
+
+AVDeviceRegistry::~AVDeviceRegistry() {
+    UnregisterAll();
+}
+
+void AVDeviceRegistry::UnregisterAll() {
+    AVDeviceSet::iterator i = m_Devices.begin();
+    AVDeviceSet::iterator imax = m_Devices.end();
+    while(m_Devices.size()) {
+        delete *(m_Devices.begin());
+    }
+}
+
+void AVDeviceRegistry::Register(AVDevice* device) {
+    m_Devices.insert(device);
+}
+
+void AVDeviceRegistry::Unregister(AVDevice* device) {
+    m_Devices.erase(device);
+}
+
+AVDeviceRegistry s_DeviceRegistry;
+
+// --------------------
+// end AVDeviceRegistry
+// --------------------
+
+
 
 AVDevice::AVDevice() :
 m_InputMutex(NULL),
@@ -24,17 +75,22 @@ m_IsShuttingDown(false)
 {
     m_InputMutex = new sySafeMutex;
     m_OutputMutex = new sySafeMutex;
+    s_DeviceRegistry.Register(this);
 }
 
 AVDevice::~AVDevice() {
     ShutDown();
     delete m_OutputMutex;
     delete m_InputMutex;
+    s_DeviceRegistry.Unregister(this);
 }
 
 bool AVDevice::Init() {
     if(!m_IsOk) {
         FreeResources();
+        if(syApp::Get()->IsAppShuttingDown()) {
+            return false;
+        }
         bool result = Connect();
         if(result) {
             result = AllocateResources();
@@ -45,7 +101,7 @@ bool AVDevice::Init() {
 }
 
 bool AVDevice::IsShuttingDown() const {
-    return m_IsShuttingDown;
+    return m_IsShuttingDown || s_DeviceRegistry.m_DevicesBeingShutDown;
 }
 
 bool AVDevice::IsOk() const {
@@ -98,11 +154,11 @@ bool AVDevice::IsPlaying() const {
 }
 
 bool AVDevice::InnerMustAbort() const {
-    return !m_IsOk || m_IsShuttingDown || m_Stop;
+    return !m_IsOk || m_IsShuttingDown || s_DeviceRegistry.m_DevicesBeingShutDown || m_Stop;
 }
 
 bool AVDevice::MustStop() const {
-    return !m_IsOk || m_IsShuttingDown || m_Stop || m_SoftStop;
+    return !m_IsOk || m_IsShuttingDown || s_DeviceRegistry.m_DevicesBeingShutDown || m_Stop || m_SoftStop;
 }
 
 bool AVDevice::IsVideo() const {
@@ -129,4 +185,8 @@ void AVDevice::Abort() const {
 void AVDevice::Stop() const {
     if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
     m_SoftStop = true;
+}
+
+void AVDevice::ShutDownAll() {
+    s_DeviceRegistry.m_DevicesBeingShutDown = true;
 }

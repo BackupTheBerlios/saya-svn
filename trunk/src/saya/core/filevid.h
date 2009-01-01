@@ -62,7 +62,23 @@ class FileVID : public VideoInputDevice {
         virtual avtime_t GetTimeFromFrameIndex(unsigned long  frame, bool fromend = false);
 
     protected:
-        void LoadCurrentFrame();
+
+        /** @brief Loads the current frame into m_Bitmap.
+         *
+         *  This is a stub; you need to override this function to acomplish anything.
+         *  @warning You MUST NOT call Seek() from LoadCurrentFrame(), or you will trigger a mutex deadlock!!
+         *  If you need to do a seeking, call InternalSeek() instead.
+         */
+        virtual void LoadCurrentFrame();
+
+        /** @brief Seeks to a determinate instant in time.
+         *
+         *  @param time The time, in avtime_t units, to seek to.
+         *  @return The current instant in time where the current frame will be read.
+         *  @note  This function is called by InternalSeek().
+         *  @warning This function MUST NOT update m_CurrentTime. That is done by InternalSeek().
+         */
+        virtual avtime_t SeekResource(avtime_t time);
 
     private:
         class Data;

@@ -31,8 +31,10 @@
 #include "../saya/core/config.h"
 #include "../saya/core/dialogs.h"
 #include "../saya/core/eventqueue.h"
+#include "../saya/core/avdevice.h"
 #include "../saya/playbackmanager.h"
 #include "../saya/projectmanager.h"
+
 #include "app.h"
 #include "resources.h"
 #include "debuglog.h"
@@ -189,6 +191,7 @@ bool wxSayaApp::OnInit(int argc, const char** argv) {
 
 /** Exits the main loop on the next iteration. */
 void wxSayaApp::Exit(bool now) {
+    AVDevice::ShutDownAll();
     if(wxTheApp) {
         if(now) {
             wxTheApp->Exit();

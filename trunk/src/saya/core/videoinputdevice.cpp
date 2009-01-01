@@ -23,10 +23,10 @@
 
 typedef std::map<syString, VIDFactoryFunction, ltsystr> VIDFactoryMap;
 
-bool s_VIDFactory_init = false;
 static VIDFactoryMap s_VIDFactory;
 
 bool VideoInputDevice::RegisterVID(const char* url, VIDFactoryFunction func) {
+    static bool s_VIDFactory_init = false;
     if(!s_VIDFactory_init) {
         s_VIDFactory.clear();
         s_VIDFactory_init = true;

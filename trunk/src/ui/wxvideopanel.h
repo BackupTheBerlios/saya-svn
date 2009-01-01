@@ -35,6 +35,9 @@ class wxVideoOutputDevice : public VideoOutputDevice {
         /** Standard destructor */
         virtual ~wxVideoOutputDevice();
 
+        /** Detachs from the wxVideoPanel. */
+        void Detach();
+
     protected:
 
         /** @brief Initializes the output device.
@@ -105,7 +108,6 @@ class wxVideoPanel : public wxPanel {
         void LoadData(const syBitmap* bitmap);
 
         wxVideoOutputDevice* m_Video;
-        VideoInputDevice *m_Demo;
 
         bool m_IsPlaying;
         bool m_SizeChanging;
@@ -142,8 +144,6 @@ class wxVideoPanel : public wxPanel {
          * Tells the Panel that the buffer has changed
          */
         void FlagForRepaint();
-
-        void Demo();
 
         DECLARE_EVENT_TABLE()
 };
