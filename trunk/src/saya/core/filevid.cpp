@@ -82,11 +82,13 @@ syString FileVID::GetFile() {
 
 bool FileVID::AllocateResources() {
     bool result = false;
+    if(!m_Data->m_Filename.empty() && !m_Data->m_VirtualVID) {
+        m_Data->m_VirtualVID = VideoInputDevice::CreateVID(m_Data->m_Filename.c_str());
+    }
     if(m_Data->m_VirtualVID) {
         // We'll mirror the VirtualVID by copying all of its parameters, even m_Bitmap.
         // This way we won't have to deal with copying the data.
         result = m_Data->m_VirtualVID->Init();
-        m_Bitmap = const_cast<syBitmap*>(m_Data->m_VirtualVID->GetBitmap());
         m_CurrentTime = m_Data->m_VirtualVID->GetPos();
         m_CurrentTime = m_Data->m_VirtualVID->GetLength();
         m_Width = m_Data->m_VirtualVID->GetWidth();
@@ -135,7 +137,9 @@ void FileVID::LoadCurrentFrame() {
         m_Data->m_VirtualVID->SendCurrentFrame(static_cast<syBitmap*>(0));
     } else {
         // TODO: Implement FileVID::LoadCurrentFrame
-        m_Bitmap->Clear();
+        if(m_Bitmap) {
+            m_Bitmap->Clear();
+        }
     }
 }
 
@@ -146,5 +150,13 @@ avtime_t FileVID::SeekResource(avtime_t time) {
         // This is a stub
         // here should go the CODEC call.
         return time;
+    }
+}
+
+const syBitmap* FileVID::GetBitmap() {
+    if(m_Data->m_VirtualVID) {
+        return m_Data->m_VirtualVID->GetBitmap();
+    } else {
+        return m_Bitmap;
     }
 }

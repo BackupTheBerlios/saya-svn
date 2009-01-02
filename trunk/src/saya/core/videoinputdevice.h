@@ -199,7 +199,8 @@ class VideoInputDevice : public AVDevice {
 
 public:
 
-        const syBitmap* GetBitmap() { return m_Bitmap; }
+        /** Returns the currently used bitmap. */
+        virtual const syBitmap* GetBitmap();
 };
 
 #endif

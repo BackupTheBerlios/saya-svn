@@ -161,10 +161,10 @@ class sySafeMutexData {
         bool m_Recursive;
 
         /** Count for recursive mutex */
-        unsigned int m_LockCount;
+        volatile unsigned int m_LockCount;
 
         /** The thread owning the mutex. */
-        unsigned long m_Owner;
+        volatile unsigned long m_Owner;
 
         /** A condition for the waits */
         syCondition m_Condition;
@@ -424,7 +424,7 @@ bool sySafeMutex::TryLock(syAborter* aborter) {
     }
 
     // Try to acquire the lock.
-    if(!syAtomic::bool_CAS(&m_Data->m_Owner, 0xFFFFFFFF, id)) {
+    if(!syAtomic::bool_CAS(const_cast<unsigned long*>(&m_Data->m_Owner), 0xFFFFFFFF, id)) {
         return false;
     }
     m_Data->m_LockCount = 1;

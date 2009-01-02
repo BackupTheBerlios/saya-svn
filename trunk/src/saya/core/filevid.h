@@ -80,6 +80,8 @@ class FileVID : public VideoInputDevice {
          */
         virtual avtime_t SeekResource(avtime_t time);
 
+        virtual const syBitmap* GetBitmap();
+
     private:
         class Data;
         friend class Data;

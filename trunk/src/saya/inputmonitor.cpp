@@ -159,8 +159,8 @@ m_VID(new FileVID())
 }
 
 InputMonitor::Data::~Data() {
-    delete m_VID;
-    m_VID = 0;
+    // No need to delete m_VID, deletion will be performed by ~AVDeviceRegistry(),
+    // and ShutDown() will be done by ~AVController.
 }
 
 // ----------------------
@@ -175,7 +175,7 @@ InputMonitor::InputMonitor() {
     m_ReservedVideoIn = true;
     m_ReservedAudioIn = true;
     m_Data = new Data(this);
-    m_Data->m_VID->SetFile(syString("VID://Demo"));
+    SetFile(syString("VID://Demo"));
 }
 
 InputMonitor::~InputMonitor() {
@@ -188,6 +188,7 @@ bool InputMonitor::SetFile(syString filename) {
     if(IsPlaying()) { return false; }
     if(!(m_Data->m_VID->SetFile(filename))) { return false; }
     m_Data->m_File = filename;
+    InnerSetVideoIn(m_Data->m_VID);
     return true;
 }
 
@@ -196,7 +197,11 @@ const syString InputMonitor::GetFile() const {
 }
 
 void InputMonitor::Init(VideoOutputDevice* videoout, AudioOutputDevice* audioout) {
-
+    ShutDown(); // Shut down devices and set them to NULL
+    InnerSetVideoIn(m_Data->m_VID);
+    InnerSetVideoOut(videoout);
+    InnerSetAudioOut(audioout);
+    AVController::Init();
 }
 
 // ----------------

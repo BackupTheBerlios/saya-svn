@@ -23,7 +23,9 @@
 #include <wx/panel.h>
 #include "../saya/core/avcontroller.h"
 #include "../saya/core/dialogs.h"
+#include "../saya/core/debuglog.h"
 #include "../saya/inputmonitor.h"
+#include "../saya/playbackmanager.h"
 
 class wxBitmap;
 
@@ -242,6 +244,7 @@ void wxVideoPlaybackPanel::SetAVPlayer(AVPlayer* player) {
     m_Player = player;
     if(m_Player) {
         m_Player->SetVideoOut(static_cast<wxVideoPanel*>(m_VideoPanel)->GetVideo());
+        m_Player->Init();
     }
 }
 

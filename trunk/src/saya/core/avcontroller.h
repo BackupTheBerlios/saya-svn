@@ -28,32 +28,32 @@ class AVController {
         virtual ~AVController();
 
         /** @brief Sets the Video Input Device. Must be called before Init().
-         *  @param videoin The video input.
+         *  @param device The video input.
          *  @return true on success; false if playing or if video-in is reserved.
          *  @warning This function must be called by the main thread ONLY!
          */
-        bool SetVideoIn(VideoInputDevice* videoin);
+        bool SetVideoIn(VideoInputDevice* device);
 
         /** @brief Sets the Audio Input Device. Must be called before Init().
-         *  @param audioin The audio input.
+         *  @param device The audio input.
          *  @return true on success; false if playing or if audio-in is reserved.
          *  @warning This function must be called by the main thread ONLY!
          */
-        bool SetAudioIn(AudioInputDevice* audioin);
+        bool SetAudioIn(AudioInputDevice* device);
 
         /** @brief Sets the Video Output Device. Must be called before Init().
-         *  @param videoout The video output.
+         *  @param device The video output.
          *  @return true on success; false if playing or if video-out is reserved.
          *  @warning This function must be called by the main thread ONLY!
          */
-        bool SetVideoOut(VideoOutputDevice* videoout);
+        bool SetVideoOut(VideoOutputDevice* device);
 
         /** @brief Sets the Audio Output Device. Must be called before Init().
-         *  @param audioout The audio output.
+         *  @param device The audio output.
          *  @return true on success; false if playing or if audio-out is reserved.
          *  @warning This function must be called by the main thread ONLY!
          */
-        bool SetAudioOut(AudioOutputDevice* audioout);
+        bool SetAudioOut(AudioOutputDevice* device);
 
         /** @brief Initializer. Sets the new A/V devices, shutting down previously if necessary.
          *  @warning This function must be called by the main thread ONLY!
@@ -298,6 +298,15 @@ class AVController {
         /** Initializes the devices */
         void InitDevices(VideoInputDevice* videoin,AudioInputDevice* audioin,
                             VideoOutputDevice* videoout,AudioOutputDevice* audioout);
+
+        /** Sets the Video input device. */
+        bool InnerSetVideoIn(VideoInputDevice* device);
+        /** Sets the Video output device. */
+        bool InnerSetVideoOut(VideoOutputDevice* device);
+        /** Sets the Audio input device. */
+        bool InnerSetAudioIn(AudioInputDevice* device);
+        /** Sets the Audio output device. */
+        bool InnerSetAudioOut(AudioOutputDevice* device);
 
         /** @brief Flag indicating that playback must pause.
          *

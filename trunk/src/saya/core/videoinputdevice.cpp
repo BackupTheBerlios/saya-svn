@@ -21,32 +21,63 @@
 // begin register functions
 // ------------------------
 
-typedef std::map<syString, VIDFactoryFunction, ltsystr> VIDFactoryMap;
+class VIDFactory  {
+    public:
+        typedef std::map<syString, VIDFactoryFunction, ltsystr> VIDFactoryMap;
+        VIDFactoryMap m_Map;
+        static bool Register(const char* url, VIDFactoryFunction func);
+        static void Unregister(const char* url);
+        static VideoInputDevice* Create(const char* url);
 
-static VIDFactoryMap s_VIDFactory;
+        static VIDFactory* s_self;
+        class StaticDestructor {
+            public:
+                ~StaticDestructor() {
+                    delete VIDFactory::s_self;
+                    s_self = 0;
+                }
+        };
+        static StaticDestructor s_Destructor;
+};
 
-bool VideoInputDevice::RegisterVID(const char* url, VIDFactoryFunction func) {
-    static bool s_VIDFactory_init = false;
-    if(!s_VIDFactory_init) {
-        s_VIDFactory.clear();
-        s_VIDFactory_init = true;
+VIDFactory* VIDFactory::s_self = 0;
+VIDFactory::StaticDestructor VIDFactory::s_Destructor;
+
+
+bool VIDFactory::Register(const char* url, VIDFactoryFunction func) {
+    if(!s_self) {
+        s_self = new VIDFactory;
     }
     syString tmp(url);
-    s_VIDFactory[tmp] = func;
+    s_self->m_Map[tmp] = func;
     return true;
 }
 
-void VideoInputDevice::UnregisterVID(const char* url) {
-    s_VIDFactory.erase(syString(url));
+void VIDFactory::Unregister(const char* url) {
+    s_self->m_Map.erase(syString(url));
 }
 
-VideoInputDevice* VideoInputDevice::CreateVID(const char* url) {
-    VIDFactoryMap::const_iterator it = s_VIDFactory.find(syString(url));
-    if(it != s_VIDFactory.end()) {
+VideoInputDevice* VIDFactory::Create(const char* url) {
+    if(!s_self) return 0;
+    VIDFactoryMap::const_iterator it = s_self->m_Map.find(syString(url));
+    if(it != s_self->m_Map.end()) {
         return it->second();
     }
     return 0;
 }
+
+bool VideoInputDevice::RegisterVID(const char* url, VIDFactoryFunction func) {
+    return VIDFactory::Register(url, func);
+}
+
+void VideoInputDevice::UnregisterVID(const char* url) {
+    VIDFactory::Unregister(url);
+}
+
+VideoInputDevice* VideoInputDevice::CreateVID(const char* url) {
+    return VIDFactory::Create(url);
+}
+
 // ----------------------
 // end register functions
 // ----------------------
@@ -150,7 +181,7 @@ void VideoInputDevice::SendCurrentFrame(VideoOutputDevice* device) {
     if(lock1.IsLocked() && lock2.IsLocked()) {
         LoadCurrentFrame();
         if(device) {
-            device->LoadVideoData(this->m_Bitmap);
+            device->LoadVideoData(this->GetBitmap());
         }
     }
 }
@@ -161,7 +192,7 @@ void VideoInputDevice::SendCurrentFrame(syBitmap* bitmap) {
     if(lock1.IsLocked() && lock2.IsLocked()) {
         LoadCurrentFrame();
         if(bitmap) {
-            bitmap->CopyFrom(this->m_Bitmap); // And copy to the destination bitmap
+            bitmap->CopyFrom(this->GetBitmap()); // And copy to the destination bitmap
         }
     }
 }
@@ -206,11 +237,19 @@ void VideoInputDevice::LoadCurrentFrame() {
 
 
 bool VideoInputDevice::AllocateResources() {
-    m_Bitmap->Realloc(m_Width, m_Height, m_ColorFormat);
+    if(m_Bitmap) {
+        m_Bitmap->Realloc(m_Width, m_Height, m_ColorFormat);
+    }
     return true;
 }
 
 
 void VideoInputDevice::FreeResources() {
-    m_Bitmap->ReleaseBuffer();
+    if(m_Bitmap) {
+        m_Bitmap->ReleaseBuffer();
+    }
+}
+
+const syBitmap* VideoInputDevice::GetBitmap() {
+    return m_Bitmap;
 }

@@ -58,6 +58,11 @@ class AVControllerData {
          */
         bool StartWorkerThreads();
 
+        /** @brief Shuts down the A/V devices without setting them to null.
+         *  This is required for Init().
+         */
+        void ShutdownDevices();
+
 
         /** Loop for Audio In. Returns false if the thread must exit. */
         bool AudioInLoop();
@@ -365,6 +370,25 @@ inline void AVControllerData::Stop() {
     m_IsPlaying = false;
 }
 
+void AVControllerData::ShutdownDevices() {
+    if(!syThread::IsMain()) { return; }
+    Stop();
+
+    if(m_AudioOut) {
+        m_AudioOut->ShutDown();
+    }
+    if(m_VideoOut) {
+        m_VideoOut->ShutDown();
+    }
+
+    if(m_AudioIn) {
+        m_AudioIn->ShutDown();
+    }
+    if(m_VideoIn) {
+        m_VideoIn->ShutDown();
+    }
+}
+
 //// ---------------------------
 //// Begin Generic Loop Wrappers
 //// ---------------------------
@@ -645,37 +669,29 @@ AVController::~AVController() {
     delete m_Data;
 }
 
-bool AVController::SetVideoIn(VideoInputDevice* videoin) {
-    if(!syThread::IsMain()) { return false; }
-    if(m_ReservedVideoIn || m_Data->m_IsPlaying) { return false; }
-    m_Data->m_VideoIn = videoin;
-    return true;
+bool AVController::SetVideoIn(VideoInputDevice* device) {
+    if(m_ReservedVideoIn) { return false; }
+    return InnerSetVideoIn(device);
 }
 
-bool AVController::SetAudioIn(AudioInputDevice* audioin) {
-    if(!syThread::IsMain()) { return false; }
-    if(m_ReservedAudioIn || m_Data->m_IsPlaying) { return false; }
-    m_Data->m_AudioIn = audioin;
-    return true;
+bool AVController::SetAudioIn(AudioInputDevice* device) {
+    if(m_ReservedAudioIn) { return false; }
+    return InnerSetAudioIn(device);
 }
 
-bool AVController::SetVideoOut(VideoOutputDevice* videoout) {
-    if(!syThread::IsMain()) { return false; }
-    if(m_ReservedVideoOut || m_Data->m_IsPlaying) { return false; }
-    m_Data->m_VideoOut = videoout;
-    return true;
+bool AVController::SetVideoOut(VideoOutputDevice* device) {
+    if(m_ReservedVideoOut) { return false; }
+    return InnerSetVideoOut(device);
 }
 
-bool AVController::SetAudioOut(AudioOutputDevice* audioout) {
-    if(!syThread::IsMain()) { return false; }
-    if(m_ReservedAudioOut || m_Data->m_IsPlaying) { return false; }
-    m_Data->m_AudioOut = audioout;
-    return true;
+bool AVController::SetAudioOut(AudioOutputDevice* device) {
+    if(m_ReservedAudioOut) { return false; }
+    return InnerSetAudioOut(device);
 }
 
 void AVController::Init() {
     if(!syThread::IsMain()) { return; }
-    ShutDown();
+    m_Data->ShutdownDevices();
 
     if(m_Data->m_AudioOut) {
         m_Data->m_AudioOut->Init();
@@ -1052,4 +1068,40 @@ void AVController::DontSkipVideoFrames(bool dontskip) {
 
 bool AVController::GetDontSkipVideoFrames() {
     return m_Data->m_StutterMode;
+}
+
+bool AVController::InnerSetVideoIn(VideoInputDevice* device) {
+    if(!syThread::IsMain() || m_Data->m_IsPlaying) { return false; }
+    if(m_Data->m_VideoIn) {
+        m_Data->m_VideoIn->ShutDown();
+    }
+    m_Data->m_VideoIn = device;
+    return true;
+}
+
+bool AVController::InnerSetVideoOut(VideoOutputDevice* device) {
+    if(!syThread::IsMain() || m_Data->m_IsPlaying) { return false; }
+    if(m_Data->m_VideoOut) {
+        m_Data->m_VideoOut->ShutDown();
+    }
+    m_Data->m_VideoOut = device;
+    return true;
+}
+
+bool AVController::InnerSetAudioIn(AudioInputDevice* device) {
+    if(!syThread::IsMain() || m_Data->m_IsPlaying) { return false; }
+    if(m_Data->m_AudioIn) {
+        m_Data->m_AudioIn->ShutDown();
+    }
+    m_Data->m_AudioIn = device;
+    return true;
+}
+
+bool AVController::InnerSetAudioOut(AudioOutputDevice* device) {
+    if(!syThread::IsMain() || m_Data->m_IsPlaying) { return false; }
+    if(m_Data->m_AudioOut) {
+        m_Data->m_AudioOut->ShutDown();
+    }
+    m_Data->m_AudioOut = device;
+    return true;
 }
