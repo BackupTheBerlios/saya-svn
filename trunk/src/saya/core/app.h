@@ -129,6 +129,9 @@ class syApp
         /** Gets the application's main window. */
         virtual void* GetTopWindow() const = 0;
 
+        /** Wakes up the main thread to begin event processing. */
+        virtual void WakeUpIdle() = 0;
+
         /** Shows a File selection dialog. */
         virtual syFileDialogResult FileSelector(
             const syString& message,

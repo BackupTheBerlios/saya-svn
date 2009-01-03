@@ -279,6 +279,11 @@ void wxSayaApp::PostEvent(syEvtHandler* handler, syEvent& event) {
     wxPostEvent(wxTheApp, tmpevent); // This will enable wxWidgets to wake up with Saya events just as with wxWidgets events.
 }
 
+/** Wakes up the main thread to begin event processing. */
+void wxSayaApp::WakeUpIdle() {
+    wxWakeUpIdle();
+}
+
 // -------------
 // end wxSayaApp
 // -------------

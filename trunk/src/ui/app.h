@@ -62,6 +62,9 @@ class wxSayaApp: public syApp
         /** Returns true if the application's main loop is running. */
         virtual bool IsMainLoopRunning() const;
 
+        /** Wakes up the main thread to begin event processing. */
+        virtual void WakeUpIdle();
+
         /** @brief Shows a standard message box.
          *  @see syDIALOG_ICON_TYPES
          *  @see syDIALOG_BUTTON_TYPES

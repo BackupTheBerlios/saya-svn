@@ -245,6 +245,9 @@ m_Parent(parent)
 
 int syAudioInThread::Entry() {
     while(!MustAbort()) {
+        if(!m_Parent->m_AudioEnabled) {
+            SelfPause();
+        }
         if(!m_Parent->AudioInLoop()) break;
     }
     return 0;
@@ -252,6 +255,9 @@ int syAudioInThread::Entry() {
 
 int syVideoInThread::Entry() {
     while(!MustAbort()) {
+        if(!m_Parent->m_VideoEnabled) {
+            SelfPause();
+        }
         if(!m_Parent->VideoInLoop()) break;
     }
     return 0;
@@ -259,6 +265,9 @@ int syVideoInThread::Entry() {
 
 int syAudioOutThread::Entry() {
     while(!MustAbort()) {
+        if(!m_Parent->m_AudioEnabled) {
+            SelfPause();
+        }
         if(!m_Parent->AudioOutLoop()) break;
     }
     return 0;
@@ -266,6 +275,9 @@ int syAudioOutThread::Entry() {
 
 int syVideoOutThread::Entry() {
     while(!MustAbort()) {
+        if(!m_Parent->m_VideoEnabled) {
+            SelfPause();
+        }
         if(!m_Parent->VideoOutLoop()) break;
     }
     return 0;
@@ -394,7 +406,7 @@ void AVControllerData::ShutdownDevices() {
 //// ---------------------------
 
 bool AVControllerData::AudioInLoop() {
-    while(m_Pause || m_Stop) {
+    while(m_Pause || m_Stop || !m_AudioEnabled) {
         if(syThread::MustAbort() || !m_AudioEnabled) return false;
         if(!m_AudioInThread->SelfPause()) return false;
     }
@@ -407,7 +419,7 @@ bool AVControllerData::AudioInLoop() {
 }
 
 bool AVControllerData::VideoInLoop() {
-    while(m_Pause || m_Stop) {
+    while(m_Pause || m_Stop || !m_VideoEnabled) {
         if(syThread::MustAbort() || !m_VideoEnabled) return false;
         if(!m_VideoInThread->SelfPause()) return false;
     }
@@ -420,7 +432,7 @@ bool AVControllerData::VideoInLoop() {
 }
 
 bool AVControllerData::AudioOutLoop() {
-    while(m_Pause || m_Stop) {
+    while(m_Pause || m_Stop || !m_AudioEnabled) {
         if(syThread::MustAbort() || !m_AudioEnabled) return false;
         if(!m_AudioOutThread->SelfPause()) return false;
     }
@@ -433,7 +445,7 @@ bool AVControllerData::AudioOutLoop() {
 }
 
 bool AVControllerData::VideoOutLoop() {
-    while(m_Pause || m_Stop) {
+    while(m_Pause || m_Stop || !m_VideoEnabled) {
         if(syThread::MustAbort() || !m_VideoEnabled) return false;
         if(!m_VideoOutThread->SelfPause()) return false;
     }
@@ -542,6 +554,8 @@ void AVControllerData::PlaybackVideoOutLoop() {
             if(m_Stop || syThread::MustAbort() || !m_VideoEnabled) return;
             if(!m_VideoOutThread->SelfPause()) return;
         }
+        m_VideoOut->FlushVideoData();
+        syMilliSleep(13); // We'll set a maximum output framerate of 75 (1000/13) fps
     }
 }
 

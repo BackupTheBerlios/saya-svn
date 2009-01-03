@@ -20,6 +20,7 @@
 #include "../saya/core/sybitmap.h"
 #include "../saya/core/sentryfuncs.h"
 #include "../saya/core/videoinputdevice.h"
+#include "../saya/core/app.h"
 
 IMPLEMENT_CLASS(wxVideoPanel, wxPanel)
 
@@ -165,7 +166,11 @@ void wxVideoPanel::OnPaint(wxPaintEvent &event) {
         // Do not try to repaint screen while resizing
         return;
     }
-    m_Video->FlushVideoData();
+    // m_Video->FlushVideoData();
+    // FlushVideoData must enabled only for testing; normally it must be called via AVController.
+    // m_BufferChanged = false;
+    // If we call FlushVideoData, we must set m_BufferChanged to false, or we'll continually
+    // consume the CPU with an endless paint/idle event cycle.
 
     wxSize size = GetSize();
     unsigned int w = size.GetWidth();
@@ -235,6 +240,12 @@ void wxVideoPanel::OnSize(wxSizeEvent& event) {
 
 void wxVideoPanel::FlagForRepaint() {
     m_BufferChanged = true;
+    if(!syThread::IsMain()) {
+        syApp::Get()->WakeUpIdle();
+    }
+    // This sends an idle event to the Event Loop running in the main thread.
+    // We don't need to get hold of any GUI mutex, because all wxWakeupIdle() does is
+    // wake up the main thread.
 }
 
 wxVideoOutputDevice* wxVideoPanel::GetVideo() {
