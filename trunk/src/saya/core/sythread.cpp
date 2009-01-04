@@ -1622,6 +1622,34 @@ bool syThread::IsThisThread() const {
     return (this && this == This());
 }
 
+syThreadError syThread::Stop(bool wait) {
+    if(IsThisThread()) {
+        return syTHREAD_WRONG_THREAD_CONTEXT; // A thread can't delete itself!
+    }
+
+    if(IsThreadDetached(this)) { return  syTHREAD_MISC_ERROR; }
+    syThreadStatus status = syTHREADSTATUS_EXITED;
+
+    {
+        syMutexLocker lock(m_Data->m_Mutex); // Now we lock m_Mutex to check the thread's status
+        status = m_Data->m_ThreadStatus;
+        m_Data->m_PauseRequested = false;
+        m_Data->m_StopRequested = true;
+
+        // With the thread status available, we can know if we need to Run or Resume the thread.
+        // However, we MUST NOT call Run() or Resume() because that would alter the
+        // m_PauseRequested and m_StopRequested flags we just changed.
+
+        if(status == syTHREADSTATUS_CREATED || status == syTHREADSTATUS_PAUSED) {
+            m_Data->m_ResumeCondition.Signal(); // m_Mutex is already locked, so we don't need to lock it here.
+        }
+    }
+
+    if(wait && status != syTHREADSTATUS_EXITED) { Wait(); }
+    return syTHREAD_NO_ERROR;
+}
+
+
 
 // ------------------------------------
 // Begin syThread initialization module

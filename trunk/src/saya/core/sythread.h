@@ -577,6 +577,12 @@ class syThread {
          */
         int Wait();
 
+        /** @brief Sends a signal to the thread indicating it to stop.
+         *  It works just like Delete(), but without deleting the thread object.
+         *  @note This function only works for Joinable threads.
+         */
+         syThreadError Stop(bool wait = true);
+
     protected:
 
         /** @brief Pure virtual function which belongs to your thread class.

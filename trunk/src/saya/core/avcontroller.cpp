@@ -112,20 +112,34 @@ class AVControllerData {
         /** Returns true if the Audio Out thread is running. */
         bool IsAudioOutRunning();
 
+
+        /** Returns true if the Video In thread is alive. */
+        bool IsVideoInAlive();
+        /** Returns true if the Audio In thread is alive. */
+        bool IsAudioInAlive();
+        /** Returns true if the Video Out thread is alive. */
+        bool IsVideoOutAlive();
+        /** Returns true if the Audio Out thread is alive. */
+        bool IsAudioOutAlive();
+
+
         /** Returns true if any of the threads are running, false otherwise. */
         bool IsPlaying();
 
+        /** Returns true if any of the threads are alive, false otherwise. */
+        bool IsAlive();
+
         /** Current playback framerate. */
-        float m_FrameRate;
+        volatile float m_FrameRate;
 
         /** Flag for video-only or audio-only playback/encoding. */
-        bool m_VideoEnabled;
+        volatile bool m_VideoEnabled;
 
         /** Flag for video-only or audio-only playback/encoding. */
-        bool m_AudioEnabled;
+        volatile bool m_AudioEnabled;
 
         /** Flag for not-skipping video frames on playback. */
-        bool m_StutterMode;
+        volatile bool m_StutterMode;
 
         /** @brief Flag determining whether we're currently playing or not.
          *
@@ -326,10 +340,6 @@ m_VideoInThread(new syVideoInThread(this)),
 m_AudioOutThread(new syAudioOutThread(this)),
 m_VideoOutThread(new syVideoOutThread(this))
 {
-    m_AudioInThread->Create(AVThreadStackSize);
-    m_VideoInThread->Create(AVThreadStackSize);
-    m_AudioOutThread->Create(AVThreadStackSize);
-    m_VideoOutThread->Create(AVThreadStackSize);
 }
 
 AVControllerData::~AVControllerData() {
@@ -366,6 +376,19 @@ inline bool AVControllerData::IsAudioOutRunning() {
     return m_AudioOutThread && m_AudioOutThread->IsRunning();
 }
 
+inline bool AVControllerData::IsVideoInAlive() {
+    return m_VideoInThread && (m_VideoInThread->IsPaused() || m_VideoInThread->IsRunning()) ;
+}
+inline bool AVControllerData::IsAudioInAlive() {
+    return m_AudioInThread && (m_AudioInThread->IsAlive() || m_AudioInThread->IsRunning());
+}
+inline bool AVControllerData::IsVideoOutAlive() {
+    return m_VideoOutThread && (m_VideoOutThread->IsAlive() || m_VideoOutThread->IsRunning());
+}
+inline bool AVControllerData::IsAudioOutAlive() {
+    return m_AudioOutThread && (m_AudioOutThread->IsAlive() || m_AudioOutThread->IsRunning());
+}
+
 bool AVControllerData::IsPlaying() {
     if(IsVideoInRunning()) return true;
     if(IsAudioInRunning()) return true;
@@ -373,6 +396,15 @@ bool AVControllerData::IsPlaying() {
     if(IsAudioOutRunning()) return true;
     return false;
 }
+
+bool AVControllerData::IsAlive() {
+    if(IsVideoInAlive()) return true;
+    if(IsAudioInAlive()) return true;
+    if(IsVideoOutAlive()) return true;
+    if(IsAudioOutAlive()) return true;
+    return false;
+}
+
 
 inline void AVControllerData::Pause() {
     m_Pause = true;
@@ -386,8 +418,12 @@ inline void AVControllerData::Pause() {
 
 inline void AVControllerData::Stop() {
     m_Stop = true;
+    if(m_VideoInThread) { m_VideoInThread->Stop(false); }
+    if(m_AudioInThread) { m_AudioInThread->Stop(false); }
+    if(m_VideoOutThread) { m_VideoOutThread->Stop(false); }
+    if(m_AudioOutThread) { m_AudioOutThread->Stop(false); }
     if(syThread::IsMain()) {
-        while(IsPlaying()) {
+        while(IsAlive()) {
             syMilliSleep(1);
         }
     }
@@ -421,6 +457,7 @@ bool AVControllerData::AudioInLoop() {
     while(m_Pause || m_Stop || !m_AudioEnabled) {
         if(syThread::MustAbort() || !m_AudioEnabled) return false;
         if(!m_AudioInThread->SelfPause()) return false;
+        if(m_Stop) { return false; }
     }
     if(m_Parent->IsAudioEncoder()) {
         EncodingAudioInLoop();
@@ -434,6 +471,7 @@ bool AVControllerData::VideoInLoop() {
     while(m_Pause || m_Stop || !m_VideoEnabled) {
         if(syThread::MustAbort() || !m_VideoEnabled) return false;
         if(!m_VideoInThread->SelfPause()) return false;
+        if(m_Stop) { return false; }
     }
     if(m_Parent->IsVideoEncoder()) {
         EncodingVideoInLoop();
@@ -447,6 +485,7 @@ bool AVControllerData::AudioOutLoop() {
     while(m_Pause || m_Stop || !m_AudioEnabled) {
         if(syThread::MustAbort() || !m_AudioEnabled) return false;
         if(!m_AudioOutThread->SelfPause()) return false;
+        if(m_Stop) { return false; }
     }
     if(m_Parent->IsAudioEncoder()) {
         EncodingAudioOutLoop();
@@ -460,6 +499,7 @@ bool AVControllerData::VideoOutLoop() {
     while(m_Pause || m_Stop || !m_VideoEnabled) {
         if(syThread::MustAbort() || !m_VideoEnabled) return false;
         if(!m_VideoOutThread->SelfPause()) return false;
+        if(m_Stop) { return false; }
     }
     if(m_Parent->IsVideoEncoder()) {
         EncodingVideoOutLoop();
@@ -506,11 +546,26 @@ void AVControllerData::PlaybackVideoInLoop() {
     if(m_StutterMode && m_AudioEnabled) {
         m_CurrentAudioPos = curaudiopos = m_AudioIn->Seek(curvideopos);
     }
-
+    bool testunpause = false;
     while(!syThread::MustAbort() && m_VideoEnabled && !m_Stop && m_VideoIn && m_VideoOut) {
-        while(m_Pause) {
+        while(m_Pause && !testunpause) {
             if(m_Stop || syThread::MustAbort() || !m_VideoEnabled || !m_VideoIn || !m_VideoOut) return;
+
+            // Save the last position
+            m_CurrentVideoPos = m_StartVideoPos = curvideopos;
+            if(m_StutterMode && m_AudioEnabled) {
+                m_CurrentAudioPos = curaudiopos = curvideopos;
+            }
+            DebugLog("Pausing Video Playback thread...");
             if(!m_VideoInThread->SelfPause()) return;
+            DebugLog("Resuming Video Playback thread...");
+            testunpause = true;
+
+            // Restore the last position
+            starttime = syGetNanoTicks();
+            if(m_StutterMode && m_AudioEnabled) {
+                m_CurrentAudioPos = curaudiopos = m_AudioIn->Seek(curvideopos);
+            }
         }
         curvideoframe = m_VideoIn->GetFrameIndex(curvideopos);
         if(curvideoframe != nextvideoframe) {
@@ -607,20 +662,22 @@ void AVControllerData::StartPlayback() {
         m_PlaybackDuration = m_Parent->GetLength(); // Maximum length possible
     }
     // Always start at 0 by default
-    m_StartVideoPos = 0;
-    m_StartAudioPos = 0;
+    avtime_t startvideopos = 0;
+    avtime_t startaudiopos = 0;
 
     // Get the initial positions
     if(m_VideoIn) {
-        m_StartVideoPos = m_VideoIn->GetPos();
+        startvideopos = m_VideoIn->GetPos();
     }
     if(m_AudioIn) {
-        m_StartAudioPos = m_AudioIn->GetPos();
+        startaudiopos = m_AudioIn->GetPos();
         if(m_AudioOut) {
             // We MUST clear the audio buffer, otherwise we'll lose sync!
             m_AudioOut->Clear();
         }
     }
+    m_StartVideoPos = startvideopos;
+    m_StartAudioPos = startaudiopos;
     // And start!
     m_IsPlaying = StartWorkerThreads();
 }

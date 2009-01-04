@@ -25,12 +25,19 @@
 
 #include "../saya/core/systring.h"
 #include "../saya/core/app.h"
+#include "../saya/core/sythread.h"
 #include "debuglog.h"
 #include <wx/datetime.h>
+#include <deque>
 
 BEGIN_EVENT_TABLE(AppDebugLog, wxFrame)
     EVT_CLOSE(AppDebugLog::OnClose)
+    EVT_IDLE(AppDebugLog::OnIdle)
 END_EVENT_TABLE()
+
+std::deque<wxString> PendingDebugLogMessages;
+static volatile bool s_DebugLogPending;
+syMutex s_MyDebugLogMutex;
 
 AppDebugLog::AppDebugLog() :
 wxFrame(NULL, wxID_ANY, wxT("Debug Log"), wxDefaultPosition, wxSize( 539,399 ), wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL)
@@ -59,11 +66,19 @@ void AppDebugLog::DebugLog(const syString& msg) {
 }
 
 void AppDebugLog::DebugLog(const wxString& msg) {
+    if(!syThread::IsMain()) {
+        syMutexLocker lock(s_MyDebugLogMutex);
+        PendingDebugLogMessages.push_back(msg);
+        s_DebugLogPending = true;
+        syApp::Get()->WakeUpIdle();
+        return;
+    }
     wxDateTime t = wxDateTime::Now();
     syString s;
     s << "[" << syString(t.Format(_T("%Y-%m-%d %H:%M:%S"))) << "] : " << syString(msg) << "\n";
     m_log->AppendText(s);
     if(!syApp::Get()->IsMainLoopRunning()) {
+        this->Refresh();
         this->Update();
     }
 }
@@ -74,6 +89,15 @@ void AppDebugLog::OnClose(wxCloseEvent& event) {
         this->Hide();
     } else {
         Destroy();
+    }
+}
+
+void AppDebugLog::OnIdle(wxIdleEvent& event) {
+    if(s_DebugLogPending) {
+        syMutexLocker lock(s_MyDebugLogMutex);
+        DebugLog(PendingDebugLogMessages[0]);
+        PendingDebugLogMessages.pop_front();
+        s_DebugLogPending = PendingDebugLogMessages.size() > 0;
     }
 }
 

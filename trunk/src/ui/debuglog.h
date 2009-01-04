@@ -36,6 +36,7 @@ class AppDebugLog : public wxFrame, public syDebugLog {
         virtual ~AppDebugLog();
     private:
         void OnClose(wxCloseEvent& event);
+        void OnIdle(wxIdleEvent& event);
         DECLARE_EVENT_TABLE()
 };
 
