@@ -175,28 +175,16 @@ float VideoInputDevice::GetFramesPerSecond() const {
 }
 
 
-void VideoInputDevice::SendCurrentFrame(VideoOutputDevice* device) {
+void VideoInputDevice::SendCurrentFrame(syBitmapSink* sink) {
     sySafeMutexLocker lock1(*m_InputMutex, this);
     sySafeMutexLocker lock2(*m_OutputMutex, this);
     if(lock1.IsLocked() && lock2.IsLocked()) {
         LoadCurrentFrame();
-        if(device) {
-            device->LoadVideoData(this->GetBitmap());
+        if(sink) {
+            sink->LoadData(this->GetBitmap());
         }
     }
 }
-
-void VideoInputDevice::SendCurrentFrame(syBitmap* bitmap) {
-    sySafeMutexLocker lock1(*m_InputMutex, this);
-    sySafeMutexLocker lock2(*m_OutputMutex, this);
-    if(lock1.IsLocked() && lock2.IsLocked()) {
-        LoadCurrentFrame();
-        if(bitmap) {
-            bitmap->CopyFrom(this->GetBitmap()); // And copy to the destination bitmap
-        }
-    }
-}
-
 
 unsigned long VideoInputDevice::GetFrameIndex(avtime_t time) {
 
@@ -240,6 +228,7 @@ bool VideoInputDevice::AllocateResources() {
     if(m_Bitmap) {
         m_Bitmap->Realloc(m_Width, m_Height, m_ColorFormat);
     }
+    m_CurrentTime = 0;
     return true;
 }
 

@@ -383,6 +383,11 @@ void syMicroSleep(unsigned long usec);
  */
 unsigned long syGetTicks();
 
+/** @brief Obtains the number of nanoseconds that have happened since the program has started.
+ *  Useful for microtime measurements.
+ *  @note In reality, this is calculated u
+ */
+unsigned long long syGetNanoTicks();
 
 /** The syThread class is a reimplementation of the wxWidgets wxThread class
  *  using unix pthreads (we avoid STL 3rd party implementations on purpose).

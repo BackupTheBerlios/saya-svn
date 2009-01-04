@@ -13,15 +13,14 @@
 
 #include "videocolorformat.h"
 #include "avdevice.h"
-
-class syBitmap;
+#include "sybitmapsink.h"
 class syMutex;
 class VideoOutputDevice;
 
 /**
  * @brief Generic wrapper for a Video Output device.
  */
-class VideoOutputDevice : public AVDevice {
+class VideoOutputDevice : public AVDevice, public syBitmapSink {
     public:
 
         /** Maximum width for the rendered window. Currently the value is 10240 pixels. */
@@ -36,14 +35,23 @@ class VideoOutputDevice : public AVDevice {
         /** Standard destructor. */
         virtual ~VideoOutputDevice();
 
-        /** Returns the output color format. */
-        VideoColorFormat GetColorFormat() const;
+        /** Returns the output color format. Inherited from syBitmapSink. */
+        virtual VideoColorFormat GetColorFormat() const;
 
-        /** Returns the output width, in pixels. */
-        unsigned int GetWidth() const;
+        /** @brief Sets a bitmap sink to dump the data to.
+         *  @note After setting the sink, m_Width, m_Height and m_ColorFormat are changed accordingly.
+         *  This is meant to be used by the Bitmap sink itself or one of its related classes.
+         *  @warning This function can only be called outside playback - this is, before Init() or after ShutDown().
+         */
+        void SetBitmapSink(syBitmapSink* sink);
 
-        /** Returns the output height, in pixels. */
-        unsigned int GetHeight() const;
+        /** @brief Returns the output width, in pixels. Inherited from syBitmapSink.
+         *  @warning This function should not be overriden. Use
+         */
+        virtual unsigned int GetWidth() const;
+
+        /** Returns the output height, in pixels. Inherited from syBitmapSink. */
+        virtual unsigned int GetHeight() const;
 
         /** @brief Called whenever the output screen size is changed (i.e. by resizing the playback window)
          *
@@ -63,6 +71,13 @@ class VideoOutputDevice : public AVDevice {
          *  @note  This method should be called by the worker thread
          */
         void LoadVideoData(const syBitmap* bitmap);
+
+        /** @brief Loads video data from an external buffer.
+         *
+         *  @param bitmap the bitmap (buffer) containing the image to be sent.
+         *  @note  This is the syBitmapSink-compatible alias for LoadVideoData.
+         */
+        virtual void LoadData(const syBitmap* bitmap);
 
         /** @brief Writes the video data into the device.
          *  @note This method is a wrapper for RenderVideoData.
@@ -117,6 +132,7 @@ class VideoOutputDevice : public AVDevice {
           * @param newwidth the new width to be set for playback
           * @param newheight the new height to be set for playback
           * @return true if size was changed, false otherwise.
+          * @note The default implementation changes m_Width, m_Height and returns true.
           */
         virtual bool ChangeDeviceSize(unsigned int newwidth,unsigned int newheight);
 
@@ -134,6 +150,9 @@ class VideoOutputDevice : public AVDevice {
 
         /**  Output height */
         unsigned int m_Height;
+
+        /** Bitmap sink. */
+        syBitmapSink* m_Sink;
 
     private:
         /** flag that forbids playback when changing the device size */

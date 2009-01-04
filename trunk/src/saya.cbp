@@ -69,6 +69,7 @@
 		</Unit>
 		<Unit filename="main.cpp" />
 		<Unit filename="main.h" />
+		<Unit filename="plugins/demovideo.cpp" />
 		<Unit filename="resources/debuglog.fbp">
 			<Option target="Debug" />
 		</Unit>
@@ -166,6 +167,8 @@
 			<Option weight="10" />
 		</Unit>
 		<Unit filename="saya/core/sybitmapcopier.h" />
+		<Unit filename="saya/core/sybitmapsink.cpp" />
+		<Unit filename="saya/core/sybitmapsink.h" />
 		<Unit filename="saya/core/systring.cpp">
 			<Option weight="10" />
 		</Unit>

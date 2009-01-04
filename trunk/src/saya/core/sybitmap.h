@@ -19,8 +19,10 @@
 #define sybitmap_h
 
 #include "aborter.h"
+#include "sybitmapsink.h"
 #include "videocolorformat.h"
 
+class syBitmap;
 class sySafeMutex;
 
 /** Stretching strategy for pasting bitmaps */
@@ -32,7 +34,7 @@ enum syStretchMode {
     sy_ststretch /** Full stretching/resizing of the original */
 };
 
-class syBitmap {
+class syBitmap : public syBitmapSink {
     public:
 
         /** Standard constructor */
@@ -49,6 +51,9 @@ class syBitmap {
 
         /** Makes a copy of another syBitmap */
         void CopyFrom(const syBitmap* source);
+
+        /** Makes a copy of another syBitmap. */
+        virtual void LoadData(const syBitmap* bitmap);
 
         /** Pastes from another bitmap, resizing if necessary */
         void PasteFrom(const syBitmap* source,syStretchMode stretchmode = sy_stkeepaspectratio);

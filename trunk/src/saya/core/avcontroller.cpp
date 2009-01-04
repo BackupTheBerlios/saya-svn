@@ -14,16 +14,28 @@
 #include "audioinputdevice.h"
 #include "audiooutputdevice.h"
 
+#include "debuglog.h" // Remove when debugging is finished
+#include "systring.h" // Remove when debugging is finished
+
 #include <cstddef>
 #include <math.h>
 
-const float MinimumPlaybackSpeed = 0.01;
-const float MinimumFramerate = 1.0;
-const unsigned long DefaultAudioGranularity = 100;
-const unsigned long MinimumAudioGranularity = 10;
+namespace AVControllerConsts {
 
-// 1 meg for stack is quite a good size. We're using 4 threads max, so 4 megs isn't a bad size.
-const unsigned long AVThreadStackSize = 1048576;
+    const float MinimumPlaybackSpeed = 0.01;
+    const float MinimumFramerate = 1.0;
+    const float MaximumFramerate = 300.0;
+    const float DefaultMaximumFramerate = 75.0;
+    float CurrentMaximumFramerate = 75.0;
+    unsigned int MinimumPlaybackDelay = 1000 / static_cast<unsigned int>(DefaultMaximumFramerate);
+    const unsigned long DefaultAudioGranularity = 100;
+    const unsigned long MinimumAudioGranularity = 10;
+
+    // 1 meg for stack is quite a good size. We're using 4 threads max, so 4 megs isn't a bad size.
+    const unsigned long AVThreadStackSize = 1048576;
+};
+
+using namespace AVControllerConsts;
 
 class AVControllerData {
     public:
@@ -366,7 +378,7 @@ inline void AVControllerData::Pause() {
     m_Pause = true;
     if(syThread::IsMain()) {
         while(IsPlaying()) {
-            syMicroSleep(1);
+            syMilliSleep(1);
         }
     }
     m_IsPlaying = false;
@@ -376,7 +388,7 @@ inline void AVControllerData::Stop() {
     m_Stop = true;
     if(syThread::IsMain()) {
         while(IsPlaying()) {
-            syMicroSleep(1);
+            syMilliSleep(1);
         }
     }
     m_IsPlaying = false;
@@ -481,11 +493,11 @@ void AVControllerData::PlaybackVideoInLoop() {
     avtime_t curvideopos, curaudiopos, nextaudiopos, starttime;
     unsigned long curvideoframe,nextvideoframe;
 
-    starttime = syGetTicks();
+    starttime = syGetNanoTicks();
     m_CurrentVideoPos = curaudiopos = curvideopos = m_StartVideoPos;
     nextaudiopos = curaudiopos;
-    nextvideoframe = 0;
-    curvideoframe = 0;
+    nextvideoframe = m_VideoIn->GetFrameIndex(m_StartVideoPos);
+    curvideoframe = nextvideoframe;
 
     if(!syThread::MustAbort() && m_VideoEnabled && !m_Stop && m_VideoIn && m_VideoOut) {
         m_VideoIn->SendCurrentFrame(m_VideoOut);
@@ -500,9 +512,7 @@ void AVControllerData::PlaybackVideoInLoop() {
             if(m_Stop || syThread::MustAbort() || !m_VideoEnabled || !m_VideoIn || !m_VideoOut) return;
             if(!m_VideoInThread->SelfPause()) return;
         }
-
         curvideoframe = m_VideoIn->GetFrameIndex(curvideopos);
-
         if(curvideoframe != nextvideoframe) {
             if(m_StutterMode && m_AudioEnabled) {
                 // In "stutter mode", we play back the audio using the video thread.
@@ -517,10 +527,13 @@ void AVControllerData::PlaybackVideoInLoop() {
             }
             m_VideoIn->SendCurrentFrame(m_VideoOut);
             curvideoframe = nextvideoframe;
+        } else {
+            // syMilliSleep(MinimumPlaybackDelay); // This will prevent us from surpassing the maximum framerate.
+            // syMilliSleep(1); // Until the framerate/timing issue is fixed, this will have to suffice.
         }
 
         // Calculate the next video position based on the current time.
-        curvideopos = m_StartVideoPos + ((syGetTicks() - starttime)*(AVTIME_T_SCALE / 1000));
+        curvideopos = m_StartVideoPos + (syGetNanoTicks() - starttime);
         if(m_StutterMode && nextvideoframe > curvideoframe + 1) {
             // Don't skip video frames in stutter mode.
             nextvideoframe = curvideoframe + 1;
@@ -555,7 +568,7 @@ void AVControllerData::PlaybackVideoOutLoop() {
             if(!m_VideoOutThread->SelfPause()) return;
         }
         m_VideoOut->FlushVideoData();
-        syMilliSleep(13); // We'll set a maximum output framerate of 75 (1000/13) fps
+        syMilliSleep(1); // FIXME: Sleep using the maximum framerate when the timing issue gets fixed.
     }
 }
 
@@ -804,6 +817,9 @@ void AVController::Snapshot() {
     if(m_Data->IsPlaying()) { m_Data->Pause(); }
     if(m_Data->m_VideoIn && m_Data->m_VideoOut) {
         m_Data->m_VideoIn->SendCurrentFrame(m_Data->m_VideoOut);
+    }
+    if(m_Data->m_VideoOut) {
+        m_Data->m_VideoOut->FlushVideoData();
     }
 }
 
@@ -1119,3 +1135,19 @@ bool AVController::InnerSetAudioOut(AudioOutputDevice* device) {
     m_Data->m_AudioOut = device;
     return true;
 }
+
+void AVController::SetMaximumFrameRate(float maxframerate) {
+    if(maxframerate < 0 || maxframerate > MaximumFramerate) {
+        maxframerate = MaximumFramerate;
+    }
+    if(maxframerate < 1) {
+        maxframerate = 1;
+    }
+    unsigned int tmpdelay = 1000 / static_cast<unsigned int>(maxframerate);
+    if(tmpdelay < 1) {
+        tmpdelay = 1;
+    }
+    MinimumPlaybackDelay = tmpdelay;
+    CurrentMaximumFramerate = maxframerate;
+}
+

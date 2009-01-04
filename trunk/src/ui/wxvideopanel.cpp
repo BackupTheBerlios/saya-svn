@@ -1,13 +1,10 @@
 /***************************************************************************
  * Name:      wxvideopanel.cpp
- * Purpose:   Implementation of classes wxVideoPanel and wxVideoOutputDevice
+ * Purpose:   Implementation of class wxVideoPanel
  * Author:    Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * Created:   2008-07-30
  * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * License:   GPL version 3 or later
- * Comments:  Based on code from sdlpanel.cc found at
- *            http://code.technoplaza.net/wx-sdl/part1/
- *            (LGPL licensed)
  ***************************************************************************/
 
 #include <wx/dcbuffer.h>
@@ -19,7 +16,6 @@
 #include "../saya/core/sythread.h"
 #include "../saya/core/sybitmap.h"
 #include "../saya/core/sentryfuncs.h"
-#include "../saya/core/videoinputdevice.h"
 #include "../saya/core/app.h"
 
 IMPLEMENT_CLASS(wxVideoPanel, wxPanel)
@@ -30,104 +26,6 @@ BEGIN_EVENT_TABLE(wxVideoPanel, wxPanel)
     EVT_SIZE(wxVideoPanel::OnSize)
     EVT_IDLE(wxVideoPanel::OnIdle)
 END_EVENT_TABLE()
-
-// *** Begin DemoVideo1 code ***
-
-class DemoVideo1 : public VideoInputDevice {
-    public:
-        DemoVideo1();
-        virtual ~DemoVideo1();
-
-    protected:
-
-        /** @brief Loads the current frame into m_Bitmap.
-         *
-         *  This is a stub; you need to override this function to acomplish anything.
-         *  @warning You MUST NOT call Seek() from LoadCurrentFrame(), or you will trigger a mutex deadlock!!
-         *  If you need to do a seeking, call InternalSeek() instead.
-         */
-        void LoadCurrentFrame();
-};
-
-VideoInputDevice* CreateDemoVID() {
-    return new DemoVideo1;
-}
-
-namespace DummyDemoVideo1 {
-    bool dummybool = VideoInputDevice::RegisterVID("VID://Demo", &CreateDemoVID);
-};
-
-DemoVideo1::DemoVideo1() {
-    m_Width = 200;
-    m_Height = 100;
-    m_ColorFormat = vcfBGR24;
-}
-
-DemoVideo1::~DemoVideo1() {
-}
-
-void DemoVideo1::LoadCurrentFrame() {
-    unsigned long ticks = syGetTicks() / 5;
-    long x, y;
-    for (y = 0; y < (int)(m_Bitmap->GetHeight()); ++y) {
-        for (x = 0; x < (int)(m_Bitmap->GetWidth()); ++x) {
-            unsigned long pixel = (y * y + (x * x) + ticks) & 255;
-            m_Bitmap->SetPixel(x, y, pixel);
-        }
-    }
-}
-
-// *** End DemoVideo1 code ***
-
-// *** Begin wxVideoOutputDevice code ***
-
-wxVideoOutputDevice::wxVideoOutputDevice(wxVideoPanel* panel) : VideoOutputDevice(),
-        m_Panel(panel)
-{
-}
-
-wxVideoOutputDevice::~wxVideoOutputDevice() {
-}
-
-bool wxVideoOutputDevice::Connect() {
-    // First, let's set the width and height according to the panel's data
-    wxSize tmpsize = m_Panel->GetSize();
-
-    m_ColorFormat = vcfBGR24;
-    m_Width = tmpsize.GetWidth();
-    m_Height = tmpsize.GetHeight();
-    return true;
-}
-
-bool wxVideoOutputDevice::AllocateResources() {
-    return VideoOutputDevice::AllocateResources();
-}
-
-void wxVideoOutputDevice::Clear() {
-    VideoOutputDevice::Clear();
-}
-
-void wxVideoOutputDevice::FreeResources() {
-    VideoOutputDevice::FreeResources();
-}
-
-bool wxVideoOutputDevice::ChangeDeviceSize(unsigned int newwidth, unsigned int newheight) {
-    return true;
-}
-
-void wxVideoOutputDevice::RenderVideoData(const syBitmap* bitmap) {
-    if (m_Width == 0 || m_Height == 0) {
-        return;
-    }
-    if(m_Panel) {
-        m_Panel->LoadData(bitmap); // Copy the data to the wxPanel's internal bitmap
-    }
-}
-
-void wxVideoOutputDevice::Detach() {
-    ShutDown();
-    m_Panel = 0;
-}
 
 // *** Begin wxVideoPanel code ***
 
@@ -147,12 +45,14 @@ wxVideoPanel::wxVideoPanel(wxWindow *parent) : wxPanel(parent),
         )
 {
     m_Bitmap = new syBitmap();
-    m_Video = new wxVideoOutputDevice(this);
+    m_Video = new VideoOutputDevice();
+    m_Video->SetBitmapSink(this);
     m_Video->Init();
 }
 
 wxVideoPanel::~wxVideoPanel() {
-    m_Video->Detach();
+    m_Video->ShutDown();
+    m_Video->SetBitmapSink(0);
     m_Video = 0;
     // We'll let the static class AVDeviceRegistry take care of the deletion.
     // We do this because the InputMonitor is managed by PlaybackManager, and it still has access to
@@ -177,18 +77,21 @@ void wxVideoPanel::OnPaint(wxPaintEvent &event) {
     unsigned int h = size.GetHeight();
     sySafeMutexLocker lock(*(m_Bitmap->m_Mutex));
     if (lock.IsLocked()) {
+        wxPaintDC dc(this); // Required by wxWindow::OnPaint()
+        wxClientDC cdc(this); // This is what we'll really use for the painting.
         if (w > 0 && h > 0 && m_Video && m_Video->IsOk() && m_Bitmap->GetBuffer()) {
             // Video is created, active and available. Let's play our current bitmap.
+            wxMemoryDC mdc;
             wxBitmap bmp(wxImage(w, h, m_Bitmap->GetBuffer(), true));
             lock.Unlock();
-            wxBufferedPaintDC dc(this, bmp);
+            mdc.SelectObject(bmp);
+            cdc.Blit(0, 0, w, h, &mdc, 0, 0);
         } else {
             lock.Unlock();
             // Video has not yet been created. Let's paint a black bitmap.
-            wxPaintDC pdc(this);
             wxBrush mybrush(*wxBLACK, wxSOLID);
-            pdc.SetBackground(mybrush);
-            pdc.Clear();
+            cdc.SetBackground(mybrush);
+            cdc.Clear();
         }
     }
 }
@@ -201,6 +104,7 @@ void wxVideoPanel::OnIdle(wxIdleEvent &event) {
     if (m_BufferChanged) {
         m_BufferChanged = false;
         Refresh();
+        Update();
     }
 }
 
@@ -235,6 +139,7 @@ void wxVideoPanel::OnSize(wxSizeEvent& event) {
     }
     if (result) {
         Refresh();
+        Update();
     }
 }
 
@@ -248,6 +153,32 @@ void wxVideoPanel::FlagForRepaint() {
     // wake up the main thread.
 }
 
-wxVideoOutputDevice* wxVideoPanel::GetVideo() {
+VideoOutputDevice* wxVideoPanel::GetVideo() {
     return m_Video;
+}
+
+unsigned int wxVideoPanel::GetWidth() const {
+    int w,h;
+    GetSize(&w,&h);
+    if(w < 0) return 0;
+    return w;
+}
+
+unsigned int wxVideoPanel::GetHeight() const  {
+    int w,h;
+    GetSize(&w,&h);
+    if(h < 0) return 0;
+    return h;
+}
+
+VideoColorFormat wxVideoPanel::GetColorFormat() const  {
+    return m_NativeFormat;
+}
+
+int wxVideoPanel::GetTop() const  {
+    return 0;
+}
+
+int wxVideoPanel::GetLeft() const  {
+    return 0;
 }

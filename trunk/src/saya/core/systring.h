@@ -207,6 +207,12 @@ class syString {
         syString& operator<<(const unsigned int input);
 
         /** Stream-like concatenation. */
+        syString& operator<<(const long input);
+
+        /** Stream-like concatenation. */
+        syString& operator<<(const unsigned long input);
+
+        /** Stream-like concatenation. */
         syString& operator<<(const long long input);
 
         /** Stream-like concatenation. */

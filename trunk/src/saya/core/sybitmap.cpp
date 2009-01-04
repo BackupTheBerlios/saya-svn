@@ -525,3 +525,10 @@ void syBitmap::CopyPixel(unsigned char* src,unsigned char* dst,VideoColorFormat 
 unsigned long syBitmap::ConvertPixel(unsigned long pixel,VideoColorFormat sourcefmt,VideoColorFormat destfmt) {
     return syBitmapCopier::ConvertPixel(pixel,sourcefmt,destfmt);
 }
+
+/** Makes a copy of another syBitmap. */
+void syBitmap::LoadData(const syBitmap* bitmap) {
+    if(!bitmap || !this) return;
+    CopyFrom(bitmap);
+}
+

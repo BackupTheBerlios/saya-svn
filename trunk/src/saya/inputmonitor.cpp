@@ -61,61 +61,63 @@ AVPlayer::Data::~Data() {
 }
 
 void AVPlayer::Data::OnStop(AVPlayerEvent& event) {
-    DebugLog("You pressed Stop.");
+    m_Parent->Stop();
 }
 
 void AVPlayer::Data::OnPlay(AVPlayerEvent& event) {
-    DebugLog("You pressed Play.");
     m_Parent->Play(1.0, 0, false); // Speed, duration, muted
 }
 
 void AVPlayer::Data::OnPause(AVPlayerEvent& event) {
     m_Parent->Pause();
-    DebugLog("You pressed Pause.");
 }
 
 void AVPlayer::Data::OnGotoFirstFrame(AVPlayerEvent& event) {
     m_Parent->Pause();
     m_Parent->Seek(0);
-    DebugLog("You pressed [<.");
+    m_Parent->Snapshot();
 }
 
 void AVPlayer::Data::OnGotoLastFrame(AVPlayerEvent& event) {
     m_Parent->Pause();
     m_Parent->Seek(0, true);
-    DebugLog("You pressed >].");
+    m_Parent->Snapshot();
 }
 
 void AVPlayer::Data::OnGotoNextFrame(AVPlayerEvent& event) {
+    m_Parent->Pause();
     m_Parent->SeekFrameRelative(1);
-    DebugLog("You pressed >.");
+    m_Parent->Snapshot();
 }
 
 void AVPlayer::Data::OnGotoPrevFrame(AVPlayerEvent& event) {
+    m_Parent->Pause();
     m_Parent->SeekFrameRelative(-1);
-    DebugLog("You pressed <.");
+    m_Parent->Snapshot();
 }
 
 void AVPlayer::Data::OnFastForward(AVPlayerEvent& event) {
-    DebugLog("You pressed >>.");
     m_Parent->Play(2.0);
 }
 
 void AVPlayer::Data::OnFastRewind(AVPlayerEvent& event) {
-    DebugLog("You pressed <<.");
     m_Parent->Play(-2.0);
 }
 
 void AVPlayer::Data::OnGotoSpecificFrame(AVPlayerEvent& event) {
-    DebugLog("You wanted to go to a specific frame.");
+    m_Parent->Pause();
+    m_Parent->Snapshot();
+    // TODO: Implement AVPlayer::Data::OnGotoSpecificFrame()
 }
 
 void AVPlayer::Data::OnGotoSpecificTime(AVPlayerEvent& event) {
-    DebugLog("You wanted to go to a specific time.");
+    m_Parent->Pause();
+    m_Parent->Snapshot();
+    // TODO: Implement AVPlayer::Data::OnGotoSpecificTime()
 }
 
 void AVPlayer::Data::OnSetSpeed(AVPlayerEvent& event) {
-    DebugLog("You wanted to set the playback speed.");
+    // TODO: Implement AVPlayer::Data::OnSetSpeed()
 }
 
 // ------------------

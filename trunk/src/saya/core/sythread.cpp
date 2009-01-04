@@ -392,6 +392,20 @@ unsigned long syGetTicks() {
     return result;
 }
 
+unsigned long long syGetNanoTicks() {
+    unsigned long long result;
+    #ifdef __Win32__
+        result = GetAVTimeTFromMilliSeconds(GetTickCount());
+    #else
+        struct timeval mytime;
+        gettimeofday(&mytime, NULL);
+        result = (unsigned long)(mytime.tv_sec - sySecondsAtInit)*1000000000LL;
+        result += (((unsigned long long)(mytime.tv_usec)) * 1000);
+    #endif
+    return result;
+}
+
+
 // ---------------------------
 // End timing functions (mine)
 // ---------------------------

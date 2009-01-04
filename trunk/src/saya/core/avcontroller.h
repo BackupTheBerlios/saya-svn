@@ -293,6 +293,9 @@ class AVController {
         /** Thread Id for Video Out */
         unsigned long GetVideoOutThreadId();
 
+        /** Sets the maximum framerate, in frames per second. */
+        static void SetMaximumFrameRate(float maxframerate);
+
     protected:
 
         /** Initializes the devices */

@@ -95,6 +95,7 @@ VideoOutputDevice::VideoOutputDevice() : AVDevice(),
 m_ColorFormat(vcfRGB32),
 m_Width(0),
 m_Height(0),
+m_Sink(0),
 m_ChangingSize(false)
 {
     m_IsVideo = true;
@@ -106,8 +107,27 @@ VideoOutputDevice::~VideoOutputDevice() {
     delete m_Data;
 }
 
+void VideoOutputDevice::SetBitmapSink(syBitmapSink* sink) {
+    if(IsOk()) return;
+    m_Sink = sink;
+    if(m_Sink) {
+        m_Width = sink->GetWidth();
+        m_Height = sink->GetHeight();
+        m_ColorFormat = sink->GetColorFormat();
+    } else {
+        // Defaults.
+        m_Width = 0;
+        m_Height = 0;
+        m_ColorFormat = vcfRGB32;
+    }
+}
+
 bool VideoOutputDevice::InnerMustAbort() const {
     return (AVDevice::InnerMustAbort() || m_ChangingSize);
+}
+
+VideoColorFormat VideoOutputDevice::GetColorFormat() const {
+    return m_ColorFormat;
 }
 
 unsigned int VideoOutputDevice::GetWidth() const {
@@ -142,8 +162,9 @@ bool VideoOutputDevice::ChangeSize(unsigned int newwidth,unsigned int newheight)
 }
 
 bool VideoOutputDevice::ChangeDeviceSize(unsigned int newwidth,unsigned int newheight) {
-    // This is a stub
-    return false;
+    m_Width = newwidth;
+    m_Height = newheight;
+    return true;
 }
 
 void VideoOutputDevice::LoadVideoData(const syBitmap* bitmap) {
@@ -160,6 +181,11 @@ void VideoOutputDevice::LoadVideoData(const syBitmap* bitmap) {
     }
 }
 
+void VideoOutputDevice::LoadData(const syBitmap* bitmap) {
+    LoadVideoData(bitmap);
+}
+
+
 void VideoOutputDevice::FlushVideoData() {
     if(!IsOk()) return;
     if(MustAbort()) return;
@@ -174,10 +200,15 @@ void VideoOutputDevice::FlushVideoData() {
 }
 
 bool VideoOutputDevice::Connect() {
-    // This is a stub
-    m_Width = 640;
-    m_Height = 480;
-    m_ColorFormat = vcfRGB32;
+    if(!m_Sink) {
+        m_Width = 0;
+        m_Height = 0;
+        m_ColorFormat = vcfRGB32;
+    } else {
+        m_Width = m_Sink->GetWidth();
+        m_Height = m_Sink->GetHeight();
+        m_ColorFormat = m_Sink->GetColorFormat();
+    }
     return true;
 }
 
@@ -204,7 +235,12 @@ void VideoOutputDevice::Clear() {
 }
 
 void VideoOutputDevice::RenderVideoData(const syBitmap* bitmap) {
-    // This is a stub
+    if (m_Width == 0 || m_Height == 0) {
+        return;
+    }
+    if(m_Sink) {
+        m_Sink->LoadData(bitmap); // Copy the data to the wxPanel's internal bitmap
+    }
 }
 
 bool VideoOutputDevice::IsEncoder() const {

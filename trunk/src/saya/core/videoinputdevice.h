@@ -17,7 +17,7 @@
 
 class sySafeMutex;
 class syBitmap;
-class VideoOutputDevice;
+class syBitmapSink;
 class VideoInputDevice;
 
 typedef VideoInputDevice* (*VIDFactoryFunction)();
@@ -79,21 +79,12 @@ class VideoInputDevice : public AVDevice {
         /** Gets the resource's framerate. */
         float GetFramesPerSecond() const;
 
-        /** @brief Sends the current frame to the specified VideoOutputDevice.
+        /** @brief Sends the current frame to the specified syBitmapSink.
          *
          * This routine just calls LoadCurrentFrame() and then
-         * calls device->LoadVideoData(this->m_Bitmap).
+         * calls sink->LoadVideoData(this->m_Bitmap).
          */
-        void SendCurrentFrame(VideoOutputDevice* device);
-
-        /** @brief Sends the current frame to an external bitmap.
-         *
-         * This routine just calls LoadCurrentFrame() and then
-         * copies m_Bitmap to the destination bitmap. This is done
-         * by design to always keep a buffer of the current frame.
-         * @warning SendCurrentFrame will lock the bitmap while sending the data.
-         */
-        void SendCurrentFrame(syBitmap* bitmap);
+        void SendCurrentFrame(syBitmapSink* sink);
 
         /** @brief Gets the frame corresponding to the given time.
          *  @param time Instant in time where we want to get the frame index.

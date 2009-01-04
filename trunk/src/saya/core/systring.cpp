@@ -428,6 +428,18 @@ syString& syString::operator<<(const unsigned int input) {
     return operator+=(syString(buf));
 }
 
+syString& syString::operator<<(const long input) {
+    char buf[64];
+    snprintf(buf, 63, "%ld", input);
+    return operator+=(syString(buf));
+}
+
+syString& syString::operator<<(const unsigned long input) {
+    char buf[64];
+    snprintf(buf, 63, "%lu", input);
+    return operator+=(syString(buf));
+}
+
 syString& syString::operator<<(const long long input) {
     char buf[64];
     snprintf(buf, 63, "%lld", input);

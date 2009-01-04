@@ -19,11 +19,17 @@ typedef unsigned long long avtime_t;
 const avtime_t AVTIME_T_SCALE = 1000000000; // One avtime_t = 1 nanosecond
 
 inline unsigned long GetMilliSecondsFromAVTimeT(avtime_t time) {
+    if(!time) return 0;
     time /= (AVTIME_T_SCALE / 1000);
     if(!time) {
         time = 1;
     }
     return (unsigned long)time;
+}
+
+inline avtime_t GetAVTimeTFromMilliSeconds(unsigned long time) {
+    time *= (AVTIME_T_SCALE / 1000);
+    return time;
 }
 
 #endif

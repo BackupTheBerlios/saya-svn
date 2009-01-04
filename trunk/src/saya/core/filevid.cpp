@@ -90,7 +90,7 @@ bool FileVID::AllocateResources() {
         // This way we won't have to deal with copying the data.
         result = m_Data->m_VirtualVID->Init();
         m_CurrentTime = m_Data->m_VirtualVID->GetPos();
-        m_CurrentTime = m_Data->m_VirtualVID->GetLength();
+        m_VideoLength = m_Data->m_VirtualVID->GetLength();
         m_Width = m_Data->m_VirtualVID->GetWidth();
         m_Height = m_Data->m_VirtualVID->GetHeight();
         m_ColorFormat = m_Data->m_VirtualVID->GetColorFormat();
