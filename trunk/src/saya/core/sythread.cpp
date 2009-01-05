@@ -1453,7 +1453,7 @@ bool syThread::SelfPause() {
         m_Data->m_ResumeCondition.Wait();
         m_Data->m_ThreadStatus = syTHREADSTATUS_RUNNING;
     }
-    return (!gs_ThreadsOk || m_Data->m_StopRequested);
+    return (gs_ThreadsOk && !m_Data->m_StopRequested);
 }
 
 bool syThread::TestDestroy() {

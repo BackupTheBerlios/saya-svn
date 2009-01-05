@@ -546,9 +546,8 @@ void AVControllerData::PlaybackVideoInLoop() {
     if(m_StutterMode && m_AudioEnabled) {
         m_CurrentAudioPos = curaudiopos = m_AudioIn->Seek(curvideopos);
     }
-    bool testunpause = false;
     while(!syThread::MustAbort() && m_VideoEnabled && !m_Stop && m_VideoIn && m_VideoOut) {
-        while(m_Pause && !testunpause) {
+        while(m_Pause) {
             if(m_Stop || syThread::MustAbort() || !m_VideoEnabled || !m_VideoIn || !m_VideoOut) return;
 
             // Save the last position
@@ -559,7 +558,6 @@ void AVControllerData::PlaybackVideoInLoop() {
             DebugLog("Pausing Video Playback thread...");
             if(!m_VideoInThread->SelfPause()) return;
             DebugLog("Resuming Video Playback thread...");
-            testunpause = true;
 
             // Restore the last position
             starttime = syGetNanoTicks();
@@ -727,6 +725,9 @@ bool AVControllerData::StartWorkerThreads() {
         result = true;
         break;
     }while(false);
+    if(!result) {
+        Stop(); // Must stop all threads if there was an error.
+    }
 
     return result;
 }
@@ -911,8 +912,8 @@ void AVController::EncodeAudio(float speed, avtime_t duration) {
 
 // IMPORTANT! Before this function returns, all threads must have already been stopped!
 void AVController::Pause() {
-    m_Data->Pause();
     if(!syThread::IsMain()) { return; } // This function must be called by the main thread ONLY!
+    m_Data->Pause();
     if(!IsVideoEncoder()) {
         if(m_Data->m_VideoIn && m_Data->m_VideoOut) {
             // After pausing, always send a snapshot of the current frame to the screen
