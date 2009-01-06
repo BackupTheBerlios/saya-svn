@@ -97,10 +97,10 @@ bool wxSayaApp::Data::LoadXRCResources() {
     bool result = false;
     wxXmlResource* rsc = wxXmlResource::Get();
     do {
-        if(!rsc->Load(_T("resources/mainmenu.xrc"))) break;
-        if(!rsc->Load(_T("resources/welcome.xrc"))) break;
-        if(!rsc->Load(_T("resources/newproject.xrc"))) break;
-        if(!rsc->Load(_T("resources/pickname.xrc"))) break;
+        if(!rsc->Load(_T("resources/deprecated/mainmenu.xrc"))) break;
+        if(!rsc->Load(_T("resources/deprecated/welcome.xrc"))) break;
+        if(!rsc->Load(_T("resources/deprecated/newproject.xrc"))) break;
+        if(!rsc->Load(_T("resources/deprecated/pickname.xrc"))) break;
         result = true;
     }while(false);
     return result;

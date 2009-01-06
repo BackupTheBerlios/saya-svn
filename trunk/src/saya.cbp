@@ -70,18 +70,16 @@
 		<Unit filename="main.cpp" />
 		<Unit filename="main.h" />
 		<Unit filename="plugins/demovideo.cpp" />
-		<Unit filename="resources/debuglog.fbp">
-			<Option target="Debug" />
-		</Unit>
-		<Unit filename="resources/mainmenu.xrc" />
-		<Unit filename="resources/newproject.fbp" />
-		<Unit filename="resources/newproject.xrc" />
-		<Unit filename="resources/pickname.xrc" />
-		<Unit filename="resources/saya_welcome.fbp" />
-		<Unit filename="resources/welcome.xrc" />
-		<Unit filename="resources/wxplaybackcontrolpanel.fbp">
-			<Option target="Debug" />
-		</Unit>
+		<Unit filename="resources/deprecated/README" />
+		<Unit filename="resources/deprecated/debuglog.fbp" />
+		<Unit filename="resources/deprecated/mainmenu.xrc" />
+		<Unit filename="resources/deprecated/newproject.fbp" />
+		<Unit filename="resources/deprecated/newproject.xrc" />
+		<Unit filename="resources/deprecated/pickname.fbp" />
+		<Unit filename="resources/deprecated/pickname.xrc" />
+		<Unit filename="resources/deprecated/saya_welcome.fbp" />
+		<Unit filename="resources/deprecated/welcome.xrc" />
+		<Unit filename="resources/deprecated/wxplaybackcontrolpanel.fbp" />
 		<Unit filename="saya/core/aborter.cpp">
 			<Option weight="10" />
 		</Unit>
