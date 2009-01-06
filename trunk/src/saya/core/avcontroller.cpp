@@ -546,6 +546,9 @@ void AVControllerData::PlaybackVideoInLoop() {
     if(m_StutterMode && m_AudioEnabled) {
         m_CurrentAudioPos = curaudiopos = m_AudioIn->Seek(curvideopos);
     }
+    DebugLog(syString("Current Frame: ") << curvideoframe);
+    DebugLog(syString("Current Video Pos: ") << curvideopos);
+
     while(!syThread::MustAbort() && m_VideoEnabled && !m_Stop && m_VideoIn && m_VideoOut) {
         while(m_Pause) {
             if(m_Stop || syThread::MustAbort() || !m_VideoEnabled || !m_VideoIn || !m_VideoOut) return;
@@ -556,6 +559,8 @@ void AVControllerData::PlaybackVideoInLoop() {
                 m_CurrentAudioPos = curaudiopos = curvideopos;
             }
             DebugLog("Pausing Video Playback thread...");
+            DebugLog(syString("Current Frame: ") << curvideoframe);
+            DebugLog(syString("Current Video Pos: ") << curvideopos);
             if(!m_VideoInThread->SelfPause()) return;
             DebugLog("Resuming Video Playback thread...");
 
@@ -564,6 +569,8 @@ void AVControllerData::PlaybackVideoInLoop() {
             if(m_StutterMode && m_AudioEnabled) {
                 m_CurrentAudioPos = curaudiopos = m_AudioIn->Seek(curvideopos);
             }
+            DebugLog(syString("Current Frame: ") << curvideoframe);
+            DebugLog(syString("Current Video Pos: ") << curvideopos);
         }
         curvideoframe = m_VideoIn->GetFrameIndex(curvideopos);
         if(curvideoframe != nextvideoframe) {
@@ -580,9 +587,11 @@ void AVControllerData::PlaybackVideoInLoop() {
             }
             m_VideoIn->SendCurrentFrame(m_VideoOut);
             curvideoframe = nextvideoframe;
+            DebugLog(syString("Current Frame: ") << curvideoframe);
+            DebugLog(syString("Current Video Pos: ") << curvideopos);
         } else {
             // syMilliSleep(MinimumPlaybackDelay); // This will prevent us from surpassing the maximum framerate.
-            // syMilliSleep(1); // Until the framerate/timing issue is fixed, this will have to suffice.
+            syMilliSleep(1); // Until the framerate/timing issue is fixed, this will have to suffice.
         }
 
         // Calculate the next video position based on the current time.
