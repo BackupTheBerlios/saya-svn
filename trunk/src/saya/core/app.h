@@ -44,7 +44,7 @@ class syApp
         static void ShutDown();
 
         /** Constructor. */
-        syApp();
+        syApp(int argc, char** argv);
 
         /** @brief Initializer. Call this method to start up the application.
          *  Start() calls OnInit(), and if the result was false, the object is destroyed immediately.
@@ -56,7 +56,7 @@ class syApp
          *  and is running, Start() will exit, returning -2.
          *  @return -1 if OnInit() returned false; otherwise it returns Result.
          */
-        int Start(int argc, const char** argv);
+        int Start();
 
         static syConfig* GetConfig();
         /** @brief Creates a config handler.
@@ -84,7 +84,7 @@ class syApp
         /** @brief UI Initializer (called by Init()). To be overriden by your UI application.
          *  @return Set to true if the application was initialized correctly; false if there was an error.
          */
-        virtual bool OnInit(int argc, const char** argv);
+        virtual bool OnInit();
 
         /** Exits the main loop on the next iteration (if now == false), or right now (if now == true). */
         virtual void Exit(bool now = false) = 0;
@@ -147,6 +147,8 @@ class syApp
 
     protected:
         static int Result;
+        int m_argc;
+        char** m_argv;
 };
 
 #endif

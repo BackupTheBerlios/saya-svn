@@ -11,33 +11,25 @@
 
 
 #include "../saya/core/debuglog.h"
-#include <wx/frame.h>
 
 class syString;
-class wxString;
-class wxCloseEvent;
-class wxTextCtrl;
+class QString;
 
-class AppDebugLog : public wxFrame, public syDebugLog {
-
-    protected:
-		wxTextCtrl* m_log;
-
+class AppDebugLog : public syDebugLog {
     public:
-
         AppDebugLog();
 
         virtual void DebugLog(const char* msg);
 
         virtual void DebugLog(const syString& msg);
 
-        void DebugLog(const wxString& msg);
+        void DebugLog(const QString& msg);
 
         virtual ~AppDebugLog();
     private:
-        void OnClose(wxCloseEvent& event);
-        void OnIdle(wxIdleEvent& event);
-        DECLARE_EVENT_TABLE()
+        class Data;
+        friend class Data;
+        Data* m_Data;
 };
 
 #endif

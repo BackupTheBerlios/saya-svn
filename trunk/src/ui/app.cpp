@@ -7,25 +7,15 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
-#ifdef WX_PRECOMP
-#include "wx_pch.h"
-#endif
+#include <qapplication.h>
+#include <qmainwindow.h>
+#include <qstatusbar.h>
+#include <qmessagebox.h>
+#include <qfiledialog.h>
+#include <qstringlist.h>
+#include <qtextcodec.h>
 
-#ifdef __BORLANDC__
-#pragma hdrstop
-#endif //__BORLANDC__
-
-#ifndef WX_PRECOMP
-    #include <wx/fs_zip.h>
-    #include <wx/fs_mem.h>
-    #include <wx/xrc/xmlres.h>
-    #include <wx/app.h>
-    #include <wx/log.h>
-    #include <wx/image.h>
-    #include <wx/msgdlg.h>
-    #include <wx/filedlg.h>
-#endif
-
+#include "../saya/core/sentryfuncs.h"
 #include "../saya/core/systring.h"
 #include "../saya/core/intl.h"
 #include "../saya/core/config.h"
@@ -40,25 +30,29 @@
 #include "debuglog.h"
 #include "config.h"
 
-int idsyEventpassed = wxNewId();
+int idsyEventpassed = QEvent::registerEventType();
 
-extern wxFrame* CreateMainFrame();
-
-class wxMyApp : public wxApp {
+class QSayaEvent : public QEvent {
     public:
-        void OnSayaEvent(wxCommandEvent& event);
-        DECLARE_EVENT_TABLE()
+        Type type() const { return static_cast<Type>(idsyEventpassed); }
+        virtual ~QSayaEvent();
 };
 
-BEGIN_EVENT_TABLE(wxMyApp, wxApp)
-    EVT_MENU(idsyEventpassed, wxMyApp::OnSayaEvent)
-END_EVENT_TABLE()
+class QMainWindow;
+extern QMainWindow* CreateMainFrame();
 
-void wxMyApp::OnSayaEvent(wxCommandEvent& event) {
-    syEvtQueue::ProcessNextEvent();
+class qMyApp : public QApplication {
+    public:
+        qMyApp(int & argc, char ** argv ) : QApplication(argc, argv) {}
+    protected:
+        virtual void customEvent(QEvent *event);
+};
+
+void qMyApp::customEvent(QEvent *event) {
+    if(event && static_cast<int>(event->type()) == idsyEventpassed) {
+        syEvtQueue::ProcessNextEvent();
+    }
 }
-
-IMPLEMENT_APP_NO_MAIN(wxMyApp)
 
 const char* APP_NAME = "SayaVideoEditor";
 const char* APP_VENDOR = "Rick Garcia";
@@ -66,89 +60,96 @@ const char* APP_SHOWNAME = "Saya";
 const char* APP_SHOWOFFNAME = "SayaVE Ain't Yet Another Video Editor";
 
 // ---------------------
-// begin wxSayaApp::Data
+// begin qSayaApp::Data
 // ---------------------
 
-class wxSayaApp::Data {
+class qSayaApp::Data {
     public:
         Data();
         ~Data();
-        bool LoadXRCResources();
-        int wxResult;
+        bool LoadResources();
         syDebugLog* m_DebugLog;
         void* m_TopWindow;
+        qMyApp* m_App;
+        volatile bool m_MainLoopRunning;
 };
 
-wxSayaApp::Data::Data() :
+qSayaApp::Data::Data() :
 m_DebugLog(0),
-m_TopWindow(0)
+m_TopWindow(0),
+m_App(0),
+m_MainLoopRunning(false)
 {
-    int dummy = 0;
-    wxResult = wxEntryStart(dummy, (char**)0);
+    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+    QCoreApplication::setOrganizationName(APP_VENDOR);
+    QCoreApplication::setApplicationName(APP_NAME);
 }
 
-wxSayaApp::Data::~Data() {
+qSayaApp::Data::~Data() {
     PlaybackManager::Unload();
     ProjectManager::Unload();
-    wxEntryCleanup();
+    delete m_App;
+    m_App = 0;
 }
 
-bool wxSayaApp::Data::LoadXRCResources() {
+bool qSayaApp::Data::LoadResources() {
     bool result = false;
-    wxXmlResource* rsc = wxXmlResource::Get();
-    do {
-        if(!rsc->Load(_T("resources/deprecated/mainmenu.xrc"))) break;
-        if(!rsc->Load(_T("resources/deprecated/welcome.xrc"))) break;
-        if(!rsc->Load(_T("resources/deprecated/newproject.xrc"))) break;
-        if(!rsc->Load(_T("resources/deprecated/pickname.xrc"))) break;
-        result = true;
-    }while(false);
+//    wxXmlResource* rsc = wxXmlResource::Get();
+//    do {
+//        if(!rsc->Load(_T("resources/deprecated/mainmenu.xrc"))) break;
+//        if(!rsc->Load(_T("resources/deprecated/welcome.xrc"))) break;
+//        if(!rsc->Load(_T("resources/deprecated/newproject.xrc"))) break;
+//        if(!rsc->Load(_T("resources/deprecated/pickname.xrc"))) break;
+//        result = true;
+//    }while(false);
     return result;
 }
 
 // -------------------
-// end wxSayaApp::Data
+// end qSayaApp::Data
 // -------------------
 
 // ---------------
-// begin wxSayaApp
+// begin qSayaApp
 // ---------------
 
-wxSayaApp::wxSayaApp() :
-m_Data(new Data())
+qSayaApp::qSayaApp(int argc, char** argv) :
+syApp(argc, argv),
+m_Data(new Data)
 {
+    m_Data->m_App = new qMyApp(m_argc, m_argv);
 }
 
-wxSayaApp::~wxSayaApp() {
+qSayaApp::~qSayaApp() {
     delete m_Data;
 }
 
-const char* wxSayaApp::GetApplicationName() const {
+const char* qSayaApp::GetApplicationName() const {
     return APP_NAME;
 }
 
-const char* wxSayaApp::GetApplicationDisplayName() const {
+const char* qSayaApp::GetApplicationDisplayName() const {
     return APP_SHOWNAME;
 }
 
-const char* wxSayaApp::GetApplicationVendor() const {
+const char* qSayaApp::GetApplicationVendor() const {
     return APP_VENDOR;
 }
 
-const char* wxSayaApp::GetApplicationShowOffName() const {
+const char* qSayaApp::GetApplicationShowOffName() const {
     return APP_SHOWOFFNAME;
 }
 
-syConfig* wxSayaApp::CreateConfig() const {
-    return new wxsyConfig(GetApplicationName());
+syConfig* qSayaApp::CreateConfig() const {
+    return new QsyConfig(GetApplicationName());
 }
 
-syDebugLog* wxSayaApp::CreateDebugLog() const {
+syDebugLog* qSayaApp::CreateDebugLog() const {
     syDebugLog* log = m_Data->m_DebugLog = new AppDebugLog;
     return log;
 }
 
-bool wxSayaApp::OnInit(int argc, const char** argv) {
+bool qSayaApp::OnInit() {
     bool result = false;
     do {
         // Init Project Manager and Playback Manager.
@@ -166,19 +167,19 @@ bool wxSayaApp::OnInit(int argc, const char** argv) {
         }
 
 
-        DebugLog(_("Initializing File system handlers..."));
-        wxFileSystem::AddHandler(new wxZipFSHandler);
-        wxFileSystem::AddHandler(new wxMemoryFSHandler);
-        wxImage::AddHandler(new wxPNGHandler);
-        DebugLog(_("Initializing XML Resource handlers..."));
-        wxXmlResource::Get()->InitAllHandlers();
+//        DebugLog(_("Initializing File system handlers..."));
+//        wxFileSystem::AddHandler(new wxZipFSHandler);
+//        wxFileSystem::AddHandler(new wxMemoryFSHandler);
+//        wxImage::AddHandler(new wxPNGHandler);
+//        DebugLog(_("Initializing XML Resource handlers..."));
+//        wxXmlResource::Get()->InitAllHandlers();
 
-        DebugLog(_("Initializing Image handlers..."));
-        wxInitAllImageHandlers();
+//        DebugLog(_("Initializing Image handlers..."));
+//        wxInitAllImageHandlers();
 
-        DebugLog(_("Loading resources..."));
-        if(!m_Data->LoadXRCResources())
-            break;
+//        DebugLog(_("Loading resources..."));
+//        if(!m_Data->LoadResources())
+//            break;
 
         DebugLog(_("Creating main frame..."));
         CreateMainFrame();
@@ -190,43 +191,114 @@ bool wxSayaApp::OnInit(int argc, const char** argv) {
 }
 
 /** Exits the main loop on the next iteration. */
-void wxSayaApp::Exit(bool now) {
+void qSayaApp::Exit(bool now) {
     AVDevice::ShutDownAll();
-    if(wxTheApp) {
+    if(qApp) {
         if(now) {
-            wxTheApp->Exit();
-        } else {
-            wxTheApp->ExitMainLoop();
+            QCoreApplication::removePostedEvents (qApp);
+            DebugLog(_("Good bye."));
         }
+        qApp->exit();
     }
-    DebugLog(_("Good bye."));
 }
 
-void wxSayaApp::OnExit() {
+void qSayaApp::OnExit() {
     ProjectManager::Get()->SaveConfig();
     ProjectManager::Get()->CloseProject(true);
-    wxTheApp->OnExit();
+    // The debug log is a QWidget, and it must be deleted before ~QApplication() is called. So we do it here.
+    delete m_Data->m_DebugLog;
+    m_Data->m_DebugLog = 0;
 }
 
-void wxSayaApp::Run() {
-    Result = 0;
-    wxTheApp->MainLoop();
+void qSayaApp::Run() {
+    syBoolSetter setter(m_Data->m_MainLoopRunning, true);
+    Result = m_Data->m_App->exec();
 }
 
-int wxSayaApp::MessageBox(const syString& message, const syString& caption,unsigned int flags,void* parent) const {
-    return wxMessageBox(message, caption, flags, static_cast<wxWindow*>(parent));
+int qSayaApp::MessageBox(const syString& message, const syString& caption,unsigned int flags,void* parent) const {
+    int qtbuttonflags = 0;
+    QMessageBox::StandardButton defaultbutton = QMessageBox::Ok;
+
+    // Sets the button flags
+    if(flags & syOK) {
+        qtbuttonflags |= QMessageBox::Ok;
+        defaultbutton = QMessageBox::Ok;
+    }
+    if(flags & syCANCEL) { qtbuttonflags |= QMessageBox::Cancel; }
+    if(flags & syYES) {
+        qtbuttonflags |= QMessageBox::Yes;
+        if(!defaultbutton) defaultbutton = QMessageBox::Yes;
+    }
+    if(flags & syNO) { qtbuttonflags |= QMessageBox::No; }
+
+    // Sets the default button temporary variable
+    if((flags & syNO_DEFAULT) && (flags & syNO) && !(flags & syCANCEL)) {
+        defaultbutton = QMessageBox::No;
+    } else if((flags & syCANCEL_DEFAULT) && (flags & syCANCEL)) {
+            defaultbutton = QMessageBox::Cancel;
+    }
+
+    QMessageBox::Icon theicon = QMessageBox::NoIcon;
+    switch(flags & syICON_MASK) {
+        case syICON_EXCLAMATION:
+            theicon = QMessageBox::Warning;
+        break;
+        case syICON_ERROR:
+            theicon = QMessageBox::Critical;
+        break;
+        case syICON_QUESTION:
+            theicon = QMessageBox::Question;
+        break;
+        case syICON_INFORMATION:
+            theicon = QMessageBox::Information;
+        break;
+        default:;
+    }
+
+    // Create the message box
+    QMessageBox msgbox(theicon, caption.c_str(), message.c_str(), (QMessageBox::StandardButtons)qtbuttonflags,
+        static_cast<QWidget*>(parent));
+    msgbox.setDefaultButton(defaultbutton);
+
+    // And run it.
+    int qret = msgbox.exec();
+    int ret = syOK;
+
+    switch(qret) {
+        case QMessageBox::Ok:
+            ret = syOK;
+            break;
+        case QMessageBox::Cancel:
+            ret = syCANCEL;
+            break;
+        case QMessageBox::Yes:
+            ret = syYES;
+            break;
+        case QMessageBox::No:
+            ret = syNO;
+            break;
+    }
+
+    return ret;
 }
 
-void wxSayaApp::ErrorMessageBox(const syString& message) const {
-    wxLogError(wxString(message));
+void qSayaApp::ErrorMessageBox(const syString& message) const {
+    qSayaApp::MessageBox(message.c_str(), "ERROR",syOK | syICON_ERROR, 0);
 }
 
-void wxSayaApp::LogStatus(const syString& message) const {
-    wxLogStatus(wxString(message));
+void qSayaApp::LogStatus(const syString& message) const {
+    QWidget* w = static_cast<QWidget*>(GetTopWindow());
+    QMainWindow* mw = dynamic_cast<QMainWindow*>(w);
+    if(mw) {
+        QStatusBar* sb = mw->statusBar();
+        if(sb) {
+            sb->showMessage(message);
+        }
+    }
 }
 
 
-syFileDialogResult wxSayaApp::FileSelector(
+syFileDialogResult qSayaApp::FileSelector(
     const syString& message,
     const syString& default_path,
     const syString& default_filename,
@@ -238,52 +310,63 @@ syFileDialogResult wxSayaApp::FileSelector(
     int y) const
 {
     syFileDialogResult result;
-    if(flags & syFD_MULTIPLE) {
-        wxFileDialog mydialog((wxWindow*)parent, message, default_path, default_filename, wildcard, flags, wxPoint(x, y));
-        int resultcode = mydialog.ShowModal();
-        if(resultcode == wxID_OK) {
-            wxArrayString chosenfiles;
-            mydialog.GetFilenames(chosenfiles);
-            for(unsigned int i = 0, imax = chosenfiles.GetCount(); i < imax; ++i) {
-                result.AddFile(syString(chosenfiles[i]));
-            }
+    QFileDialog mydialog(0, message.c_str(), default_path.c_str(), wildcard.c_str());
+    mydialog.setDefaultSuffix(default_extension.c_str());
+
+    // Sets accept mode
+    QFileDialog::AcceptMode acceptmode = QFileDialog::AcceptOpen;
+    if(flags & syFD_SAVE) {
+        acceptmode = QFileDialog::AcceptSave;
+    }
+
+    // Sets file mode
+    QFileDialog::FileMode filemode = QFileDialog::AnyFile;
+    if(flags & syFD_CHANGE_DIR) {
+        filemode = QFileDialog::Directory;
+    } else if(flags & syFD_FILE_MUST_EXIST) {
+        if(flags & syFD_MULTIPLE) {
+            filemode = QFileDialog::ExistingFiles;
+        } else {
+            filemode = QFileDialog::ExistingFile;
         }
-    } else {
-        syString resultingfilename(wxFileSelector(wxString(message), wxString(default_path), wxString(default_filename), wxString(default_extension), wxString(wildcard), flags, static_cast<wxWindow*>(parent), x, y));
-        if(!resultingfilename.empty()) {
-            result.AddFile(resultingfilename);
-        }
+    }
+
+    mydialog.setAcceptMode(acceptmode);
+    mydialog.setFileMode(filemode);
+    mydialog.exec();
+
+    QStringList files = mydialog.selectedFiles();
+
+    for(QStringList::iterator i = files.begin(); i != files.end(); ++i) {
+        result.AddFile(i->toUtf8().data ());
     }
     return result;
 }
 
-void wxSayaApp::SetTopWindow(void* window) {
+void qSayaApp::SetTopWindow(void* window) {
     m_Data->m_TopWindow = window;
-    if(wxTheApp) {
-        wxTheApp->SetTopWindow(static_cast<wxWindow*>(window));
-    }
 }
 
-void* wxSayaApp::GetTopWindow() const {
+void* qSayaApp::GetTopWindow() const {
     return m_Data->m_TopWindow;
 }
 
-bool wxSayaApp::IsMainLoopRunning() const {
-    return wxTheApp->IsMainLoopRunning();
+bool qSayaApp::IsMainLoopRunning() const {
+    return m_Data->m_MainLoopRunning;
 }
 
-void wxSayaApp::PostEvent(syEvtHandler* handler, syEvent& event) {
+void qSayaApp::PostEvent(syEvtHandler* handler, syEvent& event) {
     if(!handler || IsAppShuttingDown()) return;
     syEvtQueue::PostEvent(handler, event);
-    wxCommandEvent tmpevent(wxEVT_COMMAND_MENU_SELECTED, idsyEventpassed);
-    wxPostEvent(wxTheApp, tmpevent); // This will enable wxWidgets to wake up with Saya events just as with wxWidgets events.
+    QEvent* tmpevent = new QEvent(static_cast<QEvent::Type>(idsyEventpassed));
+    QCoreApplication::postEvent(qApp, tmpevent);
 }
 
 /** Wakes up the main thread to begin event processing. */
-void wxSayaApp::WakeUpIdle() {
-    wxWakeUpIdle();
+void qSayaApp::WakeUpIdle() {
+    // Qt doesn't need to wake up the main thread.
 }
 
 // -------------
-// end wxSayaApp
+// end qSayaApp
 // -------------

@@ -16,5 +16,6 @@
 #undef _
 #define _(s) gettext(s)
 #define _w(s) wxGetTranslation(_T(s))
+#define WXINTL_NO_GETTEXT_MACRO
 
 #endif

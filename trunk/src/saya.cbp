@@ -35,24 +35,18 @@
 			<Add option="-Wall" />
 			<Add option="-pipe" />
 			<Add option='[[if (PLATFORM == PLATFORM_MSW) print(_T(&quot;-mthreads -D__GNUWIN32__ -D__WXMSW__&quot;));;]]' />
-			<Add option="`wx-config --cflags`" />
-			<Add option="-DWXUSINGDLL" />
-			<Add option="-DwxUSE_UNICODE" />
 			<Add option="-DTIXML_USE_STL" />
-			<Add option="-DSY_WXSTRING_COMPATIBILITY" />
-			<Add directory="$(#wx.include)" />
-			<Add directory="$(#wx)/contrib/include" />
-			<Add directory="$(#wx)/lib/gcc_dll/mswu" />
+			<Add option="-DSY_QSTRING_COMPATIBILITY" />
+			<Add directory="$(#qt4.include)" />
+			<Add directory="$(#qt4.include)/QtGui" />
+			<Add directory="$(#qt4.include)/QtCore" />
 		</Compiler>
-		<ResourceCompiler>
-			<Add directory="$(#wx.include)" />
-			<Add directory="$(#wx)/lib/gcc_dll/mswu" />
-		</ResourceCompiler>
 		<Linker>
 			<Add option="-pipe" />
-			<Add option='[[if (PLATFORM == PLATFORM_MSW) print(_T(&quot;-mthreads -lwxmsw28u -lintl.dll&quot;));;]]' />
-			<Add option="`wx-config --libs`" />
-			<Add directory="$(#wx)/lib/gcc_dll" />
+			<Add option='[[if (PLATFORM == PLATFORM_MSW) print(_T(&quot;-mthreads -lintl.dll&quot;));;]]' />
+			<Add library="QtCore" />
+			<Add library="QtGui" />
+			<Add directory="$(#qt4.lib)" />
 		</Linker>
 		<Unit filename="LICENSE.txt" />
 		<Unit filename="drafts/high_priority_tasks.txt">
@@ -80,6 +74,7 @@
 		<Unit filename="resources/deprecated/saya_welcome.fbp" />
 		<Unit filename="resources/deprecated/welcome.xrc" />
 		<Unit filename="resources/deprecated/wxplaybackcontrolpanel.fbp" />
+		<Unit filename="resources/mainwindow.ui" />
 		<Unit filename="saya/core/aborter.cpp">
 			<Option weight="10" />
 		</Unit>
@@ -295,6 +290,7 @@
 		<Unit filename="ui/config.h" />
 		<Unit filename="ui/debuglog.cpp" />
 		<Unit filename="ui/debuglog.h" />
+		<Unit filename="ui/debuglog.moc.h" />
 		<Unit filename="ui/main.cpp">
 			<Option weight="100" />
 		</Unit>
@@ -307,10 +303,6 @@
 		<Unit filename="ui/resources.h" />
 		<Unit filename="ui/welcomedlg.cpp" />
 		<Unit filename="ui/welcomedlg.h" />
-		<Unit filename="ui/wx_pch.h">
-			<Option compile="1" />
-			<Option weight="0" />
-		</Unit>
 		<Unit filename="ui/wxplaybackcontrolpanel.cpp" />
 		<Unit filename="ui/wxplaybackcontrolpanel.h" />
 		<Unit filename="ui/wxvideopanel.cpp" />

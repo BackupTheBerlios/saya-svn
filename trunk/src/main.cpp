@@ -10,6 +10,6 @@
 #include "main.h"
 
 int main(int argc, char** argv) {
-    syApp* app = new wxSayaApp();
-    return app->Start(argc, (const char**)argv);
+    syApp* app = new qSayaApp(argc, argv);
+    return app->Start();
 }

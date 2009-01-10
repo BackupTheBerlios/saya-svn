@@ -11,6 +11,10 @@
     #include <wx/string.h>
 #endif
 
+#ifdef SY_QSTRING_COMPATIBILITY
+    #include <QString>
+#endif
+
 #include "systring.h"
 #include <cstdlib>
 #include <cstring>
@@ -106,7 +110,28 @@ syString& syString::operator=(const wxString& s) {
     Helper::assign(this, s.mb_str());
     return *this;
 }
+#endif
 
+#ifdef SY_QSTRING_COMPATIBILITY
+syString::operator QString() const {
+    return QString(this->c_str());
+}
+
+syString::syString(const QString& s) :
+m_Size(0),
+m_Capacity(0),
+m_UseRef(true),
+m_Str(const_cast<char*>(syEmptyString))
+{
+    QByteArray qba = s.toUtf8();
+    Helper::assign(this, qba.constData());
+}
+
+syString& syString::operator=(const QString& s) {
+    QByteArray qba = s.toUtf8();
+    Helper::assign(this, qba.constData());
+    return *this;
+}
 #endif
 
 

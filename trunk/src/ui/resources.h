@@ -11,12 +11,12 @@
 #define RESOURCES_H
 
 class syString;
-class wxBitmap;
+class QBitmap;
 extern syString ResourcesPath;
 extern syString ResourcesImgPath;
 
-wxBitmap* syLoadImage(const syString& filename);
-wxBitmap* syLoadImage(const char* filename);
+QBitmap* syLoadImage(const syString& filename);
+QBitmap* syLoadImage(const char* filename);
 
 void syInitResourcesPaths();
 

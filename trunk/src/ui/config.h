@@ -11,14 +11,15 @@
 #define saya_wx_config_h
 
 #include "../saya/core/config.h"
-class wxConfig;
+class QsyConfig;
+class QSettings;
 
-/** Our Implementation of syConfig with wxWidgets. @see syConfig */
-class wxsyConfig : public syConfig {
+/** Our Implementation of syConfig with Qt. @see syConfig */
+class QsyConfig : public syConfig {
     public:
 
         /** Standard constructor. */
-        wxsyConfig(const char* application_name);
+        QsyConfig(const char* application_name);
 
         /** Reads a configuration value. @see syConfig */
         virtual syString Read(const char* key, const char* defaultvalue) const;
@@ -54,10 +55,10 @@ class wxsyConfig : public syConfig {
         virtual bool Exists(const char* key) const;
 
         /** Standard destructor. */
-        virtual ~wxsyConfig();
+        virtual ~QsyConfig();
     private:
         /** Our configuration object */
-        wxConfig* m_config;
+        QSettings* m_config;
 };
 
 

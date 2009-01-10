@@ -10,32 +10,27 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#ifndef WX_PRECOMP
-    #include <wx/frame.h>
-#endif
+#include <qmainwindow.h>
 
 #include "../saya/core/events.h"
 
 class syString;
 class ProjectManager;
 class WelcomeDialog;
-class wxUpdateUIEvent;
-class wxPanel;
-class wxTreeCtrl;
-class wxTreeEvent;
-class wxAuiManager;
+//class wxUpdateUIEvent;
+//class wxPanel;
+//class wxTreeCtrl;
+//class wxTreeEvent;
+//class wxAuiManager;
 
 class syProjectStatusEvent;
 
-class AppFrame: public wxFrame, public syEvtHandler {
+class AppFrame: public QMainWindow, public syEvtHandler {
     public:
-        AppFrame(wxFrame *frame, const wxString& title);
+        AppFrame(const syString& title);
         ~AppFrame();
-        void OnFrameLayout (wxCommandEvent& event);
+//        void OnFrameLayout (wxCommandEvent& event);
         void UpdateStatustext();
-        bool SaveProject();
-        bool SaveProjectAs();
-        bool SaveProjectCopy();
 
         bool IsClipSelected();          ///< True if one or more timeline clips are selected
         bool IsClipboardSet();          /**< True if clipboard contains a resource clip or a timeline clip
@@ -53,78 +48,18 @@ class AppFrame: public wxFrame, public syEvtHandler {
         bool IsTitleWindowActive();     ///< True if the title window is active
         bool CanUndo();                 ///< Does the project have an item in the "undo" list?
         bool CanRedo();                 ///< Does the project have an item in the "redo" list?
-
-        /// Shows an error about Loading an XML resource.
+//
+//        /// Shows an error about Loading an XML resource.
         void LoadFail(const char* resourcename);
-
+//
         void OnProjectStatusChanged(syProjectStatusEvent& event);
-
-        wxMenu* FindMenu(const wxString name);
+//
+//        wxMenu* FindMenu(const wxString name);
         ProjectManager* m_prjMan;
     private:
-        wxPanel* CreateProjectPane(); /// Creates the project pane
-        wxPanel* m_projectpanel; /// Project Panel
-        wxPanel* m_monitorpanel; /// Monitor Panel
-        wxPanel* m_effectspanel; /// Effects Panel
-        wxPanel* m_timelinepanel; /// Timeline Panel
-        WelcomeDialog* m_welcomedialog;
-        wxTreeCtrl* m_ResourcesTree; /// Resources Tree in the Project Panel
-
-        bool LoadResources();
-        void CreateDockAreas();
-        bool CreateDialogs();
-        bool CreateMenuBar();
-        bool CreatePanels();
-        long GetProjectPanelSashPos();
-        void ShowLayout(bool show);
-        void ShowWelcomeDialog();
-
-        void OnResourceTreeContextMenu(wxTreeEvent& event);
-
-        void OnFileOpen(wxCommandEvent& event);
-        void OnFileClose(wxCommandEvent& event);
-
-        void OnClearRecentProjectList(wxCommandEvent& event);
-        void OnOpenRecentFile(wxCommandEvent& event);
-        void OnFileSave(wxCommandEvent& event);
-        void OnFileSaveAs(wxCommandEvent& event);
-        void OnFileSaveCopy(wxCommandEvent& event);
-        void OnNewProject(wxCommandEvent& event);
-
-        void OnClose(wxCloseEvent& event);
-        void OnQuit(wxCommandEvent& event);
-        void OnAbout(wxCommandEvent& event);
-        void LoadAndSetFrameSize();
-        void OnSaveFrameLayout(wxCommandEvent& event);
-        void SaveDefaultLayout(bool showmsg);
-        void OnLoadDefaultLayout(wxCommandEvent& event);
-        void OnWorkspaceFactoryDefault(wxCommandEvent& event);
-        bool LoadDefaultLayout(bool firsttime = false);
-
-        void DoUpdateAppTitle();
-        // UpdateUI events
-
-        void OnFileMenuUpdateUI(wxUpdateUIEvent& event);
-        void OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event);
-        void OnRecentImportsMenuUpdateUI(wxUpdateUIEvent& event);
-        void OnEditMenuUpdateUI(wxUpdateUIEvent& event);
-        void OnProjectMenuUpdateUI(wxUpdateUIEvent& event);
-        void OnClipMenuUpdateUI(wxUpdateUIEvent& event);
-        void OnSequenceMenuUpdateUI(wxUpdateUIEvent& event);
-        void OnMarkerMenuUpdateUI(wxUpdateUIEvent& event);
-        void OnWindowMenuUpdateUI(wxUpdateUIEvent& event);
-
-        void OnUpdateProjectPaneUI(wxUpdateUIEvent& event);
-
-        wxAuiManager *m_mgr;
-        bool m_hadproject;
-        bool m_panes_status_checked;
-        bool m_layouthidden;
-        unsigned int m_recentfilesmodcounter;
-        unsigned int m_recentimportsmodcounter;
-        wxString m_CurrentPerspective;
-        wxString m_FactoryDefaultLayout;
-        DECLARE_EVENT_TABLE()
+        class Data;
+        friend class Data;
+        Data* m_Data;
 };
 
 #endif // SAYAMAIN_H

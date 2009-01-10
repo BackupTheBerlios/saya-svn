@@ -7,65 +7,80 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
-#ifdef WX_PRECOMP
-#include "wx_pch.h"
-#endif
-
-#ifdef __BORLANDC__
-#pragma hdrstop
-#endif //__BORLANDC__
-
-
-#ifndef WX_PRECOMP
-    #include <wx/string.h>
-    #include <wx/textctrl.h>
-    #include <wx/sizer.h>
-    #include <wx/frame.h>
-#endif
-
 #include "../saya/core/systring.h"
 #include "../saya/core/app.h"
 #include "../saya/core/sythread.h"
 #include "debuglog.h"
-#include <wx/datetime.h>
+
+#include <qframe.h>
+#include <qtextedit.h>
+#include <qtimer.h>
+#include <qdatetime.h>
+
 #include <deque>
 
-BEGIN_EVENT_TABLE(AppDebugLog, wxFrame)
-    EVT_CLOSE(AppDebugLog::OnClose)
-    EVT_IDLE(AppDebugLog::OnIdle)
-END_EVENT_TABLE()
-
-std::deque<wxString> PendingDebugLogMessages;
+std::deque<QString> PendingDebugLogMessages;
 static volatile bool s_DebugLogPending;
 syMutex s_MyDebugLogMutex;
 
-AppDebugLog::AppDebugLog() :
-wxFrame(NULL, wxID_ANY, wxT("Debug Log"), wxDefaultPosition, wxSize( 539,399 ), wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL)
+class AppDebugLog::Data: public QTextEdit {
+    Q_OBJECT
+    public:
+        Data(AppDebugLog* parent);
+        virtual ~Data();
+        AppDebugLog* m_Parent;
+        QTimer* m_Timer;
+    public slots:
+        void OnIdle();
+
+};
+
+AppDebugLog::Data::Data(AppDebugLog* parent) :
+QTextEdit(0),
+m_Parent(parent),
+m_Timer(new QTimer(this))
 {
-	this->SetSizeHints( wxDefaultSize, wxDefaultSize);
-
-	wxBoxSizer* bSizer1;
-	bSizer1 = new wxBoxSizer( wxVERTICAL );
-
-	m_log = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
-	bSizer1->Add( m_log, 1, wxALL|wxEXPAND, 5 );
-
-	this->SetSizer( bSizer1 );
-	this->Layout();
+	this->setWindowFlags(Qt::Window);
+	this->setAttribute(Qt::WA_QuitOnClose, true);
+	this->setAttribute(Qt::WA_DeleteOnClose, true);
+	this->setWindowTitle("Debug Log");
+	this->setReadOnly(true);
+	this->resize(450,300);
 	syApp::Get()->SetTopWindow(this);
-    this->Show();
+    this->show();
+    connect(m_Timer, SIGNAL(timeout()), this, SLOT(OnIdle()) );
+    m_Timer->start(1);
 }
 
+AppDebugLog::Data::~Data() {
+    if(m_Parent) {
+        m_Parent->m_Data = 0;
+    }
+    if(m_Timer) {
+        disconnect(m_Timer, SIGNAL(timeout()), this, SLOT(OnIdle()) );
+        delete m_Timer;
+        m_Timer = 0;
+    }
+    m_Parent = 0;
+}
+
+AppDebugLog::AppDebugLog() :
+m_Data(new Data(this))
+{
+}
 
 void AppDebugLog::DebugLog(const char* msg) {
-    DebugLog(wxString(msg, wxConvUTF8));
+    DebugLog(QString(msg));
 }
 
 void AppDebugLog::DebugLog(const syString& msg) {
-    DebugLog(wxString(msg));
+    DebugLog(QString(msg));
 }
 
-void AppDebugLog::DebugLog(const wxString& msg) {
+void AppDebugLog::DebugLog(const QString& msg) {
+    if(!m_Data) {
+        return;
+    }
     if(!syThread::IsMain()) {
         syMutexLocker lock(s_MyDebugLogMutex);
         PendingDebugLogMessages.push_back(msg);
@@ -73,33 +88,27 @@ void AppDebugLog::DebugLog(const wxString& msg) {
         syApp::Get()->WakeUpIdle();
         return;
     }
-    wxDateTime t = wxDateTime::Now();
+    QDateTime t = QDateTime::currentDateTime();
     syString s;
-    s << "[" << syString(t.Format(_T("%Y-%m-%d %H:%M:%S"))) << "] : " << syString(msg) << "\n";
-    m_log->AppendText(s);
+    s << "[" << syString(t.toString("yy:MM:dd hh:mm:ss")) << "] : " << syString(msg);
+    m_Data->append(s);
     if(!syApp::Get()->IsMainLoopRunning()) {
-        this->Refresh();
-        this->Update();
+        m_Data->repaint();
     }
 }
 
-void AppDebugLog::OnClose(wxCloseEvent& event) {
-    if(event.CanVeto()) {
-        event.Veto();
-        this->Hide();
-    } else {
-        Destroy();
-    }
-}
-
-void AppDebugLog::OnIdle(wxIdleEvent& event) {
+void AppDebugLog::Data::OnIdle() {
     if(s_DebugLogPending) {
         syMutexLocker lock(s_MyDebugLogMutex);
-        DebugLog(PendingDebugLogMessages[0]);
+        m_Parent->DebugLog(PendingDebugLogMessages[0]);
         PendingDebugLogMessages.pop_front();
         s_DebugLogPending = PendingDebugLogMessages.size() > 0;
     }
 }
 
 AppDebugLog::~AppDebugLog() {
+    delete m_Data;
+    m_Data = 0;
 }
+
+#include "debuglog.moc.h"

@@ -15,6 +15,10 @@ class syString;
 class wxString;
 #endif
 
+#ifdef SY_QSTRING_COMPATIBILITY
+class QString;
+#endif
+
 /** @brief A not-so simple wrapper for a const char* (it's been growing).
  *  syString allows passing strings as return values on the stack without having to include
  *  the C++ syString headers. It also allows to use of simple strings for use as keys in
@@ -242,6 +246,12 @@ class syString {
         operator wxString() const;
         explicit syString(const wxString& s);
         syString& operator=(const wxString& s);
+        #endif
+
+        #ifdef SY_QSTRING_COMPATIBILITY
+        operator QString() const;
+        explicit syString(const QString& s);
+        syString& operator=(const QString& s);
         #endif
 
     private:

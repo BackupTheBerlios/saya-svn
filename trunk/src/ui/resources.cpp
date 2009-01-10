@@ -10,7 +10,7 @@
 #include "resources.h"
 
 #include "../saya/core/systring.h"
-#include <wx/bitmap.h>
+#include <qbitmap.h>
 
 syString ResourcesPath;
 syString ResourcesImgPath;
@@ -20,11 +20,13 @@ void syInitResourcesPaths() {
     ResourcesImgPath = ResourcesPath + "img/";
 }
 
-wxBitmap* syLoadImage(const syString& filename) {
-    wxBitmap* bmp = new wxBitmap(wxString(ResourcesImgPath + filename), wxBITMAP_TYPE_ANY);
-    return bmp;
+QBitmap* syLoadImage(const syString& filename) {
+    return 0;
+    // TODO: Find out if we're still gonna need this function
+//    wxBitmap* bmp = new wxBitmap(wxString(ResourcesImgPath + filename), wxBITMAP_TYPE_ANY);
+//    return bmp;
 }
 
-wxBitmap* syLoadImage(const char* filename) {
+QBitmap* syLoadImage(const char* filename) {
     return syLoadImage(syString(filename));
 }

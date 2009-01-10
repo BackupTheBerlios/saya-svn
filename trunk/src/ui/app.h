@@ -13,10 +13,10 @@
 #include "../saya/core/app.h"
 #include "../saya/core/dialogs.h"
 
-class wxSayaApp: public syApp
+class qSayaApp: public syApp
 {
     public:
-        wxSayaApp();
+        qSayaApp(int argc, char** argv);
 
         /** Gets the application name to initialize the configuration object. */
         virtual const char* GetApplicationName() const;
@@ -36,7 +36,7 @@ class wxSayaApp: public syApp
         virtual syConfig* CreateConfig() const;
 
         /** Initializer. */
-        virtual bool OnInit(int argc, const char** argv);
+        virtual bool OnInit();
 
         /** Main loop. */
         virtual void Run();
@@ -48,7 +48,7 @@ class wxSayaApp: public syApp
         virtual void OnExit();
 
         /** Destructor. */
-        virtual ~wxSayaApp();
+        virtual ~qSayaApp();
 
         /** Posts an event to the event queue. */
         virtual void PostEvent(syEvtHandler* handler, syEvent& event);

@@ -33,20 +33,23 @@ syApp* syApp::Get() {
     return sayaStaticData::TheApp;
 }
 
-syApp::syApp() {
+syApp::syApp(int argc, char** argv) :
+m_argc(argc),
+m_argv(argv)
+{
 }
 
 syDebugLog* syApp::CreateDebugLog() const {
     return 0;
 }
 
-int syApp::Start(int argc, const char** argv) {
+int syApp::Start() {
     Result = -1;
     syAppDestructor destructor(this);
     if(!sayaStaticData::TheApp) {
         sayaStaticData::TheApp = this;
         syDebugLog::SetDebugLog(CreateDebugLog());
-        if(OnInit(argc, argv)) {
+        if(OnInit()) {
             Run();
             OnExit();
         }
@@ -64,7 +67,7 @@ syConfig* syApp::GetConfig() {
     return sayaStaticData::TheConfig;
 }
 
-bool syApp::OnInit(int argc, const char** argv) {
+bool syApp::OnInit() {
     return true;
 }
 

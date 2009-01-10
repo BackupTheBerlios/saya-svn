@@ -29,7 +29,8 @@ enum syDIALOG_BUTTON_TYPES {
     syCANCEL            = 0x10,
     syOK_CANCEL         = 0x14,
     syYES_NO_CANCEL     = 0x1A,
-    syNO_DEFAULT        = 0x80
+    syNO_DEFAULT        = 0x80,
+    syCANCEL_DEFAULT    = 0x80,
 };
 
 enum syDIALOG_ICON_TYPES {
