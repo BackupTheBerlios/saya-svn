@@ -231,6 +231,16 @@ unsigned int idFileGetPropertiesSelection = syActionEvent::RegisterId("idFileGet
 unsigned int idFileInterpretFootage = syActionEvent::RegisterId("idFileInterpretFootage");
 unsigned int idFileTimecode = syActionEvent::RegisterId("idFileTimecode");
 
+unsigned int syID_FILE1 = syActionEvent::NewId();
+unsigned int syID_FILE2 = syActionEvent::RegisterId(syID_FILE1 + 1);
+unsigned int syID_FILE3 = syActionEvent::RegisterId(syID_FILE1 + 2);
+unsigned int syID_FILE4 = syActionEvent::RegisterId(syID_FILE1 + 3);
+unsigned int syID_FILE5 = syActionEvent::RegisterId(syID_FILE1 + 4);
+unsigned int syID_FILE6 = syActionEvent::RegisterId(syID_FILE1 + 5);
+unsigned int syID_FILE7 = syActionEvent::RegisterId(syID_FILE1 + 6);
+unsigned int syID_FILE8 = syActionEvent::RegisterId(syID_FILE1 + 7);
+unsigned int syID_FILE9 = syActionEvent::RegisterId(syID_FILE1 + 8);
+
 unsigned int syID_IMPORT1 = syActionEvent::NewId();
 unsigned int syID_IMPORT2 = syActionEvent::RegisterId(syID_IMPORT1 + 1);
 unsigned int syID_IMPORT3 = syActionEvent::RegisterId(syID_IMPORT1 + 2);

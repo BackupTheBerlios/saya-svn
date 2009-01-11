@@ -28,17 +28,17 @@
 
 extern int idFileOpen;
 extern int idNewProject;
-
+extern int syID_FILE1;
 class WelcomeDialog::Data : public QObject {
     Q_OBJECT
     public:
-        Data(WelcomeDialog* parent, QWidget* parentwidget);
+        Data(WelcomeDialog* parent, syEvtHandler* eventhandler);
         void ConnectSignalsAndSlots();
         virtual ~Data();
         QWidget* m_Panel;
         void RefreshRecentFilesList();
         WelcomeDialog* m_Parent;
-        QWidget* m_ParentWidget;
+        syEvtHandler* m_EventHandler;
 
         // Objects in the parent widget
         QTextBrowser* m_Browser;
@@ -53,9 +53,9 @@ class WelcomeDialog::Data : public QObject {
         void OnLinkClicked(const QUrl& link);
 };
 
-WelcomeDialog::Data::Data(WelcomeDialog* parent, QWidget* parentwidget) :
+WelcomeDialog::Data::Data(WelcomeDialog* parent, syEvtHandler* eventhandler) :
 m_Parent(parent),
-m_ParentWidget(parentwidget),
+m_EventHandler(eventhandler),
 m_NewButton(0),
 m_OpenButton(0),
 m_QuitButton(0)
@@ -104,19 +104,13 @@ void WelcomeDialog::Data::RefreshRecentFilesList() {
 void WelcomeDialog::Data::OnNewProject() {
     if(IsAppShuttingDown()) return;
     syActionEvent evt(idNewProject);
-    syEvtHandler* handler = dynamic_cast<syEvtHandler*>(m_ParentWidget);
-    if(handler) {
-        handler->ProcessEvent(evt);
-    }
+    m_EventHandler->ProcessEvent(evt);
 }
 
 void WelcomeDialog::Data::OnOpenProject() {
     if(IsAppShuttingDown()) return;
     syActionEvent evt(idFileOpen);
-    syEvtHandler* handler = dynamic_cast<syEvtHandler*>(m_ParentWidget);
-    if(handler) {
-        handler->ProcessEvent(evt);
-    }
+    m_EventHandler->ProcessEvent(evt);
 }
 
 void WelcomeDialog::Data::OnQuitButton() {
@@ -124,7 +118,17 @@ void WelcomeDialog::Data::OnQuitButton() {
 }
 
 void WelcomeDialog::Data::OnLinkClicked(const QUrl& link) {
-
+    QString href = link.toString();
+    int fileno = 1;
+    if(href.startsWith("sayarecent://")) {
+        href = href.mid(13,1);
+        bool isok = false;
+        fileno = href.toInt(&isok);
+        if(isok) {
+            syActionEvent tmpevent(syID_FILE1 + (fileno - 1));
+            m_EventHandler->ProcessEvent(tmpevent);
+        }
+    }
 }
 
 WelcomeDialog::Data::~Data()
@@ -133,7 +137,7 @@ WelcomeDialog::Data::~Data()
 }
 
 WelcomeDialog::WelcomeDialog(QWidget *parent) :
-m_Data(new Data(this, parent))
+m_Data(new Data(this, dynamic_cast<syEvtHandler*>(parent)))
 {
 	setWindowFlags(Qt::Window);
 	setAttribute(Qt::WA_QuitOnClose, false);
@@ -147,7 +151,7 @@ m_Data(new Data(this, parent))
 
 void WelcomeDialog::closeEvent(QCloseEvent *event) {
     event->accept();
-    m_Data->m_ParentWidget->close();
+    syApp::Get()->Exit(false);
 }
 
 WelcomeDialog::~WelcomeDialog() {
