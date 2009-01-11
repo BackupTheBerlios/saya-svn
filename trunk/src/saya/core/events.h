@@ -61,4 +61,36 @@ class syEvtHandler {
         Data* m_Data;
 };
 
+class syActionEvent : public syEvent {
+    public:
+        /** Constructor. */
+        syActionEvent(unsigned int id);
+
+        /** Standard Destructor. */
+        virtual ~syActionEvent() {}
+        virtual syEvent* clone();
+        /** @brief Allocates a new Event ID.
+         *  @warning This function is NOT thread-safe, it must be called by the main thread only!
+         */
+        static unsigned int NewId();
+
+        /** @brief Returns the next available Action ID.
+         *  @warning This function is NOT thread-safe, it must be called by the main thread only!
+         */
+        static unsigned int CurrentId();
+
+        /** @brief Reserves an Id to avoid collisions with NewId().
+         *  @warning This function is NOT thread-safe, it must be called by the main thread only!
+         */
+        static unsigned int RegisterId(unsigned int id);
+
+        /** @brief Maps an Action Event Id to a string.
+         *  Subsequent calls to RegisterId with this string will return the same numeric id.
+         */
+        static unsigned int RegisterId(const char* idname);
+    private:
+        class Data;
+};
+
 #endif
+

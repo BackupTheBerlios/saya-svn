@@ -72,6 +72,7 @@ class syEvtHandler::Data {
         void RemoveEventHandler(const char* eventclass, int EventId);
         void RemoveAllHandlers();
         void ProcessEvent(syEvent& evt);
+        static int CurrentActionEventId;
 };
 
 inline syEvtHandler::Data::~Data() {
@@ -204,3 +205,78 @@ bool syEvtQueue::Pending() {
 // --------------
 // end syEvtQueue
 // --------------
+
+// -------------------------
+// begin syActionEvent::Data
+// -------------------------
+
+class syActionEvent::Data {
+    public:
+        static unsigned int CurrentActionEventId;
+        typedef std::map<syString, unsigned int, ltsystr> StrIdMap;
+        static StrIdMap* s_Map;
+
+        class StaticDestructor {
+            public:
+                ~StaticDestructor() {
+                    delete syActionEvent::Data::s_Map;
+                    syActionEvent::Data::s_Map = 0;
+                }
+        };
+        static StaticDestructor s_Destructor;
+};
+
+syActionEvent::Data::StrIdMap* syActionEvent::Data::s_Map = 0;
+unsigned int syActionEvent::Data::CurrentActionEventId = 1;
+
+// -----------------------
+// end syActionEvent::Data
+// -----------------------
+
+// -------------------
+// begin syActionEvent
+// -------------------
+
+syActionEvent::syActionEvent(unsigned int id) :
+syEvent(id)
+{
+}
+
+syEvent* syActionEvent::clone() {
+    return new syActionEvent(*this);
+}
+
+unsigned int syActionEvent::NewId() {
+    return Data::CurrentActionEventId++; // Return the current value, then increment it.
+}
+
+unsigned int syActionEvent::CurrentId() {
+    return Data::CurrentActionEventId;
+}
+
+unsigned int syActionEvent::RegisterId(unsigned int id) {
+    if(Data::CurrentActionEventId <= id) {
+        Data::CurrentActionEventId = id + 1;
+    }
+    return id;
+}
+
+unsigned int syActionEvent::RegisterId(const char* idname) {
+    if(!Data::s_Map) {
+        Data::s_Map = new Data::StrIdMap;
+    }
+    syString s(idname);
+    Data::StrIdMap::const_iterator it = Data::s_Map->find(s);
+    if(it == Data::s_Map->end()) {
+        unsigned int id = NewId();
+        Data::s_Map->operator[](s) = id;
+        return id;
+    } else {
+        return it->second;
+    }
+}
+
+
+// -----------------
+// end syActionEvent
+// -----------------
