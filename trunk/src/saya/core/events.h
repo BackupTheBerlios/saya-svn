@@ -72,22 +72,37 @@ class syActionEvent : public syEvent {
         /** @brief Allocates a new Event ID.
          *  @warning This function is NOT thread-safe, it must be called by the main thread only!
          */
-        static unsigned int NewId();
+        static unsigned int NewId(const char* userstring = 0);
 
         /** @brief Returns the next available Action ID.
          *  @warning This function is NOT thread-safe, it must be called by the main thread only!
+         *  @param userstring A user string to be related to this id. Used for Qt as a slot name.
          */
         static unsigned int CurrentId();
 
         /** @brief Reserves an Id to avoid collisions with NewId().
          *  @warning This function is NOT thread-safe, it must be called by the main thread only!
+         *  @param userstring A user string to be related to this id. Used for Qt as a slot name.
          */
-        static unsigned int RegisterId(unsigned int id);
+        static unsigned int RegisterId(unsigned int id, const char* userstring = 0);
 
-        /** @brief Maps an Action Event Id to a string.
+        /** @brief Maps an Action Event Id to a string, and to a user string.
          *  Subsequent calls to RegisterId with this string will return the same numeric id.
+         *  @param idname The registered name of the Event.
+         *  @param userstring A user string to be related to this id. Used for Qt as a slot name.
          */
-        static unsigned int RegisterId(const char* idname);
+        static unsigned int RegisterId(const char* idname, const char* userstring = 0);
+
+        /** @brief Maps an Action Event Id to a user string.
+         *  @param id The registered event id#.
+         *  @param userstring A user string to be related to this id. Used for Qt as a slot name.
+         */
+        static void RegisterUserString(unsigned int id, const char* userstring);
+
+        /** @brief returns the user string associated to the given id.
+         *  This can be used to help assign Qt slots to Menu actions automatically.
+         */
+        static const char* GetUserStringFromId(unsigned int id);
     private:
         class Data;
 };

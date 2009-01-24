@@ -214,19 +214,25 @@ class syActionEvent::Data {
     public:
         static unsigned int CurrentActionEventId;
         typedef std::map<syString, unsigned int, ltsystr> StrIdMap;
+        typedef std::map<unsigned int, syString> StrUserMap;
         static StrIdMap* s_Map;
+        static StrUserMap* s_UserMap;
 
         class StaticDestructor {
             public:
                 ~StaticDestructor() {
                     delete syActionEvent::Data::s_Map;
                     syActionEvent::Data::s_Map = 0;
+                    delete syActionEvent::Data::s_UserMap;
+                    syActionEvent::Data::s_UserMap = 0;
                 }
         };
         static StaticDestructor s_Destructor;
 };
 
 syActionEvent::Data::StrIdMap* syActionEvent::Data::s_Map = 0;
+syActionEvent::Data::StrUserMap* syActionEvent::Data::s_UserMap = 0;
+
 unsigned int syActionEvent::Data::CurrentActionEventId = 1;
 
 // -----------------------
@@ -246,36 +252,63 @@ syEvent* syActionEvent::clone() {
     return new syActionEvent(*this);
 }
 
-unsigned int syActionEvent::NewId() {
-    return Data::CurrentActionEventId++; // Return the current value, then increment it.
+unsigned int syActionEvent::NewId(const char* userstring) {
+    unsigned int id = Data::CurrentActionEventId++; // Return the current value, then increment it.
+    if(userstring) RegisterUserString(id, userstring);
+    return id;
 }
 
 unsigned int syActionEvent::CurrentId() {
     return Data::CurrentActionEventId;
 }
 
-unsigned int syActionEvent::RegisterId(unsigned int id) {
+unsigned int syActionEvent::RegisterId(unsigned int id, const char* userstring) {
     if(Data::CurrentActionEventId <= id) {
         Data::CurrentActionEventId = id + 1;
     }
+    if(userstring) RegisterUserString(id, userstring);
     return id;
 }
 
-unsigned int syActionEvent::RegisterId(const char* idname) {
+unsigned int syActionEvent::RegisterId(const char* idname, const char* userstring) {
     if(!Data::s_Map) {
         Data::s_Map = new Data::StrIdMap;
     }
+    if(!Data::s_UserMap) {
+        Data::s_UserMap = new Data::StrUserMap;
+    }
     syString s(idname);
+    unsigned int id = 0;
     Data::StrIdMap::const_iterator it = Data::s_Map->find(s);
     if(it == Data::s_Map->end()) {
-        unsigned int id = NewId();
+        id = NewId();
         Data::s_Map->operator[](s) = id;
-        return id;
     } else {
-        return it->second;
+        id = it->second;
+    }
+    if(userstring) RegisterUserString(id, userstring);
+    return id;
+}
+
+void syActionEvent::RegisterUserString(unsigned int id, const char* userstring) {
+    if(userstring) {
+        if(!Data::s_UserMap) {
+            Data::s_UserMap = new Data::StrUserMap;
+        }
+        Data::s_UserMap->operator[](id) = userstring;
     }
 }
 
+const char* syActionEvent::GetUserStringFromId(unsigned int id) {
+    if(!Data::s_UserMap) {
+        return "";
+    }
+    Data::StrUserMap::const_iterator it = Data::s_UserMap->find(id);
+    if(it == Data::s_UserMap->end()) {
+        return "";
+    }
+    return it->second.c_str();
+}
 
 // -----------------
 // end syActionEvent
