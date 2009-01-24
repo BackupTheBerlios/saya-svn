@@ -7,31 +7,15 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
-//#ifdef WX_PRECOMP
-//#include "wx_pch.h"
-//#endif
-
-#ifdef __BORLANDC__
-#pragma hdrstop
-#endif //__BORLANDC__
-
-
-//#ifndef WX_PRECOMP
-//    #include <wx/xrc/xmlres.h>
-//    #include <wx/filedlg.h>
-//    #include <wx/aui/aui.h>
-//    #include <wx/splitter.h>
-//    #include <wx/treectrl.h>
-//    #include <wx/sizer.h>
-//    #include <wx/menu.h>
-//    #include <wx/msgdlg.h>
-//    #include <wx/aui/aui.h>
-//#endif
+#include <memory>
 
 #include <qmainwindow.h>
 #include <qstatusbar.h>
+#include <qtreewidget.h>
+#include <qmenubar.h>
+#include <qmenu.h>
+#include <qaction.h>
 
-#include <memory>
 #include "../saya/core/app.h"
 #include "../saya/core/systring.h"
 #include "../saya/core/intl.h"
@@ -39,6 +23,7 @@
 #include "../saya/core/config.h"
 #include "../saya/core/debuglog.h"
 #include "../saya/core/evtregistry.h"
+#include "../saya/core/sythread.h"
 
 #include "../saya/saya_events.h"
 #include "../saya/vidproject.h"
@@ -81,6 +66,12 @@ syString qbuildinfo(qbuildinfoformat format)
     return s;
 }
 
+void LoadFail(const char* resourcename) {
+    syString s;
+    s.Printf(_("Could not find the resource '%s'!\nAre you sure the program was installed correctly?"),resourcename);
+    syApp::Get()->ErrorMessageBox(s.c_str());
+}
+
 QMainWindow* CreateMainFrame() {
 //    AppFrame* frame = 0;
 //    AppFrame* frame = new AppFrame(_("Saya - Unsheathe your Creativity"));
@@ -90,71 +81,234 @@ QMainWindow* CreateMainFrame() {
     return frame;
 }
 
+// ------------------------------
+// begin constants and event id's
+// ------------------------------
+
+const syString CFG_LAYOUTS = "Layouts";
+const syString CFG_LAYOUT_DEFAULT = CFG_LAYOUTS + "/Default";
+const syString CFG_LOCATION = CFG_LAYOUT_DEFAULT + "/Location";
+const syString CFG_PERSPECTIVE_DEFAULT = CFG_LAYOUT_DEFAULT + "/Perspective";
+const syString CFG_DEFAULT_PRJ_SASHPOS = CFG_LAYOUT_DEFAULT + "/PrjSashPos";
+
+unsigned int idFileNew = syActionEvent::NewId(); // SubMenu
+unsigned int idNewProject = syActionEvent::NewId("OnNewProject()");
+unsigned int idNewSequence = syActionEvent::NewId();
+unsigned int idNewBin = syActionEvent::NewId();
+unsigned int idNewOfflineFile = syActionEvent::NewId();
+unsigned int idNewTitle = syActionEvent::NewId();
+unsigned int idNewBarsandTone = syActionEvent::NewId();
+unsigned int idNewBlackVideo = syActionEvent::NewId();
+unsigned int idNewColorMatte = syActionEvent::NewId();
+unsigned int idNewUniversalCountingLeader = syActionEvent::NewId();
+
+unsigned int idFileOpen = syActionEvent::NewId("OnFileOpen()");
+unsigned int idFileOpenRecentProject = syActionEvent::NewId();
+unsigned int idFileClearRecentProjectList = syActionEvent::NewId("OnClearRecentProjectList()");
+unsigned int idFileClearRecentImportList = syActionEvent::NewId("OnClearRecentImportList()");
+unsigned int idFileClose = syActionEvent::NewId("OnFileClose()");
+unsigned int idFileSave = syActionEvent::NewId("OnFileSave()");
+unsigned int idFileSaveAs = syActionEvent::NewId("OnFileSaveAs()");
+unsigned int idFileSaveCopy = syActionEvent::NewId("OnFileSaveCopy()");
+unsigned int idFileRevert = syActionEvent::NewId("OnFileRevert()");
+unsigned int idFileCapture = syActionEvent::NewId("OnFileCapture()");
+unsigned int idFileBatchCapture = syActionEvent::NewId("OnFileBatchCapture()");
+unsigned int idFileImport = syActionEvent::NewId("OnFileImport()");
+unsigned int idFileImportRecent = syActionEvent::NewId();
+unsigned int idFileExport = syActionEvent::NewId("OnFileExport()");
+unsigned int idFileGetProperties = syActionEvent::NewId();
+unsigned int idFileGetPropertiesFile = syActionEvent::NewId();
+unsigned int idFileGetPropertiesSelection = syActionEvent::NewId();
+unsigned int idFileInterpretFootage = syActionEvent::NewId("OnFileInterpretFootage()");
+unsigned int idFileTimecode = syActionEvent::NewId("OnFileTimecode()");
+
+unsigned int syID_FILE1 = syActionEvent::NewId("OnOpenRecentFile1()");
+unsigned int syID_FILE2 = syActionEvent::RegisterId(syID_FILE1 + 1,"OnOpenRecentFile2()");
+unsigned int syID_FILE3 = syActionEvent::RegisterId(syID_FILE1 + 2,"OnOpenRecentFile3()");
+unsigned int syID_FILE4 = syActionEvent::RegisterId(syID_FILE1 + 3,"OnOpenRecentFile4()");
+unsigned int syID_FILE5 = syActionEvent::RegisterId(syID_FILE1 + 4,"OnOpenRecentFile5()");
+unsigned int syID_FILE6 = syActionEvent::RegisterId(syID_FILE1 + 5,"OnOpenRecentFile6()");
+unsigned int syID_FILE7 = syActionEvent::RegisterId(syID_FILE1 + 6,"OnOpenRecentFile7()");
+unsigned int syID_FILE8 = syActionEvent::RegisterId(syID_FILE1 + 7,"OnOpenRecentFile8()");
+unsigned int syID_FILE9 = syActionEvent::RegisterId(syID_FILE1 + 8,"OnOpenRecentFile9()");
+
+unsigned int syID_IMPORT1 = syActionEvent::NewId("OnOpenRecentImport1()");
+unsigned int syID_IMPORT2 = syActionEvent::RegisterId(syID_IMPORT1 + 1,"OnOpenRecentImport2()");
+unsigned int syID_IMPORT3 = syActionEvent::RegisterId(syID_IMPORT1 + 2,"OnOpenRecentImport3()");
+unsigned int syID_IMPORT4 = syActionEvent::RegisterId(syID_IMPORT1 + 3,"OnOpenRecentImport4()");
+unsigned int syID_IMPORT5 = syActionEvent::RegisterId(syID_IMPORT1 + 4,"OnOpenRecentImport5()");
+unsigned int syID_IMPORT6 = syActionEvent::RegisterId(syID_IMPORT1 + 5,"OnOpenRecentImport6()");
+unsigned int syID_IMPORT7 = syActionEvent::RegisterId(syID_IMPORT1 + 6,"OnOpenRecentImport7()");
+unsigned int syID_IMPORT8 = syActionEvent::RegisterId(syID_IMPORT1 + 7,"OnOpenRecentImport8()");
+unsigned int syID_IMPORT9 = syActionEvent::RegisterId(syID_IMPORT1 + 8,"OnOpenRecentImport9()");
+
+unsigned int idEditUndo = syActionEvent::NewId();
+unsigned int idEditRedo = syActionEvent::NewId();
+unsigned int idEditClearUndoHistory = syActionEvent::NewId();
+unsigned int idEditCut = syActionEvent::NewId();
+unsigned int idEditCopy = syActionEvent::NewId();
+unsigned int idEditPaste = syActionEvent::NewId();
+unsigned int idEditPasteInsert = syActionEvent::NewId();
+unsigned int idEditPasteAttributes = syActionEvent::NewId();
+unsigned int idEditClear = syActionEvent::NewId();
+unsigned int idEditRippleDelete = syActionEvent::NewId();
+unsigned int idEditDuplicate = syActionEvent::NewId();
+unsigned int idEditSelectAll = syActionEvent::NewId();
+unsigned int idEditDeselectAll = syActionEvent::NewId();
+unsigned int idEditFind = syActionEvent::NewId();
+unsigned int idEditLabel = syActionEvent::NewId();
+unsigned int idEditLabelBlue = syActionEvent::NewId();
+unsigned int idEditLabelCyan = syActionEvent::NewId();
+unsigned int idEditLabelGreen = syActionEvent::NewId();
+unsigned int idEditLabelViolet = syActionEvent::NewId();
+unsigned int idEditLabelPink = syActionEvent::NewId();
+unsigned int idEditLabelGray = syActionEvent::NewId();
+unsigned int idEditLabelRed = syActionEvent::NewId();
+unsigned int idEditLabelOrange = syActionEvent::NewId();
+unsigned int idEditOriginal = syActionEvent::NewId();
+
+unsigned int idProjectSettings = syActionEvent::NewId();
+unsigned int idProjectSettingsGeneral = syActionEvent::NewId();
+unsigned int idProjectSettingsCapture = syActionEvent::NewId();
+unsigned int idProjectSettingsVideoRendering = syActionEvent::NewId();
+unsigned int idProjectSettingsDefaultSequence = syActionEvent::NewId();
+unsigned int idProjectLinkMedia = syActionEvent::NewId();
+unsigned int idProjectUnlinkMedia = syActionEvent::NewId();
+unsigned int idProjectAutomateToSequence = syActionEvent::NewId();
+unsigned int idProjectImportBatchList = syActionEvent::NewId();
+unsigned int idProjectExportBatchList = syActionEvent::NewId();
+unsigned int idProjectExportAsAAF = syActionEvent::NewId();
+
+unsigned int idClipRename = syActionEvent::NewId();
+unsigned int idClipCaptureSettings = syActionEvent::NewId();
+unsigned int idClipSetCaptureSettings = syActionEvent::NewId();
+unsigned int idClipClearCaptureSettings = syActionEvent::NewId();
+unsigned int idClipInsert = syActionEvent::NewId();
+unsigned int idClipOverlay = syActionEvent::NewId();
+unsigned int idClipToggleEnable = syActionEvent::NewId();
+unsigned int idClipUnlinkAV = syActionEvent::NewId();
+unsigned int idClipLinkAV = syActionEvent::NewId();
+unsigned int idClipGroup = syActionEvent::NewId();
+unsigned int idClipUngroup = syActionEvent::NewId();
+unsigned int idClipVideoOptions = syActionEvent::NewId();
+unsigned int idClipVOptFrameHold = syActionEvent::NewId();
+unsigned int idClipVOptFieldOptions = syActionEvent::NewId();
+unsigned int idClipAudioOptions = syActionEvent::NewId();
+unsigned int idClipAOptGain = syActionEvent::NewId();
+unsigned int idClipAOptBreakoutToMono = syActionEvent::NewId();
+unsigned int idClipOptTreatAsStereo = syActionEvent::NewId();
+unsigned int idClipOptRenderAndReplace = syActionEvent::NewId();
+unsigned int idClipSpeedDuration = syActionEvent::NewId();
+
+unsigned int idSequenceRender = syActionEvent::NewId();
+unsigned int idSequenceDeleteRenderFiles = syActionEvent::NewId();
+unsigned int idSequenceRazor = syActionEvent::NewId();
+unsigned int idSequenceRazorSelectedTracks = syActionEvent::NewId();
+unsigned int idSequenceLift = syActionEvent::NewId();
+unsigned int idSequenceExtract = syActionEvent::NewId();
+unsigned int idSequenceApplyVideoTransition = syActionEvent::NewId();
+unsigned int idSequenceApplyAudioTransition = syActionEvent::NewId();
+unsigned int idSequenceZoomIn = syActionEvent::NewId();
+unsigned int idSequenceZoomOut = syActionEvent::NewId();
+unsigned int idSequenceSnap = syActionEvent::NewId();
+unsigned int idSequenceAddTracks = syActionEvent::NewId();
+unsigned int idSequenceDelTracks = syActionEvent::NewId();
+
+unsigned int idSetClipMarkerMenu = syActionEvent::NewId();
+unsigned int idGotoClipMarkerMenu = syActionEvent::NewId();
+unsigned int idGotoNextClipMarker = syActionEvent::NewId();
+unsigned int idGotoPrevClipMarker = syActionEvent::NewId();
+unsigned int idGotoInClipMarker = syActionEvent::NewId();
+unsigned int idGotoOutClipMarker = syActionEvent::NewId();
+unsigned int idGotoVideoInClipMarker = syActionEvent::NewId();
+unsigned int idGotoVideoOutClipMarker = syActionEvent::NewId();
+unsigned int idGotoAudioInClipMarker = syActionEvent::NewId();
+unsigned int idGotoAudioOutClipMarker = syActionEvent::NewId();
+unsigned int idGotoNumberedClipMarker = syActionEvent::NewId();
+unsigned int idClearClipMarkerMenu = syActionEvent::NewId();
+unsigned int idClearCurrentClipMarker = syActionEvent::NewId();
+unsigned int idClearAllClipMarkers = syActionEvent::NewId();
+unsigned int idClearInOutClipMarkers = syActionEvent::NewId();
+unsigned int idClearInClipMarker = syActionEvent::NewId();
+unsigned int idClearOutClipMarker = syActionEvent::NewId();
+unsigned int idClearNumberedClipMarker = syActionEvent::NewId();
+unsigned int idSetSequenceMarkerMenu = syActionEvent::NewId();
+unsigned int idSetInSequenceMarker = syActionEvent::NewId();
+unsigned int idSetOutSequenceMarker = syActionEvent::NewId();
+unsigned int idSetInOutAroundSelSeqMarker = syActionEvent::NewId();
+unsigned int idSetUnnumberedSequenceMarker = syActionEvent::NewId();
+unsigned int idSetNextAvailNumberedSeqMarker = syActionEvent::NewId();
+unsigned int idSetOtherNumberedSequenceMarker = syActionEvent::NewId();
+unsigned int idGotoSequenceMarkerMenu = syActionEvent::NewId();
+unsigned int idGotoNextSequenceMarker = syActionEvent::NewId();
+unsigned int idGotoPrevSequenceMarker = syActionEvent::NewId();
+unsigned int idGotoInSequenceMarker = syActionEvent::NewId();
+unsigned int idGotoOutSequenceMarker = syActionEvent::NewId();
+unsigned int idGotoNumberedSeqMarker = syActionEvent::NewId();
+unsigned int idClearSequenceMarkerMenu = syActionEvent::NewId();
+unsigned int idClearCurSequenceMarker = syActionEvent::NewId();
+unsigned int idClearAllSequenceMarkers = syActionEvent::NewId();
+unsigned int idClearInOutSeqMarkers = syActionEvent::NewId();
+unsigned int idClearInSeqMarker = syActionEvent::NewId();
+unsigned int idClearOutSeqMarker = syActionEvent::NewId();
+unsigned int idClearNumberedSeqMarker = syActionEvent::NewId();
+unsigned int idEditSequenceMarker = syActionEvent::NewId();
+
+unsigned int idWindowWorkspaceMenu = syActionEvent::NewId();
+unsigned int idWorkspaceEditing = syActionEvent::NewId();
+unsigned int idWorkspaceEffects = syActionEvent::NewId();
+unsigned int idWorkspaceAudio = syActionEvent::NewId();
+unsigned int idWorkspaceColorCorrection = syActionEvent::NewId();
+unsigned int idWorkspaceDefault = syActionEvent::NewId();
+unsigned int idWorkspaceFactoryDefault = syActionEvent::NewId();
+unsigned int idWorkspaceSaveAs = syActionEvent::NewId();
+unsigned int idWorkspaceDelete = syActionEvent::NewId();
+unsigned int idWorkspaceCustom = syActionEvent::NewId();
+unsigned int idMenuSaveFrameLayout = syActionEvent::NewId();
+unsigned int idWindowEffects = syActionEvent::NewId();
+unsigned int idWindowEffectControls = syActionEvent::NewId();
+unsigned int idWindowHistory = syActionEvent::NewId();
+unsigned int idWindowInfo = syActionEvent::NewId();
+unsigned int idWindowTools = syActionEvent::NewId();
+unsigned int idWindowAudioMixer = syActionEvent::NewId();
+unsigned int idWindowMonitor = syActionEvent::NewId();
+unsigned int idWindowProject = syActionEvent::NewId();
+unsigned int idWindowTimelinesMenu = syActionEvent::NewId();
+
+// ----------------------------
+// end constants and event id's
+// ----------------------------
+
 // --------------------
 // begin AppFrame::Data
 // --------------------
 
-class AppFrame::Data : public syEvtHandler {
+class AppFrame::Data : public QObject, public syEvtHandler {
+    Q_OBJECT
     public:
         Data(AppFrame* parent);
-        ~Data();
+        virtual ~Data();
         AppFrame* m_Parent;
 
-//        wxPanel* CreateProjectPane(); /// Creates the project pane
-//        wxPanel* m_projectpanel; /// Project Panel
-//        wxPanel* m_monitorpanel; /// Monitor Panel
-//        wxPanel* m_effectspanel; /// Effects Panel
-//        wxPanel* m_timelinepanel; /// Timeline Panel
-        WelcomeDialog* m_welcomedialog;
-//        wxTreeCtrl* m_ResourcesTree; /// Resources Tree in the Project Panel
+        QWidget* CreateProjectPane(); /// Creates the project pane
+        QWidget* m_ProjectPanel; /// Project Panel
+        QWidget* m_MonitorPanel; /// Monitor Panel
+        QWidget* m_EffectsPanel; /// Effects Panel
+        QWidget* m_TimelinePanel; /// Timeline Panel
+        WelcomeDialog* m_WelcomeDialog;
+        QTreeWidget* m_ResourcesTree; /// Resources Tree in the Project Panel
 
-//        bool LoadResources();
-//        void CreateDockAreas();
-//        bool CreateDialogs();
-//        bool CreateMenuBar();
-//        bool CreatePanels();
-//        long GetProjectPanelSashPos();
-//        void ShowLayout(bool show);
+        bool LoadResources();
+        void CreateDockAreas();
+        bool CreateDialogs();
+        bool CreateMenuBar();
+        bool CreatePanels();
+        long GetProjectPanelSashPos();
+        void ShowLayout(bool show);
 
         void ShowWelcomeDialog();
 
-//        void OnResourceTreeContextMenu(wxTreeEvent& event);
-//
-//        void OnFileOpen(wxCommandEvent& event);
-//        void OnFileClose(wxCommandEvent& event);
-//
-//        void OnClearRecentProjectList(wxCommandEvent& event);
-//        void OnOpenRecentFile(wxCommandEvent& event);
-//        void OnFileSave(wxCommandEvent& event);
-//        void OnFileSaveAs(wxCommandEvent& event);
-//        void OnFileSaveCopy(wxCommandEvent& event);
-//        void OnNewProject(wxCommandEvent& event);
-//
-//        void OnClose(wxCloseEvent& event);
-//        void OnQuit(wxCommandEvent& event);
-//        void OnAbout(wxCommandEvent& event);
-//        void LoadAndSetFrameSize();
-//        void OnSaveFrameLayout(wxCommandEvent& event);
-//        void SaveDefaultLayout(bool showmsg);
-//        void OnLoadDefaultLayout(wxCommandEvent& event);
-//        void OnWorkspaceFactoryDefault(wxCommandEvent& event);
-//        bool LoadDefaultLayout(bool firsttime = false);
-//
-//        void DoUpdateAppTitle();
-//        // UpdateUI events
-//
-//        void OnFileMenuUpdateUI(wxUpdateUIEvent& event);
-//        void OnRecentFilesMenuUpdateUI(wxUpdateUIEvent& event);
-//        void OnRecentImportsMenuUpdateUI(wxUpdateUIEvent& event);
-//        void OnEditMenuUpdateUI(wxUpdateUIEvent& event);
-//        void OnProjectMenuUpdateUI(wxUpdateUIEvent& event);
-//        void OnClipMenuUpdateUI(wxUpdateUIEvent& event);
-//        void OnSequenceMenuUpdateUI(wxUpdateUIEvent& event);
-//        void OnMarkerMenuUpdateUI(wxUpdateUIEvent& event);
-//        void OnWindowMenuUpdateUI(wxUpdateUIEvent& event);
-//
-//        void OnUpdateProjectPaneUI(wxUpdateUIEvent& event);
-
+    public:
 //        wxAuiManager *m_mgr;
         bool m_hadproject;
         bool m_panes_status_checked;
@@ -163,226 +317,236 @@ class AppFrame::Data : public syEvtHandler {
         unsigned int m_recentimportsmodcounter;
 //        wxString m_CurrentPerspective;
 //        wxString m_FactoryDefaultLayout;
+        void RegisterAction(unsigned int id, QAction* action);
+        void UnregisterAction(unsigned int id);
+        void UnregisterAllActions();
+        void EnableAction(unsigned int id, bool enable = true);
+        void DisableAction(unsigned int id);
+        QAction* GetAction(unsigned int id);
+        void OnActionEvent(syActionEvent& event);
+    private:
+        typedef std::map<unsigned int, QAction*> ActionsMap;
+        ActionsMap m_ActionsMap;
+        syMutex m_ActionsMutex;
+    public slots:
+
+//        void OnResourceTreeContextMenu(wxTreeEvent& event);
+
+//
+        void OnFileOpen();
+        void OnFileClose();
+
+        void OnClearRecentProjectList();
+        void OnClearRecentImportList();
+        void OnOpenRecentFile();
+        void OnFileSave();
+        void OnFileSaveAs();
+        void OnFileSaveCopy();
+        void OnNewProject();
+        void OnFileRevert();
+        void OnFileCapture();
+        void OnFileBatchCapture();
+
+        void OnQuit();
+        void OnAbout();
+        void OnSaveFrameLayout();
+        void OnLoadDefaultLayout();
+        void OnWorkspaceFactoryDefault();
+
+        // UpdateUI events
+        void OnFileMenuUpdateUI();
+        void OnRecentFilesMenuUpdateUI();
+        void OnRecentImportsMenuUpdateUI();
+        void OnEditMenuUpdateUI();
+        void OnProjectMenuUpdateUI();
+        void OnClipMenuUpdateUI();
+        void OnSequenceMenuUpdateUI();
+        void OnMarkerMenuUpdateUI();
+        void OnWindowMenuUpdateUI();
+
+//        void LoadAndSetFrameSize();
+//        void SaveDefaultLayout(bool showmsg);
+//        bool LoadDefaultLayout(bool firsttime = false);
+//
+//        void DoUpdateAppTitle();
+//
+//        void OnUpdateProjectPaneUI(wxUpdateUIEvent& event);
+
 };
 
 AppFrame::Data::Data(AppFrame* parent) :
 m_Parent(parent),
-m_welcomedialog(0),
+m_WelcomeDialog(0),
 m_hadproject(false),
 m_panes_status_checked(false),
 m_layouthidden(false),
 m_recentfilesmodcounter(0),
 m_recentimportsmodcounter(0)
 {
-
+    UnregisterAllActions();
 }
 
 AppFrame::Data::~Data() {
+
 //    m_mgr->UnInit();
-//    delete m_welcomedialog;
+    delete m_WelcomeDialog;
 //    delete m_mgr;
 
 }
 
+bool AppFrame::Data::LoadResources() {
+    return true;
+}
+
+void AppFrame::Data::RegisterAction(unsigned int id, QAction* action) {
+    if(!this) return;
+    syMutexLocker locker(m_ActionsMutex);
+    m_ActionsMap[id] = action;
+    action->setData(id);
+}
+
+void AppFrame::Data::UnregisterAction(unsigned int id) {
+    if(!this) return;
+    syMutexLocker locker(m_ActionsMutex);
+    m_ActionsMap[id] = 0;
+}
+
+void AppFrame::Data::UnregisterAllActions() {
+    if(!this) return;
+    syMutexLocker locker(m_ActionsMutex);
+    m_ActionsMap.clear();
+}
+
+inline QAction* AppFrame::Data::GetAction(unsigned int id) {
+    if(!this) return 0;
+    ActionsMap::iterator it = m_ActionsMap.find(id);
+    if(it == m_ActionsMap.end()) {
+        return 0;
+    }
+    return it->second;
+}
+
+inline void AppFrame::Data::EnableAction(unsigned int id, bool enable) {
+    if(!this) return;
+    ActionsMap::iterator it = m_ActionsMap.find(id);
+    if(it != m_ActionsMap.end()) {
+        it->second->setEnabled(enable);
+    }
+}
+
+inline void AppFrame::Data::DisableAction(unsigned int id) {
+    EnableAction(id, false);
+}
+
+
+void AppFrame::Data::OnActionEvent(syActionEvent& event) {
+    if(!this) return;
+    QAction* action = GetAction(event.EventId);
+    if(action) {
+        action->trigger();
+    }
+}
+
 void AppFrame::Data::ShowWelcomeDialog() {
-    #warning TODO: Implement AppFrame::Data::ShowWelcomeDialog
-//    Hide();
-//    m_welcomedialog->Show();
+    m_Parent->hide();
+    m_WelcomeDialog->raise();
+    m_WelcomeDialog->show();
+}
+
+bool AppFrame::Data::CreateMenuBar() {
+
+    QMenuBar* menubar = new QMenuBar(m_Parent);
+    menubar->setObjectName("menubar");
+
+    QMenu* menu_File = new QMenu(menubar);
+    menu_File->setObjectName("menu_File");
+
+
+    // RegisterAction(id, QAction);
+    return true;
+}
+
+void AppFrame::Data::OnFileOpen(){
+}
+
+void AppFrame::Data::OnFileClose(){
+}
+
+void AppFrame::Data::OnClearRecentProjectList(){
+}
+
+void AppFrame::Data::OnClearRecentImportList(){
+}
+
+void AppFrame::Data::OnOpenRecentFile(){
+}
+
+void AppFrame::Data::OnFileSave(){
+}
+
+void AppFrame::Data::OnFileSaveAs(){
+}
+
+void AppFrame::Data::OnFileSaveCopy(){
+}
+
+void AppFrame::Data::OnNewProject(){
+}
+
+void AppFrame::Data::OnFileRevert(){
+}
+
+void AppFrame::Data::OnFileCapture(){
+}
+
+void AppFrame::Data::OnFileBatchCapture(){
+}
+
+void AppFrame::Data::OnQuit(){
+}
+
+void AppFrame::Data::OnAbout(){
+}
+
+void AppFrame::Data::OnSaveFrameLayout(){
+}
+
+void AppFrame::Data::OnLoadDefaultLayout(){
+}
+
+void AppFrame::Data::OnWorkspaceFactoryDefault(){
+}
+
+void AppFrame::Data::OnFileMenuUpdateUI(){
+}
+
+void AppFrame::Data::OnRecentFilesMenuUpdateUI(){
+}
+
+void AppFrame::Data::OnRecentImportsMenuUpdateUI(){
+}
+
+void AppFrame::Data::OnEditMenuUpdateUI(){
+}
+
+void AppFrame::Data::OnProjectMenuUpdateUI(){
+}
+
+void AppFrame::Data::OnClipMenuUpdateUI(){
+}
+
+void AppFrame::Data::OnSequenceMenuUpdateUI(){
+}
+
+void AppFrame::Data::OnMarkerMenuUpdateUI(){
+}
+
+void AppFrame::Data::OnWindowMenuUpdateUI(){
 }
 
 // ------------------
 // end AppFrame::Data
 // ------------------
-
-const syString CFG_LAYOUTS = "Layouts";
-const syString CFG_LAYOUT_DEFAULT = CFG_LAYOUTS + "/Default";
-const syString CFG_LOCATION = CFG_LAYOUT_DEFAULT + "/Location";
-const syString CFG_PERSPECTIVE_DEFAULT = CFG_LAYOUT_DEFAULT + "/Perspective";
-const syString CFG_DEFAULT_PRJ_SASHPOS = CFG_LAYOUT_DEFAULT + "/PrjSashPos";
-
-unsigned int idFileNew = syActionEvent::RegisterId("idFileNew");
-unsigned int idNewProject = syActionEvent::RegisterId("idNewProject");
-unsigned int idNewSequence = syActionEvent::RegisterId("idNewSequence");
-unsigned int idNewBin = syActionEvent::RegisterId("idNewBin");
-unsigned int idNewOfflineFile = syActionEvent::RegisterId("idNewOfflineFile");
-unsigned int idNewTitle = syActionEvent::RegisterId("idNewTitle");
-unsigned int idNewBarsandTone = syActionEvent::RegisterId("idNewBarsandTone");
-unsigned int idNewBlackVideo = syActionEvent::RegisterId("idNewBlackVideo");
-unsigned int idNewColorMatte = syActionEvent::RegisterId("idNewColorMatte");
-unsigned int idNewUniversalCountingLeader = syActionEvent::RegisterId("idNewUniversalCountingLeader");
-
-unsigned int idFileOpen = syActionEvent::RegisterId("idFileOpen");
-unsigned int idFileOpenRecentProject = syActionEvent::RegisterId("idFileOpenRecentProject");
-unsigned int idFileClearRecentProjectList = syActionEvent::RegisterId("idFileClearRecentProjectList");
-unsigned int idFileClearRecentImportList = syActionEvent::RegisterId("idFileClearRecentImportList");
-unsigned int idFileClose = syActionEvent::RegisterId("idFileClose");
-unsigned int idFileSave = syActionEvent::RegisterId("idFileSave");
-unsigned int idFileSaveAs = syActionEvent::RegisterId("idFileSaveAs");
-unsigned int idFileSaveCopy = syActionEvent::RegisterId("idFileSaveCopy");
-unsigned int idFileRevert = syActionEvent::RegisterId("idFileRevert");
-unsigned int idFileCapture = syActionEvent::RegisterId("idFileCapture");
-unsigned int idFileBatchCapture = syActionEvent::RegisterId("idFileBatchCapture");
-unsigned int idFileImport = syActionEvent::RegisterId("idFileImport");
-unsigned int idFileImportRecent = syActionEvent::RegisterId("idFileImportRecent");
-unsigned int idFileExport = syActionEvent::RegisterId("idFileExport");
-unsigned int idFileGetProperties = syActionEvent::RegisterId("idFileGetProperties");
-unsigned int idFileGetPropertiesFile = syActionEvent::RegisterId("idFileGetPropertiesFile");
-unsigned int idFileGetPropertiesSelection = syActionEvent::RegisterId("idFileGetPropertiesSelection");
-unsigned int idFileInterpretFootage = syActionEvent::RegisterId("idFileInterpretFootage");
-unsigned int idFileTimecode = syActionEvent::RegisterId("idFileTimecode");
-
-unsigned int syID_FILE1 = syActionEvent::NewId();
-unsigned int syID_FILE2 = syActionEvent::RegisterId(syID_FILE1 + 1);
-unsigned int syID_FILE3 = syActionEvent::RegisterId(syID_FILE1 + 2);
-unsigned int syID_FILE4 = syActionEvent::RegisterId(syID_FILE1 + 3);
-unsigned int syID_FILE5 = syActionEvent::RegisterId(syID_FILE1 + 4);
-unsigned int syID_FILE6 = syActionEvent::RegisterId(syID_FILE1 + 5);
-unsigned int syID_FILE7 = syActionEvent::RegisterId(syID_FILE1 + 6);
-unsigned int syID_FILE8 = syActionEvent::RegisterId(syID_FILE1 + 7);
-unsigned int syID_FILE9 = syActionEvent::RegisterId(syID_FILE1 + 8);
-
-unsigned int syID_IMPORT1 = syActionEvent::NewId();
-unsigned int syID_IMPORT2 = syActionEvent::RegisterId(syID_IMPORT1 + 1);
-unsigned int syID_IMPORT3 = syActionEvent::RegisterId(syID_IMPORT1 + 2);
-unsigned int syID_IMPORT4 = syActionEvent::RegisterId(syID_IMPORT1 + 3);
-unsigned int syID_IMPORT5 = syActionEvent::RegisterId(syID_IMPORT1 + 4);
-unsigned int syID_IMPORT6 = syActionEvent::RegisterId(syID_IMPORT1 + 5);
-unsigned int syID_IMPORT7 = syActionEvent::RegisterId(syID_IMPORT1 + 6);
-unsigned int syID_IMPORT8 = syActionEvent::RegisterId(syID_IMPORT1 + 7);
-unsigned int syID_IMPORT9 = syActionEvent::RegisterId(syID_IMPORT1 + 8);
-
-unsigned int idEditUndo = syActionEvent::RegisterId("idEditUndo");
-unsigned int idEditRedo = syActionEvent::RegisterId("idEditRedo");
-unsigned int idEditClearUndoHistory = syActionEvent::RegisterId("idEditClearUndoHistory");
-unsigned int idEditCut = syActionEvent::RegisterId("idEditCut");
-unsigned int idEditCopy = syActionEvent::RegisterId("idEditCopy");
-unsigned int idEditPaste = syActionEvent::RegisterId("idEditPaste");
-unsigned int idEditPasteInsert = syActionEvent::RegisterId("idEditPasteInsert");
-unsigned int idEditPasteAttributes = syActionEvent::RegisterId("idEditPasteAttributes");
-unsigned int idEditClear = syActionEvent::RegisterId("idEditClear");
-unsigned int idEditRippleDelete = syActionEvent::RegisterId("idEditRippleDelete");
-unsigned int idEditDuplicate = syActionEvent::RegisterId("idEditDuplicate");
-unsigned int idEditSelectAll = syActionEvent::RegisterId("idEditSelectAll");
-unsigned int idEditDeselectAll = syActionEvent::RegisterId("idEditDeselectAll");
-unsigned int idEditFind = syActionEvent::RegisterId("idEditFind");
-unsigned int idEditLabel = syActionEvent::RegisterId("idEditLabel");
-unsigned int idEditLabelBlue = syActionEvent::RegisterId("idEditLabelBlue");
-unsigned int idEditLabelCyan = syActionEvent::RegisterId("idEditLabelCyan");
-unsigned int idEditLabelGreen = syActionEvent::RegisterId("idEditLabelGreen");
-unsigned int idEditLabelViolet = syActionEvent::RegisterId("idEditLabelViolet");
-unsigned int idEditLabelPink = syActionEvent::RegisterId("idEditLabelPink");
-unsigned int idEditLabelGray = syActionEvent::RegisterId("idEditLabelGray");
-unsigned int idEditLabelRed = syActionEvent::RegisterId("idEditLabelRed");
-unsigned int idEditLabelOrange = syActionEvent::RegisterId("idEditLabelOrange");
-unsigned int idEditOriginal = syActionEvent::RegisterId("idEditOriginal");
-
-unsigned int idProjectSettings = syActionEvent::RegisterId("idProjectSettings");
-unsigned int idProjectSettingsGeneral = syActionEvent::RegisterId("idProjectSettingsGeneral");
-unsigned int idProjectSettingsCapture = syActionEvent::RegisterId("idProjectSettingsCapture");
-unsigned int idProjectSettingsVideoRendering = syActionEvent::RegisterId("idProjectSettingsVideoRendering");
-unsigned int idProjectSettingsDefaultSequence = syActionEvent::RegisterId("idProjectSettingsDefaultSequence");
-unsigned int idProjectLinkMedia = syActionEvent::RegisterId("idProjectLinkMedia");
-unsigned int idProjectUnlinkMedia = syActionEvent::RegisterId("idProjectUnlinkMedia");
-unsigned int idProjectAutomateToSequence = syActionEvent::RegisterId("idProjectAutomateToSequence");
-unsigned int idProjectImportBatchList = syActionEvent::RegisterId("idProjectImportBatchList");
-unsigned int idProjectExportBatchList = syActionEvent::RegisterId("idProjectExportBatchList");
-unsigned int idProjectExportAsAAF = syActionEvent::RegisterId("idProjectExportAsAAF");
-
-unsigned int idClipRename = syActionEvent::RegisterId("idClipRename");
-unsigned int idClipCaptureSettings = syActionEvent::RegisterId("idClipCaptureSettings");
-unsigned int idClipSetCaptureSettings = syActionEvent::RegisterId("idClipSetCaptureSettings");
-unsigned int idClipClearCaptureSettings = syActionEvent::RegisterId("idClipClearCaptureSettings");
-unsigned int idClipInsert = syActionEvent::RegisterId("idClipInsert");
-unsigned int idClipOverlay = syActionEvent::RegisterId("idClipOverlay");
-unsigned int idClipToggleEnable = syActionEvent::RegisterId("idClipToggleEnable");
-unsigned int idClipUnlinkAV = syActionEvent::RegisterId("idClipUnlinkAV");
-unsigned int idClipLinkAV = syActionEvent::RegisterId("idClipLinkAV");
-unsigned int idClipGroup = syActionEvent::RegisterId("idClipGroup");
-unsigned int idClipUngroup = syActionEvent::RegisterId("idClipUngroup");
-unsigned int idClipVideoOptions = syActionEvent::RegisterId("idClipVideoOptions");
-unsigned int idClipVOptFrameHold = syActionEvent::RegisterId("idClipVOptFrameHold");
-unsigned int idClipVOptFieldOptions = syActionEvent::RegisterId("idClipVOptFieldOptions");
-unsigned int idClipAudioOptions = syActionEvent::RegisterId("idClipAudioOptions");
-unsigned int idClipAOptGain = syActionEvent::RegisterId("idClipAOptGain");
-unsigned int idClipAOptBreakoutToMono = syActionEvent::RegisterId("idClipAOptBreakoutToMono");
-unsigned int idClipOptTreatAsStereo = syActionEvent::RegisterId("idClipOptTreatAsStereo");
-unsigned int idClipOptRenderAndReplace = syActionEvent::RegisterId("idClipOptRenderAndReplace");
-unsigned int idClipSpeedDuration = syActionEvent::RegisterId("idClipSpeedDuration");
-
-unsigned int idSequenceRender = syActionEvent::RegisterId("idSequenceRender");
-unsigned int idSequenceDeleteRenderFiles = syActionEvent::RegisterId("idSequenceDeleteRenderFiles");
-unsigned int idSequenceRazor = syActionEvent::RegisterId("idSequenceRazor");
-unsigned int idSequenceRazorSelectedTracks = syActionEvent::RegisterId("idSequenceRazorSelectedTracks");
-unsigned int idSequenceLift = syActionEvent::RegisterId("idSequenceLift");
-unsigned int idSequenceExtract = syActionEvent::RegisterId("idSequenceExtract");
-unsigned int idSequenceApplyVideoTransition = syActionEvent::RegisterId("idSequenceApplyVideoTransition");
-unsigned int idSequenceApplyAudioTransition = syActionEvent::RegisterId("idSequenceApplyAudioTransition");
-unsigned int idSequenceZoomIn = syActionEvent::RegisterId("idSequenceZoomIn");
-unsigned int idSequenceZoomOut = syActionEvent::RegisterId("idSequenceZoomOut");
-unsigned int idSequenceSnap = syActionEvent::RegisterId("idSequenceSnap");
-unsigned int idSequenceAddTracks = syActionEvent::RegisterId("idSequenceAddTracks");
-unsigned int idSequenceDelTracks = syActionEvent::RegisterId("idSequenceDelTracks");
-
-unsigned int idSetClipMarkerMenu = syActionEvent::RegisterId("idSetClipMarkerMenu");
-unsigned int idGotoClipMarkerMenu = syActionEvent::RegisterId("idGotoClipMarkerMenu");
-unsigned int idGotoNextClipMarker = syActionEvent::RegisterId("idGotoNextClipMarker");
-unsigned int idGotoPrevClipMarker = syActionEvent::RegisterId("idGotoPrevClipMarker");
-unsigned int idGotoInClipMarker = syActionEvent::RegisterId("idGotoInClipMarker");
-unsigned int idGotoOutClipMarker = syActionEvent::RegisterId("idGotoOutClipMarker");
-unsigned int idGotoVideoInClipMarker = syActionEvent::RegisterId("idGotoVideoInClipMarker");
-unsigned int idGotoVideoOutClipMarker = syActionEvent::RegisterId("idGotoVideoOutClipMarker");
-unsigned int idGotoAudioInClipMarker = syActionEvent::RegisterId("idGotoAudioInClipMarker");
-unsigned int idGotoAudioOutClipMarker = syActionEvent::RegisterId("idGotoAudioOutClipMarker");
-unsigned int idGotoNumberedClipMarker = syActionEvent::RegisterId("idGotoNumberedClipMarker");
-unsigned int idClearClipMarkerMenu = syActionEvent::RegisterId("idClearClipMarkerMenu");
-unsigned int idClearCurrentClipMarker = syActionEvent::RegisterId("idClearCurrentClipMarker");
-unsigned int idClearAllClipMarkers = syActionEvent::RegisterId("idClearAllClipMarkers");
-unsigned int idClearInOutClipMarkers = syActionEvent::RegisterId("idClearInOutClipMarkers");
-unsigned int idClearInClipMarker = syActionEvent::RegisterId("idClearInClipMarker");
-unsigned int idClearOutClipMarker = syActionEvent::RegisterId("idClearOutClipMarker");
-unsigned int idClearNumberedClipMarker = syActionEvent::RegisterId("idClearNumberedClipMarker");
-unsigned int idSetSequenceMarkerMenu = syActionEvent::RegisterId("idSetSequenceMarkerMenu");
-unsigned int idSetInSequenceMarker = syActionEvent::RegisterId("idSetInSequenceMarker");
-unsigned int idSetOutSequenceMarker = syActionEvent::RegisterId("idSetOutSequenceMarker");
-unsigned int idSetInOutAroundSelSeqMarker = syActionEvent::RegisterId("idSetInOutAroundSelSeqMarker");
-unsigned int idSetUnnumberedSequenceMarker = syActionEvent::RegisterId("idSetUnnumberedSequenceMarker");
-unsigned int idSetNextAvailNumberedSeqMarker = syActionEvent::RegisterId("idSetNextAvailNumberedSeqMarker");
-unsigned int idSetOtherNumberedSequenceMarker = syActionEvent::RegisterId("idSetOtherNumberedSequenceMarker");
-unsigned int idGotoSequenceMarkerMenu = syActionEvent::RegisterId("idGotoSequenceMarkerMenu");
-unsigned int idGotoNextSequenceMarker = syActionEvent::RegisterId("idGotoNextSequenceMarker");
-unsigned int idGotoPrevSequenceMarker = syActionEvent::RegisterId("idGotoPrevSequenceMarker");
-unsigned int idGotoInSequenceMarker = syActionEvent::RegisterId("idGotoInSequenceMarker");
-unsigned int idGotoOutSequenceMarker = syActionEvent::RegisterId("idGotoOutSequenceMarker");
-unsigned int idGotoNumberedSeqMarker = syActionEvent::RegisterId("idGotoNumberedSeqMarker");
-unsigned int idClearSequenceMarkerMenu = syActionEvent::RegisterId("idClearSequenceMarkerMenu");
-unsigned int idClearCurSequenceMarker = syActionEvent::RegisterId("idClearCurSequenceMarker");
-unsigned int idClearAllSequenceMarkers = syActionEvent::RegisterId("idClearAllSequenceMarkers");
-unsigned int idClearInOutSeqMarkers = syActionEvent::RegisterId("idClearInOutSeqMarkers");
-unsigned int idClearInSeqMarker = syActionEvent::RegisterId("idClearInSeqMarker");
-unsigned int idClearOutSeqMarker = syActionEvent::RegisterId("idClearOutSeqMarker");
-unsigned int idClearNumberedSeqMarker = syActionEvent::RegisterId("idClearNumberedSeqMarker");
-unsigned int idEditSequenceMarker = syActionEvent::RegisterId("idEditSequenceMarker");
-
-unsigned int idWindowWorkspaceMenu = syActionEvent::RegisterId("idWindowWorkspaceMenu");
-unsigned int idWorkspaceEditing = syActionEvent::RegisterId("idWorkspaceEditing");
-unsigned int idWorkspaceEffects = syActionEvent::RegisterId("idWorkspaceEffects");
-unsigned int idWorkspaceAudio = syActionEvent::RegisterId("idWorkspaceAudio");
-unsigned int idWorkspaceColorCorrection = syActionEvent::RegisterId("idWorkspaceColorCorrection");
-unsigned int idWorkspaceDefault = syActionEvent::RegisterId("idWorkspaceDefault");
-unsigned int idWorkspaceFactoryDefault = syActionEvent::RegisterId("idWorkspaceFactoryDefault");
-unsigned int idWorkspaceSaveAs = syActionEvent::RegisterId("idWorkspaceSaveAs");
-unsigned int idWorkspaceDelete = syActionEvent::RegisterId("idWorkspaceDelete");
-unsigned int idWorkspaceCustom = syActionEvent::RegisterId("idWorkspaceCustom");
-unsigned int idMenuSaveFrameLayout = syActionEvent::RegisterId("idMenuSaveFrameLayout");
-unsigned int idWindowEffects = syActionEvent::RegisterId("idWindowEffects");
-unsigned int idWindowEffectControls = syActionEvent::RegisterId("idWindowEffectControls");
-unsigned int idWindowHistory = syActionEvent::RegisterId("idWindowHistory");
-unsigned int idWindowInfo = syActionEvent::RegisterId("idWindowInfo");
-unsigned int idWindowTools = syActionEvent::RegisterId("idWindowTools");
-unsigned int idWindowAudioMixer = syActionEvent::RegisterId("idWindowAudioMixer");
-unsigned int idWindowMonitor = syActionEvent::RegisterId("idWindowMonitor");
-unsigned int idWindowProject = syActionEvent::RegisterId("idWindowProject");
-unsigned int idWindowTimelinesMenu = syActionEvent::RegisterId("idWindowTimelinesMenu");
 
 //int idProjectPane = XRCID("idProjectPane");
 //int idPrjSplitter = XRCID("idPrjSplitter");
@@ -587,7 +751,6 @@ m_Data(new Data(this))
 //        CreateStatusBar(2);
 //
 //        m_mgr->SetManagedWindow(this);
-//        m_prjMan = ProjectManager::Get();
 //        LoadAndSetFrameSize();
 //
 //        if(!CreatePanels()) break;
@@ -612,17 +775,6 @@ m_Data(new Data(this))
 //    }
 }
 
-//bool AppFrame::CreateMenuBar() {
-//    bool result = false;
-//    wxMenuBar* mbar = wxXmlResource::Get()->LoadMenuBar(wxT("main_menu_bar"));
-//    if(mbar) {
-//        SetMenuBar(mbar);
-//        result = true;
-//    } else {
-//        LoadFail("main_menu_bar");
-//    }
-//    return result;
-//}
 //
 //bool AppFrame::CreateDialogs() {
 //    bool result = false;
@@ -786,11 +938,6 @@ m_Data(new Data(this))
 //    }
 //}
 
-void AppFrame::LoadFail(const char* resourcename) {
-    syString s;
-    s.Printf(_("Could not find the resource '%s'!\nAre you sure the program was installed correctly?"),resourcename);
-    syApp::Get()->ErrorMessageBox(s.c_str());
-}
 
 //wxMenu* AppFrame::FindMenu(const wxString name) {
 //    wxMenu* result = NULL;
@@ -1446,3 +1593,5 @@ void AppFrame::UpdateStatustext() {
 //        thepane->Enable(enablePane);
 //    }
 //}
+
+#include "main.moc.h"

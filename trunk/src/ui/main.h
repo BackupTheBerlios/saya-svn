@@ -17,11 +17,6 @@
 class syString;
 class ProjectManager;
 class WelcomeDialog;
-//class wxUpdateUIEvent;
-//class wxPanel;
-//class wxTreeCtrl;
-//class wxTreeEvent;
-//class wxAuiManager;
 
 class syProjectStatusEvent;
 
@@ -29,7 +24,6 @@ class AppFrame: public QMainWindow, public syEvtHandler {
     public:
         AppFrame(const syString& title);
         ~AppFrame();
-//        void OnFrameLayout (wxCommandEvent& event);
         void UpdateStatustext();
 
         bool IsClipSelected();          ///< True if one or more timeline clips are selected
@@ -48,14 +42,10 @@ class AppFrame: public QMainWindow, public syEvtHandler {
         bool IsTitleWindowActive();     ///< True if the title window is active
         bool CanUndo();                 ///< Does the project have an item in the "undo" list?
         bool CanRedo();                 ///< Does the project have an item in the "redo" list?
-//
-//        /// Shows an error about Loading an XML resource.
-        void LoadFail(const char* resourcename);
-//
+
         void OnProjectStatusChanged(syProjectStatusEvent& event);
-//
+
 //        wxMenu* FindMenu(const wxString name);
-        ProjectManager* m_prjMan;
     private:
         class Data;
         friend class Data;
