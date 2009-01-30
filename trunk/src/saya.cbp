@@ -296,6 +296,7 @@
 		</Unit>
 		<Unit filename="ui/main.h" />
 		<Unit filename="ui/main.moc.h" />
+		<Unit filename="ui/main.ui.h" />
 		<Unit filename="ui/newprojectdlg.cpp" />
 		<Unit filename="ui/newprojectdlg.h" />
 		<Unit filename="ui/picknamedlg.cpp" />

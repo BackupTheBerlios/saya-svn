@@ -28,7 +28,7 @@
 
 extern int idFileOpen;
 extern int idNewProject;
-extern int syID_FILE1;
+extern int idRecentProject1;
 class WelcomeDialog::Data : public QObject {
     Q_OBJECT
     public:
@@ -125,7 +125,7 @@ void WelcomeDialog::Data::OnLinkClicked(const QUrl& link) {
         bool isok = false;
         fileno = href.toInt(&isok);
         if(isok) {
-            syActionEvent tmpevent(syID_FILE1 + (fileno - 1));
+            syActionEvent tmpevent(idRecentProject1 + (fileno - 1));
             m_EventHandler->ProcessEvent(tmpevent);
         }
     }

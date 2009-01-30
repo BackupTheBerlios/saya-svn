@@ -93,6 +93,9 @@ class syActionEvent : public syEvent {
          */
         static unsigned int RegisterId(const char* idname, const char* userstring = 0);
 
+        /** @brief Maps an existing Action Event Id to a string and a user string. */
+        static unsigned int RegisterId(unsigned int id, const char* idname, const char* userstring);
+
         /** @brief Maps an Action Event Id to a user string.
          *  @param id The registered event id#.
          *  @param userstring A user string to be related to this id. Used for Qt as a slot name.
@@ -101,8 +104,15 @@ class syActionEvent : public syEvent {
 
         /** @brief returns the user string associated to the given id.
          *  This can be used to help assign Qt slots to Menu actions automatically.
-         */
+         *  @warning This function is NOT thread-safe, it must be called by the main thread only!
+        */
         static const char* GetUserStringFromId(unsigned int id);
+
+        /** @brief returns the numeric id related to a named event identifier.
+         *  @warning This function is NOT thread-safe, it must be called by the main thread only!
+         */
+        static unsigned int GetRegisteredId(const char* idname);
+
     private:
         class Data;
 };

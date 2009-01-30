@@ -299,6 +299,21 @@ void syActionEvent::RegisterUserString(unsigned int id, const char* userstring) 
     }
 }
 
+unsigned int syActionEvent::RegisterId(unsigned int id, const char* idname, const char* userstring) {
+    if(Data::CurrentActionEventId <= id) {
+        Data::CurrentActionEventId = id + 1;
+    }
+    if(!Data::s_Map) {
+        Data::s_Map = new Data::StrIdMap;
+    }
+    if(!Data::s_UserMap) {
+        Data::s_UserMap = new Data::StrUserMap;
+    }
+    Data::s_Map->operator[](idname) = id;
+    Data::s_UserMap->operator[](id) = userstring;
+    return id;
+}
+
 const char* syActionEvent::GetUserStringFromId(unsigned int id) {
     if(!Data::s_UserMap) {
         return "";
@@ -308,6 +323,17 @@ const char* syActionEvent::GetUserStringFromId(unsigned int id) {
         return "";
     }
     return it->second.c_str();
+}
+
+unsigned int syActionEvent::GetRegisteredId(const char* idname) {
+    if(!Data::s_Map) {
+        return 0;
+    }
+    Data::StrIdMap::const_iterator it = Data::s_Map->find(idname);
+    if(it == Data::s_Map->end()) {
+        return 0;
+    }
+    return it->second;
 }
 
 // -----------------
