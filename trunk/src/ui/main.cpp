@@ -303,7 +303,7 @@ class AppFrame::Data : public QObject, public syEvtHandler {
         bool LoadResources();
         void CreateDockAreas();
         bool CreateDialogs();
-        void CreateConnections();
+        void CreateConnections(QWidget* parentwidget);
         bool CreateMenuBar();
         bool CreatePanels();
         long GetProjectPanelSashPos();
@@ -390,6 +390,7 @@ m_Ui(new Ui::MainWindow)
 {
     UnregisterAllActions();
     m_Ui->setupUi(m_Parent);
+    CreateConnections(m_Ui->menubar);
 }
 
 AppFrame::Data::~Data() {
@@ -465,8 +466,30 @@ bool AppFrame::Data::CreateMenuBar() {
     return true;
 }
 
-void AppFrame::Data::CreateConnections() {
+void AppFrame::Data::CreateConnections(QWidget* parentwidget) {
     // TODO: Connect the actions to the corresponding procedures using their id to obtain the corresponding slot.
+    QList<QAction*> all_actions = parentwidget->actions();
+    QList<QAction*>::iterator it = all_actions.begin();
+    for(;it != all_actions.end();++it) {
+        QAction* theaction = *it;
+        if(!theaction) continue;
+
+        QMenu* themenu = theaction->menu();
+        if(themenu) {
+            CreateConnections(themenu);
+        } else {
+            syString thename(theaction->objectName());
+            unsigned int id = syActionEvent::GetRegisteredId(thename.c_str());
+            if(!id) continue;
+
+            syString theslot(syActionEvent::GetUserStringFromId(id));
+            if(!theslot.empty()) {
+                theslot = syString(SLOT()) + theslot;
+                theaction->connect(static_cast<QObject*>(theaction), SIGNAL(triggered()), dynamic_cast<QObject*>(this), theslot.c_str(), Qt::QueuedConnection);
+            }
+        }
+    }
+//    m_Ui
 }
 
 void AppFrame::Data::OnFileOpen(){
@@ -494,6 +517,7 @@ void AppFrame::Data::OnFileSaveCopy(){
 }
 
 void AppFrame::Data::OnNewProject(){
+    syMessageBox("This is a test");
 }
 
 void AppFrame::Data::OnFileRevert(){
