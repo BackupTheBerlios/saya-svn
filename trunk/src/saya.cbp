@@ -303,7 +303,7 @@
 		<Unit filename="ui/picknamedlg.h" />
 		<Unit filename="ui/playbackcontrol.cpp" />
 		<Unit filename="ui/playbackcontrol.h" />
-		<Unit filename="ui/playbackcontrol.ui.h" />
+		<Unit filename="ui/playbackcontrol.moc.h" />
 		<Unit filename="ui/resources.cpp" />
 		<Unit filename="ui/resources.h" />
 		<Unit filename="ui/welcomedlg.cpp" />
