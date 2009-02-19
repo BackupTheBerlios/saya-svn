@@ -1,0 +1,7 @@
+<RCC>
+  <qresource>
+    <file>img/folder_video.png</file>
+    <file>img/new_video.png</file>
+    <file>img/exit.png</file>
+  </qresource>
+</RCC>

@@ -22,13 +22,12 @@
 #include <qevent.h>
 #include <qapplication.h>
 #include <qdesktopwidget.h>
-
-// These were the wxWidget events that we called whenever we choose an action.
-// But how do we pass them to the main window in Qt?
+#include "welcomedlg.ui.h"
 
 extern int idFileOpen;
 extern int idNewProject;
 extern int idRecentProject1;
+
 class WelcomeDialog::Data : public QObject {
     Q_OBJECT
     public:
@@ -41,6 +40,7 @@ class WelcomeDialog::Data : public QObject {
         syEvtHandler* m_EventHandler;
 
         // Objects in the parent widget
+        Ui::welcomedlg* m_Ui;
         QTextBrowser* m_Browser;
         QPushButton* m_NewButton;
         QPushButton* m_OpenButton;
@@ -56,10 +56,17 @@ class WelcomeDialog::Data : public QObject {
 WelcomeDialog::Data::Data(WelcomeDialog* parent, syEvtHandler* eventhandler) :
 m_Parent(parent),
 m_EventHandler(eventhandler),
+m_Browser(0),
 m_NewButton(0),
 m_OpenButton(0),
 m_QuitButton(0)
 {
+    m_Ui = new Ui::welcomedlg;
+    m_Ui->setupUi(parent);
+    m_Browser = m_Ui->browser1;
+    m_NewButton = m_Ui->btnNew;
+    m_OpenButton = m_Ui->btnOpen;
+    m_QuitButton = m_Ui->btnQuit;
 }
 
 void WelcomeDialog::Data::ConnectSignalsAndSlots() {
@@ -134,6 +141,7 @@ void WelcomeDialog::Data::OnLinkClicked(const QUrl& link) {
 WelcomeDialog::Data::~Data()
 {
     m_Parent->m_Data = 0;
+    delete m_Ui;
 }
 
 WelcomeDialog::WelcomeDialog(QWidget *parent) :
@@ -143,8 +151,6 @@ m_Data(new Data(this, dynamic_cast<syEvtHandler*>(parent)))
 	setAttribute(Qt::WA_QuitOnClose, false);
 	setAttribute(Qt::WA_DeleteOnClose, false);
 	setWindowTitle("Welcome to Saya!");
-
-	#warning TODO: Set m_Data's members to point to WelcomeDialog's push buttons and HTML window.
 
     m_Data->ConnectSignalsAndSlots();
 }
@@ -168,19 +174,5 @@ void WelcomeDialog::showEvent(QShowEvent * event) {
     int iYpos=(qRect.height() - height()) /2;
     this->move(iXpos,iYpos);
 }
-
-//
-//void WelcomeDialog::OnLinkClicked(wxHtmlLinkEvent& event) {
-//    wxHtmlLinkInfo linkinfo = event.GetLinkInfo();
-//    wxString href = linkinfo.GetHref();
-//    long fileno = 1;
-//    if(href.StartsWith(_T("sayarecent://"))) {
-//        href = href.SubString(13,1);
-//        if(href.ToLong(&fileno)) {
-//            wxCommandEvent tmpevent(wxEVT_COMMAND_MENU_SELECTED,wxID_FILE1 + (fileno - 1));
-//            m_Parent->ProcessEvent(tmpevent);
-//        }
-//    }
-//}
 
 #include "welcomedlg.moc.h"

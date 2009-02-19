@@ -17,6 +17,7 @@
 class syString;
 class ProjectManager;
 class WelcomeDialog;
+class QCloseEvent;
 
 class syProjectStatusEvent;
 
@@ -45,7 +46,9 @@ class AppFrame: public QMainWindow, public syEvtHandler {
 
         void OnProjectStatusChanged(syProjectStatusEvent& event);
 
-//        wxMenu* FindMenu(const wxString name);
+    protected:
+        virtual void closeEvent(QCloseEvent *event);
+
     private:
         class Data;
         friend class Data;
