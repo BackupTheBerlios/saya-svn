@@ -82,6 +82,8 @@ QMainWindow* CreateMainFrame() {
     // To test with an empty QWidget, comment the above lines and uncomment the following line.
     // QMainWindow* frame = new QMainWindow;
     syApp::Get()->SetTopWindow(frame);
+
+    // TODO: Comment the following line after opening (or creating) projects has been implemented.
     frame->show();
     return frame;
 }
@@ -106,7 +108,6 @@ unsigned int idNewBarsandTone = syActionEvent::RegisterId("action_NewBarsandTone
 unsigned int idNewBlackVideo = syActionEvent::RegisterId("action_NewBlackVideo");
 unsigned int idNewColorMatte = syActionEvent::RegisterId("action_NewColorMatte");
 unsigned int idNewUniversalCountingLeader = syActionEvent::RegisterId("action_NewUniversalCountingLeader");
-
 unsigned int idFileOpen = syActionEvent::RegisterId("action_FileOpen","OnFileOpen()");
 unsigned int idFileOpenRecentProject = syActionEvent::RegisterId("action_FileOpenRecentProject");
 unsigned int idFileClearRecentProjectList = syActionEvent::RegisterId("OnClearRecentProjectList()");
@@ -126,6 +127,7 @@ unsigned int idFileGetPropertiesFile = syActionEvent::RegisterId("action_FileGet
 unsigned int idFileGetPropertiesSelection = syActionEvent::RegisterId("action_FileGetPropertiesSelection");
 unsigned int idFileInterpretFootage = syActionEvent::RegisterId("action_FileInterpretFootage","OnFileInterpretFootage()");
 unsigned int idFileTimecode = syActionEvent::RegisterId("action_FileTimecode","OnFileTimecode()");
+unsigned int idQuit = syActionEvent::RegisterId("action_Quit", "OnQuit()");
 
 unsigned int idRecentProject1 = syActionEvent::RegisterId("action_RecentProject1","OnOpenRecentFile1()");
 unsigned int idRecentProject2 = syActionEvent::RegisterId(idRecentProject1 + 1,"action_RecentProject2","OnOpenRecentFile2()");
@@ -481,6 +483,7 @@ void AppFrame::Data::OnActionEvent(syActionEvent& event) {
 }
 
 void AppFrame::Data::ShowWelcomeDialog() {
+    m_WelcomeDialog->activateWindow();
     m_Parent->hide();
     m_WelcomeDialog->raise();
     m_WelcomeDialog->show();
@@ -500,7 +503,7 @@ void AppFrame::Data::CreateConnections(QWidget* parentwidget) {
             syString thename(theaction->objectName());
             unsigned int id = syActionEvent::GetRegisteredId(thename.c_str());
             if(!id) continue;
-
+            m_ActionsMap[id] = theaction;
             syString theslot(syActionEvent::GetUserStringFromId(id));
             if(!theslot.empty()) {
                 theslot = syString(SLOT()) + theslot;
@@ -508,6 +511,9 @@ void AppFrame::Data::CreateConnections(QWidget* parentwidget) {
             }
         }
     }
+    // Now we'll Register OnActionEvent as an event handler function.
+    m_Parent->m_Delegate = this;
+    syConnect(this, -1, &AppFrame::Data::OnActionEvent);
 }
 
 bool AppFrame::Data::LoadDefaultLayout(bool firsttime) {
@@ -525,8 +531,8 @@ bool AppFrame::Data::LoadDefaultLayout(bool firsttime) {
 }
 
 void AppFrame::Data::CenterOnScreen() {
-    // TODO: Implement AppFrame::Data::CenterOnScreen()
-    #warning TODO: Implement AppFrame::Data::CenterOnScreen()
+    QRect rect = QApplication::desktop()->availableGeometry(m_Parent);
+    m_Parent->move(rect.center() - m_Parent->rect().center());
 }
 
 void AppFrame::Data::OnProjectStatusChanged() {
@@ -548,24 +554,23 @@ void AppFrame::Data::OnProjectStatusChanged() {
 void AppFrame::Data::OnFileOpen(){
     if(IsAppShuttingDown())
         return;
-//    syString lastdir = ProjectManager::Get()->GetLastProjectDir();
-//
-//    // TODO: Show a file open dialog here.
-//    //    syFileDialog myDialog(this, _w("Choose a project"), lastdir, _T(""), _T("*.saya"), wxFD_DEFAULT_STYLE, wxDefaultPosition, wxDefaultSize, _T("opendlg"));
-//    //    int dialogresult = myDialog.ShowModal();
-//
-//    if(false /* dialogresult == syID_OK*/ ) {
-//        if(ProjectManager::Get()->CloseProject(false)) { // First close current project, ask to save, etc.
-//            syString chosenpath(myDialog.GetPath());
-//            bool result = ProjectManager::Get()->LoadProject(chosenpath);
-//            if(!result) {
-//                syString msg;
-//                msg.Printf(_("Error opening file '%s'!"),chosenpath.c_str());
-//                syMessageBox(msg,_w("Error"),syCANCEL | syICON_ERROR,m_Parent);
-//            }
-//            DoUpdateAppTitle();
-//        }
-//    }
+    syString lastdir = ProjectManager::Get()->GetLastProjectDir();
+
+    syFileDialogResult tmpresult = syFileSelector(
+        _("Choose a project"),lastdir,"","saya","*.saya", syFD_OPEN | syFD_FILE_MUST_EXIST);
+
+    if(tmpresult.GetOKResult()) {
+        if(ProjectManager::Get()->CloseProject(false)) { // First close current project, ask to save, etc.
+            syString chosenpath(tmpresult[0]);
+            bool result = ProjectManager::Get()->LoadProject(chosenpath);
+            if(!result) {
+                syString msg;
+                msg.Printf(_("Error opening file '%s'!"),chosenpath.c_str());
+                syMessageBox(msg,_("Error"),syCANCEL | syICON_ERROR,m_Parent);
+            }
+            DoUpdateAppTitle();
+        }
+    }
 }
 
 void AppFrame::Data::OnClearRecentProjectList() {
@@ -1018,7 +1023,6 @@ AppFrame::AppFrame(const syString& title) :
 QMainWindow(),
 m_Data(new Data(this))
 {
-
     bool result = false;
     do {
         if(!m_Data->CreateDialogs()) break;
@@ -1041,11 +1045,10 @@ m_Data(new Data(this))
     if(!result) {
         deleteLater();
     } else {
-        // TODO: Uncomment the following lines after Qt conversion is finished.
-        // syConnect(this, -1, &AppFrame::OnProjectStatusChanged);
-        // ProjectManager::Get()->SetEventHandler(this);
-
-        m_Data->ShowLayout(false);
+         // NOTE: Until the conversion is finished, if the main window isn't shown, comment the following lines
+         syConnect(this, -1, &AppFrame::OnProjectStatusChanged);
+         ProjectManager::Get()->SetEventHandler(this);
+         m_Data->ShowLayout(false);
     }
 }
 
@@ -1204,9 +1207,9 @@ void AppFrame::Data::LoadAndSetFrameSize() {
     }
 
     // check for reasonable values (within screen)
-    QDesktopWidget *desktop = QApplication::desktop();
-    int scr_w = desktop->width();
-    int scr_h = desktop->height();
+    QRect rect = QApplication::desktop()->availableGeometry(m_Parent);
+    int scr_w = rect.width();
+    int scr_h = rect.height();
     int xxmax = scr_w - minFrameWidth;
     int yymax = scr_h - minFrameHeight;
 
@@ -1332,7 +1335,7 @@ void AppFrame::OnProjectStatusChanged(syProjectStatusEvent& event) {
 void AppFrame::Data::ShowLayout(bool show) {
     if(IsAppShuttingDown())
         return;
-    show = true; // TODO: Remove this line after the WelcomeDialog can be shown safely.
+//    show = true; // TODO: Remove this line after the WelcomeDialog can be shown safely.
     if(show) {
         if(m_layouthidden) {
             LoadLayout(m_CurrentLayout,true);
@@ -1341,8 +1344,8 @@ void AppFrame::Data::ShowLayout(bool show) {
     } else {
         if(!m_layouthidden) {
             m_CurrentLayout = SaveLayout();
+            m_Parent->hide();
             // TODO: Hide all panes in the main window.
-            #warning TODO: Hide all panes in the main window.
 //            wxAuiPaneInfoArray& myarr = m_mgr->GetAllPanes();
 //            size_t i;
 //            for(i = 0;i < myarr.size(); i++) {
@@ -1359,6 +1362,7 @@ void AppFrame::Data::ShowLayout(bool show) {
         if(m_WelcomeDialog) {
             m_WelcomeDialog->hide();
         }
+        m_Parent->activateWindow();
         m_Parent->show();
         UpdateLayout();
     }
@@ -1403,6 +1407,7 @@ void AppFrame::closeEvent(QCloseEvent *event) {
         event->ignore();
     } else {
         event->accept();
+        deleteLater(); // Closing the main window will quit the application.
     }
 }
 
