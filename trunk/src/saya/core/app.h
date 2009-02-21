@@ -81,6 +81,10 @@ class syApp
         /** Gets the Application Full name and Motto. */
         virtual const char* GetApplicationShowOffName() const = 0;
 
+        virtual const char* GetApplicationPath() const = 0;
+
+        virtual const char* GetApplicationFilename() const = 0;
+
         /** @brief UI Initializer (called by Init()). To be overriden by your UI application.
          *  @return Set to true if the application was initialized correctly; false if there was an error.
          */

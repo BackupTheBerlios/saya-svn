@@ -100,6 +100,12 @@ class ioCommon {
           * opening the file.
           */
         static const syString GetTemporaryFilename(const char* path, const char* prefix = "_sayatmp");
+
+        /** @brief Prints a string on the screen. */
+        static void Print(const syString& s);
+
+        /** @brief Prints a string on the screen. */
+        static void Print(const char* s);
 };
 
 

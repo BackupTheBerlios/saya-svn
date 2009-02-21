@@ -9,14 +9,21 @@
 
 #include "resources.h"
 
+#include "../saya/core/iocommon.h"
 #include "../saya/core/systring.h"
+#include "../saya/core/app.h"
 #include <qbitmap.h>
+#include <qresource.h>
+#include <qapplication.h>
 
 syString ResourcesPath;
 syString ResourcesImgPath;
 
 void syInitResourcesPaths() {
-    ResourcesPath = "resources/";
+    ResourcesPath = syString(syApp::Get()->GetApplicationPath()) + "/resources/";
+    if(!ioCommon::FileExists(ResourcesPath)) {
+        ResourcesPath = ioCommon::GetPathname(syString(syApp::Get()->GetApplicationPath())) + "/resources/";
+    }
     ResourcesImgPath = ResourcesPath + "img/";
 }
 

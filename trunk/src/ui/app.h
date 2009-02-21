@@ -30,6 +30,12 @@ class qSayaApp: public syApp
         /** Gets the Application Full name and Motto. */
         virtual const char* GetApplicationShowOffName() const;
 
+        /** Gets the Application Path */
+        virtual const char* GetApplicationPath() const;
+
+        /** Gets the Application Filename */
+        virtual const char* GetApplicationFilename() const;
+
         virtual syDebugLog* CreateDebugLog() const;
 
         /** Creates a Config handler. */

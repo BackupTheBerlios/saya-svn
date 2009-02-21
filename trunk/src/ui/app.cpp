@@ -14,7 +14,9 @@
 #include <qfiledialog.h>
 #include <qstringlist.h>
 #include <qtextcodec.h>
+#include <qresource.h>
 
+#include "../saya/core/iocommon.h"
 #include "../saya/core/sentryfuncs.h"
 #include "../saya/core/systring.h"
 #include "../saya/core/intl.h"
@@ -58,7 +60,8 @@ const char* APP_NAME = "SayaVideoEditor";
 const char* APP_VENDOR = "Rick Garcia";
 const char* APP_SHOWNAME = "Saya";
 const char* APP_SHOWOFFNAME = "SayaVE Ain't Yet Another Video Editor";
-
+syString APP_DIR;
+syString APP_FILENAME;
 // ---------------------
 // begin qSayaApp::Data
 // ---------------------
@@ -68,6 +71,7 @@ class qSayaApp::Data {
         Data();
         ~Data();
         bool LoadResources();
+        bool LoadResource(const syString& filename);
         syDebugLog* m_DebugLog;
         void* m_TopWindow;
         qMyApp* m_App;
@@ -92,16 +96,21 @@ qSayaApp::Data::~Data() {
     m_App = 0;
 }
 
+bool qSayaApp::Data::LoadResource(const syString& filename) {
+    syString fullresource = ResourcesPath + filename;
+    if(!QResource::registerResource(fullresource)) {
+        ioCommon::Print(syString::Format("Error loading resource: '%s'. Aborting...\n",filename.c_str()));
+        return false;
+    }
+    return true;
+}
+
 bool qSayaApp::Data::LoadResources() {
     bool result = false;
-//    wxXmlResource* rsc = wxXmlResource::Get();
-//    do {
-//        if(!rsc->Load(_T("resources/deprecated/mainmenu.xrc"))) break;
-//        if(!rsc->Load(_T("resources/deprecated/welcome.xrc"))) break;
-//        if(!rsc->Load(_T("resources/deprecated/newproject.xrc"))) break;
-//        if(!rsc->Load(_T("resources/deprecated/pickname.xrc"))) break;
-//        result = true;
-//    }while(false);
+    do {
+        if(!LoadResource("welcomedlg.rcc")) break;
+        result = true;
+    }while(false);
     return result;
 }
 
@@ -140,6 +149,14 @@ const char* qSayaApp::GetApplicationShowOffName() const {
     return APP_SHOWOFFNAME;
 }
 
+const char* qSayaApp::GetApplicationPath() const {
+    return APP_DIR.c_str();
+}
+
+const char* qSayaApp::GetApplicationFilename() const {
+    return APP_FILENAME.c_str();
+}
+
 syConfig* qSayaApp::CreateConfig() const {
     return new QsyConfig(GetApplicationName());
 }
@@ -151,6 +168,9 @@ syDebugLog* qSayaApp::CreateDebugLog() const {
 
 bool qSayaApp::OnInit() {
     bool result = false;
+    APP_DIR = QCoreApplication::applicationDirPath();
+    APP_FILENAME = QCoreApplication::applicationFilePath();
+
     do {
         // Init Project Manager and Playback Manager.
         DebugLog(_("Initializing Playback Manager..."));
@@ -177,9 +197,10 @@ bool qSayaApp::OnInit() {
 //        DebugLog(_("Initializing Image handlers..."));
 //        wxInitAllImageHandlers();
 
-//        DebugLog(_("Loading resources..."));
-//        if(!m_Data->LoadResources())
-//            break;
+        DebugLog(_("Loading resources..."));
+        if(!m_Data->LoadResources()) {
+            break;
+        }
 
         DebugLog(_("Creating main frame..."));
         CreateMainFrame();

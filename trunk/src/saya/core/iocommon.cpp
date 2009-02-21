@@ -120,6 +120,16 @@ const syString ioCommon::GetTemporaryFilename(const char* path, const char* pref
     return filename;
 }
 
+/** @brief Prints a string on the screen. */
+void ioCommon::Print(const syString& s) {
+    printf("%s",s.c_str());
+}
+
+/** @brief Prints a string on the screen. */
+void ioCommon::Print(const char* s){
+    printf("%s",s);
+}
+
 
 // *** FFile ***
 class FFile::Data {
