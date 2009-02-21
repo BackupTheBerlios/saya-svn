@@ -49,7 +49,7 @@ m_Timer(new QTimer(this))
 	syApp::Get()->SetTopWindow(this);
     this->show();
     connect(m_Timer, SIGNAL(timeout()), this, SLOT(OnIdle()) );
-    m_Timer->start(1);
+    m_Timer->start(3);
 }
 
 AppDebugLog::Data::~Data() {
