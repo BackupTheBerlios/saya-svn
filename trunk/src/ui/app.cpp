@@ -333,12 +333,12 @@ syFileDialogResult qSayaApp::FileSelector(
 
     mydialog.setAcceptMode(acceptmode);
     mydialog.setFileMode(filemode);
-    mydialog.exec();
+    if(mydialog.exec()) {
+        QStringList files = mydialog.selectedFiles();
 
-    QStringList files = mydialog.selectedFiles();
-
-    for(QStringList::iterator i = files.begin(); i != files.end(); ++i) {
-        result.AddFile(i->toUtf8().data ());
+        for(QStringList::iterator i = files.begin(); i != files.end(); ++i) {
+            result.AddFile(i->toUtf8().data ());
+        }
     }
     return result;
 }

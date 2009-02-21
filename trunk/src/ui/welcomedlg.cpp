@@ -22,7 +22,7 @@
 #include <qevent.h>
 #include <qapplication.h>
 #include <qdesktopwidget.h>
-#include "welcomedlg.ui.h"
+#include "ui/welcomedlg.ui.h"
 
 extern int idFileOpen;
 extern int idNewProject;
@@ -175,4 +175,4 @@ void WelcomeDialog::showEvent(QShowEvent * event) {
     this->move(iXpos,iYpos);
 }
 
-#include "welcomedlg.moc.h"
+#include "moc/welcomedlg.moc.h"

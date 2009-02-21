@@ -8,7 +8,7 @@
 // **************************************************************************************/
 #include <QtGui>
 #include "playbackcontrol.h"
-#include "playbackcontrol.moc.h"
+#include "moc/playbackcontrol.moc.h"
 
 PlaybackControl::PlaybackControl(QWidget* parent)
     : QWidget (parent)

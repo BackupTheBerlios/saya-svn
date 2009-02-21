@@ -44,8 +44,6 @@ class AppFrame: public QMainWindow, public syEvtHandler {
         bool CanUndo();                 ///< Does the project have an item in the "undo" list?
         bool CanRedo();                 ///< Does the project have an item in the "redo" list?
 
-        void OnProjectStatusChanged(syProjectStatusEvent& event);
-
     protected:
         virtual void closeEvent(QCloseEvent *event);
 

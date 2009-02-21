@@ -18,7 +18,7 @@
 #include <qdesktopwidget.h>
 #include <QCloseEvent>
 
-#include "main.ui.h"
+#include "ui/main.ui.h"
 
 #include "../saya/core/app.h"
 #include "../saya/core/systring.h"
@@ -83,8 +83,8 @@ QMainWindow* CreateMainFrame() {
     // QMainWindow* frame = new QMainWindow;
     syApp::Get()->SetTopWindow(frame);
 
-    // TODO: Comment the following line after opening (or creating) projects has been implemented.
-    frame->show();
+    // Uncomment the following line if you want to show the main frame anyway (for debugging purposes).
+    // frame->show();
     return frame;
 }
 
@@ -324,10 +324,11 @@ class AppFrame::Data : public QObject, public syEvtHandler {
         void CenterOnScreen();
 
         void ShowWelcomeDialog();
+        void ShowMainWindow();
 
         void OpenRecentFile(unsigned int fileno);
 
-        void OnProjectStatusChanged();
+        void OnProjectStatusChanged(syProjectStatusEvent& event);
 
     public:
         bool m_hadproject;
@@ -483,10 +484,19 @@ void AppFrame::Data::OnActionEvent(syActionEvent& event) {
 }
 
 void AppFrame::Data::ShowWelcomeDialog() {
-    m_WelcomeDialog->activateWindow();
     m_Parent->hide();
-    m_WelcomeDialog->raise();
-    m_WelcomeDialog->show();
+    if(m_WelcomeDialog) {
+        m_WelcomeDialog->activateWindow();
+        m_WelcomeDialog->raise();
+        m_WelcomeDialog->show();
+    }
+}
+
+void AppFrame::Data::ShowMainWindow() {
+    if(m_WelcomeDialog) m_WelcomeDialog->hide();
+    m_Parent->activateWindow();
+    m_Parent->raise();
+    m_Parent->show();
 }
 
 void AppFrame::Data::CreateConnections(QWidget* parentwidget) {
@@ -514,6 +524,7 @@ void AppFrame::Data::CreateConnections(QWidget* parentwidget) {
     // Now we'll Register OnActionEvent as an event handler function.
     m_Parent->m_Delegate = this;
     syConnect(this, -1, &AppFrame::Data::OnActionEvent);
+    syConnect(this, -1, &AppFrame::Data::OnProjectStatusChanged);
 }
 
 bool AppFrame::Data::LoadDefaultLayout(bool firsttime) {
@@ -535,7 +546,7 @@ void AppFrame::Data::CenterOnScreen() {
     m_Parent->move(rect.center() - m_Parent->rect().center());
 }
 
-void AppFrame::Data::OnProjectStatusChanged() {
+void AppFrame::Data::OnProjectStatusChanged(syProjectStatusEvent& event) {
     if(IsAppShuttingDown())
         return;
     if(m_hadproject != ProjectManager::Get()->HasProject() || !m_panes_status_checked) {
@@ -568,6 +579,7 @@ void AppFrame::Data::OnFileOpen(){
                 msg.Printf(_("Error opening file '%s'!"),chosenpath.c_str());
                 syMessageBox(msg,_("Error"),syCANCEL | syICON_ERROR,m_Parent);
             }
+            ShowMainWindow();
             DoUpdateAppTitle();
         }
     }
@@ -623,6 +635,7 @@ void AppFrame::Data::OpenRecentFile(unsigned int fileno) {
             msg.Printf(_("Error opening file '%s'!"),ProjectManager::Get()->GetRecentFiles()->item(fileno).c_str());
             syMessageBox(msg,_("Error"),syCANCEL | syICON_ERROR,this);
         }
+        ShowMainWindow();
         DoUpdateAppTitle();
     }
 
@@ -1046,7 +1059,6 @@ m_Data(new Data(this))
         deleteLater();
     } else {
          // NOTE: Until the conversion is finished, if the main window isn't shown, comment the following lines
-         syConnect(this, -1, &AppFrame::OnProjectStatusChanged);
          ProjectManager::Get()->SetEventHandler(this);
          m_Data->ShowLayout(false);
     }
@@ -1328,10 +1340,6 @@ void AppFrame::Data::SaveDefaultLayout(bool showmsg) {
     }
 }
 
-void AppFrame::OnProjectStatusChanged(syProjectStatusEvent& event) {
-    m_Data->OnProjectStatusChanged();
-}
-
 void AppFrame::Data::ShowLayout(bool show) {
     if(IsAppShuttingDown())
         return;
@@ -1345,7 +1353,8 @@ void AppFrame::Data::ShowLayout(bool show) {
         if(!m_layouthidden) {
             m_CurrentLayout = SaveLayout();
             m_Parent->hide();
-            // TODO: Hide all panes in the main window.
+            // TODO: Hide all docks corresponding to the main window.
+            // If Qt does this automatically when hiding the main window, we won't need to conver this code after all.
 //            wxAuiPaneInfoArray& myarr = m_mgr->GetAllPanes();
 //            size_t i;
 //            for(i = 0;i < myarr.size(); i++) {
@@ -1359,11 +1368,7 @@ void AppFrame::Data::ShowLayout(bool show) {
         UpdateLayout();
         ShowWelcomeDialog();
     } else {
-        if(m_WelcomeDialog) {
-            m_WelcomeDialog->hide();
-        }
-        m_Parent->activateWindow();
-        m_Parent->show();
+        ShowMainWindow();
         UpdateLayout();
     }
 }
@@ -1431,4 +1436,4 @@ void AppFrame::closeEvent(QCloseEvent *event) {
 //    }
 //}
 
-#include "main.moc.h"
+#include "moc/main.moc.h"

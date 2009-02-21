@@ -111,4 +111,4 @@ AppDebugLog::~AppDebugLog() {
     m_Data = 0;
 }
 
-#include "debuglog.moc.h"
+#include "moc/debuglog.moc.h"

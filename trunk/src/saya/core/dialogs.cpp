@@ -35,6 +35,7 @@ syFileDialogResult::Data::Data() {
 }
 
 syFileDialogResult::Data::Data(const syFileDialogResult::Data& copy) {
+    Clear();
     m_Files = copy.m_Files;
 }
 
