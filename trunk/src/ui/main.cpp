@@ -525,6 +525,17 @@ void AppFrame::Data::CreateConnections(QWidget* parentwidget) {
     m_Parent->m_Delegate = this;
     syConnect(this, -1, &AppFrame::Data::OnActionEvent);
     syConnect(this, -1, &AppFrame::Data::OnProjectStatusChanged);
+
+    // Connect the aboutToShow() signals to the On*UpdateUI() slots.
+    m_Ui->file_menu->connect(static_cast<QObject*>(m_Ui->file_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnFileMenuUpdateUI()));
+    m_Ui->action_FileOpenRecentProject->connect(static_cast<QObject*>(m_Ui->action_FileOpenRecentProject), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnRecentFilesMenuUpdateUI()));
+    m_Ui->action_FileImportRecent->connect(static_cast<QObject*>(m_Ui->action_FileImportRecent), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnRecentImportsMenuUpdateUI()));
+    m_Ui->edit_menu->connect(static_cast<QObject*>(m_Ui->edit_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnEditMenuUpdateUI()));
+    m_Ui->project_menu->connect(static_cast<QObject*>(m_Ui->project_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnProjectMenuUpdateUI()));
+    m_Ui->clip_menu->connect(static_cast<QObject*>(m_Ui->clip_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnClipMenuUpdateUI()));
+    m_Ui->sequence_menu->connect(static_cast<QObject*>(m_Ui->sequence_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnSequenceMenuUpdateUI()));
+    m_Ui->marker_menu->connect(static_cast<QObject*>(m_Ui->marker_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnMarkerMenuUpdateUI()));
+    m_Ui->window_menu->connect(static_cast<QObject*>(m_Ui->window_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnWindowMenuUpdateUI()));
 }
 
 bool AppFrame::Data::LoadDefaultLayout(bool firsttime) {
@@ -681,43 +692,42 @@ void AppFrame::Data::OnWorkspaceFactoryDefault(){
 }
 
 void AppFrame::Data::OnFileMenuUpdateUI() {
-//    ProjectManager* pmgr = ProjectManager::Get();
-//    if(!pmgr) return;
-//
-//    VidProject* prj = pmgr->GetProject();
-//
-//    bool hasproject = (prj);
-//    bool isModified = hasproject && prj->IsModified();
-//    bool isNew = hasproject && prj->IsNew();
-//
-//    wxMenuBar* mbar = GetMenuBar();
-//    mbar->Enable(idNewSequence, hasproject);
-//    mbar->Enable(idNewBin, hasproject);
-//    mbar->Enable(idNewOfflineFile, hasproject);
-//    mbar->Enable(idNewTitle, hasproject);
-//    mbar->Enable(idNewBarsandTone, hasproject);
-//    mbar->Enable(idNewBlackVideo, hasproject);
-//    mbar->Enable(idNewColorMatte, hasproject);
-//    mbar->Enable(idNewUniversalCountingLeader, hasproject);
-//    mbar->Enable(idFileClose,hasproject);
-//    mbar->Enable(idFileSave,hasproject && (isModified || isNew));
-//    mbar->Enable(idFileSaveAs,hasproject);
-//    mbar->Enable(idFileSaveCopy,hasproject);
-//    mbar->Enable(idFileRevert,hasproject && isModified && !isNew);
-//    mbar->Enable(idFileInterpretFootage,hasproject && (IsClipSelected() || IsResourceClipSelected()));
-//    mbar->Enable(idFileTimecode,hasproject && IsClipSelected());
-//    mbar->Enable(idFileImport,hasproject);
-//    mbar->Enable(idFileExport,hasproject);
-//    mbar->Enable(idFileGetPropertiesSelection, hasproject && (IsClipSelected() || IsResourceClipSelected()));
-//    mbar->Enable(idFileCapture, hasproject);
-//    mbar->Enable(idFileBatchCapture, hasproject);
-//    mbar->Enable(idFileGetProperties, hasproject);
-//    mbar->Enable(idFileGetPropertiesFile, hasproject);
-//    mbar->Enable(idFileGetPropertiesSelection, hasproject);
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr) return;
+
+    VidProject* prj = pmgr->GetProject();
+
+    bool hasproject = (prj);
+    bool isModified = hasproject && prj->IsModified();
+    bool isNew = hasproject && prj->IsNew();
+
+    EnableAction(idNewSequence, hasproject);
+    EnableAction(idNewBin, hasproject);
+    EnableAction(idNewOfflineFile, hasproject);
+    EnableAction(idNewTitle, hasproject);
+    EnableAction(idNewBarsandTone, hasproject);
+    EnableAction(idNewBlackVideo, hasproject);
+    EnableAction(idNewColorMatte, hasproject);
+    EnableAction(idNewUniversalCountingLeader, hasproject);
+    EnableAction(idFileClose,hasproject);
+    EnableAction(idFileSave,hasproject && (isModified || isNew));
+    EnableAction(idFileSaveAs,hasproject);
+    EnableAction(idFileSaveCopy,hasproject);
+    EnableAction(idFileRevert,hasproject && isModified && !isNew);
+    EnableAction(idFileInterpretFootage,hasproject && (m_Parent->IsClipSelected() || m_Parent->IsResourceClipSelected()));
+    EnableAction(idFileTimecode,hasproject && m_Parent->IsClipSelected());
+    EnableAction(idFileImport,hasproject);
+    EnableAction(idFileExport,hasproject);
+    EnableAction(idFileGetPropertiesSelection, hasproject && (m_Parent->IsClipSelected() || m_Parent->IsResourceClipSelected()));
+    EnableAction(idFileCapture, hasproject);
+    EnableAction(idFileBatchCapture, hasproject);
+    EnableAction(idFileGetProperties, hasproject);
+    EnableAction(idFileGetPropertiesFile, hasproject);
+    EnableAction(idFileGetPropertiesSelection, hasproject);
 }
 
 void AppFrame::Data::OnRecentFilesMenuUpdateUI() {
-//    // Update the Recent Projects list
+//    // TODO: Update the Recent Projects list
 //    ProjectManager* pmgr = ProjectManager::Get();
 //    if(!pmgr)
 //        return;
@@ -751,7 +761,7 @@ void AppFrame::Data::OnRecentFilesMenuUpdateUI() {
 }
 
 void AppFrame::Data::OnRecentImportsMenuUpdateUI() {
-//    // Update the Recent Imported files list
+//    // TODO: Update the Recent Imported files list
 //    ProjectManager* pmgr = ProjectManager::Get();
 //    if(!pmgr)
 //        return;
@@ -782,39 +792,40 @@ void AppFrame::Data::OnRecentImportsMenuUpdateUI() {
 //        }
 //    }
 //    wxMenuBar* mbar = GetMenuBar();
-//    mbar->Enable(idFileImportRecent,pmgr->GetRecentImports()->size() > 0 && (pmgr->HasProject()));
+//    EnableAction(idFileImportRecent,pmgr->GetRecentImports()->size() > 0 && (pmgr->HasProject()));
 }
 
 void AppFrame::Data::OnEditMenuUpdateUI() {
-//
-//    ProjectManager* pmgr = ProjectManager::Get();
-//    if(!pmgr)
-//        return;
-//    VidProject* prj = pmgr->GetProject();
-//
-//    bool hasproject = (prj);
-//    bool canUndo = CanUndo();
-//    bool canRedo = CanRedo();
-//    bool canCutOrCopy = hasproject && (IsClipSelected() || IsResourceClipSelected());
-//    bool canPaste = hasproject && (IsClipboardSet() && IsTimelineActive());
-//
-//    wxMenuBar* mbar = GetMenuBar();
-//    mbar->Enable(idEditUndo,canUndo);
-//    mbar->Enable(idEditRedo,canRedo);
-//    mbar->Enable(idEditClearUndoHistory,canUndo || canRedo);
-//    mbar->Enable(idEditCut, canCutOrCopy);
-//    mbar->Enable(idEditCopy, canCutOrCopy);
-//    mbar->Enable(idEditFind, hasproject);
-//    mbar->Enable(idEditPaste, canPaste);
-//    mbar->Enable(idEditPasteInsert, canPaste);
-//    mbar->Enable(idEditPasteAttributes, canPaste);
-//    mbar->Enable(idEditClear, hasproject && IsClipSelected());
-//    mbar->Enable(idEditRippleDelete, hasproject && IsClipSelected());
-//    mbar->Enable(idEditDuplicate, hasproject && IsClipSelected());
-//    mbar->Enable(idEditSelectAll, hasproject);
-//    mbar->Enable(idEditDeselectAll, hasproject);
-//    mbar->Enable(idEditLabel, hasproject && IsClipSelected());
-//    mbar->Enable(idEditOriginal, hasproject && IsClipSelected() && !IsSelectionMultiple());
+
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr)
+        return;
+    VidProject* prj = pmgr->GetProject();
+
+    bool hasproject = (prj);
+    bool canUndo = m_Parent->CanUndo();
+    bool canRedo = m_Parent->CanRedo();
+    bool canCutOrCopy = hasproject && (m_Parent->IsClipSelected() || m_Parent->IsResourceClipSelected());
+    bool canPaste = hasproject && (m_Parent->IsClipboardSet() && m_Parent->IsTimelineActive());
+
+    EnableAction(idEditUndo,canUndo);
+    EnableAction(idEditRedo,canRedo);
+    EnableAction(idEditClearUndoHistory,canUndo || canRedo);
+    EnableAction(idEditCut, canCutOrCopy);
+    EnableAction(idEditCopy, canCutOrCopy);
+    EnableAction(idEditFind, hasproject);
+    EnableAction(idEditPaste, canPaste);
+    EnableAction(idEditPasteInsert, canPaste);
+    EnableAction(idEditPasteAttributes, canPaste);
+    EnableAction(idEditClear, hasproject && m_Parent->IsClipSelected());
+    EnableAction(idEditRippleDelete, hasproject && m_Parent->IsClipSelected());
+    EnableAction(idEditDuplicate, hasproject && m_Parent->IsClipSelected());
+    EnableAction(idEditSelectAll, hasproject);
+    EnableAction(idEditDeselectAll, hasproject);
+    EnableAction(idEditLabel, hasproject && m_Parent->IsClipSelected());
+    EnableAction(idEditOriginal, hasproject && m_Parent->IsClipSelected() && !m_Parent->IsSelectionMultiple());
+
+    // TODO: Update the color labels menu and update the corresponding checkboxes
 ////    idEditLabel
 ////    idEditLabelBlue
 ////    idEditLabelCyan
@@ -828,159 +839,152 @@ void AppFrame::Data::OnEditMenuUpdateUI() {
 }
 
 void AppFrame::Data::OnProjectMenuUpdateUI() {
-//    ProjectManager* pmgr = ProjectManager::Get();
-//    if(!pmgr)
-//        return;
-//    bool hasproject = pmgr->HasProject();
-//
-//    wxMenuBar* mbar = GetMenuBar();
-//
-//    mbar->Enable(idProjectSettings,hasproject);
-//    mbar->Enable(idProjectSettingsGeneral,hasproject);
-//    mbar->Enable(idProjectSettingsCapture,hasproject);
-//    mbar->Enable(idProjectSettingsVideoRendering,hasproject);
-//    mbar->Enable(idProjectSettingsDefaultSequence,hasproject);
-//    mbar->Enable(idProjectLinkMedia,hasproject);
-//    mbar->Enable(idProjectUnlinkMedia,hasproject);
-//    mbar->Enable(idProjectAutomateToSequence,hasproject);
-//    mbar->Enable(idProjectImportBatchList,hasproject);
-//    mbar->Enable(idProjectExportBatchList,hasproject);
-//    mbar->Enable(idProjectExportAsAAF,hasproject);
+    ioCommon::Print("OnProjectMenuUpdateUI() called.\n");
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr)
+        return;
+    bool hasproject = pmgr->HasProject();
+
+    EnableAction(idProjectSettings,hasproject);
+    EnableAction(idProjectSettingsGeneral,hasproject);
+    EnableAction(idProjectSettingsCapture,hasproject);
+    EnableAction(idProjectSettingsVideoRendering,hasproject);
+    EnableAction(idProjectSettingsDefaultSequence,hasproject);
+    EnableAction(idProjectLinkMedia,hasproject);
+    EnableAction(idProjectUnlinkMedia,hasproject);
+    EnableAction(idProjectAutomateToSequence,hasproject);
+    EnableAction(idProjectImportBatchList,hasproject);
+    EnableAction(idProjectExportBatchList,hasproject);
+    EnableAction(idProjectExportAsAAF,hasproject);
 }
 
 void AppFrame::Data::OnClipMenuUpdateUI() {
-//
-//    ProjectManager* pmgr = ProjectManager::Get();
-//    if(!pmgr)
-//        return;
-//    bool hasproject = pmgr->HasProject();
-//
-//    wxMenuBar* mbar = GetMenuBar();
-//
-//    mbar->Enable(idClipRename, hasproject);
-//    mbar->Enable(idClipCaptureSettings, hasproject);
-//    mbar->Enable(idClipSetCaptureSettings, hasproject);
-//    mbar->Enable(idClipClearCaptureSettings, hasproject);
-//    mbar->Enable(idClipInsert, hasproject);
-//    mbar->Enable(idClipOverlay, hasproject);
-//    mbar->Enable(idClipToggleEnable, hasproject);
-//    mbar->Enable(idClipUnlinkAV, hasproject);
-//    mbar->Enable(idClipLinkAV, hasproject);
-//    mbar->Enable(idClipGroup, hasproject);
-//    mbar->Enable(idClipUngroup, hasproject);
-//    mbar->Enable(idClipVideoOptions, hasproject);
-//    mbar->Enable(idClipVOptFrameHold, hasproject);
-//    mbar->Enable(idClipVOptFieldOptions, hasproject);
-//    mbar->Enable(idClipAudioOptions, hasproject);
-//    mbar->Enable(idClipAOptGain, hasproject);
-//    mbar->Enable(idClipAOptBreakoutToMono, hasproject);
-//    mbar->Enable(idClipOptTreatAsStereo, hasproject);
-//    mbar->Enable(idClipOptRenderAndReplace, hasproject);
-//    mbar->Enable(idClipSpeedDuration, hasproject);
+    ioCommon::Print("OnClipMenuUpdateUI() called.\n");
+
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr)
+        return;
+    bool hasproject = pmgr->HasProject();
+
+    EnableAction(idClipRename, hasproject);
+    EnableAction(idClipCaptureSettings, hasproject);
+    EnableAction(idClipSetCaptureSettings, hasproject);
+    EnableAction(idClipClearCaptureSettings, hasproject);
+    EnableAction(idClipInsert, hasproject);
+    EnableAction(idClipOverlay, hasproject);
+    EnableAction(idClipToggleEnable, hasproject);
+    EnableAction(idClipUnlinkAV, hasproject);
+    EnableAction(idClipLinkAV, hasproject);
+    EnableAction(idClipGroup, hasproject);
+    EnableAction(idClipUngroup, hasproject);
+    EnableAction(idClipVideoOptions, hasproject);
+    EnableAction(idClipVOptFrameHold, hasproject);
+    EnableAction(idClipVOptFieldOptions, hasproject);
+    EnableAction(idClipAudioOptions, hasproject);
+    EnableAction(idClipAOptGain, hasproject);
+    EnableAction(idClipAOptBreakoutToMono, hasproject);
+    EnableAction(idClipOptTreatAsStereo, hasproject);
+    EnableAction(idClipOptRenderAndReplace, hasproject);
+    EnableAction(idClipSpeedDuration, hasproject);
 }
 
 void AppFrame::Data::OnSequenceMenuUpdateUI() {
-//    ProjectManager* pmgr = ProjectManager::Get();
-//    if(!pmgr)
-//        return;
-//    bool hasproject = pmgr->HasProject();
-//
-//    wxMenuBar* mbar = GetMenuBar();
-//
-//    mbar->Enable(idSequenceRender, hasproject);
-//    mbar->Enable(idSequenceDeleteRenderFiles, hasproject);
-//    mbar->Enable(idSequenceRazor, hasproject);
-//    mbar->Enable(idSequenceRazorSelectedTracks, hasproject);
-//    mbar->Enable(idSequenceLift, hasproject);
-//    mbar->Enable(idSequenceExtract, hasproject);
-//    mbar->Enable(idSequenceApplyVideoTransition, hasproject);
-//    mbar->Enable(idSequenceApplyAudioTransition, hasproject);
-//    mbar->Enable(idSequenceZoomIn, hasproject);
-//    mbar->Enable(idSequenceZoomOut, hasproject);
-//    mbar->Enable(idSequenceSnap, hasproject);
-//    mbar->Enable(idSequenceAddTracks, hasproject);
-//    mbar->Enable(idSequenceDelTracks, hasproject);
-//
+    ioCommon::Print("OnSequenceMenuUpdateUI() called.\n");
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr)
+        return;
+    bool hasproject = pmgr->HasProject();
+
+    EnableAction(idSequenceRender, hasproject);
+    EnableAction(idSequenceDeleteRenderFiles, hasproject);
+    EnableAction(idSequenceRazor, hasproject);
+    EnableAction(idSequenceRazorSelectedTracks, hasproject);
+    EnableAction(idSequenceLift, hasproject);
+    EnableAction(idSequenceExtract, hasproject);
+    EnableAction(idSequenceApplyVideoTransition, hasproject);
+    EnableAction(idSequenceApplyAudioTransition, hasproject);
+    EnableAction(idSequenceZoomIn, hasproject);
+    EnableAction(idSequenceZoomOut, hasproject);
+    EnableAction(idSequenceSnap, hasproject);
+    EnableAction(idSequenceAddTracks, hasproject);
+    EnableAction(idSequenceDelTracks, hasproject);
 }
 
-
 void AppFrame::Data::OnMarkerMenuUpdateUI() {
-//    ProjectManager* pmgr = ProjectManager::Get();
-//    if(!pmgr)
-//        return;
-//    bool hasproject = pmgr->HasProject();
-//
-//    wxMenuBar* mbar = GetMenuBar();
-//
-//    mbar->Enable(idSetClipMarkerMenu, hasproject);
-//    mbar->Enable(idGotoClipMarkerMenu, hasproject);
-//    mbar->Enable(idGotoNextClipMarker, hasproject);
-//    mbar->Enable(idGotoPrevClipMarker, hasproject);
-//    mbar->Enable(idGotoInClipMarker, hasproject);
-//    mbar->Enable(idGotoOutClipMarker, hasproject);
-//    mbar->Enable(idGotoVideoInClipMarker, hasproject);
-//    mbar->Enable(idGotoVideoOutClipMarker, hasproject);
-//    mbar->Enable(idGotoAudioInClipMarker, hasproject);
-//    mbar->Enable(idGotoAudioOutClipMarker, hasproject);
-//    mbar->Enable(idGotoNumberedClipMarker, hasproject);
-//    mbar->Enable(idClearClipMarkerMenu, hasproject);
-//    mbar->Enable(idClearCurrentClipMarker, hasproject);
-//    mbar->Enable(idClearAllClipMarkers, hasproject);
-//    mbar->Enable(idClearInOutClipMarkers, hasproject);
-//    mbar->Enable(idClearInClipMarker, hasproject);
-//    mbar->Enable(idClearOutClipMarker, hasproject);
-//    mbar->Enable(idClearNumberedClipMarker, hasproject);
-//    mbar->Enable(idSetSequenceMarkerMenu, hasproject);
-//    mbar->Enable(idSetInSequenceMarker, hasproject);
-//    mbar->Enable(idSetOutSequenceMarker, hasproject);
-//    mbar->Enable(idSetInOutAroundSelSeqMarker, hasproject);
-//    mbar->Enable(idSetUnnumberedSequenceMarker, hasproject);
-//    mbar->Enable(idSetNextAvailNumberedSeqMarker, hasproject);
-//    mbar->Enable(idSetOtherNumberedSequenceMarker, hasproject);
-//    mbar->Enable(idGotoSequenceMarkerMenu, hasproject);
-//    mbar->Enable(idGotoNextSequenceMarker, hasproject);
-//    mbar->Enable(idGotoPrevSequenceMarker, hasproject);
-//    mbar->Enable(idGotoInSequenceMarker, hasproject);
-//    mbar->Enable(idGotoOutSequenceMarker, hasproject);
-//    mbar->Enable(idGotoNumberedSeqMarker, hasproject);
-//    mbar->Enable(idClearSequenceMarkerMenu, hasproject);
-//    mbar->Enable(idClearCurSequenceMarker, hasproject);
-//    mbar->Enable(idClearAllSequenceMarkers, hasproject);
-//    mbar->Enable(idClearInOutSeqMarkers, hasproject);
-//    mbar->Enable(idClearInSeqMarker, hasproject);
-//    mbar->Enable(idClearOutSeqMarker, hasproject);
-//    mbar->Enable(idClearNumberedSeqMarker, hasproject);
-//    mbar->Enable(idEditSequenceMarker, hasproject);
+    ioCommon::Print("OnMarkerMenuUpdateUI() called.\n");
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr)
+        return;
+    bool hasproject = pmgr->HasProject();
+
+    EnableAction(idSetClipMarkerMenu, hasproject);
+    EnableAction(idGotoClipMarkerMenu, hasproject);
+    EnableAction(idGotoNextClipMarker, hasproject);
+    EnableAction(idGotoPrevClipMarker, hasproject);
+    EnableAction(idGotoInClipMarker, hasproject);
+    EnableAction(idGotoOutClipMarker, hasproject);
+    EnableAction(idGotoVideoInClipMarker, hasproject);
+    EnableAction(idGotoVideoOutClipMarker, hasproject);
+    EnableAction(idGotoAudioInClipMarker, hasproject);
+    EnableAction(idGotoAudioOutClipMarker, hasproject);
+    EnableAction(idGotoNumberedClipMarker, hasproject);
+    EnableAction(idClearClipMarkerMenu, hasproject);
+    EnableAction(idClearCurrentClipMarker, hasproject);
+    EnableAction(idClearAllClipMarkers, hasproject);
+    EnableAction(idClearInOutClipMarkers, hasproject);
+    EnableAction(idClearInClipMarker, hasproject);
+    EnableAction(idClearOutClipMarker, hasproject);
+    EnableAction(idClearNumberedClipMarker, hasproject);
+    EnableAction(idSetSequenceMarkerMenu, hasproject);
+    EnableAction(idSetInSequenceMarker, hasproject);
+    EnableAction(idSetOutSequenceMarker, hasproject);
+    EnableAction(idSetInOutAroundSelSeqMarker, hasproject);
+    EnableAction(idSetUnnumberedSequenceMarker, hasproject);
+    EnableAction(idSetNextAvailNumberedSeqMarker, hasproject);
+    EnableAction(idSetOtherNumberedSequenceMarker, hasproject);
+    EnableAction(idGotoSequenceMarkerMenu, hasproject);
+    EnableAction(idGotoNextSequenceMarker, hasproject);
+    EnableAction(idGotoPrevSequenceMarker, hasproject);
+    EnableAction(idGotoInSequenceMarker, hasproject);
+    EnableAction(idGotoOutSequenceMarker, hasproject);
+    EnableAction(idGotoNumberedSeqMarker, hasproject);
+    EnableAction(idClearSequenceMarkerMenu, hasproject);
+    EnableAction(idClearCurSequenceMarker, hasproject);
+    EnableAction(idClearAllSequenceMarkers, hasproject);
+    EnableAction(idClearInOutSeqMarkers, hasproject);
+    EnableAction(idClearInSeqMarker, hasproject);
+    EnableAction(idClearOutSeqMarker, hasproject);
+    EnableAction(idClearNumberedSeqMarker, hasproject);
+    EnableAction(idEditSequenceMarker, hasproject);
 }
 
 void AppFrame::Data::OnWindowMenuUpdateUI() {
-//    ProjectManager* pmgr = ProjectManager::Get();
-//    if(!pmgr)
-//        return;
-//    bool hasproject = pmgr->HasProject();
-//
-//    wxMenuBar* mbar = GetMenuBar();
-//
-//    mbar->Enable(idWindowWorkspaceMenu, hasproject);
-//    mbar->Enable(idWorkspaceEditing, hasproject);
-//    mbar->Enable(idWorkspaceEffects, hasproject);
-//    mbar->Enable(idWorkspaceAudio, hasproject);
-//    mbar->Enable(idWorkspaceColorCorrection, hasproject);
-//    mbar->Enable(idWorkspaceDefault, hasproject);
-//    mbar->Enable(idWorkspaceSaveAs, hasproject);
-//    mbar->Enable(idWorkspaceDelete, hasproject);
-//    mbar->Enable(idWorkspaceCustom, hasproject);
-//    mbar->Enable(idMenuSaveFrameLayout, hasproject);
-//    mbar->Enable(idWindowEffects, hasproject);
-//    mbar->Enable(idWindowEffectControls, hasproject);
-//    mbar->Enable(idWindowHistory, hasproject);
-//    mbar->Enable(idWindowInfo, hasproject);
-//    mbar->Enable(idWindowTools, hasproject);
-//    mbar->Enable(idWindowAudioMixer, hasproject);
-//    mbar->Enable(idWindowMonitor, hasproject);
-//    mbar->Enable(idWindowProject, hasproject);
-//    mbar->Enable(idWindowTimelinesMenu, hasproject);
-//
+    ioCommon::Print("OnWindowMenuUpdateUI() called.\n");
+
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr)
+        return;
+    bool hasproject = pmgr->HasProject();
+
+    EnableAction(idWindowWorkspaceMenu, hasproject);
+    EnableAction(idWorkspaceEditing, hasproject);
+    EnableAction(idWorkspaceEffects, hasproject);
+    EnableAction(idWorkspaceAudio, hasproject);
+    EnableAction(idWorkspaceColorCorrection, hasproject);
+    EnableAction(idWorkspaceDefault, hasproject);
+    EnableAction(idWorkspaceSaveAs, hasproject);
+    EnableAction(idWorkspaceDelete, hasproject);
+    EnableAction(idWorkspaceCustom, hasproject);
+    EnableAction(idMenuSaveFrameLayout, hasproject);
+    EnableAction(idWindowEffects, hasproject);
+    EnableAction(idWindowEffectControls, hasproject);
+    EnableAction(idWindowHistory, hasproject);
+    EnableAction(idWindowInfo, hasproject);
+    EnableAction(idWindowTools, hasproject);
+    EnableAction(idWindowAudioMixer, hasproject);
+    EnableAction(idWindowMonitor, hasproject);
+    EnableAction(idWindowProject, hasproject);
+    EnableAction(idWindowTimelinesMenu, hasproject);
 }
 
 void AppFrame::Data::OnAbout() {
@@ -1058,7 +1062,7 @@ m_Data(new Data(this))
     if(!result) {
         deleteLater();
     } else {
-         // NOTE: Until the conversion is finished, if the main window isn't shown, comment the following lines
+         // Until the conversion is finished, if the main window isn't shown, comment the following lines
          ProjectManager::Get()->SetEventHandler(this);
          m_Data->ShowLayout(false);
     }
@@ -1343,7 +1347,6 @@ void AppFrame::Data::SaveDefaultLayout(bool showmsg) {
 void AppFrame::Data::ShowLayout(bool show) {
     if(IsAppShuttingDown())
         return;
-//    show = true; // TODO: Remove this line after the WelcomeDialog can be shown safely.
     if(show) {
         if(m_layouthidden) {
             LoadLayout(m_CurrentLayout,true);
