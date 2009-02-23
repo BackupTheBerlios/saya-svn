@@ -147,12 +147,22 @@ bool ProjectManager::LoadConfig() {
         if (cfg->Exists(key.c_str()))
             m_Data->m_LastProjectDir = cfg->Read(key.c_str(),"");
         unsigned int i;
+        m_Data->m_RecentFiles.clear();
+        m_Data->m_RecentImports.clear();
         for(i = 1; i <= 9; i++) {
             key.Printf("RecentProjects/File%u",i);
             DebugLog("Reading key: " + key);
             if(cfg->Exists(key.c_str())) {
                 tmpname = cfg->Read(key.c_str(),"");
                 m_Data->m_RecentFiles.Add(tmpname.c_str(),false);
+            }
+        }
+        for(i = 1; i <= 9; i++) {
+            key.Printf("RecentImports/File%u",i);
+            DebugLog("Reading key: " + key);
+            if(cfg->Exists(key.c_str())) {
+                tmpname = cfg->Read(key.c_str(),"");
+                m_Data->m_RecentImports.Add(tmpname.c_str(),false);
             }
         }
     }
@@ -181,6 +191,15 @@ bool ProjectManager::SaveConfig() {
                 cfg->Write(key.c_str(),"");
             } else {
                 cfg->Write(key.c_str(),m_Data->m_RecentFiles.item(i).c_str());
+            }
+        }
+        for(i = 1; i <= 9; ++i) {
+            key.Printf("RecentImports/File%u",i);
+            DebugLog(key.c_str());
+            if(i>m_Data->m_RecentImports.size()) {
+                cfg->Write(key.c_str(),"");
+            } else {
+                cfg->Write(key.c_str(),m_Data->m_RecentImports.item(i).c_str());
             }
         }
     }
@@ -335,7 +354,7 @@ RecentFilesList* ProjectManager::GetRecentFiles() const {
 /** A list of the most recently imported clips. */
 RecentFilesList* ProjectManager::GetRecentImports() const {
     if(!this || !m_Data) return 0;
-    return &(m_Data->m_RecentFiles);
+    return &(m_Data->m_RecentImports);
 }
 
 /** Retutns the Audio/Video Presets handler */

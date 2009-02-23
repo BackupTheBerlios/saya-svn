@@ -110,8 +110,8 @@ unsigned int idNewColorMatte = syActionEvent::RegisterId("action_NewColorMatte")
 unsigned int idNewUniversalCountingLeader = syActionEvent::RegisterId("action_NewUniversalCountingLeader");
 unsigned int idFileOpen = syActionEvent::RegisterId("action_FileOpen","OnFileOpen()");
 unsigned int idFileOpenRecentProject = syActionEvent::RegisterId("action_FileOpenRecentProject");
-unsigned int idFileClearRecentProjectList = syActionEvent::RegisterId("OnClearRecentProjectList()");
-unsigned int idFileClearRecentImportList = syActionEvent::RegisterId("OnClearRecentImportList()");
+unsigned int idFileClearRecentProjectList = syActionEvent::RegisterId("action_ClearRecentProjectsHistory", "OnClearRecentProjectList()");
+unsigned int idFileClearRecentImportList = syActionEvent::RegisterId("action_ClearRecentImportsHistory", "OnClearRecentImportList()");
 unsigned int idFileClose = syActionEvent::RegisterId("action_FileClose","OnFileClose()");
 unsigned int idFileSave = syActionEvent::RegisterId("action_FileSave","OnFileSave()");
 unsigned int idFileSaveAs = syActionEvent::RegisterId("action_FileSaveAs","OnFileSaveAs()");
@@ -338,13 +338,18 @@ class AppFrame::Data : public QObject, public syEvtHandler {
         syString m_FactoryDefaultLayout;
         unsigned int m_recentfilesmodcounter;
         unsigned int m_recentimportsmodcounter;
+        QAction* m_RecentFiles[9];
+        QAction* m_RecentImports[9];
+
         Ui::MainWindow* m_Ui;
 
         void RegisterAction(unsigned int id, QAction* action);
         void UnregisterAction(unsigned int id);
         void UnregisterAllActions();
         void EnableAction(unsigned int id, bool enable = true);
+        void EnableAction(QAction* action, bool enable = true);
         void DisableAction(unsigned int id);
+        void DisableAction(QAction* action);
         QAction* GetAction(unsigned int id);
         void OnActionEvent(syActionEvent& event);
 
@@ -420,6 +425,26 @@ m_Ui(new Ui::MainWindow)
 {
     UnregisterAllActions();
     m_Ui->setupUi(m_Parent);
+    m_RecentFiles[0] = m_Ui->action_RecentProject1;
+    m_RecentFiles[1] = m_Ui->action_RecentProject2;
+    m_RecentFiles[2] = m_Ui->action_RecentProject3;
+    m_RecentFiles[3] = m_Ui->action_RecentProject4;
+    m_RecentFiles[4] = m_Ui->action_RecentProject5;
+    m_RecentFiles[5] = m_Ui->action_RecentProject6;
+    m_RecentFiles[6] = m_Ui->action_RecentProject7;
+    m_RecentFiles[7] = m_Ui->action_RecentProject8;
+    m_RecentFiles[8] = m_Ui->action_RecentProject9;
+
+    m_RecentImports[0] = m_Ui->action_RecentImport1;
+    m_RecentImports[1] = m_Ui->action_RecentImport2;
+    m_RecentImports[2] = m_Ui->action_RecentImport3;
+    m_RecentImports[3] = m_Ui->action_RecentImport4;
+    m_RecentImports[4] = m_Ui->action_RecentImport5;
+    m_RecentImports[5] = m_Ui->action_RecentImport6;
+    m_RecentImports[6] = m_Ui->action_RecentImport7;
+    m_RecentImports[7] = m_Ui->action_RecentImport8;
+    m_RecentImports[8] = m_Ui->action_RecentImport9;
+
     CreateConnections(m_Ui->menubar);
 }
 
@@ -464,15 +489,26 @@ inline QAction* AppFrame::Data::GetAction(unsigned int id) {
 }
 
 inline void AppFrame::Data::EnableAction(unsigned int id, bool enable) {
-    if(!this) return;
-    ActionsMap::iterator it = m_ActionsMap.find(id);
-    if(it != m_ActionsMap.end()) {
-        it->second->setEnabled(enable);
+    QAction* action = GetAction(id);
+    if(action) {
+        action->setEnabled(enable);
+    }
+}
+
+inline void AppFrame::Data::EnableAction(QAction* action, bool enable) {
+    if(action) {
+        action->setEnabled(enable);
     }
 }
 
 inline void AppFrame::Data::DisableAction(unsigned int id) {
     EnableAction(id, false);
+}
+
+inline void AppFrame::Data::DisableAction(QAction* action) {
+    if(action) {
+        action->setEnabled(false);
+    }
 }
 
 void AppFrame::Data::OnActionEvent(syActionEvent& event) {
@@ -724,75 +760,57 @@ void AppFrame::Data::OnFileMenuUpdateUI() {
     EnableAction(idFileGetProperties, hasproject);
     EnableAction(idFileGetPropertiesFile, hasproject);
     EnableAction(idFileGetPropertiesSelection, hasproject);
+
+    m_Ui->action_FileOpenRecentProject->setEnabled(pmgr->GetRecentFiles()->size() > 0);
+    m_Ui->action_FileImportRecent->setEnabled(pmgr->GetRecentImports()->size() > 0);
 }
 
 void AppFrame::Data::OnRecentFilesMenuUpdateUI() {
-//    // TODO: Update the Recent Projects list
-//    ProjectManager* pmgr = ProjectManager::Get();
-//    if(!pmgr)
-//        return;
-//    if(pmgr->GetRecentFiles()->UpdateCounter(m_recentfilesmodcounter)) {
-//        wxMenuItem* myItem = GetMenuBar()-> FindItem(idFileOpenRecentProject);
-//        if(myItem) {
-//            wxMenu* mySubMenu = myItem->GetSubMenu();
-//
-//            if(mySubMenu) { // Clear all items in the submenu
-//                while(mySubMenu->GetMenuItemCount()) {
-//                    wxMenuItem* subitem = mySubMenu->FindItemByPosition(0);
-//                    if(!subitem)
-//                        break;
-//                    mySubMenu->Delete(subitem);
-//                }
-//            } else { // Add a new submenu
-//                mySubMenu = new wxMenu();
-//                myItem->SetSubMenu(mySubMenu);
-//            }
-//            size_t i = 0;
-//            mySubMenu->Append(idFileClearRecentProjectList,_T("&Clear"),_w("Clears Recent Projects List"));
-//            mySubMenu->AppendSeparator();
-//            for(i = 1; i <= pmgr->GetRecentFiles()->size(); ++i) {
-//                syString tmptext;
-//                tmptext.Printf("&%d %s",i,pmgr->GetRecentFiles()->item(i).c_str());
-//                mySubMenu->Append(wxID_FILE1 + i - 1,tmptext,wxEmptyString);
-//            }
-//            myItem->Enable(pmgr->GetRecentFiles()->size() > 0);
-//        }
-//    }
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr)
+        return;
+    if(pmgr->GetRecentFiles()->UpdateCounter(m_recentfilesmodcounter)) {
+        // Replace the items corresponding to the recently opened projects
+
+        size_t i = 0;
+        size_t numrecentprojects = pmgr->GetRecentFiles()->size();
+        for(i = 0; i < 9; ++i) {
+            if(i >= numrecentprojects) {
+                m_RecentFiles[i]->setVisible(false);
+                m_RecentFiles[i]->setEnabled(false);
+            } else {
+                syString tmptext;
+                tmptext.Printf("&%d %s",i + 1,pmgr->GetRecentFiles()->item(i + 1).c_str());
+                m_RecentFiles[i]->setText(tmptext.c_str());
+                m_RecentFiles[i]->setVisible(true);
+                m_RecentFiles[i]->setEnabled(true);
+            }
+        }
+    }
 }
 
 void AppFrame::Data::OnRecentImportsMenuUpdateUI() {
-//    // TODO: Update the Recent Imported files list
-//    ProjectManager* pmgr = ProjectManager::Get();
-//    if(!pmgr)
-//        return;
-//    if(pmgr->GetRecentImports()->UpdateCounter(m_recentimportsmodcounter)) {
-//        wxMenuItem* myItem = GetMenuBar()-> FindItem(idFileImportRecent);
-//        if(myItem) {
-//            wxMenu* mySubMenu = myItem->GetSubMenu();
-//
-//            if(mySubMenu) { // Clear all items in the submenu
-//                while(mySubMenu->GetMenuItemCount()) {
-//                    wxMenuItem* subitem = mySubMenu->FindItemByPosition(0);
-//                    if(!subitem)
-//                        break;
-//                    mySubMenu->Delete(subitem);
-//                }
-//            } else { // Add a new submenu
-//                mySubMenu = new wxMenu();
-//                myItem->SetSubMenu(mySubMenu);
-//            }
-//            size_t i = 0;
-//            mySubMenu->Append(idFileClearRecentImportList,_T("&Clear"),_w("Clears Recent Imported Files List"));
-//            mySubMenu->AppendSeparator();
-//            for(i = 1; i <= pmgr->GetRecentImports()->size(); ++i) {
-//                syString tmptext;
-//                tmptext.Printf("&%d %s",i, pmgr->GetRecentImports()->item(i).c_str());
-//                mySubMenu->Append(wxID_IMPORT1 + i -1,tmptext,wxEmptyString);
-//            }
-//        }
-//    }
-//    wxMenuBar* mbar = GetMenuBar();
-//    EnableAction(idFileImportRecent,pmgr->GetRecentImports()->size() > 0 && (pmgr->HasProject()));
+    ProjectManager* pmgr = ProjectManager::Get();
+    if(!pmgr)
+        return;
+    if(pmgr->GetRecentImports()->UpdateCounter(m_recentimportsmodcounter)) {
+        // Replace the items corresponding to the recently opened projects
+
+        size_t i = 0;
+        size_t numrecentimports = pmgr->GetRecentImports()->size();
+        for(i = 0; i < 9; ++i) {
+            if(i >= numrecentimports) {
+                m_RecentFiles[i]->setVisible(false);
+                m_RecentFiles[i]->setEnabled(false);
+            } else {
+                syString tmptext;
+                tmptext.Printf("&%d %s",i + 1,pmgr->GetRecentImports()->item(i + 1).c_str());
+                m_RecentFiles[i]->setText(tmptext.c_str());
+                m_RecentFiles[i]->setVisible(true);
+                m_RecentFiles[i]->setEnabled(true);
+            }
+        }
+    }
 }
 
 void AppFrame::Data::OnEditMenuUpdateUI() {
