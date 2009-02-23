@@ -665,6 +665,9 @@ void AppFrame::Data::OnFileSaveCopy() {
 }
 
 void AppFrame::Data::OnClearRecentImportList(){
+    if(IsAppShuttingDown())
+        return;
+    ProjectManager::Get()->GetRecentImports()->clear();
 }
 
 void AppFrame::Data::OpenRecentFile(unsigned int fileno) {
@@ -690,6 +693,7 @@ void AppFrame::Data::OpenRecentFile(unsigned int fileno) {
 
 void AppFrame::Data::OnNewProject(){
     syMessageBox("OnNewProject() called.");
+    // TODO: Implement the New project Dialog
 //    NewProjectDlg* mydialog = new NewProjectDlg(this);
 //    if(!mydialog) {
 //        return;
@@ -794,7 +798,7 @@ void AppFrame::Data::OnRecentImportsMenuUpdateUI() {
     if(!pmgr)
         return;
     if(pmgr->GetRecentImports()->UpdateCounter(m_recentimportsmodcounter)) {
-        // Replace the items corresponding to the recently opened projects
+        // Replace the items corresponding to the recently imported files
 
         size_t i = 0;
         size_t numrecentimports = pmgr->GetRecentImports()->size();
@@ -1036,6 +1040,9 @@ bool AppFrame::Data::LoadLayout(const syString& layoutdata, bool update) {
 // end AppFrame::Data
 // ------------------
 
+// TODO: Implement the Project Pane in Qt.
+// TODO: Implement the Resources Tree in Qt.
+
 //int idProjectPane = XRCID("widget_ProjectPane");
 //int idPrjSplitter = XRCID("widget_PrjSplitter");
 //int idPrjResourcesTree = XRCID("widget_PrjResourcesTree");
@@ -1043,8 +1050,6 @@ bool AppFrame::Data::LoadLayout(const syString& layoutdata, bool update) {
 syString g_statustext;
 
 //BEGIN_EVENT_TABLE(AppFrame, wxFrame)
-//    EVT_CLOSE(AppFrame::OnClose)
-//
 //    EVT_TREE_ITEM_MENU(idPrjResourcesTree, AppFrame::OnResourceTreeContextMenu)
 //
 ////  Project pane events
@@ -1080,7 +1085,6 @@ m_Data(new Data(this))
     if(!result) {
         deleteLater();
     } else {
-         // Until the conversion is finished, if the main window isn't shown, comment the following lines
          ProjectManager::Get()->SetEventHandler(this);
          m_Data->ShowLayout(false);
     }
@@ -1103,6 +1107,7 @@ bool AppFrame::Data::CreateDialogs() {
 bool AppFrame::Data::CreatePanels() {
     bool result = false;
     do {
+    // TODO: Add the project pane, the timeline and the video playback panels here.
 // These lines are remnants of the wxWidgets code. Kept for reference until we finish the conversion.
 
 //        m_projectpanel = CreateProjectPane();
@@ -1137,7 +1142,7 @@ void AppFrame::Data::CreateDockAreas() {
 }
 
 QWidget* AppFrame::Data::CreateProjectPane() {
-
+    // TODO: Create the Project Pane Here.
 //    long tabs_style = wxAUI_NB_DEFAULT_STYLE && ~ (wxAUI_NB_CLOSE_BUTTON | wxAUI_NB_CLOSE_ON_ACTIVE_TAB | wxAUI_NB_CLOSE_ON_ALL_TABS);
 //    wxPanel* panel1;
 //    wxAuiNotebook* auinotebook1;
