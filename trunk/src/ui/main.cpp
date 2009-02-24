@@ -446,6 +446,18 @@ m_Ui(new Ui::MainWindow)
     m_RecentImports[8] = m_Ui->action_RecentImport9;
 
     CreateConnections(m_Ui->menubar);
+
+    // Connect the aboutToShow() signals to the On*UpdateUI() slots.
+    m_Ui->file_menu->connect(static_cast<QObject*>(m_Ui->file_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnFileMenuUpdateUI()));
+    m_Ui->action_FileOpenRecentProject->connect(static_cast<QObject*>(m_Ui->action_FileOpenRecentProject), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnRecentFilesMenuUpdateUI()));
+    m_Ui->action_FileImportRecent->connect(static_cast<QObject*>(m_Ui->action_FileImportRecent), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnRecentImportsMenuUpdateUI()));
+    m_Ui->edit_menu->connect(static_cast<QObject*>(m_Ui->edit_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnEditMenuUpdateUI()));
+    m_Ui->project_menu->connect(static_cast<QObject*>(m_Ui->project_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnProjectMenuUpdateUI()));
+    m_Ui->clip_menu->connect(static_cast<QObject*>(m_Ui->clip_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnClipMenuUpdateUI()));
+    m_Ui->sequence_menu->connect(static_cast<QObject*>(m_Ui->sequence_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnSequenceMenuUpdateUI()));
+    m_Ui->marker_menu->connect(static_cast<QObject*>(m_Ui->marker_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnMarkerMenuUpdateUI()));
+    m_Ui->window_menu->connect(static_cast<QObject*>(m_Ui->window_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnWindowMenuUpdateUI()));
+
 }
 
 AppFrame::Data::~Data() {
@@ -561,17 +573,6 @@ void AppFrame::Data::CreateConnections(QWidget* parentwidget) {
     m_Parent->m_Delegate = this;
     syConnect(this, -1, &AppFrame::Data::OnActionEvent);
     syConnect(this, -1, &AppFrame::Data::OnProjectStatusChanged);
-
-    // Connect the aboutToShow() signals to the On*UpdateUI() slots.
-    m_Ui->file_menu->connect(static_cast<QObject*>(m_Ui->file_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnFileMenuUpdateUI()));
-    m_Ui->action_FileOpenRecentProject->connect(static_cast<QObject*>(m_Ui->action_FileOpenRecentProject), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnRecentFilesMenuUpdateUI()));
-    m_Ui->action_FileImportRecent->connect(static_cast<QObject*>(m_Ui->action_FileImportRecent), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnRecentImportsMenuUpdateUI()));
-    m_Ui->edit_menu->connect(static_cast<QObject*>(m_Ui->edit_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnEditMenuUpdateUI()));
-    m_Ui->project_menu->connect(static_cast<QObject*>(m_Ui->project_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnProjectMenuUpdateUI()));
-    m_Ui->clip_menu->connect(static_cast<QObject*>(m_Ui->clip_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnClipMenuUpdateUI()));
-    m_Ui->sequence_menu->connect(static_cast<QObject*>(m_Ui->sequence_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnSequenceMenuUpdateUI()));
-    m_Ui->marker_menu->connect(static_cast<QObject*>(m_Ui->marker_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnMarkerMenuUpdateUI()));
-    m_Ui->window_menu->connect(static_cast<QObject*>(m_Ui->window_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnWindowMenuUpdateUI()));
 }
 
 bool AppFrame::Data::LoadDefaultLayout(bool firsttime) {
@@ -818,7 +819,6 @@ void AppFrame::Data::OnRecentImportsMenuUpdateUI() {
 }
 
 void AppFrame::Data::OnEditMenuUpdateUI() {
-
     ProjectManager* pmgr = ProjectManager::Get();
     if(!pmgr)
         return;
@@ -861,7 +861,6 @@ void AppFrame::Data::OnEditMenuUpdateUI() {
 }
 
 void AppFrame::Data::OnProjectMenuUpdateUI() {
-    ioCommon::Print("OnProjectMenuUpdateUI() called.\n");
     ProjectManager* pmgr = ProjectManager::Get();
     if(!pmgr)
         return;
@@ -881,8 +880,6 @@ void AppFrame::Data::OnProjectMenuUpdateUI() {
 }
 
 void AppFrame::Data::OnClipMenuUpdateUI() {
-    ioCommon::Print("OnClipMenuUpdateUI() called.\n");
-
     ProjectManager* pmgr = ProjectManager::Get();
     if(!pmgr)
         return;
@@ -911,7 +908,6 @@ void AppFrame::Data::OnClipMenuUpdateUI() {
 }
 
 void AppFrame::Data::OnSequenceMenuUpdateUI() {
-    ioCommon::Print("OnSequenceMenuUpdateUI() called.\n");
     ProjectManager* pmgr = ProjectManager::Get();
     if(!pmgr)
         return;
@@ -933,7 +929,6 @@ void AppFrame::Data::OnSequenceMenuUpdateUI() {
 }
 
 void AppFrame::Data::OnMarkerMenuUpdateUI() {
-    ioCommon::Print("OnMarkerMenuUpdateUI() called.\n");
     ProjectManager* pmgr = ProjectManager::Get();
     if(!pmgr)
         return;
@@ -981,8 +976,6 @@ void AppFrame::Data::OnMarkerMenuUpdateUI() {
 }
 
 void AppFrame::Data::OnWindowMenuUpdateUI() {
-    ioCommon::Print("OnWindowMenuUpdateUI() called.\n");
-
     ProjectManager* pmgr = ProjectManager::Get();
     if(!pmgr)
         return;
