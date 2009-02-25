@@ -25,6 +25,7 @@ class PlaybackControl : public QWidget
 
     public:
     PlaybackControl(QWidget *parent = 0);
+    virtual ~PlaybackControl();
 
     signals:
         void playbackFirstFrame();
@@ -35,16 +36,7 @@ class PlaybackControl : public QWidget
         void playbackFastForward();
         void playbackLastFrame();
 
-    private slots:
-        void firstFrameClicked();
-        void fastRewindClicked();
-        void previousFrameClicked();
-        void playClicked();
-        void nextFrameClicked();
-        void fastForwardClicked();
-        void lastFrameClicked();
-
-    private:
+    protected:
         QPushButton* m_btnFirstFrame;
 		QPushButton* m_btnFastRewind;
 		QPushButton* m_btnPreviousFrame;

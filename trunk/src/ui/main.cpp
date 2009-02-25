@@ -19,6 +19,7 @@
 #include <QCloseEvent>
 
 #include "ui/main.ui.h"
+#include "playbackcontrol.h"
 
 #include "../saya/core/app.h"
 #include "../saya/core/systring.h"
@@ -1100,6 +1101,8 @@ bool AppFrame::Data::CreateDialogs() {
 bool AppFrame::Data::CreatePanels() {
     bool result = false;
     do {
+        QWidget* tmpwidget = new PlaybackControl(0);
+        tmpwidget->show();
     // TODO: Add the project pane, the timeline and the video playback panels here.
 // These lines are remnants of the wxWidgets code. Kept for reference until we finish the conversion.
 

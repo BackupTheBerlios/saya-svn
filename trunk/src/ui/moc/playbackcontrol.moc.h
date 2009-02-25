@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'playbackcontrol.h'
 **
-** Created: Fri Feb 6 12:43:11 2009
+** Created: Tue Feb 24 21:09:44 2009
 **      by: The Qt Meta Object Compiler version 59 (Qt 4.4.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_PlaybackControl[] = {
        1,       // revision
        0,       // classname
        0,    0, // classinfo
-      14,   10, // methods
+       7,   10, // methods
        0,    0, // properties
        0,    0, // enums/sets
 
@@ -36,15 +36,6 @@ static const uint qt_meta_data_PlaybackControl[] = {
      118,   16,   16,   16, 0x05,
      140,   16,   16,   16, 0x05,
 
- // slots: signature, parameters, type, tag, flags
-     160,   16,   16,   16, 0x08,
-     180,   16,   16,   16, 0x08,
-     200,   16,   16,   16, 0x08,
-     223,   16,   16,   16, 0x08,
-     237,   16,   16,   16, 0x08,
-     256,   16,   16,   16, 0x08,
-     277,   16,   16,   16, 0x08,
-
        0        // eod
 };
 
@@ -53,10 +44,6 @@ static const char qt_meta_stringdata_PlaybackControl[] = {
     "playbackFastRewind()\0playbackPreviousFrame()\0"
     "playbackPlay()\0playbackNextFrame()\0"
     "playbackFastForward()\0playbackLastFrame()\0"
-    "firstFrameClicked()\0fastRewindClicked()\0"
-    "previousFrameClicked()\0playClicked()\0"
-    "nextFrameClicked()\0fastForwardClicked()\0"
-    "lastFrameClicked()\0"
 };
 
 const QMetaObject PlaybackControl::staticMetaObject = {
@@ -91,15 +78,8 @@ int PlaybackControl::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 4: playbackNextFrame(); break;
         case 5: playbackFastForward(); break;
         case 6: playbackLastFrame(); break;
-        case 7: firstFrameClicked(); break;
-        case 8: fastRewindClicked(); break;
-        case 9: previousFrameClicked(); break;
-        case 10: playClicked(); break;
-        case 11: nextFrameClicked(); break;
-        case 12: fastForwardClicked(); break;
-        case 13: lastFrameClicked(); break;
         }
-        _id -= 14;
+        _id -= 7;
     }
     return _id;
 }

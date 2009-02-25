@@ -15,28 +15,31 @@ PlaybackControl::PlaybackControl(QWidget* parent)
 {
     m_PlaybackSlider = new QSlider(Qt::Horizontal);
 
-    m_btnFirstFrame = new QPushButton();
-    m_btnFirstFrame->setIcon(QIcon(":../resources/img/btn_firstframe.png"));
+    m_btnFirstFrame = new QPushButton(this);
+    m_btnFastRewind = new QPushButton(this);
+    m_btnPreviousFrame = new QPushButton(this);
+    m_btnPlay = new QPushButton(this);
+    m_btnNextFrame = new QPushButton(this);
+    m_btnFastForward = new QPushButton(this);
+    m_btnLastFrame = new QPushButton(this);
 
-    m_btnFastRewind = new QPushButton();
-    m_btnFastRewind->setIcon(QIcon("../resources/img/btn_fastrewind.png"));
+    m_btnFirstFrame->setMaximumSize(QSize(24, 24));
+    m_btnFastRewind->setMaximumSize(QSize(24, 24));
+    m_btnPreviousFrame->setMaximumSize(QSize(24, 24));
+    m_btnPlay->setMaximumSize(QSize(24, 24));
+    m_btnNextFrame->setMaximumSize(QSize(24, 24));
+    m_btnFastForward->setMaximumSize(QSize(24, 24));
+    m_btnLastFrame->setMaximumSize(QSize(24, 24));
 
-    m_btnPreviousFrame = new QPushButton();
-    m_btnPreviousFrame->setIcon(QIcon("../resources/img/btn_previousframe.png"));
+    m_btnFirstFrame->setIcon(QIcon(":img/btn_firstframe.png"));
+    m_btnFastRewind->setIcon(QIcon(":img/btn_fastrewind.png"));
+    m_btnPreviousFrame->setIcon(QIcon(":img/btn_prevframe.png"));
+    m_btnPlay->setIcon(QIcon(":img/btn_play.png"));
+    m_btnNextFrame->setIcon(QIcon(":img/btn_nextframe.png"));
+    m_btnFastForward->setIcon(QIcon(":img/btn_fastforward.png"));
+    m_btnLastFrame->setIcon(QIcon(":img/btn_lastframe.png"));
 
-    m_btnPlay = new QPushButton();
-    m_btnPlay->setIcon(QIcon("../resources/img/btn_play.png"));
-
-    m_btnNextFrame = new QPushButton();
-    m_btnNextFrame->setIcon(QIcon("../resources/img/btn_nextframe.png"));
-
-    m_btnFastForward = new QPushButton();
-    m_btnFastForward->setIcon(QIcon("../resources/img/btn_fastforward.png"));
-
-    m_btnLastFrame = new QPushButton();
-    m_btnLastFrame->setIcon(QIcon("../resources/img/btn_lastframe.png"));
-
-    m_Shuttle = new QSlider(Qt::Horizontal);
+    m_Shuttle = new QSlider(Qt::Horizontal, this);
     m_Shuttle->setMinimum(0);
     m_Shuttle->setMaximum(100);
     m_Shuttle->setValue(50);
@@ -49,6 +52,7 @@ PlaybackControl::PlaybackControl(QWidget* parent)
     topLayout->addWidget(m_PlaybackSlider);
 
     QHBoxLayout* bottomLeftLayout = new QHBoxLayout();
+    bottomLeftLayout->setSpacing(7);
     bottomLeftLayout->addWidget(m_btnFirstFrame);
     bottomLeftLayout->addWidget(m_btnFastRewind);
     bottomLeftLayout->addWidget(m_btnPreviousFrame);
@@ -56,6 +60,7 @@ PlaybackControl::PlaybackControl(QWidget* parent)
     bottomLeftLayout->addWidget(m_btnNextFrame);
     bottomLeftLayout->addWidget(m_btnFastForward);
     bottomLeftLayout->addWidget(m_btnLastFrame);
+
 
     QHBoxLayout* bottomRightLayout = new QHBoxLayout();
     bottomRightLayout->addWidget(m_Shuttle);
@@ -70,57 +75,17 @@ PlaybackControl::PlaybackControl(QWidget* parent)
     mainLayout->addLayout(bottomLayout);
     setLayout(mainLayout);
 
-    // In this section the private slots connections are setup
-    connect(m_btnFirstFrame, SIGNAL(clicked()),
-            this, SLOT(firstFrameClicked()));
-    connect(m_btnFastRewind, SIGNAL(clicked()),
-            this, SLOT(fastRewindClicked()));
-    connect(m_btnPreviousFrame, SIGNAL(clicked()),
-            this, SLOT(fastRewindClicked()));
-    connect(m_btnPlay, SIGNAL(clicked()),
-            this, SLOT(playClicked()));
-    connect(m_btnNextFrame, SIGNAL(clicked()),
-            this, SLOT(nextFrameClicked()));
-    connect(m_btnFastForward, SIGNAL(clicked()),
-            this, SLOT(fastForwardClicked()));
-    connect(m_btnLastFrame, SIGNAL(clicked()),
-            this, SLOT(lastFrameClicked()));
+    // In this section the private slots connections are setup. We use Queued Connections
+    // to support events from background threads.
+    connect(m_btnFirstFrame,    SIGNAL(clicked()), this, SIGNAL(playbackFirstFrame()), Qt::QueuedConnection);
+    connect(m_btnFastRewind,    SIGNAL(clicked()), this, SIGNAL(playbackFastRewind()), Qt::QueuedConnection);
+    connect(m_btnPreviousFrame, SIGNAL(clicked()), this, SIGNAL(playbackPreviousFrame()), Qt::QueuedConnection);
+    connect(m_btnPlay,          SIGNAL(clicked()), this, SIGNAL(playbackPlay()), Qt::QueuedConnection);
+    connect(m_btnNextFrame,     SIGNAL(clicked()), this, SIGNAL(playbackNextFrame()), Qt::QueuedConnection);
+    connect(m_btnFastForward,   SIGNAL(clicked()), this, SIGNAL(playbackFastForward()), Qt::QueuedConnection);
+    connect(m_btnLastFrame,     SIGNAL(clicked()), this, SIGNAL(playbackLastFrame()), Qt::QueuedConnection);
 }
 
+PlaybackControl::~PlaybackControl() {
 
-// This section contains the implementation for the class' private slots
-
-void PlaybackControl::firstFrameClicked()
-{
-    emit playbackFirstFrame();
-}
-
-void PlaybackControl::fastRewindClicked()
-{
-    emit playbackFastRewind();
-}
-
-void PlaybackControl::previousFrameClicked()
-{
-    emit playbackPreviousFrame();
-}
-
-void PlaybackControl::playClicked()
-{
-    emit playbackPlay();
-}
-
-void PlaybackControl::nextFrameClicked()
-{
-    emit playbackNextFrame();
-}
-
-void PlaybackControl::fastForwardClicked()
-{
-    emit playbackFastForward();
-}
-
-void PlaybackControl::lastFrameClicked()
-{
-    emit playbackLastFrame();
 }
