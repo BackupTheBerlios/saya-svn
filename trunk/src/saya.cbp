@@ -76,6 +76,8 @@
 		<Unit filename="resources/deprecated/wxplaybackcontrolpanel.fbp" />
 		<Unit filename="resources/mainwindow.ui" />
 		<Unit filename="resources/newproject.ui" />
+		<Unit filename="resources/playbackcontrol.qrc" />
+		<Unit filename="resources/playbackcontrol.rcc" />
 		<Unit filename="resources/welcomedlg.qrc" />
 		<Unit filename="resources/welcomedlg.ui" />
 		<Unit filename="saya/core/aborter.cpp">

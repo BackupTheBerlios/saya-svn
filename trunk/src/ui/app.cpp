@@ -109,6 +109,7 @@ bool qSayaApp::Data::LoadResources() {
     bool result = false;
     do {
         if(!LoadResource("welcomedlg.rcc")) break;
+        if(!LoadResource("playbackcontrol.rcc")) break;
         result = true;
     }while(false);
     return result;

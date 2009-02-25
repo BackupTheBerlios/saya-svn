@@ -7,6 +7,7 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
+#include "../saya/core/iocommon.h"
 #include "../saya/core/systring.h"
 #include "../saya/core/app.h"
 #include "../saya/core/sythread.h"
@@ -92,8 +93,9 @@ void AppDebugLog::DebugLog(const QString& msg) {
     syString s;
     s << "[" << syString(t.toString("yy:MM:dd hh:mm:ss")) << "] : " << syString(msg);
     m_Data->append(s);
+    s << "\n";
     if(!syApp::Get()->IsMainLoopRunning()) {
-        m_Data->repaint();
+        ioCommon::Print(s.c_str());
     }
 }
 

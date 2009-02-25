@@ -1,0 +1,11 @@
+<RCC>
+  <qresource>
+    <file>img/btn_fastforward.png</file>
+    <file>img/btn_fastrewind.png</file>
+    <file>img/btn_firstframe.png</file>
+    <file>img/btn_lastframe.png</file>
+    <file>img/btn_nextframe.png</file>
+    <file>img/btn_play.png</file>
+    <file>img/btn_prevframe.png</file>
+  </qresource>
+</RCC>
