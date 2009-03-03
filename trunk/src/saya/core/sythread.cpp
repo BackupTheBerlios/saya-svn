@@ -65,6 +65,7 @@
  **************************************************************/
 
 #include "sythread.h"
+#include "avtypes.h"
 #include "aborter.h"
 #include "atomic.h"
 #include "sentryfuncs.h"
@@ -394,7 +395,7 @@ unsigned long syGetTicks() {
 
 unsigned long long syGetNanoTicks() {
     unsigned long long result;
-    #ifdef __Win32__
+    #ifdef __WIN32__
         result = GetAVTimeTFromMilliSeconds(GetTickCount());
     #else
         struct timeval mytime;

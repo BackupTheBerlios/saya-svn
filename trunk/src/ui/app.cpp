@@ -36,6 +36,7 @@ int idsyEventpassed = QEvent::registerEventType();
 
 class QSayaEvent : public QEvent {
     public:
+        QSayaEvent(QEvent::Type type) : QEvent(type) {}
         Type type() const { return static_cast<Type>(idsyEventpassed); }
         virtual ~QSayaEvent();
 };
