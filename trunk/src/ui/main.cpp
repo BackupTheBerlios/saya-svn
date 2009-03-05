@@ -273,7 +273,7 @@ unsigned int idWorkspaceFactoryDefault = syActionEvent::RegisterId("action_Works
 unsigned int idWorkspaceSaveAs = syActionEvent::RegisterId("action_WorkspaceSaveAs");
 unsigned int idWorkspaceDelete = syActionEvent::RegisterId("action_WorkspaceDelete");
 unsigned int idWorkspaceCustom = syActionEvent::RegisterId("action_WorkspaceCustom");
-unsigned int idMenuSaveFrameLayout = syActionEvent::RegisterId("action_MenuSaveFrameLayout");
+unsigned int idMenuSaveFrameLayout = syActionEvent::RegisterId("action_MenuSaveFrameLayout","OnSaveFrameLayout()");
 unsigned int idWindowEffects = syActionEvent::RegisterId("action_WindowEffects");
 unsigned int idWindowEffectControls = syActionEvent::RegisterId("action_WindowEffectControls");
 unsigned int idWindowHistory = syActionEvent::RegisterId("action_WindowHistory");
@@ -299,17 +299,16 @@ class AppFrame::Data : public QObject, public syEvtHandler {
         virtual ~Data();
         AppFrame* m_Parent;
 
-        QWidget* CreateProjectPane(); /// Creates the project pane
-        QWidget* m_ProjectPanel; /// Project Panel
-        QWidget* m_MonitorPanel; /// Monitor Panel
-        QWidget* m_EffectsPanel; /// Effects Panel
-        QWidget* m_TimelinePanel; /// Timeline Panel
+        QDockWidget* CreateProjectPane(); /// Creates the project pane
+        QDockWidget* m_ProjectPanel; /// Project Panel
+        QDockWidget* m_MonitorPanel; /// Monitor Panel
+        QDockWidget* m_EffectsPanel; /// Effects Panel
+        QDockWidget* m_TimelinePanel; /// Timeline Panel
         WelcomeDialog* m_WelcomeDialog;
-        QTreeWidget* m_ResourcesTree; /// Resources Tree in the Project Panel
 
         bool LoadResources();
         /** Adds the Dock Widgets into the corresponding dock areas. */
-        void CreateDockAreas();
+        void FillDockAreas();
         bool CreateDialogs();
         void CreateConnections(QWidget* parentwidget);
         bool CreatePanels();
@@ -363,8 +362,6 @@ class AppFrame::Data : public QObject, public syEvtHandler {
 
     public slots:
 
-//        void OnResourceTreeContextMenu(wxTreeEvent& event);
-
         void OnFileOpen();
         void OnFileClose();
 
@@ -409,8 +406,6 @@ class AppFrame::Data : public QObject, public syEvtHandler {
         bool LoadDefaultLayout(bool firsttime = false);
 //
         void DoUpdateAppTitle();
-//
-//        void OnUpdateProjectPaneUI();
 
 };
 
@@ -582,6 +577,7 @@ bool AppFrame::Data::LoadDefaultLayout(bool firsttime) {
     bool result = false;
     syString strlayout = syApp::GetConfig()->Read(CFG_PERSPECTIVE_DEFAULT.c_str(), "");
     if(!strlayout.empty()) {
+        DebugLog("LoadDefaultLayout: Layout String: " + strlayout);
         result = LoadLayout(strlayout,false);
     }
     if(firsttime) {
@@ -1020,11 +1016,15 @@ void AppFrame::Data::UpdateLayout() {
 }
 
 const syString AppFrame::Data::SaveLayout() {
-    return "";
+    // TODO: Save the current window layout into a string and return it.
+    QByteArray tmpdata = m_Parent->saveState().toBase64();
+    return syString(tmpdata.data());
 }
 
 bool AppFrame::Data::LoadLayout(const syString& layoutdata, bool update) {
+    // TODO: Load the current window layout from a string.
     bool result = false;
+    result = m_Parent->restoreState(QByteArray::fromBase64(QByteArray(layoutdata.c_str())));
     if(result && update) {
         UpdateLayout();
     }
@@ -1036,24 +1036,7 @@ bool AppFrame::Data::LoadLayout(const syString& layoutdata, bool update) {
 // end AppFrame::Data
 // ------------------
 
-// TODO: Implement the Project Pane in Qt.
-// TODO: Implement the Resources Tree in Qt.
-
-//int idProjectPane = XRCID("widget_ProjectPane");
-//int idPrjSplitter = XRCID("widget_PrjSplitter");
-//int idPrjResourcesTree = XRCID("widget_PrjResourcesTree");
-
 syString g_statustext;
-
-//BEGIN_EVENT_TABLE(AppFrame, wxFrame)
-//    EVT_TREE_ITEM_MENU(idPrjResourcesTree, AppFrame::OnResourceTreeContextMenu)
-//
-////  Project pane events
-//
-//    EVT_UPDATE_UI(idProjectPane, AppFrame:: OnUpdateProjectPaneUI)
-//
-//
-//END_EVENT_TABLE()
 
 AppFrame::AppFrame(const syString& title) :
 QMainWindow(),
@@ -1066,7 +1049,7 @@ m_Data(new Data(this))
         m_Data->LoadAndSetFrameSize();
 
         if(!m_Data->CreatePanels()) break;
-        m_Data->CreateDockAreas();
+        m_Data->FillDockAreas();
 
         // Update Status bar
         g_statustext = "";
@@ -1105,11 +1088,10 @@ bool AppFrame::Data::CreatePanels() {
     do {
         QWidget* tmpwidget = new PlaybackControl(0);
         tmpwidget->show();
-    // TODO: Add the project pane, the timeline and the video playback panels here.
-// These lines are remnants of the wxWidgets code. Kept for reference until we finish the conversion.
 
-//        m_projectpanel = CreateProjectPane();
-//        if(!m_projectpanel) { LoadFail("project_panel"); break; }
+        m_ProjectPanel = CreateProjectPane();
+        if(!m_ProjectPanel) { LoadFail("project_panel"); break; }
+        // TODO: Create the timeline and video playback widgets here.
 //           m_effectspanel = new wxVideoPlaybackPanel(this);
 //           m_monitorpanel = new wxVideoPlaybackPanel(this);
 //           static_cast<wxVideoPlaybackPanel*>(m_effectspanel)->SetAVPlayer(PlaybackManager::Get()->GetInputMonitor());
@@ -1120,94 +1102,20 @@ bool AppFrame::Data::CreatePanels() {
     return result;
 }
 
-void AppFrame::Data::CreateDockAreas() {
-    m_Parent->addDockWidget(Qt::LeftDockWidgetArea, new ProjectPane(m_Parent));
+void AppFrame::Data::FillDockAreas() {
 
-
-// These statements are remnants of the wxAUI dock manager.
-// We're keeping them for reference.
-//    m_mgr->AddPane(m_projectpanel, wxAuiPaneInfo().
-//                            Name(wxT("Project")).Caption(_w("Project")).
-//                              BestSize(wxSize(200, 300)).MaximizeButton().MinimizeButton().PinButton().
-//                              Left().Layer(1));
-//    m_mgr->AddPane(m_monitorpanel, wxAuiPaneInfo().
-//                            Name(wxT("Monitor")).Caption(_w("Monitor / Preview")).
-//                              BestSize(wxSize(250, 300)).MaximizeButton().MinimizeButton().PinButton().
-//                              Bottom().Layer(1));
-//    m_mgr->AddPane(m_effectspanel, wxAuiPaneInfo().
-//                            Name(wxT("Effects")).Caption(_w("Effects Monitor")).
-//                              BestSize(wxSize(250, 300)).MaximizeButton().MinimizeButton().PinButton().
-//                              Bottom().Layer(1));
-//    m_mgr->AddPane(m_timelinepanel, wxAuiPaneInfo().Name(wxT("MainPane")).CentrePane().MinSize(wxSize(500,200)).MaximizeButton().Caption(_w("Timeline")).CaptionVisible(true));
+    // TODO: Add the video player widgets to the bottom dock widget area
+    m_Parent->addDockWidget(Qt::LeftDockWidgetArea, m_ProjectPanel);
+    // TODO: Add the timeline widget to the main (center) widget area.
 }
 
-QWidget* AppFrame::Data::CreateProjectPane() {
-    // TODO: Create the Project Pane Here.
-//    long tabs_style = wxAUI_NB_DEFAULT_STYLE && ~ (wxAUI_NB_CLOSE_BUTTON | wxAUI_NB_CLOSE_ON_ACTIVE_TAB | wxAUI_NB_CLOSE_ON_ALL_TABS);
-//    wxPanel* panel1;
-//    wxAuiNotebook* auinotebook1;
-//    wxPanel* resourcespage;
-//    wxSplitterWindow* splitter1;
-//    wxPanel* dir_panel;
-//    wxPanel* files_panel;
-//    wxScrolledWindow* scrolledWindow2;
-//    wxPanel* effectspage;
-//    m_ResourcesTree = NULL;
-//
-//    panel1 = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize(200,800), wxTAB_TRAVERSAL );
-//	wxBoxSizer* bSizer2 = new wxBoxSizer( wxVERTICAL );
-//
-//	auinotebook1 = new wxAuiNotebook( panel1, wxID_ANY, wxDefaultPosition, wxDefaultSize, tabs_style );
-//	resourcespage = new wxPanel( auinotebook1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-//	wxBoxSizer* bSizer3 = new wxBoxSizer( wxVERTICAL );
-//
-//	splitter1 = new wxSplitterWindow( resourcespage, idPrjSplitter, wxDefaultPosition, wxDefaultSize, wxSP_3D );
-//	splitter1->SetMinimumPaneSize(10); // No unsplitting!
-//	dir_panel = new wxPanel( splitter1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxTAB_TRAVERSAL );
-//
-//	wxBoxSizer* bSizer4 = new wxBoxSizer( wxVERTICAL );
-//
-//	m_ResourcesTree = new wxTreeCtrl( dir_panel, idPrjResourcesTree, wxDefaultPosition, wxDefaultSize, wxTR_DEFAULT_STYLE );
-//
-//	wxTreeItemId daroot = m_ResourcesTree->AddRoot(_w("Resources"), -1, -1, NULL);
-//	m_ResourcesTree->AppendItem(daroot, _w("Sequences"),-1,-1,NULL);
-//	m_ResourcesTree->AppendItem(daroot, _w("Videos"),-1,-1,NULL);
-//	m_ResourcesTree->AppendItem(daroot, _w("Images"),-1,-1,NULL);
-//	m_ResourcesTree->AppendItem(daroot, _w("Sound"),-1,-1,NULL);
-//	m_ResourcesTree->AppendItem(daroot, _w("Other"),-1,-1,NULL);
-//
-//	bSizer4->Add( m_ResourcesTree, 1, wxEXPAND, 5 );
-//
-//	dir_panel->SetSizer( bSizer4 );
-//	dir_panel->Layout();
-//	bSizer4->Fit( dir_panel );
-//	files_panel = new wxPanel( splitter1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN | wxTAB_TRAVERSAL );
-//	wxBoxSizer* bSizer5;
-//	bSizer5 = new wxBoxSizer( wxVERTICAL );
-//
-//	scrolledWindow2 = new wxScrolledWindow( files_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
-//	scrolledWindow2->SetScrollRate( 5, 5 );
-//	bSizer5->Add( scrolledWindow2, 1, wxEXPAND | wxALL, 5 );
-//
-//	files_panel->SetSizer( bSizer5 );
-//	files_panel->Layout();
-//	bSizer5->Fit( files_panel );
-//	splitter1->SplitHorizontally( dir_panel, files_panel, 170 );
-//	bSizer3->Add( splitter1, 1, wxEXPAND, 5 );
-//
-//	resourcespage->SetSizer( bSizer3 );
-//	resourcespage->Layout();
-//	bSizer3->Fit( resourcespage );
-//	auinotebook1->AddPage( resourcespage, wxT("Resources"), false, wxNullBitmap );
-//	effectspage = new wxPanel( auinotebook1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-//	auinotebook1->AddPage( effectspage, wxT("Effects"), true, wxNullBitmap );
-//    auinotebook1->SetSelection(0); // Go to the first page
-//
-//	bSizer2->Add( auinotebook1, 1, wxEXPAND | wxALL, 5 );
-//
-//	panel1->SetSizer( bSizer2 );
-//	panel1->Layout();
-//	bSizer2->Fit( panel1 );
+QDockWidget* AppFrame::Data::CreateProjectPane() {
+    ProjectPane* prjpane = new ProjectPane(m_Parent);
+    return dynamic_cast<QDockWidget*>(prjpane);
+
+    // TODO: Restore the sash position here.
+
+//  Here's the old wxWidgets code for reference.
 //	{
 //        long curheight = GetRect().GetHeight();
 //        long defaultsashpos =  curheight / 2;
@@ -1217,9 +1125,6 @@ QWidget* AppFrame::Data::CreateProjectPane() {
 //        sashpos = std::min(curheight,std::max((long)20,sashpos));
 //        splitter1->SetSashPosition(sashpos);
 //	}
-//
-//	return panel1;
-    return 0;
 }
 
 void AppFrame::Data::LoadAndSetFrameSize() {
@@ -1349,8 +1254,10 @@ void AppFrame::UpdateStatustext() {
 
 void AppFrame::Data::SaveDefaultLayout(bool showmsg) {
     if(m_layouthidden) {
+        DebugLog("SaveDefaultLayout: Layout hidden. Not saving.");
         return;
     }
+    DebugLog("SaveDefaultLayout: Saving default layout...");
     QRect rect = m_Parent->geometry();
     syString key = CFG_LOCATION;
     syApp::GetConfig()->WriteInt(key + "/xpos", rect.x());
@@ -1359,6 +1266,7 @@ void AppFrame::Data::SaveDefaultLayout(bool showmsg) {
     syApp::GetConfig()->WriteInt(key + "/height", rect.height());
 
     syString strlayout(SaveLayout());
+    DebugLog("Layout String: " + strlayout);
     syApp::GetConfig()->Write(CFG_PERSPECTIVE_DEFAULT, strlayout);
 
     if(showmsg) {
@@ -1379,13 +1287,9 @@ void AppFrame::Data::ShowLayout(bool show) {
         if(!m_layouthidden) {
             m_CurrentLayout = SaveLayout();
             m_Parent->hide();
-            // TODO: Hide all docks corresponding to the main window.
-            // If Qt does this automatically when hiding the main window, we won't need to conver this code after all.
-//            wxAuiPaneInfoArray& myarr = m_mgr->GetAllPanes();
-//            size_t i;
-//            for(i = 0;i < myarr.size(); i++) {
-//                myarr[i].Hide();
-//            }
+            // TODO: Hide all dock widgets.
+            // FIXME: Currently there's a bug with state saving/restoring... if we hide the project pane, it won't show when restoring the state.
+//            m_ProjectPanel->hide();
             UpdateLayout();
             m_layouthidden = true;
         }
@@ -1441,25 +1345,5 @@ void AppFrame::closeEvent(QCloseEvent *event) {
         deleteLater(); // Closing the main window will quit the application.
     }
 }
-
-//
-//void AppFrame::OnResourceTreeContextMenu(wxTreeEvent& event) {
-//
-//    wxMenu *menu = wxXmlResource::Get()->LoadMenu(_T("resources_tree_menu"));
-//    std::auto_ptr<wxMenu> tmpptr(menu);
-//    if(menu) {
-//        PopupMenu(menu);
-//    }
-//}
-//
-//void AppFrame::OnUpdateProjectPaneUI() {
-//    if(IsAppShuttingDown())
-//        return;
-//    bool enablePane = ProjectManager::Get()->HasProject();
-//    wxWindow* thepane = FindWindow(idProjectPane);
-//    if(thepane) {
-//        thepane->Enable(enablePane);
-//    }
-//}
 
 #include "moc/main.moc.h"

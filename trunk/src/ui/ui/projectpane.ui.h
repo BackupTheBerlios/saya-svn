@@ -89,7 +89,7 @@ public:
 
     void retranslateUi(QDockWidget *projectPane)
     {
-    projectPane->setWindowTitle(QApplication::translate("projectPane", "Resources / Effects", 0, QApplication::UnicodeUTF8));
+    projectPane->setWindowTitle(QApplication::translate("projectPane", "Project", 0, QApplication::UnicodeUTF8));
     resourcesTree->headerItem()->setText(0, QApplication::translate("projectPane", "1", 0, QApplication::UnicodeUTF8));
     tabWidget1->setTabText(tabWidget1->indexOf(tabResources), QApplication::translate("projectPane", "Resources", 0, QApplication::UnicodeUTF8));
     tabWidget1->setTabText(tabWidget1->indexOf(tabEffects), QApplication::translate("projectPane", "Effects", 0, QApplication::UnicodeUTF8));
