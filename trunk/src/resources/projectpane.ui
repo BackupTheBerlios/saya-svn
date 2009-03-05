@@ -1,0 +1,75 @@
+<ui version="4.0" >
+ <class>projectPane</class>
+ <widget class="QDockWidget" name="projectPane" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>307</width>
+    <height>473</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Resources / Effects</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents" >
+   <layout class="QVBoxLayout" name="verticalLayout_2" >
+    <item>
+     <widget class="QTabWidget" name="tabWidget1" >
+      <property name="currentIndex" >
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tabResources" >
+       <attribute name="title" >
+        <string>Resources</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout" >
+        <item>
+         <widget class="QSplitter" name="splitter" >
+          <property name="orientation" >
+           <enum>Qt::Vertical</enum>
+          </property>
+          <widget class="QTreeWidget" name="resourcesTree" >
+           <property name="verticalScrollBarPolicy" >
+            <enum>Qt::ScrollBarAlwaysOn</enum>
+           </property>
+           <property name="selectionMode" >
+            <enum>QAbstractItemView::SingleSelection</enum>
+           </property>
+           <property name="selectionBehavior" >
+            <enum>QAbstractItemView::SelectItems</enum>
+           </property>
+           <property name="rootIsDecorated" >
+            <bool>true</bool>
+           </property>
+           <property name="headerHidden" >
+            <bool>true</bool>
+           </property>
+           <column>
+            <property name="text" >
+             <string>1</string>
+            </property>
+           </column>
+          </widget>
+          <widget class="QListWidget" name="resourcesList" >
+           <property name="viewMode" >
+            <enum>QListView::IconMode</enum>
+           </property>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabEffects" >
+       <attribute name="title" >
+        <string>Effects</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

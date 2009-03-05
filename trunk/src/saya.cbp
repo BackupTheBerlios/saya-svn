@@ -7,8 +7,8 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin\saya-debug" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Debug" />
+				<Option output="bin/saya-debug" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option projectLinkerOptionsRelation="2" />
@@ -17,8 +17,8 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="bin\Release\saya" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Release\" />
+				<Option output="bin/Release/saya" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Option projectLinkerOptionsRelation="2" />
@@ -38,8 +38,8 @@
 			<Add option="-DTIXML_USE_STL" />
 			<Add option="-DSY_QSTRING_COMPATIBILITY" />
 			<Add directory="$(#qt4.include)" />
-			<Add directory="$(#qt4.include)\QtGui" />
-			<Add directory="$(#qt4.include)\QtCore" />
+			<Add directory="$(#qt4.include)/QtGui" />
+			<Add directory="$(#qt4.include)/QtCore" />
 		</Compiler>
 		<Linker>
 			<Add option="-pipe" />
@@ -49,276 +49,280 @@
 			<Add directory="$(#qt4.lib)" />
 		</Linker>
 		<Unit filename="LICENSE.txt" />
-		<Unit filename="drafts\high_priority_tasks.txt">
+		<Unit filename="drafts/high_priority_tasks.txt">
 			<Option target="Debug" />
 		</Unit>
-		<Unit filename="drafts\monitor_preview.txt">
+		<Unit filename="drafts/monitor_preview.txt">
 			<Option target="Debug" />
 		</Unit>
-		<Unit filename="drafts\renderer.txt">
+		<Unit filename="drafts/renderer.txt">
 			<Option target="Debug" />
 		</Unit>
-		<Unit filename="drafts\undoredo.txt">
+		<Unit filename="drafts/undoredo.txt">
 			<Option target="Debug" />
 		</Unit>
 		<Unit filename="main.cpp" />
 		<Unit filename="main.h" />
-		<Unit filename="plugins\demovideo.cpp" />
-		<Unit filename="resources\deprecated\README" />
-		<Unit filename="resources\deprecated\debuglog.fbp" />
-		<Unit filename="resources\deprecated\mainmenu.xrc" />
-		<Unit filename="resources\deprecated\newproject.fbp" />
-		<Unit filename="resources\deprecated\newproject.xrc" />
-		<Unit filename="resources\deprecated\pickname.fbp" />
-		<Unit filename="resources\deprecated\pickname.xrc" />
-		<Unit filename="resources\deprecated\saya_welcome.fbp" />
-		<Unit filename="resources\deprecated\welcome.xrc" />
-		<Unit filename="resources\deprecated\wxplaybackcontrolpanel.fbp" />
-		<Unit filename="resources\mainwindow.ui" />
-		<Unit filename="resources\newproject.ui" />
-		<Unit filename="resources\playbackcontrol.qrc" />
-		<Unit filename="resources\playbackcontrol.rcc" />
-		<Unit filename="resources\welcomedlg.qrc" />
-		<Unit filename="resources\welcomedlg.ui" />
-		<Unit filename="saya\core\aborter.cpp">
+		<Unit filename="plugins/demovideo.cpp" />
+		<Unit filename="resources/deprecated/README" />
+		<Unit filename="resources/deprecated/debuglog.fbp" />
+		<Unit filename="resources/deprecated/mainmenu.xrc" />
+		<Unit filename="resources/deprecated/newproject.fbp" />
+		<Unit filename="resources/deprecated/newproject.xrc" />
+		<Unit filename="resources/deprecated/pickname.fbp" />
+		<Unit filename="resources/deprecated/pickname.xrc" />
+		<Unit filename="resources/deprecated/saya_welcome.fbp" />
+		<Unit filename="resources/deprecated/welcome.xrc" />
+		<Unit filename="resources/deprecated/wxplaybackcontrolpanel.fbp" />
+		<Unit filename="resources/mainwindow.ui" />
+		<Unit filename="resources/newproject.ui" />
+		<Unit filename="resources/playbackcontrol.qrc" />
+		<Unit filename="resources/playbackcontrol.rcc" />
+		<Unit filename="resources/welcomedlg.qrc" />
+		<Unit filename="resources/welcomedlg.ui" />
+		<Unit filename="saya/core/aborter.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="saya\core\aborter.h" />
-		<Unit filename="saya\core\app.cpp" />
-		<Unit filename="saya\core\app.h" />
-		<Unit filename="saya\core\atomic.h" />
-		<Unit filename="saya\core\audiobuffer.cpp">
+		<Unit filename="saya/core/aborter.h" />
+		<Unit filename="saya/core/app.cpp" />
+		<Unit filename="saya/core/app.h" />
+		<Unit filename="saya/core/atomic.h" />
+		<Unit filename="saya/core/audiobuffer.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="saya\core\audiobuffer.h" />
-		<Unit filename="saya\core\audioinputdevice.cpp">
+		<Unit filename="saya/core/audiobuffer.h" />
+		<Unit filename="saya/core/audioinputdevice.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="saya\core\audioinputdevice.h" />
-		<Unit filename="saya\core\audiooutputdevice.cpp">
+		<Unit filename="saya/core/audioinputdevice.h" />
+		<Unit filename="saya/core/audiooutputdevice.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="saya\core\audiooutputdevice.h" />
-		<Unit filename="saya\core\avcontroller.cpp">
+		<Unit filename="saya/core/audiooutputdevice.h" />
+		<Unit filename="saya/core/avcontroller.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="saya\core\avcontroller.h" />
-		<Unit filename="saya\core\avdevice.cpp">
+		<Unit filename="saya/core/avcontroller.h" />
+		<Unit filename="saya/core/avdevice.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="saya\core\avdevice.h" />
-		<Unit filename="saya\core\avtypes.h" />
-		<Unit filename="saya\core\config.cpp" />
-		<Unit filename="saya\core\config.h" />
-		<Unit filename="saya\core\debuglog.cpp" />
-		<Unit filename="saya\core\debuglog.h" />
-		<Unit filename="saya\core\dialogs.cpp" />
-		<Unit filename="saya\core\dialogs.h" />
-		<Unit filename="saya\core\eventqueue.h" />
-		<Unit filename="saya\core\events.cpp" />
-		<Unit filename="saya\core\events.h" />
-		<Unit filename="saya\core\evtregistry.h" />
-		<Unit filename="saya\core\filevid.cpp">
+		<Unit filename="saya/core/avdevice.h" />
+		<Unit filename="saya/core/avtypes.h" />
+		<Unit filename="saya/core/config.cpp" />
+		<Unit filename="saya/core/config.h" />
+		<Unit filename="saya/core/debuglog.cpp" />
+		<Unit filename="saya/core/debuglog.h" />
+		<Unit filename="saya/core/dialogs.cpp" />
+		<Unit filename="saya/core/dialogs.h" />
+		<Unit filename="saya/core/eventqueue.h" />
+		<Unit filename="saya/core/events.cpp" />
+		<Unit filename="saya/core/events.h" />
+		<Unit filename="saya/core/evtregistry.h" />
+		<Unit filename="saya/core/filevid.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="saya\core\filevid.h" />
-		<Unit filename="saya\core\intl.h" />
-		<Unit filename="saya\core\iocommon.cpp">
+		<Unit filename="saya/core/filevid.h" />
+		<Unit filename="saya/core/intl.h" />
+		<Unit filename="saya/core/iocommon.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="saya\core\iocommon.h" />
-		<Unit filename="saya\core\nullvid.cpp">
+		<Unit filename="saya/core/iocommon.h" />
+		<Unit filename="saya/core/nullvid.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="saya\core\nullvid.h" />
-		<Unit filename="saya\core\qprof\atomic_ops.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\generalize.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\acquire_release_volatile.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\aligned_atomic_load_store.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\atomic_load_store.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\ecc\ia64.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\emul_cas.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\gcc\alpha.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\gcc\arm.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\gcc\hppa.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\gcc\ia64.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\gcc\m68k.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\gcc\powerpc.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\gcc\s390.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\gcc\sparc.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\gcc\x86.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\generic_pthread.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\hpc\hppa.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\hpc\ia64.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\msftc\x86.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\ordered.h" />
-		<Unit filename="saya\core\qprof\atomic_ops\sysdeps\ordered_except_wr.h" />
-		<Unit filename="saya\core\sentryfuncs.cpp">
+		<Unit filename="saya/core/nullvid.h" />
+		<Unit filename="saya/core/qprof/atomic_ops.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/generalize.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/acquire_release_volatile.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/aligned_atomic_load_store.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/atomic_load_store.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/ecc/ia64.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/emul_cas.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/gcc/alpha.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/gcc/arm.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/gcc/hppa.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/gcc/ia64.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/gcc/m68k.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/gcc/powerpc.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/gcc/s390.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/gcc/sparc.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/gcc/x86.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/generic_pthread.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/hpc/hppa.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/hpc/ia64.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/msftc/x86.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/ordered.h" />
+		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/ordered_except_wr.h" />
+		<Unit filename="saya/core/sentryfuncs.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="saya\core\sentryfuncs.h" />
-		<Unit filename="saya\core\sybitmap.cpp">
+		<Unit filename="saya/core/sentryfuncs.h" />
+		<Unit filename="saya/core/sybitmap.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="saya\core\sybitmap.h" />
-		<Unit filename="saya\core\sybitmapcopier.cpp">
+		<Unit filename="saya/core/sybitmap.h" />
+		<Unit filename="saya/core/sybitmapcopier.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="saya\core\sybitmapcopier.h" />
-		<Unit filename="saya\core\sybitmapsink.cpp" />
-		<Unit filename="saya\core\sybitmapsink.h" />
-		<Unit filename="saya\core\systring.cpp">
+		<Unit filename="saya/core/sybitmapcopier.h" />
+		<Unit filename="saya/core/sybitmapsink.cpp" />
+		<Unit filename="saya/core/sybitmapsink.h" />
+		<Unit filename="saya/core/systring.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="saya\core\systring.h" />
-		<Unit filename="saya\core\sythread.cpp">
+		<Unit filename="saya/core/systring.h" />
+		<Unit filename="saya/core/sythread.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="saya\core\sythread.h" />
-		<Unit filename="saya\core\videocolorformat.h" />
-		<Unit filename="saya\core\videoinputdevice.cpp">
+		<Unit filename="saya/core/sythread.h" />
+		<Unit filename="saya/core/videocolorformat.h" />
+		<Unit filename="saya/core/videoinputdevice.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="saya\core\videoinputdevice.h" />
-		<Unit filename="saya\core\videooutputdevice.cpp">
+		<Unit filename="saya/core/videoinputdevice.h" />
+		<Unit filename="saya/core/videooutputdevice.cpp">
 			<Option weight="10" />
 		</Unit>
-		<Unit filename="saya\core\videooutputdevice.h" />
-		<Unit filename="saya\inputmonitor.cpp">
+		<Unit filename="saya/core/videooutputdevice.h" />
+		<Unit filename="saya/inputmonitor.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\inputmonitor.h" />
-		<Unit filename="saya\playbackmanager.cpp" />
-		<Unit filename="saya\playbackmanager.h" />
-		<Unit filename="saya\presetmanager.cpp">
+		<Unit filename="saya/inputmonitor.h" />
+		<Unit filename="saya/playbackmanager.cpp" />
+		<Unit filename="saya/playbackmanager.h" />
+		<Unit filename="saya/presetmanager.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\presetmanager.h" />
-		<Unit filename="saya\projectmanager.cpp">
+		<Unit filename="saya/presetmanager.h" />
+		<Unit filename="saya/projectmanager.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\projectmanager.h" />
-		<Unit filename="saya\recentfileslist.cpp">
+		<Unit filename="saya/projectmanager.h" />
+		<Unit filename="saya/recentfileslist.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\recentfileslist.h" />
-		<Unit filename="saya\saya_events.h" />
-		<Unit filename="saya\timeline\avclip.cpp">
+		<Unit filename="saya/recentfileslist.h" />
+		<Unit filename="saya/saya_events.h" />
+		<Unit filename="saya/timeline/avclip.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\timeline\avclip.h" />
-		<Unit filename="saya\timeline\avclips.h" />
-		<Unit filename="saya\timeline\avcommon.h" />
-		<Unit filename="saya\timeline\aveffect.cpp">
+		<Unit filename="saya/timeline/avclip.h" />
+		<Unit filename="saya/timeline/avclips.h" />
+		<Unit filename="saya/timeline/avcommon.h" />
+		<Unit filename="saya/timeline/aveffect.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\timeline\aveffect.h" />
-		<Unit filename="saya\timeline\aveffectdeclaration.cpp">
+		<Unit filename="saya/timeline/aveffect.h" />
+		<Unit filename="saya/timeline/aveffectdeclaration.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\timeline\aveffectdeclaration.h" />
-		<Unit filename="saya\timeline\aveffectparamdeclaration.cpp">
+		<Unit filename="saya/timeline/aveffectdeclaration.h" />
+		<Unit filename="saya/timeline/aveffectparamdeclaration.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\timeline\aveffectparamdeclaration.h" />
-		<Unit filename="saya\timeline\aveffectparamdeclarations.h" />
-		<Unit filename="saya\timeline\aveffects.h" />
-		<Unit filename="saya\timeline\avresource.cpp">
+		<Unit filename="saya/timeline/aveffectparamdeclaration.h" />
+		<Unit filename="saya/timeline/aveffectparamdeclarations.h" />
+		<Unit filename="saya/timeline/aveffects.h" />
+		<Unit filename="saya/timeline/avresource.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\timeline\avresource.h" />
-		<Unit filename="saya\timeline\avresources.h" />
-		<Unit filename="saya\timeline\avsequence.cpp">
+		<Unit filename="saya/timeline/avresource.h" />
+		<Unit filename="saya/timeline/avresources.h" />
+		<Unit filename="saya/timeline/avsequence.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\timeline\avsequence.h" />
-		<Unit filename="saya\timeline\avsettings.cpp">
+		<Unit filename="saya/timeline/avsequence.h" />
+		<Unit filename="saya/timeline/avsettings.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\timeline\avsettings.h" />
-		<Unit filename="saya\timeline\avtimeline.h" />
-		<Unit filename="saya\timeline\avtrack.cpp">
+		<Unit filename="saya/timeline/avsettings.h" />
+		<Unit filename="saya/timeline/avtimeline.h" />
+		<Unit filename="saya/timeline/avtrack.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\timeline\avtrack.h" />
-		<Unit filename="saya\timeline\avtracks.h" />
-		<Unit filename="saya\timeline\avtransition.cpp">
+		<Unit filename="saya/timeline/avtrack.h" />
+		<Unit filename="saya/timeline/avtracks.h" />
+		<Unit filename="saya/timeline/avtransition.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\timeline\avtransition.h" />
-		<Unit filename="saya\timeline\fxparameterlist.h" />
-		<Unit filename="saya\timeline\serializable.cpp">
+		<Unit filename="saya/timeline/avtransition.h" />
+		<Unit filename="saya/timeline/fxparameterlist.h" />
+		<Unit filename="saya/timeline/serializable.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\timeline\serializable.h" />
-		<Unit filename="saya\timeline\serialized.cpp">
+		<Unit filename="saya/timeline/serializable.h" />
+		<Unit filename="saya/timeline/serialized.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\timeline\serialized.h" />
-		<Unit filename="saya\timeline\smap.cpp">
+		<Unit filename="saya/timeline/serialized.h" />
+		<Unit filename="saya/timeline/smap.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\timeline\smap.h" />
-		<Unit filename="saya\timeline\smapxstr.cpp">
+		<Unit filename="saya/timeline/smap.h" />
+		<Unit filename="saya/timeline/smapxstr.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\timeline\smapxstr.h" />
-		<Unit filename="saya\timeline\sstrvector.cpp">
+		<Unit filename="saya/timeline/smapxstr.h" />
+		<Unit filename="saya/timeline/sstrvector.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\timeline\sstrvector.h" />
-		<Unit filename="saya\timeline\svector.h" />
-		<Unit filename="saya\tinyxml\tinyxml.cpp">
+		<Unit filename="saya/timeline/sstrvector.h" />
+		<Unit filename="saya/timeline/svector.h" />
+		<Unit filename="saya/tinyxml/tinyxml.cpp">
 			<Option weight="30" />
 		</Unit>
-		<Unit filename="saya\tinyxml\tinyxml.h" />
-		<Unit filename="saya\tinyxml\tinyxmlerror.cpp">
+		<Unit filename="saya/tinyxml/tinyxml.h" />
+		<Unit filename="saya/tinyxml/tinyxmlerror.cpp">
 			<Option weight="30" />
 		</Unit>
-		<Unit filename="saya\tinyxml\tinyxmlparser.cpp">
+		<Unit filename="saya/tinyxml/tinyxmlparser.cpp">
 			<Option weight="30" />
 		</Unit>
-		<Unit filename="saya\undohistory.cpp">
+		<Unit filename="saya/undohistory.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\undohistory.h" />
-		<Unit filename="saya\vidproject.cpp">
+		<Unit filename="saya/undohistory.h" />
+		<Unit filename="saya/vidproject.cpp">
 			<Option weight="20" />
 		</Unit>
-		<Unit filename="saya\vidproject.h" />
+		<Unit filename="saya/vidproject.h" />
 		<Unit filename="todo.txt" />
-		<Unit filename="ui\app.cpp">
+		<Unit filename="ui/app.cpp">
 			<Option weight="100" />
 		</Unit>
-		<Unit filename="ui\app.h" />
-		<Unit filename="ui\config.cpp" />
-		<Unit filename="ui\config.h" />
-		<Unit filename="ui\debuglog.cpp" />
-		<Unit filename="ui\debuglog.h" />
-		<Unit filename="ui\main.cpp">
+		<Unit filename="ui/app.h" />
+		<Unit filename="ui/config.cpp" />
+		<Unit filename="ui/config.h" />
+		<Unit filename="ui/debuglog.cpp" />
+		<Unit filename="ui/debuglog.h" />
+		<Unit filename="ui/main.cpp">
 			<Option weight="100" />
 		</Unit>
-		<Unit filename="ui\main.h" />
-		<Unit filename="ui\moc\debuglog.moc.h" />
-		<Unit filename="ui\moc\main.moc.h" />
-		<Unit filename="ui\moc\playbackcontrol.moc.h" />
-		<Unit filename="ui\moc\welcomedlg.moc.h" />
-		<Unit filename="ui\newprojectdlg.cpp" />
-		<Unit filename="ui\newprojectdlg.h" />
-		<Unit filename="ui\picknamedlg.cpp" />
-		<Unit filename="ui\picknamedlg.h" />
-		<Unit filename="ui\playbackcontrol.cpp" />
-		<Unit filename="ui\playbackcontrol.h" />
-		<Unit filename="ui\resources.cpp" />
-		<Unit filename="ui\resources.h" />
-		<Unit filename="ui\ui\main.ui.h" />
-		<Unit filename="ui\ui\welcomedlg.ui.h" />
-		<Unit filename="ui\welcomedlg.cpp" />
-		<Unit filename="ui\welcomedlg.h" />
-		<Unit filename="ui\wxplaybackcontrolpanel.cpp" />
-		<Unit filename="ui\wxplaybackcontrolpanel.h" />
-		<Unit filename="ui\wxvideopanel.cpp" />
-		<Unit filename="ui\wxvideopanel.h" />
+		<Unit filename="ui/main.h" />
+		<Unit filename="ui/moc/debuglog.moc.h" />
+		<Unit filename="ui/moc/main.moc.h" />
+		<Unit filename="ui/moc/playbackcontrol.moc.h" />
+		<Unit filename="ui/moc/projectpane.moc.h" />
+		<Unit filename="ui/moc/welcomedlg.moc.h" />
+		<Unit filename="ui/newprojectdlg.cpp" />
+		<Unit filename="ui/newprojectdlg.h" />
+		<Unit filename="ui/picknamedlg.cpp" />
+		<Unit filename="ui/picknamedlg.h" />
+		<Unit filename="ui/playbackcontrol.cpp" />
+		<Unit filename="ui/playbackcontrol.h" />
+		<Unit filename="ui/projectpane.cpp" />
+		<Unit filename="ui/projectpane.h" />
+		<Unit filename="ui/resources.cpp" />
+		<Unit filename="ui/resources.h" />
+		<Unit filename="ui/ui/main.ui.h" />
+		<Unit filename="ui/ui/projectpane.ui.h" />
+		<Unit filename="ui/ui/welcomedlg.ui.h" />
+		<Unit filename="ui/welcomedlg.cpp" />
+		<Unit filename="ui/welcomedlg.h" />
+		<Unit filename="ui/wxplaybackcontrolpanel.cpp" />
+		<Unit filename="ui/wxplaybackcontrolpanel.h" />
+		<Unit filename="ui/wxvideopanel.cpp" />
+		<Unit filename="ui/wxvideopanel.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

@@ -40,6 +40,7 @@
 #include "welcomedlg.h"
 #include "newprojectdlg.h"
 #include "app.h"
+#include "projectpane.h"
 
 //#include "wxplaybackcontrolpanel.h"
 
@@ -307,6 +308,7 @@ class AppFrame::Data : public QObject, public syEvtHandler {
         QTreeWidget* m_ResourcesTree; /// Resources Tree in the Project Panel
 
         bool LoadResources();
+        /** Adds the Dock Widgets into the corresponding dock areas. */
         void CreateDockAreas();
         bool CreateDialogs();
         void CreateConnections(QWidget* parentwidget);
@@ -1119,9 +1121,11 @@ bool AppFrame::Data::CreatePanels() {
 }
 
 void AppFrame::Data::CreateDockAreas() {
+    m_Parent->addDockWidget(Qt::LeftDockWidgetArea, new ProjectPane(m_Parent));
+
+
 // These statements are remnants of the wxAUI dock manager.
 // We're keeping them for reference.
-
 //    m_mgr->AddPane(m_projectpanel, wxAuiPaneInfo().
 //                            Name(wxT("Project")).Caption(_w("Project")).
 //                              BestSize(wxSize(200, 300)).MaximizeButton().MinimizeButton().PinButton().
