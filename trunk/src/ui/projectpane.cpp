@@ -102,6 +102,18 @@ ProjectPane::~ProjectPane() {
     m_Data = 0;
 }
 
+syString ProjectPane::SaveSplitterState() const {
+    if(!this) return ""; // Due to dynamic casting, "this" may be null.
+    QByteArray tmpdata = m_Data->m_Ui->splitter->saveState().toBase64();
+    return syString(tmpdata.data());
+}
+
+void ProjectPane::RestoreSplitterState(const syString& data) {
+    if(!this) return; // Due to dynamic casting, "this" may be null.
+    if(!data.empty())
+        m_Data->m_Ui->splitter->restoreState(QByteArray::fromBase64(QByteArray(data.c_str())));
+}
+
 // ---------------
 // End ProjectPane
 // ---------------

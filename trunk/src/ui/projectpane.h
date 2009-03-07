@@ -10,11 +10,14 @@
 #define projectpane_h
 
 #include <QDockWidget>
+#include "../saya/core/systring.h"
 
 class ProjectPane : public QDockWidget {
     public:
         ProjectPane(QWidget* parent = 0);
         virtual ~ProjectPane();
+        syString SaveSplitterState() const;
+        void RestoreSplitterState(const syString& data);
     private:
         class Data;
         friend class Data;

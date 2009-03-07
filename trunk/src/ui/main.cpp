@@ -98,7 +98,7 @@ const syString CFG_LAYOUTS = "Layouts";
 const syString CFG_LAYOUT_DEFAULT = CFG_LAYOUTS + "/Default";
 const syString CFG_LOCATION = CFG_LAYOUT_DEFAULT + "/Location";
 const syString CFG_PERSPECTIVE_DEFAULT = CFG_LAYOUT_DEFAULT + "/Layout";
-const syString CFG_DEFAULT_PRJ_SASHPOS = CFG_LAYOUT_DEFAULT + "/PrjSashPos";
+const syString CFG_DEFAULT_PRJ_SASHDATA = CFG_LAYOUT_DEFAULT + "/PrjSashData";
 
 unsigned int idFileNew = syActionEvent::RegisterId("action_FileNew");
 unsigned int idNewProject = syActionEvent::RegisterId("action_NewProject", "OnNewProject()");
@@ -1045,13 +1045,11 @@ void AppFrame::Data::UpdateLayout() {
 }
 
 const syString AppFrame::Data::SaveLayout() {
-    // TODO: Save the current window layout into a string and return it.
     QByteArray tmpdata = m_Parent->saveState().toBase64();
     return syString(tmpdata.data());
 }
 
 bool AppFrame::Data::LoadLayout(const syString& layoutdata, bool update) {
-    // TODO: Load the current window layout from a string.
     bool result = false;
     result = m_Parent->restoreState(QByteArray::fromBase64(QByteArray(layoutdata.c_str())));
     if(result && update) {
@@ -1140,20 +1138,10 @@ void AppFrame::Data::FillDockAreas() {
 
 QDockWidget* AppFrame::Data::CreateProjectPane() {
     ProjectPane* prjpane = new ProjectPane(m_Parent);
+
+    syString splitterstate = syApp::GetConfig()->Read(CFG_DEFAULT_PRJ_SASHDATA, "");
+    prjpane->RestoreSplitterState(splitterstate);
     return dynamic_cast<QDockWidget*>(prjpane);
-
-    // TODO: Restore the sash position here.
-
-//  Here's the old wxWidgets code for reference.
-//	{
-//        long curheight = GetRect().GetHeight();
-//        long defaultsashpos =  curheight / 2;
-//        long sashpos = defaultsashpos;
-//        sashpos = syApp::GetConfig()->ReadUint(CFG_DEFAULT_PRJ_SASHPOS, defaultsashpos);
-//        if(sashpos==0) sashpos = defaultsashpos;
-//        sashpos = std::min(curheight,std::max((long)20,sashpos));
-//        splitter1->SetSashPosition(sashpos);
-//	}
 }
 
 void AppFrame::Data::LoadAndSetFrameSize() {
@@ -1296,6 +1284,8 @@ void AppFrame::Data::SaveDefaultLayout(bool showmsg) {
 
     syString strlayout(SaveLayout());
     syApp::GetConfig()->Write(CFG_PERSPECTIVE_DEFAULT, strlayout);
+
+    syApp::GetConfig()->Write(CFG_DEFAULT_PRJ_SASHDATA,dynamic_cast<ProjectPane*>(m_ProjectPanel)->SaveSplitterState());
 
     if(showmsg) {
         syMessageBox(_("Current Layout has been saved."),
