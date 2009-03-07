@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'main.cpp'
 **
-** Created: Wed Feb 18 19:59:15 2009
+** Created: Fri Mar 6 14:36:58 2009
 **      by: The Qt Meta Object Compiler version 59 (Qt 4.4.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -22,7 +22,7 @@ static const uint qt_meta_data_AppFrame__Data[] = {
        1,       // revision
        0,       // classname
        0,    0, // classinfo
-      39,   10, // methods
+      40,   10, // methods
        0,    0, // properties
        0,    0, // enums/sets
 
@@ -53,19 +53,20 @@ static const uint qt_meta_data_AppFrame__Data[] = {
      427,   15,   15,   15, 0x0a,
      449,   15,   15,   15, 0x0a,
      477,   15,   15,   15, 0x0a,
-     498,   15,   15,   15, 0x0a,
-     526,   15,   15,   15, 0x0a,
-     556,   15,   15,   15, 0x0a,
-     577,   15,   15,   15, 0x0a,
-     601,   15,   15,   15, 0x0a,
-     622,   15,   15,   15, 0x0a,
-     647,   15,   15,   15, 0x0a,
-     670,   15,   15,   15, 0x0a,
-     693,   15,   15,   15, 0x0a,
-     723,  715,   15,   15, 0x0a,
-     762,  752,  747,   15, 0x0a,
-     786,   15,  747,   15, 0x2a,
-     806,   15,   15,   15, 0x0a,
+     499,   15,   15,   15, 0x0a,
+     520,   15,   15,   15, 0x0a,
+     548,   15,   15,   15, 0x0a,
+     578,   15,   15,   15, 0x0a,
+     599,   15,   15,   15, 0x0a,
+     623,   15,   15,   15, 0x0a,
+     644,   15,   15,   15, 0x0a,
+     669,   15,   15,   15, 0x0a,
+     692,   15,   15,   15, 0x0a,
+     715,   15,   15,   15, 0x0a,
+     745,  737,   15,   15, 0x0a,
+     784,  774,  769,   15, 0x0a,
+     808,   15,  769,   15, 0x2a,
+     828,   15,   15,   15, 0x0a,
 
        0        // eod
 };
@@ -84,7 +85,8 @@ static const char qt_meta_stringdata_AppFrame__Data[] = {
     "OnFileBatchCapture()\0OnQuit()\0OnAbout()\0"
     "OnSaveFrameLayout()\0OnLoadDefaultLayout()\0"
     "OnWorkspaceFactoryDefault()\0"
-    "OnFileMenuUpdateUI()\0OnRecentFilesMenuUpdateUI()\0"
+    "OnShowProjectWindow()\0OnFileMenuUpdateUI()\0"
+    "OnRecentFilesMenuUpdateUI()\0"
     "OnRecentImportsMenuUpdateUI()\0"
     "OnEditMenuUpdateUI()\0OnProjectMenuUpdateUI()\0"
     "OnClipMenuUpdateUI()\0OnSequenceMenuUpdateUI()\0"
@@ -147,24 +149,25 @@ int AppFrame::Data::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 22: OnSaveFrameLayout(); break;
         case 23: OnLoadDefaultLayout(); break;
         case 24: OnWorkspaceFactoryDefault(); break;
-        case 25: OnFileMenuUpdateUI(); break;
-        case 26: OnRecentFilesMenuUpdateUI(); break;
-        case 27: OnRecentImportsMenuUpdateUI(); break;
-        case 28: OnEditMenuUpdateUI(); break;
-        case 29: OnProjectMenuUpdateUI(); break;
-        case 30: OnClipMenuUpdateUI(); break;
-        case 31: OnSequenceMenuUpdateUI(); break;
-        case 32: OnMarkerMenuUpdateUI(); break;
-        case 33: OnWindowMenuUpdateUI(); break;
-        case 34: LoadAndSetFrameSize(); break;
-        case 35: SaveDefaultLayout((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 36: { bool _r = LoadDefaultLayout((*reinterpret_cast< bool(*)>(_a[1])));
+        case 25: OnShowProjectWindow(); break;
+        case 26: OnFileMenuUpdateUI(); break;
+        case 27: OnRecentFilesMenuUpdateUI(); break;
+        case 28: OnRecentImportsMenuUpdateUI(); break;
+        case 29: OnEditMenuUpdateUI(); break;
+        case 30: OnProjectMenuUpdateUI(); break;
+        case 31: OnClipMenuUpdateUI(); break;
+        case 32: OnSequenceMenuUpdateUI(); break;
+        case 33: OnMarkerMenuUpdateUI(); break;
+        case 34: OnWindowMenuUpdateUI(); break;
+        case 35: LoadAndSetFrameSize(); break;
+        case 36: SaveDefaultLayout((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 37: { bool _r = LoadDefaultLayout((*reinterpret_cast< bool(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< bool*>(_a[0]) = _r; }  break;
-        case 37: { bool _r = LoadDefaultLayout();
+        case 38: { bool _r = LoadDefaultLayout();
             if (_a[0]) *reinterpret_cast< bool*>(_a[0]) = _r; }  break;
-        case 38: DoUpdateAppTitle(); break;
+        case 39: DoUpdateAppTitle(); break;
         }
-        _id -= 39;
+        _id -= 40;
     }
     return _id;
 }

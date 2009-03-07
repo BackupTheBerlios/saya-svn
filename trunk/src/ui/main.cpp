@@ -268,7 +268,7 @@ unsigned int idWorkspaceEditing = syActionEvent::RegisterId("action_WorkspaceEdi
 unsigned int idWorkspaceEffects = syActionEvent::RegisterId("action_WorkspaceEffects");
 unsigned int idWorkspaceAudio = syActionEvent::RegisterId("action_WorkspaceAudio");
 unsigned int idWorkspaceColorCorrection = syActionEvent::RegisterId("action_WorkspaceColorCorrection");
-unsigned int idWorkspaceDefault = syActionEvent::RegisterId("action_WorkspaceDefault");
+unsigned int idWorkspaceDefault = syActionEvent::RegisterId("action_WorkspaceDefault","OnLoadDefaultLayout()");
 unsigned int idWorkspaceFactoryDefault = syActionEvent::RegisterId("action_WorkspaceFactoryDefault");
 unsigned int idWorkspaceSaveAs = syActionEvent::RegisterId("action_WorkspaceSaveAs");
 unsigned int idWorkspaceDelete = syActionEvent::RegisterId("action_WorkspaceDelete");
@@ -281,7 +281,7 @@ unsigned int idWindowInfo = syActionEvent::RegisterId("action_WindowInfo");
 unsigned int idWindowTools = syActionEvent::RegisterId("action_WindowTools");
 unsigned int idWindowAudioMixer = syActionEvent::RegisterId("action_WindowAudioMixer");
 unsigned int idWindowMonitor = syActionEvent::RegisterId("action_WindowMonitor");
-unsigned int idWindowProject = syActionEvent::RegisterId("action_WindowProject");
+unsigned int idWindowProject = syActionEvent::RegisterId("action_WindowProject", "OnShowProjectWindow()");
 unsigned int idWindowTimelinesMenu = syActionEvent::RegisterId("action_WindowTimelinesMenu");
 
 // ----------------------------
@@ -390,6 +390,11 @@ class AppFrame::Data : public QObject, public syEvtHandler {
         void OnLoadDefaultLayout();
         void OnWorkspaceFactoryDefault();
 
+        // Window Menu
+
+        void OnShowProjectWindow();
+
+
         // UpdateUI events
         void OnFileMenuUpdateUI();
         void OnRecentFilesMenuUpdateUI();
@@ -400,6 +405,7 @@ class AppFrame::Data : public QObject, public syEvtHandler {
         void OnSequenceMenuUpdateUI();
         void OnMarkerMenuUpdateUI();
         void OnWindowMenuUpdateUI();
+
 
         void LoadAndSetFrameSize();
         void SaveDefaultLayout(bool showmsg);
@@ -577,7 +583,6 @@ bool AppFrame::Data::LoadDefaultLayout(bool firsttime) {
     bool result = false;
     syString strlayout = syApp::GetConfig()->Read(CFG_PERSPECTIVE_DEFAULT.c_str(), "");
     if(!strlayout.empty()) {
-        DebugLog("LoadDefaultLayout: Layout String: " + strlayout);
         result = LoadLayout(strlayout,false);
     }
     if(firsttime) {
@@ -608,6 +613,10 @@ void AppFrame::Data::OnProjectStatusChanged(syProjectStatusEvent& event) {
 // -----------------
 // begin event slots
 // -----------------
+
+// -------------------------
+// begin slots for File Menu
+// -------------------------
 
 void AppFrame::Data::OnFileOpen(){
     if(IsAppShuttingDown())
@@ -714,6 +723,22 @@ void AppFrame::Data::OnQuit(){
     m_Parent->close();
 }
 
+// -------------
+// end File Menu
+// -------------
+
+// -----------------
+// begin Window Menu
+// -----------------
+
+void AppFrame::Data::OnShowProjectWindow() {
+    m_ProjectPanel->show();
+}
+
+// -----------------------
+// begin Workspace submenu
+// -----------------------
+
 void AppFrame::Data::OnSaveFrameLayout(){
     SaveDefaultLayout(true);
 }
@@ -730,6 +755,10 @@ void AppFrame::Data::OnWorkspaceFactoryDefault(){
     }
     UpdateLayout();
 }
+
+// ---------------------
+// end Workspace submenu
+// ---------------------
 
 void AppFrame::Data::OnFileMenuUpdateUI() {
     ProjectManager* pmgr = ProjectManager::Get();
@@ -1266,7 +1295,6 @@ void AppFrame::Data::SaveDefaultLayout(bool showmsg) {
     syApp::GetConfig()->WriteInt(key + "/height", rect.height());
 
     syString strlayout(SaveLayout());
-    DebugLog("Layout String: " + strlayout);
     syApp::GetConfig()->Write(CFG_PERSPECTIVE_DEFAULT, strlayout);
 
     if(showmsg) {
@@ -1288,8 +1316,7 @@ void AppFrame::Data::ShowLayout(bool show) {
             m_CurrentLayout = SaveLayout();
             m_Parent->hide();
             // TODO: Hide all dock widgets.
-            // FIXME: Currently there's a bug with state saving/restoring... if we hide the project pane, it won't show when restoring the state.
-//            m_ProjectPanel->hide();
+            m_ProjectPanel->hide();
             UpdateLayout();
             m_layouthidden = true;
         }
