@@ -1,77 +1,758 @@
 <ui version="4.0" >
+ <author>Rigoberto Calleja Cervantes</author>
  <class>new_project_dialog</class>
  <widget class="QDialog" name="new_project_dialog" >
+  <property name="enabled" >
+   <bool>true</bool>
+  </property>
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>407</width>
-    <height>510</height>
+    <width>625</width>
+    <height>730</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Create new project</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" >
+  <layout class="QVBoxLayout" >
    <item>
-    <widget class="QGroupBox" name="groupBox_2" >
+    <widget class="QGroupBox" name="m_TitleAndFilename" >
+     <property name="font" >
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="title" >
       <string>Title and filename</string>
      </property>
+     <layout class="QFormLayout" name="formLayout" >
+      <property name="fieldGrowthPolicy" >
+       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+      </property>
+      <item row="0" column="0" >
+       <widget class="QLabel" name="m_label" >
+        <property name="font" >
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="toolTip" >
+         <string comment="This will be the project's official name." >This will be the Project's official name.</string>
+        </property>
+        <property name="text" >
+         <string>Title:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <widget class="QLineEdit" name="idNewPrjTitle" >
+        <property name="font" >
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="toolTip" >
+         <string comment="This will be the project's official name." >This will be the Project's official name.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" >
+       <widget class="QLabel" name="m_label_3" >
+        <property name="font" >
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="toolTip" >
+         <string>The project's filename. Note that replacing spaces with underscores is recommended.</string>
+        </property>
+        <property name="text" >
+         <string>Filename:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" >
+       <widget class="QLineEdit" name="idNewPrjFilename" >
+        <property name="font" >
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="toolTip" >
+         <string>The project's filename. Note that replacing spaces with underscores is recommended.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" >
+       <widget class="QCheckBox" name="idNewPrjUnderscores" >
+        <property name="enabled" >
+         <bool>true</bool>
+        </property>
+        <property name="font" >
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text" >
+         <string>Auto-replace spaces with underscores (recommended)</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QLabel" name="m_label_2" >
+        <property name="font" >
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="toolTip" >
+         <string>The directory where the project file will be created.
+For portability purposes, all resources (video, audio, etc.) SHOULD be beneath this directory.</string>
+        </property>
+        <property name="text" >
+         <string>Location:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <layout class="QHBoxLayout" name="m_horizontalLayout_2" >
+        <item>
+         <widget class="QPushButton" name="btnPrjLocation" >
+          <property name="enabled" >
+           <bool>true</bool>
+          </property>
+          <property name="font" >
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="toolTip" >
+           <string>The directory where the project file will be created.
+For portability purposes, all resources (video, audio, etc.) SHOULD be beneath this directory.</string>
+          </property>
+          <property name="text" >
+           <string>Browse...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="m_horizontalSpacer" >
+          <property name="orientation" >
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0" >
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox" >
+    <widget class="QGroupBox" name="m_ProjectSettings" >
+     <property name="font" >
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="title" >
       <string>Project settings</string>
      </property>
+     <layout class="QVBoxLayout" name="verticalLayout" >
+      <item>
+       <layout class="QHBoxLayout" name="m_horizontalLayout" >
+        <item>
+         <widget class="QLabel" name="m_label_4" >
+          <property name="font" >
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text" >
+           <string>Predefined settings:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="idNewPrjPresets" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <property name="font" >
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnNewPrjSaveSettingsAs" >
+          <property name="enabled" >
+           <bool>true</bool>
+          </property>
+          <property name="font" >
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="toolTip" >
+           <string>Saves the current project's settings as predefined settings</string>
+          </property>
+          <property name="text" >
+           <string>Save custom settings as ...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QTabWidget" name="m_tabWidget" >
+        <property name="enabled" >
+         <bool>true</bool>
+        </property>
+        <property name="font" >
+         <font>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="tabPosition" >
+         <enum>QTabWidget::North</enum>
+        </property>
+        <property name="currentIndex" >
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="m_AudioVideoSettingsTab" >
+         <property name="enabled" >
+          <bool>true</bool>
+         </property>
+         <attribute name="title" >
+          <string>A/V Settings</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_3" >
+          <item>
+           <layout class="QVBoxLayout" name="m_verticalLayout_2" >
+            <item>
+             <layout class="QHBoxLayout" name="m_horizontalLayout_5" >
+              <item>
+               <widget class="QGroupBox" name="m_ProjectSettingsVideo" >
+                <property name="font" >
+                 <font>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="title" >
+                 <string>Video</string>
+                </property>
+                <layout class="QFormLayout" name="formLayout_3" >
+                 <item row="0" column="0" >
+                  <widget class="QLabel" name="m_label_5" >
+                   <property name="font" >
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text" >
+                    <string>Size (w x h):</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0" >
+                  <widget class="QLabel" name="m_label_6" >
+                   <property name="font" >
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text" >
+                    <string>Framerate (f / s):</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0" >
+                  <widget class="QLabel" name="m_label_7" >
+                   <property name="font" >
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text" >
+                    <string>Interlacing:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1" >
+                  <widget class="QComboBox" name="idNewPrjAVSettings_interlacing" >
+                   <property name="font" >
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <item>
+                    <property name="text" >
+                     <string>Progressive (non interlaced)</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>Interlaced; bottom field first</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>interlaced; top field first</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item row="3" column="0" >
+                  <widget class="QLabel" name="m_label_8" >
+                   <property name="enabled" >
+                    <bool>true</bool>
+                   </property>
+                   <property name="font" >
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="toolTip" >
+                    <string>Sets the pixels' aspect ratio.
+2.0: The pixels are twice as wide as they're tall.
+0.5: The pixels are half as wide as they're tall.
+1.0: The pixels are square.</string>
+                   </property>
+                   <property name="text" >
+                    <string>Pixel aspect:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1" >
+                  <widget class="QLineEdit" name="idNewPrjAVSettings_pixelaspect" >
+                   <property name="font" >
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="toolTip" >
+                    <string>Sets the pixels' aspect ratio.
+2.0: The pixels are twice as wide as they're tall.
+0.5: The pixels are half as wide as they're tall.
+1.0: The pixels are square.</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1" >
+                  <layout class="QHBoxLayout" name="m_horizontalLayout_6" >
+                   <item>
+                    <widget class="QLineEdit" name="idNewPrjAVSettings_width" >
+                     <property name="font" >
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="m_label_13" >
+                     <property name="font" >
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                     <property name="text" >
+                      <string>x</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="idNewPrjAVSettings_height" >
+                     <property name="font" >
+                      <font>
+                       <weight>50</weight>
+                       <bold>false</bold>
+                      </font>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="1" column="1" >
+                  <widget class="QComboBox" name="idNewPrjAVSettings_fps" >
+                   <property name="font" >
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="currentIndex" >
+                    <number>0</number>
+                   </property>
+                   <property name="minimumContentsLength" >
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <property name="text" >
+                     <string>23.97</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>24</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>25</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>29.997</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>30</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="m_ProjectSettingsAudio" >
+                <property name="font" >
+                 <font>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="title" >
+                 <string>Audio</string>
+                </property>
+                <layout class="QFormLayout" name="formLayout_4" >
+                 <property name="fieldGrowthPolicy" >
+                  <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+                 </property>
+                 <item row="0" column="0" >
+                  <widget class="QLabel" name="m_label_9" >
+                   <property name="font" >
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text" >
+                    <string>Sample rate (Hz):</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1" >
+                  <widget class="QComboBox" name="idNewPrjAVSettings_samplerate" >
+                   <property name="font" >
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <item>
+                    <property name="text" >
+                     <string>8000</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>11025</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>16000</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>22050</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>24000</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>32000</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>44100</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>48000</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>96000</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item row="1" column="0" >
+                  <widget class="QLabel" name="m_label_10" >
+                   <property name="font" >
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text" >
+                    <string>Sample size:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1" >
+                  <widget class="QComboBox" name="idNewPrjAVSettings_samplesize" >
+                   <property name="font" >
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <item>
+                    <property name="text" >
+                     <string>16 bit</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>8 bit</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item row="2" column="0" >
+                  <widget class="QLabel" name="m_label_11" >
+                   <property name="font" >
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text" >
+                    <string>Surround:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1" >
+                  <widget class="QComboBox" name="idNewPrjAVSettings_surround" >
+                   <property name="font" >
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <item>
+                    <property name="text" >
+                     <string>Mono</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>Stereo</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>5.1 Surround</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>7.1 Surround</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>10.2 Surround</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>Custom</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item row="3" column="0" >
+                  <widget class="QLabel" name="m_label_12" >
+                   <property name="enabled" >
+                    <bool>true</bool>
+                   </property>
+                   <property name="font" >
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="text" >
+                    <string>Channels:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1" >
+                  <widget class="QSpinBox" name="idNewPrjAVSettings_channels" >
+                   <property name="font" >
+                    <font>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="minimum" >
+                    <number>1</number>
+                   </property>
+                   <property name="maximum" >
+                    <number>32</number>
+                   </property>
+                   <property name="value" >
+                    <number>2</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="m_ProjectSettingsAbout" >
+              <property name="font" >
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="title" >
+               <string>About these settings</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_5" >
+               <item>
+                <widget class="QTextEdit" name="idNewPrjAVSettings_description" >
+                 <property name="sizePolicy" >
+                  <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="font" >
+                  <font>
+                   <weight>50</weight>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="m_EncoderSettingsTab" >
+         <property name="enabled" >
+          <bool>true</bool>
+         </property>
+         <attribute name="title" >
+          <string>Encoder Settings</string>
+         </attribute>
+        </widget>
+        <widget class="QWidget" name="m_DefaultSequenceSettingsTab" >
+         <property name="enabled" >
+          <bool>true</bool>
+         </property>
+         <property name="toolTip" >
+          <string>When you create a new sequence, it will adopt these settings.</string>
+         </property>
+         <attribute name="title" >
+          <string>Default Sequence Settings</string>
+         </attribute>
+        </widget>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="m_horizontalLayout_3" >
+     <item>
+      <spacer name="m_horizontalSpacer_2" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnOk" >
+       <property name="text" >
+        <string>Ok</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnCancel" >
+       <property name="text" >
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
+ <includes/>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>new_project_dialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>new_project_dialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
