@@ -6,9 +6,11 @@
  * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * License:   GPL version 3 or later
  ********************************************************************/
+#include "../saya/core/intl.h"
+#include "../saya/core/dialogs.h"
 #include "projectpane.h"
 #include "ui/projectpane.ui.h"
-
+#include <QMenu>
 // -----------------------
 // Begin ProjectPane::Data
 // -----------------------
@@ -20,15 +22,14 @@ class ProjectPane::Data : public QObject {
         Data(ProjectPane *parent = 0);
         virtual ~Data();
         Ui::projectPane* m_Ui;
+        void OnResourceTreeContextMenu(QContextMenuEvent * ev);
 
     public slots:
-//        void OnResourceTreeContextMenu(wxTreeEvent& event);
-
-//
-//        void OnUpdateProjectPaneUI();
 
     private:
         ProjectPane* m_Parent;
+        QAction* action_import;
+        QAction* action_rescan;
 };
 
 ProjectPane::Data::Data(ProjectPane* parent) :
@@ -38,46 +39,52 @@ m_Parent(parent)
 {
     m_Ui->setupUi(dynamic_cast<QDockWidget*>(m_Parent));
 
-    // TODO: Create the Resources tree here.
+    QTreeWidgetItem* item_sequences = new QTreeWidgetItem(m_Ui->resourcesTree);
+    QTreeWidgetItem* item_videos = new QTreeWidgetItem(m_Ui->resourcesTree);
+    QTreeWidgetItem* item_images = new QTreeWidgetItem(m_Ui->resourcesTree);
+    QTreeWidgetItem* item_sound = new QTreeWidgetItem(m_Ui->resourcesTree);
+    QTreeWidgetItem* item_other = new QTreeWidgetItem(m_Ui->resourcesTree);
 
-//  Here's the old wxWidgets code for reference.
-//	wxTreeItemId daroot = m_ResourcesTree->AddRoot(_w("Resources"), -1, -1, NULL);
-//	m_ResourcesTree->AppendItem(daroot, _w("Sequences"),-1,-1,NULL);
-//	m_ResourcesTree->AppendItem(daroot, _w("Videos"),-1,-1,NULL);
-//	m_ResourcesTree->AppendItem(daroot, _w("Images"),-1,-1,NULL);
-//	m_ResourcesTree->AppendItem(daroot, _w("Sound"),-1,-1,NULL);
-//	m_ResourcesTree->AppendItem(daroot, _w("Other"),-1,-1,NULL);
+    item_sequences->setText(0,_("Sequences"));
+    item_videos->setText(0,_("Videos"));
+    item_images->setText(0,_("Images"));
+    item_sound->setText(0,_("Sound"));
+    item_other->setText(0,_("Other"));
 
+    m_Ui->resourcesTree->addTopLevelItem(item_sequences);
+    m_Ui->resourcesTree->addTopLevelItem(item_videos);
+    m_Ui->resourcesTree->addTopLevelItem(item_images);
+    m_Ui->resourcesTree->addTopLevelItem(item_sound);
+    m_Ui->resourcesTree->addTopLevelItem(item_other);
 
-    // Here we setup the signals and slots.
+    // TODO: Setup the signals and slots for the Project Pane
+    // TODO: Connect the actions to the corresponding slots in the main window, or use syEvents (preferred)
+
+    action_import = new QAction(_("&Import..."),this);
+    action_rescan = new QAction(_("&Rescan project directory"),this);
+
 }
 
 ProjectPane::Data::~Data() {
     delete m_Ui;
+    delete action_import;
+    delete action_rescan;
+    action_import = 0;
+    action_rescan = 0;
     m_Ui = 0;
 }
 
-// TODO: Reimplement the context menus and UpdateUI events with Qt.
-// here's the old wxWidgets code for reference.
-//
-//void AppFrame::OnResourceTreeContextMenu(wxTreeEvent& event) {
-//
-//    wxMenu *menu = wxXmlResource::Get()->LoadMenu(_T("resources_tree_menu"));
-//    std::auto_ptr<wxMenu> tmpptr(menu);
-//    if(menu) {
-//        PopupMenu(menu);
-//    }
-//}
-//
-//void AppFrame::OnUpdateProjectPaneUI() {
-//    if(IsAppShuttingDown())
-//        return;
-//    bool enablePane = ProjectManager::Get()->HasProject();
-//    wxWindow* thepane = FindWindow(idProjectPane);
-//    if(thepane) {
-//        thepane->Enable(enablePane);
-//    }
-//}
+void ProjectPane::Data::OnResourceTreeContextMenu(QContextMenuEvent * ev) {
+
+    QList<QAction*> actions;
+
+    actions.append(action_import);
+    actions.append(action_rescan);
+
+    if(actions.count() > 0) {
+        QMenu::exec(actions, QCursor::pos());
+    }
+}
 
 
 #include "moc/projectpane.moc.h"
@@ -112,6 +119,10 @@ void ProjectPane::RestoreSplitterState(const syString& data) {
     if(!this) return; // Due to dynamic casting, "this" may be null.
     if(!data.empty())
         m_Data->m_Ui->splitter->restoreState(QByteArray::fromBase64(QByteArray(data.c_str())));
+}
+
+void ProjectPane::contextMenuEvent(QContextMenuEvent * ev) {
+    m_Data->OnResourceTreeContextMenu(ev);
 }
 
 // ---------------

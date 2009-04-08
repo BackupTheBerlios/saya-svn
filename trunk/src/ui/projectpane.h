@@ -19,6 +19,7 @@ class ProjectPane : public QDockWidget {
         syString SaveSplitterState() const;
         void RestoreSplitterState(const syString& data);
     private:
+        virtual void contextMenuEvent(QContextMenuEvent * ev);
         class Data;
         friend class Data;
         Data* m_Data;
