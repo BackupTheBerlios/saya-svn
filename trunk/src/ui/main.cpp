@@ -461,6 +461,7 @@ m_Ui(new Ui::MainWindow)
     m_Ui->sequence_menu->connect(static_cast<QObject*>(m_Ui->sequence_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnSequenceMenuUpdateUI()));
     m_Ui->marker_menu->connect(static_cast<QObject*>(m_Ui->marker_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnMarkerMenuUpdateUI()));
     m_Ui->window_menu->connect(static_cast<QObject*>(m_Ui->window_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnWindowMenuUpdateUI()));
+    m_Ui->action_EditLabel->setEnabled(false); // TODO: Re-enable the "Edit Label" menu and set the actions as mutually exclusive.
 
 }
 
