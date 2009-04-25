@@ -210,3 +210,190 @@
 //    idNewPrjPresetsChoice->Select(0);
 //    return true;
 //}
+#include "../saya/projectmanager.h"
+#include "../saya/presetmanager.h"
+#include "../saya/core/systring.h"
+#include "../saya/timeline/sstrvector.h"
+#include "../saya/timeline/smapxstr.h"
+
+#include "moc/newprojectdlg.moc.h"
+#include "newprojectdlg.h"
+
+#include <QFileDialog>
+#include <QInputDialog>
+
+NewProjectDlg::NewProjectDlg(QWidget *parent) : QDialog(parent)
+{
+    setupUi(this);
+
+    connect(idNewPrjPresets, SIGNAL(activated(int)), this, SLOT(OnPrjPresetsChanged(int)));
+
+    connect(btnPrjLocation, SIGNAL(clicked()), this, SLOT(OnBrowseDir()));
+    connect(btnNewPrjSaveSettingsAs, SIGNAL(clicked()), this, SLOT(OnPrjSaveSettingsAsClicked()));
+    connect(btnOk, SIGNAL(clicked()), this, SLOT(OnPressOk()));
+    connect(btnCancel, SIGNAL(clicked()), this, SLOT(close()));
+
+    connect(idNewPrjFilename, SIGNAL(editingFinished()), this, SLOT(OnEditingFinished()));
+
+    connect(idNewPrjAVSettings_width, SIGNAL(editingFinished()), this, SLOT(OnAVSettingsUpdateUI()));
+    connect(idNewPrjAVSettings_height, SIGNAL(editingFinished()), this, SLOT(OnAVSettingsUpdateUI()));
+    connect(idNewPrjAVSettings_fps, SIGNAL(currentIndexChanged(int)), this, SLOT(OnAVSettingsUpdateUI()));
+    connect(idNewPrjAVSettings_interlacing, SIGNAL(currentIndexChanged(int)), this, SLOT(OnAVSettingsUpdateUI()));
+    connect(idNewPrjAVSettings_pixelaspect, SIGNAL(editingFinished()), this, SLOT(OnAVSettingsUpdateUI()));
+    connect(idNewPrjAVSettings_samplerate, SIGNAL(currentIndexChanged(int)), this, SLOT(OnAVSettingsUpdateUI()));
+    connect(idNewPrjAVSettings_samplesize, SIGNAL(currentIndexChanged(int)), this, SLOT(OnAVSettingsUpdateUI()));
+    connect(idNewPrjAVSettings_surround, SIGNAL(currentIndexChanged(int)), this, SLOT(OnAVSettingsUpdateUI()));
+    connect(idNewPrjAVSettings_channels, SIGNAL(valueChanged(int)), this, SLOT(OnAVSettingsUpdateUI()));
+    connect(idNewPrjAVSettings_description, SIGNAL(textChanged()), this, SLOT(OnAVSettingsUpdateUI()));
+
+    //adding validators for QLineEdit fields
+    //TODO: set specific ranges for them
+    idNewPrjAVSettings_width->setValidator(new QIntValidator(idNewPrjAVSettings_width));
+    idNewPrjAVSettings_height->setValidator(new QIntValidator(idNewPrjAVSettings_height));
+    idNewPrjAVSettings_pixelaspect->setValidator(new QDoubleValidator(idNewPrjAVSettings_pixelaspect));
+
+
+    idNewPrjPresets->setEnabled(true);
+
+    LoadPresets();
+}
+
+NewProjectDlg::~NewProjectDlg()
+{
+}
+
+void NewProjectDlg::OnAVSettingsUpdateUI()
+{
+}
+
+void NewProjectDlg::OnPrjPresetsChanged(int i)
+{
+    if (i < 0) return;
+
+    if (i == 0) {
+        idNewPrjAVSettings_width->setEnabled(true);
+        idNewPrjAVSettings_height->setEnabled(true);
+        idNewPrjAVSettings_fps->setEnabled(true);
+        idNewPrjAVSettings_interlacing->setEnabled(true);
+        idNewPrjAVSettings_pixelaspect->setEnabled(true);
+        idNewPrjAVSettings_samplerate->setEnabled(true);
+        idNewPrjAVSettings_samplesize->setEnabled(true);
+        idNewPrjAVSettings_surround->setEnabled(true);
+        idNewPrjAVSettings_channels->setEnabled(true);
+        idNewPrjAVSettings_description->setEnabled(true);
+
+        return;
+    }
+
+    QString itemText = idNewPrjPresets->itemText(i);
+    SMapStrStr configs = ProjectManager::Get()->GetPresets()->GetPresetData(itemText.toStdString().c_str());
+
+    const syString *value;
+
+    value = configs.find("idNewPrjAVSettings_width");
+    if (value) idNewPrjAVSettings_width->setText(value->c_str());
+
+    value = configs.find("idNewPrjAVSettings_height");
+    if (value) idNewPrjAVSettings_height->setText(value->c_str());
+
+    value = configs.find("idNewPrjAVSettings_fps");
+    if (value) idNewPrjAVSettings_fps->setCurrentIndex(idNewPrjAVSettings_fps->findText(value->c_str()));
+
+    value = configs.find("idNewPrjAVSettings_interlacing");
+    if (value) idNewPrjAVSettings_interlacing->setCurrentIndex(idNewPrjAVSettings_interlacing->findText(value->c_str()));
+
+    value = configs.find("idNewPrjAVSettings_pixelaspect");
+    if (value) idNewPrjAVSettings_pixelaspect->setText(value->c_str());
+
+    value = configs.find("idNewPrjAVSettings_samplerate");
+    if (value) idNewPrjAVSettings_samplerate->setCurrentIndex(idNewPrjAVSettings_samplerate->findText(value->c_str()));
+
+    value = configs.find("idNewPrjAVSettings_samplesize");
+    if (value) idNewPrjAVSettings_samplesize->setCurrentIndex(idNewPrjAVSettings_samplesize->findText(value->c_str()));
+
+    value = configs.find("idNewPrjAVSettings_surround");
+    if (value) idNewPrjAVSettings_surround->setCurrentIndex(idNewPrjAVSettings_surround->findText(value->c_str()));
+
+    value = configs.find("idNewPrjAVSettings_channels");
+    if (value) {
+        bool ok;
+        int intvalue = (static_cast<QString>(*value)).toInt(&ok, 10);
+        if (ok) idNewPrjAVSettings_channels->setValue(intvalue);
+    }
+
+    value = configs.find("idNewPrjAVSettings_description");
+    if (value) idNewPrjAVSettings_description->setText(value->c_str());
+
+    idNewPrjAVSettings_width->setEnabled(false);
+    idNewPrjAVSettings_height->setEnabled(false);
+    idNewPrjAVSettings_fps->setEnabled(false);
+    idNewPrjAVSettings_interlacing->setEnabled(false);
+    idNewPrjAVSettings_pixelaspect->setEnabled(false);
+    idNewPrjAVSettings_samplerate->setEnabled(false);
+    idNewPrjAVSettings_samplesize->setEnabled(false);
+    idNewPrjAVSettings_surround->setEnabled(false);
+    idNewPrjAVSettings_channels->setEnabled(false);
+    idNewPrjAVSettings_description->setEnabled(false);
+}
+
+void NewProjectDlg::OnPrjSaveSettingsAsClicked()
+{
+    bool ok;
+    QString text;
+    SMapStrStr configs;
+
+    configs["idNewPrjAVSettings_width"] = idNewPrjAVSettings_width->text();
+    configs["idNewPrjAVSettings_height"] = idNewPrjAVSettings_height->text();
+    configs["idNewPrjAVSettings_fps"] = idNewPrjAVSettings_fps->currentText();
+    configs["idNewPrjAVSettings_interlacing"] = idNewPrjAVSettings_interlacing->currentText();
+    configs["idNewPrjAVSettings_pixelaspect"] = idNewPrjAVSettings_pixelaspect->text();
+    configs["idNewPrjAVSettings_samplerate"] = idNewPrjAVSettings_samplerate->currentText();
+    configs["idNewPrjAVSettings_samplesize"] = idNewPrjAVSettings_samplesize->currentText();
+    configs["idNewPrjAVSettings_surround"] = idNewPrjAVSettings_surround->currentText();
+    configs["idNewPrjAVSettings_channels"] = QString::number(idNewPrjAVSettings_channels->value(), 10);
+    configs["idNewPrjAVSettings_description"] = idNewPrjAVSettings_description->toPlainText();
+
+    text = QInputDialog::getText(this, tr("Pick name dialog"), tr("Predefined settings name:"),
+        QLineEdit::Normal, idNewPrjTitle->text(), &ok);
+
+    /*programmatically it's possible to insert duplicates so we need to assure
+    that in combobox it's only one item with a specific text*/
+    if (ok && !text.isEmpty() && idNewPrjPresets->findText(text) < 0 &&
+        ProjectManager::Get()->GetPresets()->SaveNewPreset(text.toStdString().c_str(), configs)) {
+        idNewPrjPresets->addItem(text);
+        idNewPrjPresets->setCurrentIndex(idNewPrjPresets->count() - 1);
+    }
+}
+
+bool NewProjectDlg::LoadPresets()
+{
+    unsigned int i, imax;
+    SStringVector presets = ProjectManager::Get()->GetPresets()->GetPresets();
+
+    idNewPrjPresets->addItem("<Custom>");
+    for (i=0, imax=presets.size(); i<imax; i++) {
+        idNewPrjPresets->addItem(presets[i]);
+    }
+
+    return true;
+}
+
+void NewProjectDlg::OnBrowseDir()
+{
+    QString dirName = QFileDialog::getExistingDirectory(this, tr("Choose directory"));
+    //TODO: dirName should be private in class
+}
+
+void NewProjectDlg::OnPressOk()
+{
+    if (idNewPrjTitle->text().isEmpty()) return;
+    if (idNewPrjFilename->text().isEmpty()) return;
+    //TODO: should save data in a .xml file through ProjectManager
+}
+
+void NewProjectDlg::OnEditingFinished()
+{
+    if (idNewPrjUnderscores->isChecked()) {
+        idNewPrjFilename->setText(idNewPrjFilename->text().replace(' ', '_'));
+    }
+}

@@ -302,6 +302,7 @@
 		<Unit filename="ui/main.h" />
 		<Unit filename="ui/moc/debuglog.moc.h" />
 		<Unit filename="ui/moc/main.moc.h" />
+		<Unit filename="ui/moc/newprojectdlg.moc.h" />
 		<Unit filename="ui/moc/playbackcontrol.moc.h" />
 		<Unit filename="ui/moc/projectpane.moc.h" />
 		<Unit filename="ui/moc/welcomedlg.moc.h" />
@@ -316,6 +317,7 @@
 		<Unit filename="ui/resources.cpp" />
 		<Unit filename="ui/resources.h" />
 		<Unit filename="ui/ui/main.ui.h" />
+		<Unit filename="ui/ui/newprojectdlg.ui.h" />
 		<Unit filename="ui/ui/projectpane.ui.h" />
 		<Unit filename="ui/ui/welcomedlg.ui.h" />
 		<Unit filename="ui/welcomedlg.cpp" />

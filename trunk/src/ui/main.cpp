@@ -305,6 +305,7 @@ class AppFrame::Data : public QObject, public syEvtHandler {
         QDockWidget* m_EffectsPanel; /// Effects Panel
         QDockWidget* m_TimelinePanel; /// Timeline Panel
         WelcomeDialog* m_WelcomeDialog;
+        NewProjectDlg *m_NewProjectDlg;
 
         bool LoadResources();
         /** Adds the Dock Widgets into the corresponding dock areas. */
@@ -418,6 +419,7 @@ class AppFrame::Data : public QObject, public syEvtHandler {
 AppFrame::Data::Data(AppFrame* parent) :
 m_Parent(parent),
 m_WelcomeDialog(0),
+m_NewProjectDlg(0),
 m_hadproject(false),
 m_panes_status_checked(false),
 m_layouthidden(false),
@@ -470,6 +472,7 @@ AppFrame::Data::~Data() {
     UnregisterAllActions();
     delete m_WelcomeDialog;
     delete m_Ui;
+    if (m_NewProjectDlg) delete m_NewProjectDlg;
 
 }
 
@@ -702,13 +705,21 @@ void AppFrame::Data::OpenRecentFile(unsigned int fileno) {
 }
 
 void AppFrame::Data::OnNewProject(){
-    syMessageBox("OnNewProject() called.");
+//    syMessageBox("OnNewProject() called.");
     // TODO: Implement the New project Dialog
 //    NewProjectDlg* mydialog = new NewProjectDlg(this);
 //    if(!mydialog) {
 //        return;
 //    }
 //    mydialog->ShowModal();
+
+    if (m_NewProjectDlg) {
+        delete m_NewProjectDlg;
+        m_NewProjectDlg = 0;
+    }
+
+    m_NewProjectDlg = new NewProjectDlg();
+    if (m_NewProjectDlg) m_NewProjectDlg->show();
 }
 
 void AppFrame::Data::OnFileRevert(){

@@ -50,3 +50,32 @@
 //};
 //
 //#endif
+#ifndef NEWPROJECTDLG_H
+#define NEWPROJECTDLG_H
+
+#include <QDialog>
+#include <QWidget>
+
+#include "ui/newprojectdlg.ui.h"
+
+class NewProjectDlg : public QDialog, public Ui::new_project_dialog
+{
+    Q_OBJECT
+
+    public:
+        NewProjectDlg(QWidget *parent = 0);
+        virtual ~NewProjectDlg();
+
+    public slots:
+        void OnAVSettingsUpdateUI();
+        void OnPrjPresetsChanged(int i);
+        void OnPrjSaveSettingsAsClicked();
+        void OnBrowseDir();
+        void OnPressOk();
+        void OnEditingFinished();
+
+    private:
+        bool LoadPresets();
+};
+
+#endif
