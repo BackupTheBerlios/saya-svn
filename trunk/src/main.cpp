@@ -8,8 +8,10 @@
  **************************************************************/
 
 #include "main.h"
+#include <cstdio>
 
 int main(int argc, char** argv) {
     syApp* app = new qSayaApp(argc, argv);
-    return app->Start();
+    int result = app->Start();
+    return result;
 }

@@ -21,7 +21,7 @@
 #include <deque>
 
 std::deque<QString> PendingDebugLogMessages;
-static volatile bool s_DebugLogPending;
+static volatile bool s_DebugLogPending = false;
 syMutex s_MyDebugLogMutex;
 
 class AppDebugLog::Data: public QTextEdit {
