@@ -5,6 +5,8 @@ Rick
 ====
 
 * URGENT: FINISH THE CONVERSION TO Qt4.
+  Hint: In main.cpp, line 1125, AppFrame::Data::CreatePanels() should create the playback panels.
+  Convert the necessary classes and we're done with that part.
 
 * Switch time units to avtime_t. DEFERRED FOR LATER.
   The core (sayacore/ ) and in the vidproject/ classes need their time units to be converted to avtime_t.
