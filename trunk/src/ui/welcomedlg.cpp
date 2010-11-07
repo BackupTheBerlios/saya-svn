@@ -15,7 +15,6 @@
 #include "../saya/recentfileslist.h"
 #include "../saya/projectmanager.h"
 
-//
 #include "welcomedlg.h"
 #include <qtextbrowser.h>
 #include <qpushbutton.h>
@@ -175,4 +174,6 @@ void WelcomeDialog::showEvent(QShowEvent * event) {
     this->move(iXpos,iYpos);
 }
 
-#include "moc/welcomedlg.moc.h"
+#ifndef Q_MOC_RUN
+  #include "moc/welcomedlg.moc.h"
+#endif

@@ -60,8 +60,6 @@
 
 class NewProjectDlg : public QDialog, public Ui::new_project_dialog
 {
-    Q_OBJECT
-
     public:
         NewProjectDlg(QWidget *parent = 0);
         virtual ~NewProjectDlg();

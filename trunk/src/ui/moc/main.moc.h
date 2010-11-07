@@ -1,16 +1,16 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'main.cpp'
 **
-** Created: Fri Mar 6 14:36:58 2009
-**      by: The Qt Meta Object Compiler version 59 (Qt 4.4.3)
+** Created: Sun Nov 7 00:46:52 2010
+**      by: The Qt Meta Object Compiler version 61 (Qt 4.5.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'main.cpp' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 59
-#error "This file was generated using the moc from 4.4.3. It"
+#elif Q_MOC_OUTPUT_REVISION != 61
+#error "This file was generated using the moc from 4.5.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -19,12 +19,13 @@ QT_BEGIN_MOC_NAMESPACE
 static const uint qt_meta_data_AppFrame__Data[] = {
 
  // content:
-       1,       // revision
+       2,       // revision
        0,       // classname
        0,    0, // classinfo
-      40,   10, // methods
+      40,   12, // methods
        0,    0, // properties
        0,    0, // enums/sets
+       0,    0, // constructors
 
  // slots: signature, parameters, type, tag, flags
       16,   15,   15,   15, 0x0a,
@@ -166,6 +167,7 @@ int AppFrame::Data::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 38: { bool _r = LoadDefaultLayout();
             if (_a[0]) *reinterpret_cast< bool*>(_a[0]) = _r; }  break;
         case 39: DoUpdateAppTitle(); break;
+        default: ;
         }
         _id -= 40;
     }

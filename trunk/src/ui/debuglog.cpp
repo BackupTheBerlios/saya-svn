@@ -113,4 +113,6 @@ AppDebugLog::~AppDebugLog() {
     m_Data = 0;
 }
 
-#include "moc/debuglog.moc.h"
+#ifndef Q_MOC_RUN
+  #include "moc/debuglog.moc.h"
+#endif

@@ -15,7 +15,6 @@
 
 class WelcomeDialog: public QFrame
 {
-    Q_OBJECT
     public:
         WelcomeDialog(QWidget* parent);
         virtual ~WelcomeDialog();

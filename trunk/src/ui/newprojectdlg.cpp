@@ -397,3 +397,6 @@ void NewProjectDlg::OnEditingFinished()
         idNewPrjFilename->setText(idNewPrjFilename->text().replace(' ', '_'));
     }
 }
+#ifndef Q_MOC_RUN
+  #include "moc/newprojectdlg.moc.h"
+#endif

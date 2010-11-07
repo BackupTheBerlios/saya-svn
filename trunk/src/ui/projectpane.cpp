@@ -86,9 +86,9 @@ void ProjectPane::Data::OnResourceTreeContextMenu(QContextMenuEvent * ev) {
     }
 }
 
-
-#include "moc/projectpane.moc.h"
-
+#ifndef Q_MOC_RUN
+  #include "moc/projectpane.moc.h"
+#endif
 // ---------------------
 // End ProjectPane::Data
 // ---------------------

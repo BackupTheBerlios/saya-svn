@@ -21,8 +21,6 @@ class QLabel;
 
 class PlaybackControl : public QWidget
 {
-    Q_OBJECT
-
     public:
     PlaybackControl(QWidget *parent = 0);
     virtual ~PlaybackControl();

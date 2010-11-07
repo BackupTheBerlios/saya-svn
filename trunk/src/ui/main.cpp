@@ -1375,4 +1375,6 @@ void AppFrame::closeEvent(QCloseEvent *event) {
     }
 }
 
-#include "moc/main.moc.h"
+#ifndef Q_MOC_RUN
+  #include "moc/main.moc.h"
+#endif

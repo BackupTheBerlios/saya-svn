@@ -8,7 +8,6 @@
 // **************************************************************************************/
 #include <QtGui>
 #include "playbackcontrol.h"
-#include "moc/playbackcontrol.moc.h"
 
 PlaybackControl::PlaybackControl(QWidget* parent)
     : QWidget (parent)
@@ -89,3 +88,6 @@ PlaybackControl::PlaybackControl(QWidget* parent)
 PlaybackControl::~PlaybackControl() {
 
 }
+#ifndef Q_MOC_RUN
+  #include "moc/playbackcontrol.moc.h"
+#endif

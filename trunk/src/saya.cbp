@@ -301,12 +301,36 @@
 			<Option weight="100" />
 		</Unit>
 		<Unit filename="ui/main.h" />
-		<Unit filename="ui/moc/debuglog.moc.h" />
-		<Unit filename="ui/moc/main.moc.h" />
-		<Unit filename="ui/moc/newprojectdlg.moc.h" />
-		<Unit filename="ui/moc/playbackcontrol.moc.h" />
-		<Unit filename="ui/moc/projectpane.moc.h" />
-		<Unit filename="ui/moc/welcomedlg.moc.h" />
+		<Unit filename="ui/moc/debuglog.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/debuglog.cpp -o ui/moc/debuglog.moc.h" />
+		</Unit>
+		<Unit filename="ui/moc/main.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/main.cpp -o ui/moc/main.moc.h" />
+		</Unit>
+		<Unit filename="ui/moc/newprojectdlg.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/newprojectdlg.cpp -o ui/moc/newprojectdlg.moc.h" />
+		</Unit>
+		<Unit filename="ui/moc/playbackcontrol.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/playbackcontrol.cpp -o ui/moc/playbackcontrol.moc.h" />
+		</Unit>
+		<Unit filename="ui/moc/projectpane.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/projectpane.cpp -o ui/moc/projectpane.moc.h" />
+		</Unit>
+		<Unit filename="ui/moc/welcomedlg.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/welcomedlg.cpp -o ui/moc/welcomedlg.moc.h" />
+		</Unit>
 		<Unit filename="ui/newprojectdlg.cpp" />
 		<Unit filename="ui/newprojectdlg.h" />
 		<Unit filename="ui/picknamedlg.cpp" />
@@ -321,6 +345,7 @@
 		<Unit filename="ui/ui/newprojectdlg.ui.h" />
 		<Unit filename="ui/ui/projectpane.ui.h" />
 		<Unit filename="ui/ui/welcomedlg.ui.h" />
+		<Unit filename="ui/videoplaybackcontrol.h" />
 		<Unit filename="ui/welcomedlg.cpp" />
 		<Unit filename="ui/welcomedlg.h" />
 		<Unit filename="ui/wxplaybackcontrolpanel.cpp" />
