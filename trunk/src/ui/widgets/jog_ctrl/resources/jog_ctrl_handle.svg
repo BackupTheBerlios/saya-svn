@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.1"
+   width="100"
+   height="100.13263"
+   id="svg5491">
+  <defs
+     id="defs5493">
+    <linearGradient
+       id="linearGradient3788">
+      <stop
+         id="stop3790"
+         style="stop-color:#ffffff;stop-opacity:1"
+         offset="0" />
+      <stop
+         id="stop3792"
+         style="stop-color:#cfcfcf;stop-opacity:1"
+         offset="1" />
+    </linearGradient>
+    <linearGradient
+       x1="381.5"
+       y1="526.36218"
+       x2="430.5"
+       y2="615.36218"
+       id="linearGradient5254"
+       xlink:href="#linearGradient5256"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       id="linearGradient5256">
+      <stop
+         id="stop5258"
+         style="stop-color:#3d3d3d;stop-opacity:1"
+         offset="0" />
+      <stop
+         id="stop5260"
+         style="stop-color:#a0a0a0;stop-opacity:1"
+         offset="1" />
+    </linearGradient>
+    <linearGradient
+       x1="397.43829"
+       y1="607.87433"
+       x2="386.94635"
+       y2="497.75275"
+       id="linearGradient5420"
+       xlink:href="#linearGradient5346"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       id="linearGradient5346">
+      <stop
+         id="stop5348"
+         style="stop-color:#ffffff;stop-opacity:1"
+         offset="0" />
+      <stop
+         id="stop5350"
+         style="stop-color:#ffffff;stop-opacity:0"
+         offset="1" />
+    </linearGradient>
+    <radialGradient
+       cx="391.93484"
+       cy="594.47913"
+       r="23.5"
+       fx="391.93484"
+       fy="594.47913"
+       id="radialGradient3794"
+       xlink:href="#linearGradient3788"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.7857261,-0.39809666,0.30541136,0.56704572,-96.353518,412.06925)" />
+    <filter
+       x="-0.12619497"
+       y="-0.21766704"
+       width="1.2523899"
+       height="1.4353341"
+       color-interpolation-filters="sRGB"
+       id="filter3828">
+      <feGaussianBlur
+         id="feGaussianBlur3830"
+         stdDeviation="2.4730706" />
+    </filter>
+    <linearGradient
+       x1="381.5"
+       y1="526.36218"
+       x2="430.5"
+       y2="615.36218"
+       id="linearGradient3836"
+       xlink:href="#linearGradient5256"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       cx="391.93484"
+       cy="594.47913"
+       r="23.5"
+       fx="391.93484"
+       fy="594.47913"
+       id="radialGradient3838"
+       xlink:href="#linearGradient3788"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.7857261,-0.39809666,0.30541136,0.56704572,-96.353518,412.06925)" />
+  </defs>
+  <metadata
+     id="metadata5496">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(-0.99999378,-952.23163)"
+     id="layer1">
+    <path
+       d="m 462,571.36218 a 57.5,56 0 1 1 -115,0 57.5,56 0 1 1 115,0 z"
+       transform="matrix(0.85470085,0,0,0.87835641,-294.7265,500.42705)"
+       id="path5246"
+       style="fill:url(#linearGradient3836);fill-opacity:1;stroke:#4a4a4a;stroke-width:2.30827498;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <path
+       d="m 416,590.86218 a 23.5,12.5 0 1 1 -47,0 23.5,12.5 0 1 1 47,0 z"
+       transform="matrix(0.92289034,-0.21853046,-0.00341086,1.1505549,-293.06005,432.56569)"
+       id="path5264"
+       style="fill:url(#radialGradient3838);fill-opacity:1;stroke:none;filter:url(#filter3828)" />
+  </g>
+</svg>

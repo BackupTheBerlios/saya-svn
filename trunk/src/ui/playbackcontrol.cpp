@@ -8,6 +8,7 @@
 // **************************************************************************************/
 #include <QtGui>
 #include "playbackcontrol.h"
+#include "widgets/jog_ctrl/jog_ctrl.h"
 
 PlaybackControl::PlaybackControl(QWidget* parent)
     : QWidget (parent)
@@ -21,6 +22,7 @@ PlaybackControl::PlaybackControl(QWidget* parent)
     m_btnNextFrame = new QPushButton(this);
     m_btnFastForward = new QPushButton(this);
     m_btnLastFrame = new QPushButton(this);
+    m_Jog = new JogControl(this);
 
     m_btnFirstFrame->setMaximumSize(QSize(24, 24));
     m_btnFastRewind->setMaximumSize(QSize(24, 24));
@@ -64,6 +66,7 @@ PlaybackControl::PlaybackControl(QWidget* parent)
     QHBoxLayout* bottomRightLayout = new QHBoxLayout();
     bottomRightLayout->addWidget(m_Shuttle);
     bottomRightLayout->addWidget(m_txtShuttle);
+    bottomRightLayout->addWidget(m_Jog);
 
     QHBoxLayout* bottomLayout = new QHBoxLayout();
     bottomLayout->addLayout(bottomLeftLayout);

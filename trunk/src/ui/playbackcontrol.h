@@ -18,6 +18,7 @@
 class QPushButton;
 class QSlider;
 class QLabel;
+class JogControl;
 
 class PlaybackControl : public QWidget
 {
@@ -45,5 +46,6 @@ class PlaybackControl : public QWidget
 		QSlider* m_PlaybackSlider;
 		QSlider* m_Shuttle;
 		QLabel* m_txtShuttle;
+		JogControl* m_Jog;
 };
 #endif // PLAYBACKCONTROL_H_INCLUDED

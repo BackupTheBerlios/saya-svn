@@ -41,12 +41,14 @@
 			<Add directory="$(#qt4.include)" />
 			<Add directory="$(#qt4.include)/QtGui" />
 			<Add directory="$(#qt4.include)/QtCore" />
+			<Add directory="$(#qt4.include)/QtSvg" />
 		</Compiler>
 		<Linker>
 			<Add option="-pipe" />
 			<Add option='[[if (PLATFORM == PLATFORM_MSW) print(_T(&quot;-mthreads -lintl.dll&quot;));;]]' />
 			<Add library="QtCore$(#qt4.libsuffix)" />
 			<Add library="QtGui$(#qt4.libsuffix)" />
+			<Add library="QtSvg$(#qt4.libsuffix)" />
 			<Add directory="$(#qt4.lib)" />
 		</Linker>
 		<Unit filename="LICENSE.txt" />
@@ -301,31 +303,37 @@
 			<Option weight="100" />
 		</Unit>
 		<Unit filename="ui/main.h" />
+		<Unit filename="ui/moc/debuglog.moc.h" />
 		<Unit filename="ui/moc/debuglog.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/debuglog.cpp -o ui/moc/debuglog.moc.h" />
 		</Unit>
+		<Unit filename="ui/moc/main.moc.h" />
 		<Unit filename="ui/moc/main.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/main.cpp -o ui/moc/main.moc.h" />
 		</Unit>
+		<Unit filename="ui/moc/newprojectdlg.moc.h" />
 		<Unit filename="ui/moc/newprojectdlg.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/newprojectdlg.cpp -o ui/moc/newprojectdlg.moc.h" />
 		</Unit>
+		<Unit filename="ui/moc/playbackcontrol.moc.h" />
 		<Unit filename="ui/moc/playbackcontrol.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/playbackcontrol.cpp -o ui/moc/playbackcontrol.moc.h" />
 		</Unit>
+		<Unit filename="ui/moc/projectpane.moc.h" />
 		<Unit filename="ui/moc/projectpane.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/projectpane.cpp -o ui/moc/projectpane.moc.h" />
 		</Unit>
+		<Unit filename="ui/moc/welcomedlg.moc.h" />
 		<Unit filename="ui/moc/welcomedlg.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />
@@ -348,6 +356,8 @@
 		<Unit filename="ui/videoplaybackcontrol.h" />
 		<Unit filename="ui/welcomedlg.cpp" />
 		<Unit filename="ui/welcomedlg.h" />
+		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.cpp" />
+		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.h" />
 		<Unit filename="ui/wxplaybackcontrolpanel.cpp" />
 		<Unit filename="ui/wxplaybackcontrolpanel.h" />
 		<Unit filename="ui/wxvideopanel.cpp" />
