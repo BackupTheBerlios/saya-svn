@@ -358,6 +358,11 @@
 		<Unit filename="ui/welcomedlg.h" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.cpp" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.h" />
+		<Unit filename="ui/widgets/jog_ctrl/moc/jog_ctrl.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/widgets/jog_ctrl/jog_ctrl.cpp -o ui/widgets/jog_ctrl/moc/jog_ctrl.moc.h" />
+		</Unit>
 		<Unit filename="ui/wxplaybackcontrolpanel.cpp" />
 		<Unit filename="ui/wxplaybackcontrolpanel.h" />
 		<Unit filename="ui/wxvideopanel.cpp" />

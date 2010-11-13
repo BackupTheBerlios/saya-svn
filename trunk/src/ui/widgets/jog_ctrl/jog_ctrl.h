@@ -28,7 +28,7 @@ class JogControl : public QWidget {
     protected:
         void mousePressEvent(QMouseEvent *event);
         void mouseMoveEvent(QMouseEvent *event);
-        void mouseWheelEvent(QWheelEvent *event);
+        void wheelEvent(QWheelEvent *event);
         void paintEvent ( QPaintEvent * pe );
 
     private:
