@@ -319,7 +319,7 @@
 		<Unit filename="ui/moc/newprojectdlg.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />
-			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/newprojectdlg.cpp -o ui/moc/newprojectdlg.moc.h" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/newprojectdlg.cpp -o ui/moc/newprojectdlg.moc.h" />
 		</Unit>
 		<Unit filename="ui/moc/playbackcontrol.moc.h" />
 		<Unit filename="ui/moc/playbackcontrol.moc_trigger">
@@ -361,7 +361,7 @@
 		<Unit filename="ui/widgets/jog_ctrl/moc/jog_ctrl.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />
-			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/widgets/jog_ctrl/jog_ctrl.cpp -o ui/widgets/jog_ctrl/moc/jog_ctrl.moc.h" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/jog_ctrl/jog_ctrl.h -o ui/widgets/jog_ctrl/moc/jog_ctrl.moc.h" />
 		</Unit>
 		<Unit filename="ui/wxplaybackcontrolpanel.cpp" />
 		<Unit filename="ui/wxplaybackcontrolpanel.h" />

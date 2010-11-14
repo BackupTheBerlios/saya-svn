@@ -94,3 +94,5 @@ PlaybackControl::~PlaybackControl() {
 #ifndef Q_MOC_RUN
   #include "moc/playbackcontrol.moc.h"
 #endif
+#warning TODO: Move the playback control to the widgets directory and store the bitmaps as base64
+#warning TODO: Fix the Q_OBJECT stuff in the playback control

@@ -10,9 +10,9 @@
 #include <QWidget>
 
 class JogControl : public QWidget {
-    // Q_OBJECT
+    Q_OBJECT
     public:
-        JogControl(QWidget *parent = 0);
+        JogControl(QWidget *parent = 0, Qt::WindowFlags f=0);
         QSize sizeHint() const;
         unsigned int GetStepCount() const;
         void SetStepCount(unsigned int numsteps); // Minimum 3.

@@ -13,12 +13,12 @@
 #include <QSvgRenderer>
 
 class JogControl::Data : public QObject {
-/* Q_OBJECT */
     public:
         static const char* base64_knob;
         static const char* base64_handle;
         static const unsigned int MinimumSteps = 3;
         Data(JogControl* parent);
+        virtual ~Data();
         JogControl* m_Parent;
         QSvgRenderer *m_FgRenderer, *m_BgRenderer;
         QRectF GetHandleRect(double angle); // 0 = 12 o' clock, 180 = 6 o' clock)
@@ -32,11 +32,10 @@ class JogControl::Data : public QObject {
         void SetCurrentStep(unsigned int stepnum); // From 0 to numsteps - 1
         double GetCurrentAngle() const;
         void SetCurrentAngle(double angle);  // 0 = 12 o' clock, 180 = 6 o' clock)
-        void ChangeAngleAndProcess(double angle); // Changes angle and triggers any signals
+        int ChangeAngleAndProcess(double angle); // Changes angle; returns number of steps to advance.
         void RecalcStep();
         void RecalcAngle();
         double CalculateAngle(double x, double y) const;
-        virtual ~Data();
 };
 
 // cleaned-up and base64-encoded version of resources/jog_ctrl_knob.svg
@@ -137,6 +136,18 @@ m_CurrentAngle(0),m_LastAngle(0),m_StepAngle(120.0)
     m_StepAngle = 360.0 / m_TotalSteps;
 }
 
+JogControl::Data::~Data() {
+    delete m_BgRenderer;
+    m_BgRenderer = 0;
+    delete m_FgRenderer;
+    m_FgRenderer = 0;
+    if(m_Parent) {
+        disconnect();
+        m_Parent->m_Data = 0;
+        m_Parent = 0;
+    }
+}
+
 bool JogControl::Data::LoadSvg() {
     bool result = true;
     result &= m_BgRenderer->load(QByteArray::fromBase64(QByteArray(JogControl::Data::base64_knob)));
@@ -189,8 +200,9 @@ void JogControl::Data::SetCurrentAngle(double angle) {
     m_LastAngle = angle - fmod(angle,m_StepAngle);
 }
 
-void JogControl::Data::ChangeAngleAndProcess(double angle) {
-    if(!this) { return; }
+int JogControl::Data::ChangeAngleAndProcess(double angle) {
+    if(!this) { return 0; }
+    int delta = 0;
     if(m_LastAngle != angle) {
         // Calculate delta based on the angle difference
         double angle_delta = (angle - m_LastAngle);
@@ -198,7 +210,7 @@ void JogControl::Data::ChangeAngleAndProcess(double angle) {
         while(angle_delta > 360) { angle_delta -= 360; }
         if(angle_delta > 180) { angle_delta -=360; } // Assume angles greater than 180 deg. are 360 - angle
         if(angle_delta < -180) { angle_delta += 360; }
-        int delta = round((angle_delta)/m_StepAngle);
+        delta = round((angle_delta)/m_StepAngle);
         while(angle < 0) { angle += 360; }
         m_CurrentAngle = fmod(angle,360.0);
         RecalcStep();
@@ -207,12 +219,10 @@ void JogControl::Data::ChangeAngleAndProcess(double angle) {
 
             m_LastAngle = m_CurrentAngle - fmod(m_CurrentAngle,m_StepAngle);
             // Calculate the next position of the dial
-
-            // Emit the delta.
-            emit m_Parent->JogStep(delta);
         }
         m_Parent->update();
     }
+    return delta;
 }
 
 void JogControl::Data::RecalcStep() {
@@ -252,20 +262,7 @@ double JogControl::Data::CalculateAngle(double x, double y) const {
     return angle;
 }
 
-
-JogControl::Data::~Data() {
-    delete m_BgRenderer;
-    m_BgRenderer = 0;
-    delete m_FgRenderer;
-    m_FgRenderer = 0;
-    if(m_Parent) {
-        m_Parent->m_Data = 0;
-        m_Parent = 0;
-    }
-}
-
-
-JogControl::JogControl(QWidget *parent) :
+JogControl::JogControl(QWidget *parent, Qt::WindowFlags f) :
 m_Data(0)
 {
     m_Data = new Data(this);
@@ -330,7 +327,10 @@ void JogControl::mouseMoveEvent(QMouseEvent *event) {
     qreal x = curpos.x() - (0.5*width());
     qreal y = curpos.y() - (0.5*height());
     angle = m_Data->CalculateAngle(x,y);
-    m_Data->ChangeAngleAndProcess(angle);
+    int delta = m_Data->ChangeAngleAndProcess(angle);
+    if(delta) {
+        emit JogStep(delta);
+    }
 }
 
 void JogControl::paintEvent ( QPaintEvent * pe ) {
@@ -358,13 +358,14 @@ void JogControl::wheelEvent(QWheelEvent *event) {
      event->accept();
      double numDegrees = event->delta() / 8.0;
      double numSteps = numDegrees / 15.0;
+     int delta = 0;
      if(numSteps != 0) {
         double angle = m_Data->GetCurrentAngle() + m_Data->GetStepAngle()*numSteps;
-        m_Data->ChangeAngleAndProcess(angle);
+        delta = m_Data->ChangeAngleAndProcess(angle);
      }
-}
-
-void JogControl::JogStep(int numSteps) {
+     if(delta) {
+         emit JogStep(delta);
+     }
 }
 
 #include "moc/jog_ctrl.moc.h"
