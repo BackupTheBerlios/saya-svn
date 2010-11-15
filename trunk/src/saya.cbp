@@ -321,12 +321,6 @@
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/newprojectdlg.cpp -o ui/moc/newprojectdlg.moc.h" />
 		</Unit>
-		<Unit filename="ui/moc/playbackcontrol.moc.h" />
-		<Unit filename="ui/moc/playbackcontrol.moc_trigger">
-			<Option compile="1" />
-			<Option weight="0" />
-			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/playbackcontrol.cpp -o ui/moc/playbackcontrol.moc.h" />
-		</Unit>
 		<Unit filename="ui/moc/projectpane.moc.h" />
 		<Unit filename="ui/moc/projectpane.moc_trigger">
 			<Option compile="1" />
@@ -343,8 +337,6 @@
 		<Unit filename="ui/newprojectdlg.h" />
 		<Unit filename="ui/picknamedlg.cpp" />
 		<Unit filename="ui/picknamedlg.h" />
-		<Unit filename="ui/playbackcontrol.cpp" />
-		<Unit filename="ui/playbackcontrol.h" />
 		<Unit filename="ui/projectpane.cpp" />
 		<Unit filename="ui/projectpane.h" />
 		<Unit filename="ui/resources.cpp" />
@@ -363,6 +355,13 @@
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/jog_ctrl/jog_ctrl.h -o ui/widgets/jog_ctrl/moc/jog_ctrl.moc.h" />
 		</Unit>
+		<Unit filename="ui/widgets/playbackcontrol/moc/playbackcontrol.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/playbackcontrol/playbackcontrol.h -o ui/widgets/playbackcontrol/moc/playbackcontrol.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/playbackcontrol/playbackcontrol.cpp" />
+		<Unit filename="ui/widgets/playbackcontrol/playbackcontrol.h" />
 		<Unit filename="ui/wxplaybackcontrolpanel.cpp" />
 		<Unit filename="ui/wxplaybackcontrolpanel.h" />
 		<Unit filename="ui/wxvideopanel.cpp" />
