@@ -329,7 +329,16 @@ void JogControl::mouseMoveEvent(QMouseEvent *event) {
     angle = m_Data->CalculateAngle(x,y);
     int delta = m_Data->ChangeAngleAndProcess(angle);
     if(delta) {
-        emit JogStep(delta);
+        int i;
+        if(delta > 0) {
+            for(i = 0; i < delta; ++i) {
+                emit JogStepUp();
+            }
+        } else {
+            for(i = 0; i > delta; --i) {
+                emit JogStepDown();
+            }
+        }
     }
 }
 
@@ -355,17 +364,26 @@ void JogControl::paintEvent ( QPaintEvent * pe ) {
 }
 
 void JogControl::wheelEvent(QWheelEvent *event) {
-     event->accept();
-     double numDegrees = event->delta() / 8.0;
-     double numSteps = numDegrees / 15.0;
-     int delta = 0;
-     if(numSteps != 0) {
+    event->accept();
+    double numDegrees = event->delta() / 8.0;
+    double numSteps = numDegrees / 15.0;
+    int delta = 0;
+    if(numSteps != 0) {
         double angle = m_Data->GetCurrentAngle() + m_Data->GetStepAngle()*numSteps;
         delta = m_Data->ChangeAngleAndProcess(angle);
-     }
-     if(delta) {
-         emit JogStep(delta);
-     }
+    }
+    if(delta) {
+        int i;
+        if(delta > 0) {
+            for(i = 0; i < delta; ++i) {
+                emit JogStepUp();
+            }
+        } else {
+            for(i = 0; i > delta; --i) {
+                emit JogStepDown();
+            }
+        }
+    }
 }
 
 #include "moc/jog_ctrl.moc.h"

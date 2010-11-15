@@ -23,7 +23,8 @@ class JogControl : public QWidget {
         virtual ~JogControl();
 
     signals:
-        void JogStep(int numsteps); // Can be negative
+        void JogStepUp();
+        void JogStepDown();
 
     protected:
         void mousePressEvent(QMouseEvent *event);
