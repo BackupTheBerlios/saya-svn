@@ -10,29 +10,13 @@
 #include "playbackcontrol.h"
 #include "../jog_ctrl/jog_ctrl.h"
 
-class PlaybackControl::Data : public QObject {
-    public:
-    class Style : public QWindowsStyle
-    {
-    public:
-      Style()
-      {}
-      void drawControl ( ControlElement element, const QStyleOption * option,
-        QPainter * painter, const QWidget * widget = 0 ) const
-      {
-        if(element == CE_PushButton) {
-          const QStyleOptionButton *b = qstyleoption_cast<const QStyleOptionButton *>(option);
-          QStyleOptionButton *btn = (QStyleOptionButton *)b;
-          if (btn) {
-            if (btn->state & State_HasFocus) {
-              btn->state = btn->state ^ State_HasFocus;
-            }
-          }
-          // QWindowsStyle::drawControl(element, btn, painter, widget);
+// ---------------------------
+// Begin PlaybackControl::Data
+// ---------------------------
 
-        } else {
-          // QWindowsStyle::drawControl(element, option, painter, widget);
-        }}};
+class PlaybackControl::Data : public QObject {
+    Q_OBJECT
+    public:
         Data(PlaybackControl* parent);
         virtual ~Data();
         static const char* s_icon_firstframe;
@@ -42,8 +26,391 @@ class PlaybackControl::Data : public QObject {
         static const char* s_icon_nextframe;
         static const char* s_icon_fastforward;
         static const char* s_icon_lastframe;
+        static const char* s_icon_mute1;
+        static const char* s_icon_mute2;
+
+        static const unsigned int PlaybackSliderRange;
         PlaybackControl* m_Parent;
+        double m_StartTime, m_EndTime;
+
+        QPixmap* m_pixVolumeNormal;
+        QPixmap* m_pixVolumeMuted;
+        QPushButton* m_btnMute;
+
+        QPushButton* m_btnFirstFrame;
+		QPushButton* m_btnFastRewind;
+		QPushButton* m_btnPreviousFrame;
+		QPushButton* m_btnPlay;
+		QPushButton* m_btnNextFrame;
+		QPushButton* m_btnFastForward;
+		QPushButton* m_btnLastFrame;
+		QSlider* m_PlaybackSlider;
+		QSlider* m_VolumeSlider;
+		QSlider* m_Shuttle;
+		JogControl* m_Jog;
+
+    signals:
+        void playbackSetVolume(unsigned int percentage); // from 0 to 100.
+        void playbackAtSpeed(int percentage);
+
+    public slots:
+        void playbackSliderMoved(int value);
+        void volumeSliderPressed();
+        void volumeSliderMoved(int value);
+        void volumeSliderReleased();
+        void muteButtonToggled(bool checked);
+
+        void shuttleSliderPressed();
+        void shuttleSliderMoved(int value);
+        void shuttleSliderReleased();
+
+    protected:
+        void showSeekTooltip();
+        void MovePlaybackSlider();
+        bool eventFilter(QObject *obj, QEvent *event);
 };
+
+const unsigned int PlaybackControl::Data::PlaybackSliderRange = 4000;
+
+PlaybackControl::Data::Data(PlaybackControl* parent) :
+m_Parent(parent),
+m_StartTime(0),
+m_EndTime(10),
+m_pixVolumeNormal(0),
+m_pixVolumeMuted(0)
+{
+
+    m_pixVolumeNormal = new QPixmap(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_mute1))));
+    m_pixVolumeMuted = new QPixmap(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_mute2))));
+
+    m_PlaybackSlider = new QSlider(Qt::Horizontal);
+    m_PlaybackSlider->setFocusPolicy(Qt::NoFocus);
+    m_PlaybackSlider->setMinimum(0);
+    m_PlaybackSlider->setMaximum(Data::PlaybackSliderRange);
+    m_PlaybackSlider->setValue(0);
+
+    m_btnMute = new QPushButton();
+    m_btnMute->setCheckable(true);
+    m_btnMute->setChecked(false);
+    m_btnMute->setFocusPolicy(Qt::NoFocus);
+    m_btnMute->setIcon(*m_pixVolumeNormal);
+
+    m_VolumeSlider = new QSlider(Qt::Horizontal);
+    m_VolumeSlider->setFocusPolicy(Qt::NoFocus);
+    m_VolumeSlider->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
+    m_VolumeSlider->setMaximumWidth(72);
+    m_VolumeSlider->setMinimumWidth(72);
+    m_VolumeSlider->setMinimum(0);
+    m_VolumeSlider->setMaximum(100);
+    m_VolumeSlider->setValue(100);
+    m_VolumeSlider->setTickInterval(10);
+    m_VolumeSlider->setTickPosition(QSlider::TicksBelow);
+
+    m_btnFirstFrame = new QPushButton();
+    m_btnFastRewind = new QPushButton();
+    m_btnPreviousFrame = new QPushButton();
+    m_btnPlay = new QPushButton();
+    m_btnNextFrame = new QPushButton();
+    m_btnFastForward = new QPushButton();
+    m_btnLastFrame = new QPushButton();
+    m_Jog = new JogControl();
+    m_Jog->setFocusPolicy(Qt::NoFocus);
+    m_Jog->setMinimumSize(40, 40);
+    m_Jog->setMaximumSize(40, 40);
+
+    m_btnMute->setMaximumSize(QSize(20, 20));
+    m_btnMute->setMinimumSize(QSize(20, 20));
+    m_btnMute->setFocusPolicy(Qt::NoFocus);
+
+    m_btnFirstFrame->setMaximumSize(QSize(24, 24));
+    m_btnFirstFrame->setFocusPolicy(Qt::NoFocus);
+    m_btnFastRewind->setMaximumSize(QSize(24, 24));
+    m_btnFastRewind->setFocusPolicy(Qt::NoFocus);
+    m_btnPreviousFrame->setMaximumSize(QSize(24, 24));
+    m_btnPreviousFrame->setFocusPolicy(Qt::NoFocus);
+    m_btnPlay->setMaximumSize(QSize(40, 36));
+    m_btnPlay->setMinimumSize(QSize(40, 36));
+    m_btnPlay->setFocusPolicy(Qt::NoFocus);
+    m_btnNextFrame->setMaximumSize(QSize(24, 24));
+    m_btnNextFrame->setFocusPolicy(Qt::NoFocus);
+    m_btnFastForward->setMaximumSize(QSize(24, 24));
+    m_btnFastForward->setFocusPolicy(Qt::NoFocus);
+    m_btnFastForward->setIconSize(QSize(24,24));
+    m_btnFastForward->setFocusPolicy(Qt::NoFocus);
+    m_btnLastFrame->setMaximumSize(QSize(24, 24));
+    m_btnLastFrame->setFocusPolicy(Qt::NoFocus);
+
+    m_btnFirstFrame->setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_firstframe))));
+    m_btnFastRewind->setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_fastrewind))));
+    m_btnPreviousFrame->setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_prevframe))));
+    m_btnPlay->setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_play))));
+    m_btnNextFrame->setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_nextframe))));
+    m_btnFastForward->setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_fastforward))));
+    m_btnLastFrame->setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_lastframe))));
+
+    m_Shuttle = new QSlider(Qt::Horizontal);
+    m_Shuttle->setMinimumWidth(84);
+    m_Shuttle->setMaximumWidth(84);
+    m_Shuttle->setFocusPolicy(Qt::NoFocus);
+    m_Shuttle->setMinimum(-400);
+    m_Shuttle->setMaximum(400);
+    m_Shuttle->setValue(0);
+
+    // Layouts section
+
+    QHBoxLayout* topLayout = new QHBoxLayout();
+    topLayout->addWidget(m_PlaybackSlider);
+    QFrame* vline1 = new QFrame();
+    vline1->setFrameStyle(QFrame::VLine | QFrame::Sunken);
+    topLayout->addWidget(vline1);
+    topLayout->addWidget(m_btnMute);
+    topLayout->addWidget(m_VolumeSlider);
+
+    QHBoxLayout* bottomLayout = new QHBoxLayout();
+    bottomLayout->setSpacing(7);
+    bottomLayout->addStretch();
+    bottomLayout->addWidget(m_btnFirstFrame);
+    bottomLayout->addWidget(m_btnFastRewind);
+    bottomLayout->addWidget(m_btnPreviousFrame);
+    bottomLayout->addWidget(m_btnPlay);
+    bottomLayout->addWidget(m_btnNextFrame);
+    bottomLayout->addWidget(m_btnFastForward);
+    bottomLayout->addWidget(m_btnLastFrame);
+    bottomLayout->addWidget(m_Shuttle);
+    bottomLayout->addWidget(m_Jog);
+    bottomLayout->addStretch();
+
+    QVBoxLayout* mainLayout = new QVBoxLayout();
+    mainLayout->addStretch();
+    mainLayout->addLayout(topLayout);
+    mainLayout->addLayout(bottomLayout);
+    m_Parent->setLayout(mainLayout);
+    m_Parent->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
+
+    m_Parent->setStyleSheet(
+        "QWidget { background-color: #ccc; }"
+        "QPushButton { background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #474747, stop: 1 #999999);"
+        "  border:2px outset #666666; border-radius: 3px; }"
+        "QPushButton:pressed { margin-top:2px;margin-left:2px; border-right:none;border-bottom:none;border-top-right-radius:0;border-bottom-left-radius:0; }"
+    );
+    m_btnMute->setStyleSheet(
+        "QPushButton { border:1px outset #666666; background-color: transparent; } "
+        "QPushButton:checked { border:1px inset #666666; background-color: #999999; } "
+    );
+    // In this section the private slots connections are setup. We use Queued Connections
+    // to support events from background threads.
+    connect(m_btnFirstFrame,    SIGNAL(clicked()), m_Parent, SIGNAL(playbackFirstFrame()), Qt::QueuedConnection);
+    connect(m_btnFastRewind,    SIGNAL(clicked()), m_Parent, SIGNAL(playbackFastRewind()), Qt::QueuedConnection);
+    connect(m_btnPreviousFrame, SIGNAL(clicked()), m_Parent, SIGNAL(playbackPreviousFrame()), Qt::QueuedConnection);
+    connect(m_btnPlay,          SIGNAL(clicked()), m_Parent, SIGNAL(playbackPlay()), Qt::QueuedConnection);
+    connect(m_btnNextFrame,     SIGNAL(clicked()), m_Parent, SIGNAL(playbackNextFrame()), Qt::QueuedConnection);
+    connect(m_btnFastForward,   SIGNAL(clicked()), m_Parent, SIGNAL(playbackFastForward()), Qt::QueuedConnection);
+    connect(m_btnLastFrame,     SIGNAL(clicked()), m_Parent, SIGNAL(playbackLastFrame()), Qt::QueuedConnection);
+    connect(m_Jog,              SIGNAL(JogStepUp()),m_Parent, SIGNAL(playbackNextFrame()), Qt::QueuedConnection);
+    connect(m_Jog,              SIGNAL(JogStepDown()),m_Parent, SIGNAL(playbackPreviousFrame()), Qt::QueuedConnection);
+    connect(m_btnFirstFrame,    SIGNAL(clicked()), m_Parent, SIGNAL(playbackFirstFrame()), Qt::QueuedConnection);
+
+    // --- Signals and slots for playback seeking ---
+    connect(m_PlaybackSlider, SIGNAL(sliderPressed()), m_Parent, SIGNAL(playbackStop()), Qt::QueuedConnection);
+    connect(m_PlaybackSlider, SIGNAL(sliderMoved(int)), this, SLOT(playbackSliderMoved(int)), Qt::QueuedConnection);
+
+    // --- Signals and slots for volume handling ---
+    connect(m_btnMute, SIGNAL(toggled(bool)), this, SLOT(muteButtonToggled(bool)), Qt::QueuedConnection);
+    connect(m_VolumeSlider, SIGNAL(sliderPressed()), m_Parent, SIGNAL(volumeSliderPressed()), Qt::QueuedConnection);
+    connect(m_VolumeSlider, SIGNAL(sliderMoved(int)), this, SLOT(volumeSliderMoved(int)), Qt::QueuedConnection);
+    connect(m_VolumeSlider, SIGNAL(valueChanged(int)), this, SLOT(volumeSliderMoved(int)), Qt::QueuedConnection);
+    connect(m_VolumeSlider, SIGNAL(sliderReleased()), this, SLOT(volumeSliderReleased()), Qt::QueuedConnection);
+    connect(this, SIGNAL(playbackSetVolume(unsigned int)), m_Parent, SIGNAL(playbackSetVolume(unsigned int)), Qt::QueuedConnection);
+
+    // --- Signals and slots for the shuttle control ---
+    connect(m_Shuttle, SIGNAL(sliderPressed()), m_Parent, SIGNAL(shuttleSliderPressed()), Qt::QueuedConnection);
+    connect(m_Shuttle, SIGNAL(sliderMoved(int)), this, SLOT(shuttleSliderMoved(int)), Qt::QueuedConnection);
+    connect(m_Shuttle, SIGNAL(sliderReleased()), this, SLOT(shuttleSliderReleased()), Qt::QueuedConnection);
+    connect(m_Shuttle, SIGNAL(sliderReleased()), m_Parent, SIGNAL(playbackStop()), Qt::QueuedConnection);
+    connect(this, SIGNAL(playbackAtSpeed(int)), m_Parent, SIGNAL(playbackAtSpeed(int)), Qt::QueuedConnection);
+
+    m_PlaybackSlider->installEventFilter(this);
+    m_Shuttle->installEventFilter(this);
+    m_PlaybackSlider->setMouseTracking(true);
+}
+
+PlaybackControl::Data::~Data() {
+    if(m_Parent) {
+        m_Parent->m_Data = 0;
+        m_Parent = 0;
+    }
+    delete m_pixVolumeMuted;
+    m_pixVolumeMuted = 0;
+    delete m_pixVolumeNormal;
+    m_pixVolumeNormal = 0;
+
+}
+
+// --- Event filtering ---
+bool PlaybackControl::Data::eventFilter(QObject *obj, QEvent *event) {
+    if((obj == m_Shuttle || obj == m_PlaybackSlider) && event->type() == QEvent::Wheel) {
+        return true; // Swallow the wheel events for the Shuttle controller
+    } else if(obj == m_PlaybackSlider && event->type() == QEvent::MouseMove) {
+        showSeekTooltip();
+        if(QApplication::mouseButtons() == Qt::NoButton) {
+            return true;
+        }
+    } else if(obj == m_PlaybackSlider && event->type() == QEvent::MouseButtonPress) {
+        MovePlaybackSlider();
+    }
+    return QObject::eventFilter(obj, event);
+}
+
+// --- Signal handling for the Playback Slider ---
+
+void PlaybackControl::Data::playbackSliderMoved(int value) {
+    #warning TODO: Implement PlaybackControl::Data::playbackSliderMoved(int value)
+}
+
+void PlaybackControl::Data::showSeekTooltip() {
+    int local_x = m_PlaybackSlider->mapFromGlobal(QCursor::pos()).x();
+    if(local_x >= 0 && m_PlaybackSlider->width() > 0 && local_x < m_PlaybackSlider->width()) {
+        int tmpvalue = QStyle::sliderValueFromPosition (0, 5000, local_x, m_PlaybackSlider->width());
+        QPoint tmppos = QPoint(QCursor::pos().x(),m_PlaybackSlider->mapToGlobal(QPoint(0,-36)).y());
+        double timetoseek = (tmpvalue*(m_EndTime - m_StartTime))/5000;
+        int secs = floor(timetoseek);
+        timetoseek -= secs;
+        int millisecs = floor(timetoseek*1000);
+        int mins = secs / 60;secs %= 60;
+        int hrs = mins / 60; hrs %= 60;
+        QString s = QString("%1:%2:%3.%4").arg(hrs,2,10,QChar('0')).arg(mins,2,10,QChar('0')).arg(secs,2,10,QChar('0')).arg(millisecs,3,10,QChar('0'));
+        QToolTip::showText (tmppos, s, m_Parent);
+    }
+}
+
+void PlaybackControl::Data::MovePlaybackSlider() {
+    int local_x = m_PlaybackSlider->mapFromGlobal(QCursor::pos()).x();
+    if(local_x >= 0 && m_PlaybackSlider->width() > 0 && local_x < m_PlaybackSlider->width()) {
+        int tmpvalue = QStyle::sliderValueFromPosition (m_PlaybackSlider->minimum(), m_PlaybackSlider->maximum(), local_x, m_PlaybackSlider->width());
+        m_PlaybackSlider->setValue(tmpvalue);
+        playbackSliderMoved(tmpvalue);
+    }
+}
+
+// --- Signal handling for the Mute button ---
+
+void PlaybackControl::Data::muteButtonToggled(bool muted) {
+    if(muted) {
+        m_btnMute->setIcon(*m_pixVolumeMuted);
+        emit playbackSetVolume(0);
+    } else {
+        m_btnMute->setIcon(*m_pixVolumeNormal);
+        emit playbackSetVolume(m_VolumeSlider->value());
+    }
+    m_Parent->update();
+}
+
+// --- Signal handling for the Volume Slider ---
+
+void PlaybackControl::Data::volumeSliderPressed() {
+    QString s = QString("Volume: %1\%").arg(m_VolumeSlider->value());
+    if(m_btnMute->isChecked()) {
+        s += " (muted)";
+    }
+    QPoint tmppos = QPoint(QCursor::pos().x(),m_VolumeSlider->mapToGlobal(QPoint(0,16)).y());
+    QToolTip::showText (tmppos, s, m_Parent);
+}
+
+void PlaybackControl::Data::volumeSliderMoved(int value) {
+    QString s = QString("Volume: %1\%").arg(m_VolumeSlider->value());
+    if(m_btnMute->isChecked()) {
+        s += " (muted)";
+    }
+    QPoint tmppos = QPoint(QCursor::pos().x(),m_VolumeSlider->mapToGlobal(QPoint(0,16)).y());
+    QToolTip::showText (tmppos, s, m_Parent);
+    if(!m_btnMute->isChecked()) {
+        emit playbackSetVolume(value);
+    }
+}
+
+void PlaybackControl::Data::volumeSliderReleased() {
+    QToolTip::showText (QPoint(0,0), "", m_Parent);
+}
+
+// --- Signal handling for the Shuttle Slider ---
+
+void PlaybackControl::Data::shuttleSliderPressed() {
+    double speed = (double)m_Shuttle->value() / 100;
+    QToolTip::showText (QCursor::pos(), "", m_Parent);
+    QPoint tmppos = QPoint(QCursor::pos().x(),m_Shuttle->mapToGlobal(QPoint(0,16)).y());
+    QToolTip::showText (tmppos, QString("Playing at %1x").arg(speed, 5, 'f', 2), m_Parent);
+}
+
+void PlaybackControl::Data::shuttleSliderMoved(int value) {
+    double speed = (double)m_Shuttle->value() / 100;
+    QPoint tmppos = QPoint(QCursor::pos().x(),m_Shuttle->mapToGlobal(QPoint(0,16)).y());
+    QToolTip::showText (tmppos, QString("Playing at %1x").arg(speed, 5, 'f', 2), m_Parent);
+    emit playbackAtSpeed(value);
+}
+
+void PlaybackControl::Data::shuttleSliderReleased() {
+    m_Shuttle->setValue(0);
+    QToolTip::showText(QPoint(0,0), "", m_Parent);
+}
+
+// -------------------------
+// End PlaybackControl::Data
+// -------------------------
+
+// ---------------------
+// Begin PlaybackControl
+// ---------------------
+
+PlaybackControl::PlaybackControl(QWidget* parent)
+: QWidget (parent)
+, m_Data(new Data(this))
+{
+    setTimeRange(0,10);
+}
+
+PlaybackControl::~PlaybackControl() {
+    delete m_Data;
+    m_Data = 0;
+}
+
+void PlaybackControl::setTimeRange(double start, double finish) {
+    if(start > finish) {
+        m_Data->m_StartTime = finish;
+        m_Data->m_EndTime = start;
+    } else {
+        m_Data->m_StartTime = start;
+        m_Data->m_EndTime = finish;
+    }
+    updatePositionInPercentage(0);
+}
+
+void PlaybackControl::updatePositionInSeconds(double time) {
+    double percentage = 0;
+    if(m_Data->m_StartTime != m_Data->m_EndTime) {
+        percentage = (time - m_Data->m_StartTime) / (m_Data->m_EndTime - m_Data->m_StartTime);
+    }
+    updatePositionInPercentage(percentage);
+}
+
+void PlaybackControl::updatePositionInPercentage(double percentage) {
+    if(isnan(percentage)) {
+        percentage = 0;
+    } else if(percentage > 100) {
+        percentage = 100;
+    } else if(percentage < 0) {
+        percentage = 0;
+    }
+    m_Data->m_PlaybackSlider->setValue((percentage * Data::PlaybackSliderRange)/100);
+}
+
+// -------------------
+// End PlaybackControl
+// -------------------
+
+#ifndef Q_MOC_RUN
+  #include "moc/playbackcontrol_data.moc.h"
+  #include "moc/playbackcontrol.moc.h"
+#endif
 
 const char* PlaybackControl::Data::s_icon_fastforward =
 "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A"
@@ -92,124 +459,21 @@ const char* PlaybackControl::Data::s_icon_prevframe =
 "xXVrWwuDkJAQeWEAM6SuvpaBn5+fvDCAGdI/oQ+vAYyEMhOhpMw44LkRANDbL2/n+GLWAAAAAElF"
 "TkSuQmCC";
 
-PlaybackControl::Data::Data(PlaybackControl* parent) :
-m_Parent(parent)
-{
-}
+const char* PlaybackControl::Data::s_icon_mute1 =
+"iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A"
+"/wD/oL2nkwAAAR9JREFUOMvNlNtKw0AQhr9Z7BuK+AJiFRTfQywKkppSaz2gIr6b8ap7iBkvzMZA"
+"UkyTXrhXy+zsx/yz/46oKttchi2vnb4X9/Z3K2lvr+8yqMIIe356GS45wh7uHsnD1zDJETafLfAh"
+"dOthvTexP/VYcj3FOQeigHSrME1mqAjjo4Mqdjm5QhWc84gAKt0qNMaElbUjERCRIsZ9CBA9K/K7"
+"/wtYFMUo+8wAUNXq0ZxzVY4AuokPs+yj0Z885Chayl2PbQVaaxu5PnhAEaQ82uBRrF01kr33pdwY"
+"11bZrcDl/RJjDEDl3IvJOQCnJ2e16ppI2WTaRD+OD49Bfqw4TZP+fzlevEkTgvdlXwf+5Qi9XcwJ"
+"LUDpO2DXjS/59xP7G8UtkUq8IPGEAAAAAElFTkSuQmCC";
 
-PlaybackControl::Data::~Data() {
-    if(m_Parent) {
-        m_Parent->m_Data = 0;
-        m_Parent = 0;
-    }
-}
-
-PlaybackControl::PlaybackControl(QWidget* parent)
-: QWidget (parent)
-, m_Data(new Data(this))
-{
-    m_PlaybackSlider = new QSlider(Qt::Horizontal);
-    m_PlaybackSlider->setFocusPolicy(Qt::NoFocus);
-
-    m_btnFirstFrame = new QPushButton(this);
-    m_btnFastRewind = new QPushButton(this);
-    m_btnPreviousFrame = new QPushButton(this);
-    m_btnPlay = new QPushButton(this);
-    m_btnNextFrame = new QPushButton(this);
-    m_btnFastForward = new QPushButton(this);
-    m_btnLastFrame = new QPushButton(this);
-    m_Jog = new JogControl(this);
-    m_Jog->setFocusPolicy(Qt::NoFocus);
-
-    m_btnFirstFrame->setMaximumSize(QSize(24, 24));
-    m_btnFirstFrame->setFocusPolicy(Qt::NoFocus);
-    m_btnFastRewind->setMaximumSize(QSize(24, 24));
-    m_btnFastRewind->setFocusPolicy(Qt::NoFocus);
-    m_btnPreviousFrame->setMaximumSize(QSize(24, 24));
-    m_btnPreviousFrame->setFocusPolicy(Qt::NoFocus);
-    m_btnPlay->setMaximumSize(QSize(24, 24));
-    m_btnPlay->setFocusPolicy(Qt::NoFocus);
-    m_btnNextFrame->setMaximumSize(QSize(24, 24));
-    m_btnNextFrame->setFocusPolicy(Qt::NoFocus);
-    m_btnFastForward->setMaximumSize(QSize(24, 24));
-    m_btnFastForward->setFocusPolicy(Qt::NoFocus);
-    m_btnFastForward->setIconSize(QSize(24,24));
-    m_btnFastForward->setFocusPolicy(Qt::NoFocus);
-    m_btnLastFrame->setMaximumSize(QSize(24, 24));
-    m_btnLastFrame->setFocusPolicy(Qt::NoFocus);
-
-    m_btnFirstFrame->setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_firstframe))));
-    m_btnFastRewind->setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_fastrewind))));
-    m_btnPreviousFrame->setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_prevframe))));
-    m_btnPlay->setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_play))));
-    m_btnNextFrame->setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_nextframe))));
-    m_btnFastForward->setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_fastforward))));
-    m_btnLastFrame->setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_lastframe))));
-
-    m_Shuttle = new QSlider(Qt::Horizontal, this);
-    m_Shuttle->setFocusPolicy(Qt::NoFocus);
-    m_Shuttle->setMinimum(0);
-    m_Shuttle->setMaximum(100);
-    m_Shuttle->setValue(50);
-
-    m_txtShuttle = new QLabel(tr("[Display]"));
-
-    // Layouts section
-
-    QHBoxLayout* topLayout = new QHBoxLayout();
-    topLayout->addWidget(m_PlaybackSlider);
-
-    QHBoxLayout* bottomLeftLayout = new QHBoxLayout();
-    bottomLeftLayout->setSpacing(7);
-    bottomLeftLayout->addWidget(m_btnFirstFrame);
-    bottomLeftLayout->addWidget(m_btnFastRewind);
-    bottomLeftLayout->addWidget(m_btnPreviousFrame);
-    bottomLeftLayout->addWidget(m_btnPlay);
-    bottomLeftLayout->addWidget(m_btnNextFrame);
-    bottomLeftLayout->addWidget(m_btnFastForward);
-    bottomLeftLayout->addWidget(m_btnLastFrame);
-
-
-    QHBoxLayout* bottomRightLayout = new QHBoxLayout();
-    bottomRightLayout->addWidget(m_Shuttle);
-    bottomRightLayout->addWidget(m_txtShuttle);
-    bottomRightLayout->addWidget(m_Jog);
-
-    QHBoxLayout* bottomLayout = new QHBoxLayout();
-    bottomLayout->addLayout(bottomLeftLayout);
-    bottomLayout->addLayout(bottomRightLayout);
-
-    QVBoxLayout* mainLayout = new QVBoxLayout();
-    mainLayout->addLayout(topLayout);
-    mainLayout->addLayout(bottomLayout);
-    setLayout(mainLayout);
-
-    setStyleSheet(
-        "QPushButton { background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #474747, stop: 1 #999999);"
-        "  border:2px outset #666666; border-radius: 3px; }"
-        "QPushButton:pressed { margin-top:2px;margin-left:2px; border-right:none;border-bottom:none;border-top-right-radius:0;border-bottom-left-radius:0; }"
-    );
-
-    // In this section the private slots connections are setup. We use Queued Connections
-    // to support events from background threads.
-    connect(m_btnFirstFrame,    SIGNAL(clicked()), this, SIGNAL(playbackFirstFrame()), Qt::QueuedConnection);
-    connect(m_btnFastRewind,    SIGNAL(clicked()), this, SIGNAL(playbackFastRewind()), Qt::QueuedConnection);
-    connect(m_btnPreviousFrame, SIGNAL(clicked()), this, SIGNAL(playbackPreviousFrame()), Qt::QueuedConnection);
-    connect(m_btnPlay,          SIGNAL(clicked()), this, SIGNAL(playbackPlay()), Qt::QueuedConnection);
-    connect(m_btnNextFrame,     SIGNAL(clicked()), this, SIGNAL(playbackNextFrame()), Qt::QueuedConnection);
-    connect(m_btnFastForward,   SIGNAL(clicked()), this, SIGNAL(playbackFastForward()), Qt::QueuedConnection);
-    connect(m_btnLastFrame,     SIGNAL(clicked()), this, SIGNAL(playbackLastFrame()), Qt::QueuedConnection);
-    connect(m_Jog,              SIGNAL(JogStepUp()),this, SIGNAL(playbackNextFrame()), Qt::QueuedConnection);
-    connect(m_Jog,              SIGNAL(JogStepDown()),this, SIGNAL(playbackPreviousFrame()), Qt::QueuedConnection);
-}
-
-PlaybackControl::~PlaybackControl() {
-    delete m_Data;
-    m_Data = 0;
-}
-
-#ifndef Q_MOC_RUN
-  #include "moc/playbackcontrol.moc.h"
-#endif
-#warning TODO: Move the playback control to the widgets directory and store the bitmaps as base64
-#warning TODO: Fix the Q_OBJECT stuff in the playback control
+const char* PlaybackControl::Data::s_icon_mute2 =
+"iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A"
+"/wD/oL2nkwAAAUdJREFUOMvNlDFLw0AUx/8X1E7ODh0EP0QmVwcnkWuaQgc3dbfol3B3cBY0tFSw"
+"EK2Cs139Bs6CQkEa+l6eg15IzJUcmsEHB7nc5cf7v3/eUyKCOsNDzbH02w/bnVYmLbrsqz9laGDH"
+"RyfVkicNJZOGkipYbzhAuum719AGzcOcTTnd1SVou9MSG+xj/OiW4TS+L0EP9g8LsGn8ACaqBnqe"
+"NydivN3E2bvecIDV7a1s/z6KQTQHswMwTdNlZgIzF+SbeL0egYjBzCBmt/+QmKCgrEVnZnx1l3Lv"
+"FCYGEVndXNM739mRm2QASGYzNENdcP7lIsr2zVCDiaySrcCNvW727CeiACDqXxVqut4NrS5DRArr"
+"aQVi1s+zINQShFryd4JQF+4t7BSTWT7MELC5v1Cyn4iywWzQ57Pzeuahgd6Nb0tn6t9P7E/VddD0"
+"nDknqQAAAABJRU5ErkJggg==";

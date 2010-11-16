@@ -267,7 +267,7 @@ m_Data(0)
 {
     m_Data = new Data(this);
     setAttribute(Qt::WA_StaticContents);
-    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     if(m_Data->LoadSvg()) {
     } else {
         QMessageBox::warning(this,"Error","Could not load the JogControl image data!");

@@ -32,22 +32,18 @@ class PlaybackControl : public QWidget
         void playbackFastRewind();
         void playbackPreviousFrame();
         void playbackPlay();
+        void playbackStop();
         void playbackNextFrame();
         void playbackFastForward();
         void playbackLastFrame();
+        void playbackSeekAndPlayFrame(double time);
+        void playbackAtSpeed(int percentage); // Sets playback speed at given percentage. Can be negative,greater than 100.
+        void playbackSetVolume(unsigned int percentage); // from 0 to 100.
 
-    protected:
-        QPushButton* m_btnFirstFrame;
-		QPushButton* m_btnFastRewind;
-		QPushButton* m_btnPreviousFrame;
-		QPushButton* m_btnPlay;
-		QPushButton* m_btnNextFrame;
-		QPushButton* m_btnFastForward;
-		QPushButton* m_btnLastFrame;
-		QSlider* m_PlaybackSlider;
-		QSlider* m_Shuttle;
-		QLabel* m_txtShuttle;
-		JogControl* m_Jog;
+    public slots:
+        void setTimeRange(double start, double finish); // In seconds
+        void updatePositionInSeconds(double time); // Update the seeker's current position.
+        void updatePositionInPercentage(double percentage); // Update the seeker's current position.
 
     private:
         class Data;

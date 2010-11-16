@@ -360,6 +360,11 @@
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/playbackcontrol/playbackcontrol.h -o ui/widgets/playbackcontrol/moc/playbackcontrol.moc.h" />
 		</Unit>
+		<Unit filename="ui/widgets/playbackcontrol/moc/playbackcontrol_data.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/playbackcontrol/playbackcontrol.cpp -o ui/widgets/playbackcontrol/moc/playbackcontrol_data.moc.h" />
+		</Unit>
 		<Unit filename="ui/widgets/playbackcontrol/playbackcontrol.cpp" />
 		<Unit filename="ui/widgets/playbackcontrol/playbackcontrol.h" />
 		<Unit filename="ui/wxplaybackcontrolpanel.cpp" />
