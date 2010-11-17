@@ -9,6 +9,7 @@
 #include <QtGui>
 #include "playbackcontrol.h"
 #include "../jog_ctrl/jog_ctrl.h"
+#include "../tubeslider/tubeslider.h"
 
 // ---------------------------
 // Begin PlaybackControl::Data
@@ -44,7 +45,7 @@ class PlaybackControl::Data : public QObject {
 		QPushButton* m_btnNextFrame;
 		QPushButton* m_btnFastForward;
 		QPushButton* m_btnLastFrame;
-		QSlider* m_PlaybackSlider;
+		TubeSlider* m_PlaybackSlider;
 		QSlider* m_VolumeSlider;
 		QSlider* m_Shuttle;
 		JogControl* m_Jog;
@@ -83,7 +84,7 @@ m_pixVolumeMuted(0)
     m_pixVolumeNormal = new QPixmap(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_mute1))));
     m_pixVolumeMuted = new QPixmap(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_mute2))));
 
-    m_PlaybackSlider = new QSlider(Qt::Horizontal);
+    m_PlaybackSlider = new TubeSlider();
     m_PlaybackSlider->setFocusPolicy(Qt::NoFocus);
     m_PlaybackSlider->setMinimum(0);
     m_PlaybackSlider->setMaximum(Data::PlaybackSliderRange);
