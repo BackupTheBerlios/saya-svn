@@ -16,4 +16,8 @@ class TubeSlider : public QSlider {
 
     protected:
         void paintEvent ( QPaintEvent * pe );
+    private:
+        class Data;
+        friend class Data;
+        Data* m_Data;
 };

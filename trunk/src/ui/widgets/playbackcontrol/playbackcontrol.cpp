@@ -51,6 +51,7 @@ class PlaybackControl::Data : public QObject {
 		JogControl* m_Jog;
 
     signals:
+        void playbackStop();
         void playbackSetVolume(unsigned int percentage); // from 0 to 100.
         void playbackAtSpeed(int percentage);
 
@@ -212,7 +213,7 @@ m_pixVolumeMuted(0)
     connect(m_btnFirstFrame,    SIGNAL(clicked()), m_Parent, SIGNAL(playbackFirstFrame()), Qt::QueuedConnection);
 
     // --- Signals and slots for playback seeking ---
-    connect(m_PlaybackSlider, SIGNAL(sliderPressed()), m_Parent, SIGNAL(playbackStop()), Qt::QueuedConnection);
+    connect(this, SIGNAL(playbackStop()), m_Parent, SIGNAL(playbackStop()), Qt::QueuedConnection);
     connect(m_PlaybackSlider, SIGNAL(sliderMoved(int)), this, SLOT(playbackSliderMoved(int)), Qt::QueuedConnection);
 
     // --- Signals and slots for volume handling ---
@@ -251,13 +252,22 @@ PlaybackControl::Data::~Data() {
 bool PlaybackControl::Data::eventFilter(QObject *obj, QEvent *event) {
     if((obj == m_Shuttle || obj == m_PlaybackSlider) && event->type() == QEvent::Wheel) {
         return true; // Swallow the wheel events for the Shuttle controller
-    } else if(obj == m_PlaybackSlider && event->type() == QEvent::MouseMove) {
-        showSeekTooltip();
-        if(QApplication::mouseButtons() == Qt::NoButton) {
+    } else if(obj == m_PlaybackSlider) {
+        // To avoid jittery behavior, we'll handle everything but the button unpress.
+        if(event->type() == QEvent::MouseMove) {
+            showSeekTooltip();
+            if(QApplication::mouseButtons() != Qt::NoButton) {
+                MovePlaybackSlider();
+                m_Parent->update();
+            }
+            return true;
+        } else if(event->type() == QEvent::MouseButtonPress) {
+            emit playbackStop();
+            MovePlaybackSlider();
+            m_PlaybackSlider->setSliderDown(true);
+            m_Parent->update();
             return true;
         }
-    } else if(obj == m_PlaybackSlider && event->type() == QEvent::MouseButtonPress) {
-        MovePlaybackSlider();
     }
     return QObject::eventFilter(obj, event);
 }

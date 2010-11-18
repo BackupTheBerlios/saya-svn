@@ -367,6 +367,8 @@
 		</Unit>
 		<Unit filename="ui/widgets/playbackcontrol/playbackcontrol.cpp" />
 		<Unit filename="ui/widgets/playbackcontrol/playbackcontrol.h" />
+		<Unit filename="ui/widgets/tubeslider/tubeslider.cpp" />
+		<Unit filename="ui/widgets/tubeslider/tubeslider.h" />
 		<Unit filename="ui/wxplaybackcontrolpanel.cpp" />
 		<Unit filename="ui/wxplaybackcontrolpanel.h" />
 		<Unit filename="ui/wxvideopanel.cpp" />
