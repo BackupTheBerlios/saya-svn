@@ -13,7 +13,7 @@ class TubeSlider : public QSlider {
     public:
         TubeSlider(QWidget *parent = 0);
         virtual ~TubeSlider();
-
+        QSize sizeHint() const;
     protected:
         void paintEvent ( QPaintEvent * pe );
     private:

@@ -47,9 +47,15 @@ TubeSlider::TubeSlider(QWidget *parent) :
 QSlider(Qt::Horizontal,parent),
 m_Data(new Data(this))
 {
+    setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed));
 }
 
 TubeSlider::~TubeSlider() {
+}
+
+QSize TubeSlider::sizeHint() const {
+    QSize size = QSize(0,24);
+    return size;
 }
 
 void TubeSlider::paintEvent ( QPaintEvent * pe ) {
