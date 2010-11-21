@@ -42,8 +42,7 @@ class PlaybackControl : public QWidget
 
     public slots:
         void setTimeRange(double start, double finish); // In seconds
-        void updatePositionInSeconds(double time); // Update the seeker's current position.
-        void updatePositionInPercentage(double percentage); // Update the seeker's current position.
+        void setCurrentTime(double time); // Update the seek bar's current position.
 
     private:
         class Data;

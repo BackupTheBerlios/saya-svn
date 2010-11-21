@@ -367,6 +367,16 @@
 		</Unit>
 		<Unit filename="ui/widgets/playbackcontrol/playbackcontrol.cpp" />
 		<Unit filename="ui/widgets/playbackcontrol/playbackcontrol.h" />
+		<Unit filename="ui/widgets/tubeslider/moc/tubeslider.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/tubeslider/tubeslider.h -o ui/widgets/tubeslider/moc/tubeslider.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/tubeslider/moc/tubeslider_data.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/tubeslider/tubeslider.cpp -o ui/widgets/tubeslider/moc/tubeslider_data.moc.h" />
+		</Unit>
 		<Unit filename="ui/widgets/tubeslider/tubeslider.cpp" />
 		<Unit filename="ui/widgets/tubeslider/tubeslider.h" />
 		<Unit filename="ui/wxplaybackcontrolpanel.cpp" />

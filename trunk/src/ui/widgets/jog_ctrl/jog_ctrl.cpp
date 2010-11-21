@@ -272,6 +272,7 @@ m_Data(0)
     } else {
         QMessageBox::warning(this,"Error","Could not load the JogControl image data!");
     }
+    setCursor(Qt::PointingHandCursor);
 }
 
 JogControl::~JogControl() {

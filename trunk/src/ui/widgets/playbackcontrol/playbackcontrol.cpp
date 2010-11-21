@@ -30,7 +30,6 @@ class PlaybackControl::Data : public QObject {
         static const char* s_icon_mute1;
         static const char* s_icon_mute2;
 
-        static const unsigned int PlaybackSliderRange;
         PlaybackControl* m_Parent;
         double m_StartTime, m_EndTime;
 
@@ -51,12 +50,11 @@ class PlaybackControl::Data : public QObject {
 		JogControl* m_Jog;
 
     signals:
-        void playbackStop();
         void playbackSetVolume(unsigned int percentage); // from 0 to 100.
         void playbackAtSpeed(int percentage);
 
     public slots:
-        void playbackSliderMoved(int value);
+        void PlaybackSliderMoved(double time);
         void volumeSliderPressed();
         void volumeSliderMoved(int value);
         void volumeSliderReleased();
@@ -72,8 +70,6 @@ class PlaybackControl::Data : public QObject {
         bool eventFilter(QObject *obj, QEvent *event);
 };
 
-const unsigned int PlaybackControl::Data::PlaybackSliderRange = 4000;
-
 PlaybackControl::Data::Data(PlaybackControl* parent) :
 m_Parent(parent),
 m_StartTime(0),
@@ -87,9 +83,6 @@ m_pixVolumeMuted(0)
 
     m_PlaybackSlider = new TubeSlider();
     m_PlaybackSlider->setFocusPolicy(Qt::NoFocus);
-    m_PlaybackSlider->setMinimum(0);
-    m_PlaybackSlider->setMaximum(Data::PlaybackSliderRange);
-    m_PlaybackSlider->setValue(0);
 
     m_btnMute = new QPushButton();
     m_btnMute->setCheckable(true);
@@ -108,13 +101,13 @@ m_pixVolumeMuted(0)
     m_VolumeSlider->setTickInterval(10);
     m_VolumeSlider->setTickPosition(QSlider::TicksBelow);
 
-    m_btnFirstFrame = new QPushButton();
-    m_btnFastRewind = new QPushButton();
-    m_btnPreviousFrame = new QPushButton();
-    m_btnPlay = new QPushButton();
-    m_btnNextFrame = new QPushButton();
-    m_btnFastForward = new QPushButton();
-    m_btnLastFrame = new QPushButton();
+    m_btnFirstFrame = new QPushButton();m_btnFirstFrame->setCursor(Qt::PointingHandCursor);
+    m_btnFastRewind = new QPushButton();m_btnFastRewind->setCursor(Qt::PointingHandCursor);
+    m_btnPreviousFrame = new QPushButton();m_btnPreviousFrame->setCursor(Qt::PointingHandCursor);
+    m_btnPlay = new QPushButton();m_btnPlay->setCursor(Qt::PointingHandCursor);
+    m_btnNextFrame = new QPushButton();m_btnNextFrame->setCursor(Qt::PointingHandCursor);
+    m_btnFastForward = new QPushButton();m_btnFastForward->setCursor(Qt::PointingHandCursor);
+    m_btnLastFrame = new QPushButton();m_btnLastFrame->setCursor(Qt::PointingHandCursor);
     m_Jog = new JogControl();
     m_Jog->setFocusPolicy(Qt::NoFocus);
     m_Jog->setMinimumSize(40, 40);
@@ -123,6 +116,7 @@ m_pixVolumeMuted(0)
     m_btnMute->setMaximumSize(QSize(20, 20));
     m_btnMute->setMinimumSize(QSize(20, 20));
     m_btnMute->setFocusPolicy(Qt::NoFocus);
+    m_btnMute->setCursor(Qt::PointingHandCursor);
 
     m_btnFirstFrame->setMaximumSize(QSize(24, 24));
     m_btnFirstFrame->setFocusPolicy(Qt::NoFocus);
@@ -212,10 +206,8 @@ m_pixVolumeMuted(0)
     connect(m_Jog,              SIGNAL(JogStepDown()),m_Parent, SIGNAL(playbackPreviousFrame()), Qt::QueuedConnection);
     connect(m_btnFirstFrame,    SIGNAL(clicked()), m_Parent, SIGNAL(playbackFirstFrame()), Qt::QueuedConnection);
 
-    // --- Signals and slots for playback seeking ---
-    connect(this, SIGNAL(playbackStop()), m_Parent, SIGNAL(playbackStop()), Qt::QueuedConnection);
-    connect(m_PlaybackSlider, SIGNAL(sliderMoved(int)), this, SLOT(playbackSliderMoved(int)), Qt::QueuedConnection);
-
+    // --- Signals and slots for the playback slider ---
+    connect(m_PlaybackSlider, SIGNAL(TimeChanged(double)), this, SLOT(PlaybackSliderMoved(double)), Qt::QueuedConnection);
     // --- Signals and slots for volume handling ---
     connect(m_btnMute, SIGNAL(toggled(bool)), this, SLOT(muteButtonToggled(bool)), Qt::QueuedConnection);
     connect(m_VolumeSlider, SIGNAL(sliderPressed()), m_Parent, SIGNAL(volumeSliderPressed()), Qt::QueuedConnection);
@@ -230,10 +222,7 @@ m_pixVolumeMuted(0)
     connect(m_Shuttle, SIGNAL(sliderReleased()), this, SLOT(shuttleSliderReleased()), Qt::QueuedConnection);
     connect(m_Shuttle, SIGNAL(sliderReleased()), m_Parent, SIGNAL(playbackStop()), Qt::QueuedConnection);
     connect(this, SIGNAL(playbackAtSpeed(int)), m_Parent, SIGNAL(playbackAtSpeed(int)), Qt::QueuedConnection);
-
-    m_PlaybackSlider->installEventFilter(this);
     m_Shuttle->installEventFilter(this);
-    m_PlaybackSlider->setMouseTracking(true);
 }
 
 PlaybackControl::Data::~Data() {
@@ -250,57 +239,16 @@ PlaybackControl::Data::~Data() {
 
 // --- Event filtering ---
 bool PlaybackControl::Data::eventFilter(QObject *obj, QEvent *event) {
-    if((obj == m_Shuttle || obj == m_PlaybackSlider) && event->type() == QEvent::Wheel) {
+    if((obj == m_Shuttle) && event->type() == QEvent::Wheel) {
         return true; // Swallow the wheel events for the Shuttle controller
-    } else if(obj == m_PlaybackSlider) {
-        // To avoid jittery behavior, we'll handle everything but the button unpress.
-        if(event->type() == QEvent::MouseMove) {
-            showSeekTooltip();
-            if(QApplication::mouseButtons() != Qt::NoButton) {
-                MovePlaybackSlider();
-                m_Parent->update();
-            }
-            return true;
-        } else if(event->type() == QEvent::MouseButtonPress) {
-            emit playbackStop();
-            MovePlaybackSlider();
-            m_PlaybackSlider->setSliderDown(true);
-            m_Parent->update();
-            return true;
-        }
     }
     return QObject::eventFilter(obj, event);
 }
 
-// --- Signal handling for the Playback Slider ---
+// --- Signal handling for the Playback slider ---
 
-void PlaybackControl::Data::playbackSliderMoved(int value) {
-    #warning TODO: Implement PlaybackControl::Data::playbackSliderMoved(int value)
-}
-
-void PlaybackControl::Data::showSeekTooltip() {
-    int local_x = m_PlaybackSlider->mapFromGlobal(QCursor::pos()).x();
-    if(local_x >= 0 && m_PlaybackSlider->width() > 0 && local_x < m_PlaybackSlider->width()) {
-        int tmpvalue = QStyle::sliderValueFromPosition (0, 5000, local_x, m_PlaybackSlider->width());
-        QPoint tmppos = QPoint(QCursor::pos().x(),m_PlaybackSlider->mapToGlobal(QPoint(0,-36)).y());
-        double timetoseek = (tmpvalue*(m_EndTime - m_StartTime))/5000;
-        int secs = floor(timetoseek);
-        timetoseek -= secs;
-        int millisecs = floor(timetoseek*1000);
-        int mins = secs / 60;secs %= 60;
-        int hrs = mins / 60; hrs %= 60;
-        QString s = QString("%1:%2:%3.%4").arg(hrs,2,10,QChar('0')).arg(mins,2,10,QChar('0')).arg(secs,2,10,QChar('0')).arg(millisecs,3,10,QChar('0'));
-        QToolTip::showText (tmppos, s, m_Parent);
-    }
-}
-
-void PlaybackControl::Data::MovePlaybackSlider() {
-    int local_x = m_PlaybackSlider->mapFromGlobal(QCursor::pos()).x();
-    if(local_x >= 0 && m_PlaybackSlider->width() > 0 && local_x < m_PlaybackSlider->width()) {
-        int tmpvalue = QStyle::sliderValueFromPosition (m_PlaybackSlider->minimum(), m_PlaybackSlider->maximum(), local_x, m_PlaybackSlider->width());
-        m_PlaybackSlider->setValue(tmpvalue);
-        playbackSliderMoved(tmpvalue);
-    }
+void PlaybackControl::Data::PlaybackSliderMoved(double time) {
+    emit m_Parent->playbackSeekAndPlayFrame(time);
 }
 
 // --- Signal handling for the Mute button ---
@@ -385,34 +333,13 @@ PlaybackControl::~PlaybackControl() {
 }
 
 void PlaybackControl::setTimeRange(double start, double finish) {
-    if(start > finish) {
-        m_Data->m_StartTime = finish;
-        m_Data->m_EndTime = start;
-    } else {
-        m_Data->m_StartTime = start;
-        m_Data->m_EndTime = finish;
-    }
-    updatePositionInPercentage(0);
+    m_Data->m_PlaybackSlider->setTimeRange(start, finish);
 }
 
-void PlaybackControl::updatePositionInSeconds(double time) {
-    double percentage = 0;
-    if(m_Data->m_StartTime != m_Data->m_EndTime) {
-        percentage = (time - m_Data->m_StartTime) / (m_Data->m_EndTime - m_Data->m_StartTime);
-    }
-    updatePositionInPercentage(percentage);
+void PlaybackControl::setCurrentTime(double time) {
+    m_Data->m_PlaybackSlider->setCurrentTime(time);
 }
 
-void PlaybackControl::updatePositionInPercentage(double percentage) {
-    if(isnan(percentage)) {
-        percentage = 0;
-    } else if(percentage > 100) {
-        percentage = 100;
-    } else if(percentage < 0) {
-        percentage = 0;
-    }
-    m_Data->m_PlaybackSlider->setValue((percentage * Data::PlaybackSliderRange)/100);
-}
 
 // -------------------
 // End PlaybackControl
