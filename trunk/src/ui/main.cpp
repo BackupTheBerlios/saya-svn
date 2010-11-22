@@ -19,7 +19,7 @@
 #include <QCloseEvent>
 
 #include "ui/main.ui.h"
-#include "playbackcontrol.h"
+#include "widgets/playbackcontrol/playbackcontrol.h"
 
 #include "../saya/core/app.h"
 #include "../saya/core/systring.h"
