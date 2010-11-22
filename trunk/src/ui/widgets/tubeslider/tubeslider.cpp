@@ -20,7 +20,6 @@
 // ----------------------
 
 class TubeSlider::Data : public QObject {
-    Q_OBJECT
     public:
         static const char* svg_button;
         Data(TubeSlider* parent);
