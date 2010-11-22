@@ -1,14 +1,17 @@
-// **************************************************************************************
-// * Name:      tubslider.h
-// * Purpose:   Declaration of a Slider control with a prettier interface
-// * Authors:   Ricardo Garcia
-// * Created:   2010-11-16
-// * Copyright: Ricardo Garcia
-// * License:   LGPL license version 3 or later.
-// **************************************************************************************/
+/**************************************************************************************
+ * Name:      tubslider.h
+ * Purpose:   Declaration of a Slider control with a prettier interface
+ * Authors:   Ricardo Garcia
+ * Created:   2010-11-16
+ * Copyright: Ricardo Garcia
+ * License:   LGPL license version 3 or later, with linking exception
+ **************************************************************************************/
+
+#ifndef TUBESLIDER_H_INCLUDED
+#define TUBESLIDER_H_INCLUDED
 
 #include <QWidget>
-#include <QSlider>
+
 class TubeSlider : public QWidget {
     Q_OBJECT
     public:
@@ -35,3 +38,4 @@ class TubeSlider : public QWidget {
         friend class Data;
         Data* m_Data;
 };
+#endif

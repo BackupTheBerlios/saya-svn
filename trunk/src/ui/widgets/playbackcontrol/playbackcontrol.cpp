@@ -3,8 +3,9 @@
  * Purpose:   Implementation of class PlaybackControl
  * Authors:   Rigoberto Calleja, Ricardo Garcia
  * Created:   2009-02-06
+ * Modified:  2010-11-21
  * Copyright: Ricardo Garcia
- * License:   LGPL license version 3 or later
+ * License:   LGPL license version 3 or later, with linking exception.
  **************************************************************************************/
 #include <QtGui>
 #include "playbackcontrol.h"

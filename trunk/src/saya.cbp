@@ -345,7 +345,6 @@
 		<Unit filename="ui/ui/newprojectdlg.ui.h" />
 		<Unit filename="ui/ui/projectpane.ui.h" />
 		<Unit filename="ui/ui/welcomedlg.ui.h" />
-		<Unit filename="ui/videoplaybackcontrol.h" />
 		<Unit filename="ui/welcomedlg.cpp" />
 		<Unit filename="ui/welcomedlg.h" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.cpp" />
@@ -372,17 +371,17 @@
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/tubeslider/tubeslider.h -o ui/widgets/tubeslider/moc/tubeslider.moc.h" />
 		</Unit>
-		<Unit filename="ui/widgets/tubeslider/moc/tubeslider_data.moc_trigger">
-			<Option compile="1" />
-			<Option weight="0" />
-			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/tubeslider/tubeslider.cpp -o ui/widgets/tubeslider/moc/tubeslider_data.moc.h" />
-		</Unit>
 		<Unit filename="ui/widgets/tubeslider/tubeslider.cpp" />
 		<Unit filename="ui/widgets/tubeslider/tubeslider.h" />
-		<Unit filename="ui/wxplaybackcontrolpanel.cpp" />
-		<Unit filename="ui/wxplaybackcontrolpanel.h" />
-		<Unit filename="ui/wxvideopanel.cpp" />
-		<Unit filename="ui/wxvideopanel.h" />
+		<Unit filename="ui/widgets/videopanel/videopanel.cpp" />
+		<Unit filename="ui/widgets/videopanel/videopanel.h" />
+		<Unit filename="ui/widgets/videoplaybackcontrol/moc/videoplaybackcontrol_data.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/videoplaybackcontrol/videoplaybackcontrol.cpp -o ui/widgets/videoplaybackcontrol/moc/videoplaybackcontrol_data.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/videoplaybackcontrol/videoplaybackcontrol.cpp" />
+		<Unit filename="ui/widgets/videoplaybackcontrol/videoplaybackcontrol.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

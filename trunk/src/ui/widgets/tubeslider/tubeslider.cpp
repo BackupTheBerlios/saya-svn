@@ -1,11 +1,11 @@
-// **************************************************************************************
-// * Name:      jog_ctrl.cpp
-// * Purpose:   Implementation of class JogControl
-// * Authors:   Ricardo Garcia
-// * Created:   2009-02-06
-// * Copyright: Ricardo Garcia
-// * License:   LGPL license version 3 or later.
-// **************************************************************************************/
+/**************************************************************************************
+ * Name:      tubslider.cpp
+ * Purpose:   Implementation of a Slider control with a prettier interface
+ * Authors:   Ricardo Garcia
+ * Created:   2010-11-16
+ * Copyright: Ricardo Garcia
+ * License:   LGPL license version 3 or later, with linking exception
+ **************************************************************************************/
 
 #include "tubeslider.h"
 #include <QColor>
@@ -229,9 +229,6 @@ void TubeSlider::mouseReleaseEvent ( QMouseEvent * event ) {
     }
 }
 
-
-
-#include "moc/tubeslider_data.moc.h"
 #include "moc/tubeslider.moc.h"
 
 const char* TubeSlider::Data::svg_button =

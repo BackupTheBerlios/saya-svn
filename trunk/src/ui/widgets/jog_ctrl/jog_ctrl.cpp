@@ -1,11 +1,11 @@
-// **************************************************************************************
-// * Name:      jog_ctrl.cpp
-// * Purpose:   Implementation of class JogControl
-// * Authors:   Ricardo Garcia
-// * Created:   2009-02-06
-// * Copyright: Ricardo Garcia
-// * License:   LGPL license version 3 or later.
-// **************************************************************************************/
+/**************************************************************************************
+ * Name:      jog_ctrl.cpp
+ * Purpose:   Implementation of class JogControl
+ * Authors:   Ricardo Garcia
+ * Created:   2009-02-06
+ * Copyright: Ricardo Garcia
+ * License:   LGPL license version 3 or later, with linking exception.
+ **************************************************************************************/
 
 #include "jog_ctrl.h"
 #include <math.h>

@@ -1,11 +1,14 @@
-// **************************************************************************************
-// * Name:      jog_ctrl.h
-// * Purpose:   Declaration of class JogControl
-// * Authors:   Ricardo Garcia
-// * Created:   2009-02-06
-// * Copyright: Ricardo Garcia
-// * License:   LGPL license version 3 or later.
-// **************************************************************************************/
+/**************************************************************************************
+ * Name:      jog_ctrl.h
+ * Purpose:   Declaration of class JogControl
+ * Authors:   Ricardo Garcia
+ * Created:   2009-02-06
+ * Copyright: Ricardo Garcia
+ * License:   LGPL license version 3 or later, with linking exception.
+ **************************************************************************************/
+
+#ifndef JOG_CTRL_H_INCLUDED
+#define JOG_CTRL_H_INCLUDED
 
 #include <QWidget>
 
@@ -37,3 +40,4 @@ class JogControl : public QWidget {
         friend class Data;
         Data* m_Data;
 };
+#endif

@@ -1,11 +1,12 @@
-// **************************************************************************************
-// * Name:      playbackcontrol.cpp
-// * Purpose:   Implementation of class PlaybackControl
-// * Authors:   Rigoberto Calleja
-// * Created:   2009-02-06
-// * Copyright: Rigoberto Calleja
-// * License:   wxWindows license
-// **************************************************************************************/
+/**************************************************************************************
+ * Name:      playbackcontrol.cpp
+ * Purpose:   Implementation of class PlaybackControl
+ * Authors:   Rigoberto Calleja, Ricardo Garcia
+ * Created:   2009-02-06
+ * Modified:  2010-11-21
+ * Copyright: Ricardo Garcia
+ * License:   LGPL license version 3 or later, with linking exception
+ **************************************************************************************/
 
 #ifndef PLAYBACKCONTROL_H_INCLUDED
 #define PLAYBACKCONTROL_H_INCLUDED
