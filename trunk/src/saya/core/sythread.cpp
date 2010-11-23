@@ -83,6 +83,10 @@
     #include <pthread.h>
     #include <semaphore.h>
 #endif
+#ifdef MACOS
+    #include <sys/param.h>
+    #include <sys/sysctl.h>
+#endif
 #include <limits.h>
 #include <set>
 
@@ -302,7 +306,7 @@ struct ltthread
 // When the program finishes, it deletes all the threads.
 // Why a set?
 // Because on deletion, the thread deletes itself from the set.
-// Using a vector (like wxWidgets does) would require logarithmic
+// Using a vector (like wxWidgets does) would require polynomial
 // time instead of linear time, which makes deleting all the threads
 // terribly inefficient. On top of that, this is a locking operation,
 // which makes things even slower.
@@ -1047,8 +1051,28 @@ unsigned long syThread::GetCurrentId() {
 }
 
 int syThread::GetCPUCount() {
-    // NOTE: syThread::GetCPUCount needs to be implemented
-    return -1;
+    // Courtesy of Stack Overflow ( http://stackoverflow.com/questions/150355/programmatically-find-the-number-of-cores-on-a-machine )
+    #ifdef __WIN32__
+        SYSTEM_INFO sysinfo;
+        GetSystemInfo(&sysinfo);
+        return sysinfo.dwNumberOfProcessors;
+    #elif MACOS
+        int nm[2];
+        size_t len = 4;
+        uint32_t count;
+
+        nm[0] = CTL_HW; nm[1] = HW_AVAILCPU;
+        sysctl(nm, 2, &count, &len, NULL, 0);
+
+        if(count < 1) {
+            nm[1] = HW_NCPU;
+            sysctl(nm, 2, &count, &len, NULL, 0);
+            if(count < 1) { count = 1; }
+        }
+        return count;
+    #else
+        return sysconf(_SC_NPROCESSORS_ONLN);
+    #endif
 }
 
 unsigned long syThread::GetMainThreadId() {

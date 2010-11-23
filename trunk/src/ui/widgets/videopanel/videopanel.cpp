@@ -58,18 +58,18 @@ class VideoPanel::Data : public syBitmapSink {
 
         VideoPanel* m_Parent;
         VideoOutputDevice* m_Video;
-        bool m_IsPlaying;
-        mutable bool m_SizeChanging;
-        mutable bool m_BufferChanged;
+        volatile bool m_IsPlaying;
+        volatile bool m_SizeChanging;
+        volatile bool m_BufferChanged;
         bool m_PaintingDemo;
 
         /** We need a bitmap besides the one in VideoOutputDevice to hold the video data temporarily.
          *  Otherwise we can get into a lot of awful situations that are nearly impossible to debug.
-         *  To avoid hitting a mutex while updating a bitmap, we'll use TWO bitmaps.
+         *  To avoid hitting a mutex while updating the bitmap, we'll use TWO bitmaps.
          */
         syBitmap* m_Bitmap1;
         syBitmap* m_Bitmap2;
-        mutable syBitmap* m_BitmapPointer;
+        volatile syBitmap* m_BitmapPointer;
 
         VideoColorFormat m_NativeFormat;
 };

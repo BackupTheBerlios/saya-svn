@@ -320,7 +320,7 @@ class sySafeMutex {
         /** @brief Locks the mutex, aborting if the current thread is being closed.
          *  @return true if the mutex was locked; false if the thread is being closed.
          *  @note If there's no syAborter object available, you should use this function
-         *  unless you already know the thread's being aborter and need to lock a safe mutex.
+         *  unless you already know the thread's being aborted and need to lock a safe mutex.
          */
         bool SafeLock();
 
@@ -385,7 +385,8 @@ unsigned long syGetTicks();
 
 /** @brief Obtains the number of nanoseconds that have happened since the program has started.
  *  Useful for microtime measurements.
- *  @note In reality, this is calculated u
+ *  @note In reality, this is calculated using the time of day, and substracting the time of day at program's start.
+ *  Under Windows, we call GetTickCount().
  */
 unsigned long long syGetNanoTicks();
 
@@ -394,9 +395,9 @@ unsigned long long syGetNanoTicks();
  *  For Win32 systems, we'll link to the pthreads-win32 DLL
  *  @see http://sourceware.org/pthreads-win32/
  *
- *  @warning syThreads MUST NOT be stored in application's global memory memory.
- *  Instead, create them dynamically, or for joinable threads, you can create them inside
- *  a function's stack.
+ *  @warning syThreads MUST NOT be stored in application's global memory, or else their destructors
+ *  will never be called! Instead, create them dynamically, or for joinable threads, you can create
+ *  them inside a function's stack.
  */
 class syThread {
     friend class syThreadData;
