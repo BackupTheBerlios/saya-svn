@@ -49,6 +49,7 @@ class PlaybackControl::Data : public QObject {
 		QSlider* m_VolumeSlider;
 		QSlider* m_Shuttle;
 		JogControl* m_Jog;
+		QVBoxLayout* m_VBoxLayout;
 
     signals:
         void playbackSetVolume(unsigned int percentage); // from 0 to 100.
@@ -76,7 +77,8 @@ m_Parent(parent),
 m_StartTime(0),
 m_EndTime(10),
 m_pixVolumeNormal(0),
-m_pixVolumeMuted(0)
+m_pixVolumeMuted(0),
+m_VBoxLayout(0)
 {
 
     m_pixVolumeNormal = new QPixmap(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_mute1))));
@@ -178,9 +180,9 @@ m_pixVolumeMuted(0)
     bottomLayout->addStretch();
 
     QVBoxLayout* mainLayout = new QVBoxLayout();
-    mainLayout->addStretch();
     mainLayout->addLayout(topLayout);
     mainLayout->addLayout(bottomLayout);
+    m_VBoxLayout = mainLayout;
     m_Parent->setLayout(mainLayout);
     m_Parent->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
 
@@ -341,6 +343,9 @@ void PlaybackControl::setCurrentTime(double time) {
     m_Data->m_PlaybackSlider->setCurrentTime(time);
 }
 
+QVBoxLayout* PlaybackControl::GetVBoxLayout() {
+    return m_Data->m_VBoxLayout;
+}
 
 // -------------------
 // End PlaybackControl

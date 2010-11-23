@@ -10,6 +10,7 @@
 
 #include "videopanel.h"
 
+#include "../../../saya/core/debuglog.h"
 #include "../../../saya/core/videooutputdevice.h"
 #include "../../../saya/core/sythread.h"
 #include "../../../saya/core/sybitmap.h"
@@ -177,8 +178,13 @@ VideoPanel::~VideoPanel() {
 }
 
 void VideoPanel::paintEvent ( QPaintEvent * pe ) {
+    QPainter painter(this); // Required by Qt
+    unsigned int w = width();
+    unsigned int h = height();
     if (!m_Data || m_Data->m_SizeChanging) {
-        // Do not try to repaint screen while resizing, or if m_Data is null
+        // Do not try to repaint screen while resizing, or if m_Data is null.
+        // Instead we'll fill the screen with black.
+        painter.fillRect(0,0,w,h,QColor(0,0,0));
         return;
     }
     // m_Data->m_Video->FlushVideoData();
@@ -187,10 +193,6 @@ void VideoPanel::paintEvent ( QPaintEvent * pe ) {
     // If we call FlushVideoData, we must set m_BufferChanged to false, or we'll continually
     // consume the CPU with an endless paint/idle event cycle.
 
-    unsigned int w = width();
-    unsigned int h = height();
-
-    QPainter painter(this); // Required by Qt
     // We will copy from the bitmap CURRENTLY assigned.
     // To avoid having to use a mutex, we use a comparison and switch between two predefined values.
     syBitmap* currentbitmap = m_Data->m_Bitmap1;

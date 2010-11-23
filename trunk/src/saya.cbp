@@ -5,6 +5,7 @@
 		<Option title="saya" />
 		<Option pch_mode="0" />
 		<Option compiler="gcc" />
+		<Option virtualFolders="saya/;" />
 		<Build>
 			<Target title="Debug">
 				<Option output="bin/saya-debug" prefix_auto="1" extension_auto="1" />
@@ -253,6 +254,7 @@
 		<Unit filename="saya/timeline/fxparameterlist.h" />
 		<Unit filename="saya/timeline/serializable.cpp">
 			<Option weight="20" />
+			<Option virtualFolder="saya/" />
 		</Unit>
 		<Unit filename="saya/timeline/serializable.h" />
 		<Unit filename="saya/timeline/serialized.cpp">

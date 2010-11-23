@@ -20,6 +20,7 @@ class QPushButton;
 class QSlider;
 class QLabel;
 class JogControl;
+class QVBoxLayout;
 
 class PlaybackControl : public QWidget
 {
@@ -45,6 +46,8 @@ class PlaybackControl : public QWidget
         void setTimeRange(double start, double finish); // In seconds
         void setCurrentTime(double time); // Update the seek bar's current position.
 
+    protected:
+        QVBoxLayout* GetVBoxLayout(); // For VideoPlaybackControl
     private:
         class Data;
         friend class Data;

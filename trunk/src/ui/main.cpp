@@ -20,6 +20,7 @@
 
 #include "ui/main.ui.h"
 #include "widgets/playbackcontrol/playbackcontrol.h"
+#include "widgets/videoplaybackcontrol/videoplaybackcontrol.h"
 
 #include "../saya/core/app.h"
 #include "../saya/core/systring.h"
@@ -41,8 +42,6 @@
 #include "newprojectdlg.h"
 #include "app.h"
 #include "projectpane.h"
-
-//#include "wxplaybackcontrolpanel.h"
 
 //helper functions
 enum qbuildinfoformat {
@@ -1125,7 +1124,7 @@ bool AppFrame::Data::CreateDialogs() {
 bool AppFrame::Data::CreatePanels() {
     bool result = false;
     do {
-        QWidget* tmpwidget = new PlaybackControl(0);
+        QWidget* tmpwidget = new VideoPlaybackControl(0);
         tmpwidget->show();
 
         m_ProjectPanel = CreateProjectPane();

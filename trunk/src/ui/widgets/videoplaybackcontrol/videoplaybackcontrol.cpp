@@ -14,6 +14,7 @@
 #include "../../../saya/inputmonitor.h"
 #include "../videopanel/videopanel.h"
 
+#include <QVBoxLayout>
 // ----------------------------------------
 // --- Begin VideoPlaybackControl::Data ---
 // ----------------------------------------
@@ -32,7 +33,7 @@ class VideoPlaybackControl::Data : public QObject {
 
 VideoPlaybackControl::Data::Data(VideoPlaybackControl* parent) :
 m_Parent(parent),
-m_VideoPanel(0)
+m_VideoPanel(new VideoPanel(0))
 {
 
 }
@@ -58,6 +59,11 @@ VideoPlaybackControl::VideoPlaybackControl(QWidget *parent)
 m_Data(new Data(this)),
 m_Player(0)
 {
+    m_Data->m_VideoPanel->setMinimumSize(178,100);
+    m_Data->m_VideoPanel->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding);
+    QVBoxLayout* vboxlayout = GetVBoxLayout();
+    vboxlayout->insertWidget(0,m_Data->m_VideoPanel);
+    setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding);
 }
 
 VideoPlaybackControl::~VideoPlaybackControl() {
@@ -68,8 +74,7 @@ VideoPlaybackControl::~VideoPlaybackControl() {
 void VideoPlaybackControl::SetAVPlayer(AVPlayer* player) {
     m_Player = player;
     if(m_Player) {
-        #warning TODO: Implement a Video Panel class and give it to m_Player
-        // m_Player->SetVideoOut(static_cast<VideoPanel*>(m_Data->m_VideoPanel)->GetVideo());
+        m_Player->SetVideoOut(m_Data->m_VideoPanel->GetVideo());
         m_Player->Init();
     }
 }
