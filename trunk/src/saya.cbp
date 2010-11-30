@@ -5,7 +5,6 @@
 		<Option title="saya" />
 		<Option pch_mode="0" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="saya/;" />
 		<Build>
 			<Target title="Debug">
 				<Option output="bin/saya-debug" prefix_auto="1" extension_auto="1" />
@@ -162,6 +161,8 @@
 			<Option weight="10" />
 		</Unit>
 		<Unit filename="saya/core/sentryfuncs.h" />
+		<Unit filename="saya/core/sigslot.cpp" />
+		<Unit filename="saya/core/sigslot.h" />
 		<Unit filename="saya/core/sybitmap.cpp">
 			<Option weight="10" />
 		</Unit>
@@ -254,7 +255,6 @@
 		<Unit filename="saya/timeline/fxparameterlist.h" />
 		<Unit filename="saya/timeline/serializable.cpp">
 			<Option weight="20" />
-			<Option virtualFolder="saya/" />
 		</Unit>
 		<Unit filename="saya/timeline/serializable.h" />
 		<Unit filename="saya/timeline/serialized.cpp">
@@ -349,6 +349,8 @@
 		<Unit filename="ui/ui/welcomedlg.ui.h" />
 		<Unit filename="ui/welcomedlg.cpp" />
 		<Unit filename="ui/welcomedlg.h" />
+		<Unit filename="ui/widgets/generic.cpp" />
+		<Unit filename="ui/widgets/generic.h" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.cpp" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.h" />
 		<Unit filename="ui/widgets/jog_ctrl/moc/jog_ctrl.moc_trigger">

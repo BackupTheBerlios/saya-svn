@@ -302,6 +302,7 @@ class sySemaphore {
  */
 class sySafeMutex {
     friend class sySafeMutexLocker;
+    friend class sySharedMutexData;
     public:
         /** Standard constructor. */
         sySafeMutex(bool recursive = false);
@@ -343,7 +344,58 @@ class sySafeMutex {
 
     private:
         sySafeMutexData* m_Data;
+        /** Sets the recursive flag to true. Must always be called BEFORE using the mutex. Used by sySafeMutexData. */
+        void  SetRecursive();
 };
+
+/** @class sySharedMutex<class T>
+ *  @brief A pseudo-mutex that actually accesses one of many limited global mutexes.
+ *  Some operating systems have a limit to the number of Critical Sections that can be created, mostly because
+ *  of a thread object limit. If we're creating a huge number of objects that must be thread safe, we could exhaust
+ *  the operating system's resources with the large number of mutexes that we created and initialized.
+ *  However, if we create only one global mutex, the number of collisions will ruin our performance.
+ *
+ *  Our shared mutex will operate as a time-shared condo: There is no limit to the number of objects that can get
+ *  a shared mutex, but there is a limit to the number of objects that can be locked at the same time.
+ *  The implementation is quite straightforward: We hold an array of sySafeMutexes, and each created mutex will
+ *  choose one of them sequentially.
+ *
+ *  Templated for the reason that two classes with different functionality can deadlock a shared mutex.
+ *
+ */
+
+#define SYSHAREDMUTEXLIMIT 32
+
+class sySharedMutexData {
+    public:
+        sySafeMutex m_Mutexes[SYSHAREDMUTEXLIMIT];
+        volatile unsigned int m_MutexIndex;
+        sySharedMutexData() : m_MutexIndex(0) {
+            for(unsigned int i = 0; i < SYSHAREDMUTEXLIMIT; ++i) {
+                m_Mutexes[i].SetRecursive();
+            }
+        }
+        ~sySharedMutexData() {}
+};
+
+template<class T> class sySharedMutex {
+    public:
+        sySharedMutex() {
+            // This operation needs not to be atomic because even in the event of a conflict, the exact value doesn't matter.
+            unsigned int index = s_Data.m_MutexIndex++;
+            m_Mutex = &s_Data.m_Mutexes[index % SYSHAREDMUTEXLIMIT];
+        }
+        ~sySharedMutex() {};
+        sySafeMutex* GetMutex() const { return m_Mutex; };
+        sySafeMutex* operator()() const  { return m_Mutex; };
+    private:
+        friend class sySharedMutexLocker;
+        sySafeMutex* m_Mutex;
+        static sySharedMutexData s_Data; /** You must define sySharedMutexData sySharedMutex<T>::m_Data in your .cpp file. */
+};
+
+/** Macro provided for convenience */
+#define DEFINE_SHAREDMUTEXDATA(T) sySharedMutexData sySharedMutex<T>::m_Data
 
 /** Locks a safe mutex during its existence. */
 class sySafeMutexLocker {

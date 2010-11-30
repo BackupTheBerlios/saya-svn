@@ -41,6 +41,8 @@
 class syAtomic {
     public:
 
+        static void MemoryBarrier();
+
         /** @brief Returns true on success. Curval obtains the current value of *ptr.
          *  We add an additional parameter to hold the old value because both the value and the return are boolean.
          */
@@ -62,8 +64,26 @@ class syAtomic {
         static char val_CAS(unsigned char* ptr, unsigned char oldval, unsigned char newval);
         static void* val_CAS(void** ptr, void* oldval, void* newval);
 
-        static void MemoryBarrier();
+        static unsigned int fetch_and_add1(unsigned int* ptr);
+        static int fetch_and_add1(int* ptr);
+        static long fetch_and_add1(long* ptr);
+        static unsigned long fetch_and_add1(unsigned long* ptr);
+        static char fetch_and_add1(char* ptr);
+        static unsigned char fetch_and_add1(unsigned char* ptr);
+        static unsigned int fetch_and_sub1(unsigned int* ptr);
+        static int fetch_and_sub1(int* ptr);
+        static long fetch_and_sub1(long* ptr);
+        static unsigned long fetch_and_sub1(unsigned long* ptr);
+        static char fetch_and_sub1(char* ptr);
+        static unsigned char fetch_and_sub1(unsigned char* ptr);
 };
+
+inline void syAtomic::MemoryBarrier() {
+    // As of 24/Sep/2008, GCC's __sync_synchronize() has a bug on x86-64 CPUs:
+    // It doesn't use the "mfence" instruction (see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=36793 )
+    // However, qprof's AO_nop_full() does, as long as AO_USE_PENTIUM4_INSTRS is defined.
+    AO_nop_full();
+}
 
 inline bool syAtomic::bool_CAS(bool* ptr, bool oldval, bool newval) {
     bool result;
@@ -241,11 +261,136 @@ inline void* syAtomic::val_CAS(void** ptr, void* oldval, void* newval) {
     return result;
 }
 
-inline void syAtomic::MemoryBarrier() {
-    // As of 24/Sep/2008, GCC's __sync_synchronize() has a bug on x86-64 CPUs:
-    // It doesn't use the "mfence" instruction (see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=36793 )
-    // However, qprof's AO_nop_full() does, as long as AO_USE_PENTIUM4_INSTRS is defined.
-    AO_nop_full();
+inline unsigned int syAtomic::fetch_and_add1(unsigned int* ptr) {
+    unsigned int result;
+    #ifdef AO_USE_GCC
+    result = __sync_fetch_and_add(ptr, 1);
+    #else
+    result = AO_fetch_and_add1((AO_t*) ptr);
+    #endif
+    MemoryBarrier();
+    return result;
+}
+
+inline int syAtomic::fetch_and_add1(int* ptr) {
+    int result;
+    #ifdef AO_USE_GCC
+    result = __sync_fetch_and_add(ptr, 1);
+    #else
+    result = AO_fetch_and_add1((AO_t*) ptr);
+    #endif
+    MemoryBarrier();
+    return result;
+}
+
+inline long syAtomic::fetch_and_add1(long* ptr) {
+    long result;
+    #ifdef AO_USE_GCC
+    result = __sync_fetch_and_add(ptr, 1);
+    #else
+    result = AO_fetch_and_add1((AO_t*) ptr);
+    #endif
+    MemoryBarrier();
+    return result;
+}
+
+inline unsigned long syAtomic::fetch_and_add1(unsigned long* ptr) {
+    unsigned long result;
+    #ifdef AO_USE_GCC
+    result = __sync_fetch_and_add(ptr, 1);
+    #else
+    result = AO_fetch_and_add1((AO_t*) ptr);
+    #endif
+    MemoryBarrier();
+    return result;
+}
+
+inline char syAtomic::fetch_and_add1(char* ptr) {
+    char result;
+    #ifdef AO_USE_GCC
+    result = __sync_fetch_and_add(ptr, 1);
+    #else
+    result = AO_fetch_and_add1((AO_t*) ptr);
+    #endif
+    MemoryBarrier();
+    return result;
+}
+
+inline unsigned char syAtomic::fetch_and_add1(unsigned char* ptr) {
+    unsigned char result;
+    #ifdef AO_USE_GCC
+    result = __sync_fetch_and_add(ptr, 1);
+    #else
+    result = AO_fetch_and_add1((AO_t*) ptr);
+    #endif
+    MemoryBarrier();
+    return result;
+}
+
+inline unsigned int syAtomic::fetch_and_sub1(unsigned int* ptr) {
+    unsigned int result;
+    #ifdef AO_USE_GCC
+    result = __sync_fetch_and_sub(ptr, 1);
+    #else
+    result = AO_fetch_and_sub1((AO_t*) ptr);
+    #endif
+    MemoryBarrier();
+    return result;
+}
+
+inline int syAtomic::fetch_and_sub1(int* ptr) {
+    int result;
+    #ifdef AO_USE_GCC
+    result = __sync_fetch_and_sub(ptr, 1);
+    #else
+    result = AO_fetch_and_sub1((AO_t*) ptr);
+    #endif
+    MemoryBarrier();
+    return result;
+}
+
+inline long syAtomic::fetch_and_sub1(long* ptr) {
+    long result;
+    #ifdef AO_USE_GCC
+    result = __sync_fetch_and_sub(ptr, 1);
+    #else
+    result = AO_fetch_and_sub1((AO_t*) ptr);
+    #endif
+    MemoryBarrier();
+    return result;
+}
+
+inline unsigned long syAtomic::fetch_and_sub1(unsigned long* ptr) {
+    unsigned long result;
+    #ifdef AO_USE_GCC
+    result = __sync_fetch_and_sub(ptr, 1);
+    #else
+    result = AO_fetch_and_sub1((AO_t*) ptr);
+    #endif
+    MemoryBarrier();
+    return result;
+}
+
+inline char syAtomic::fetch_and_sub1(char* ptr) {
+    char result;
+    #ifdef AO_USE_GCC
+    result = __sync_fetch_and_sub(ptr, 1);
+    #else
+    result = AO_fetch_and_sub1((AO_t*) ptr);
+    #endif
+    MemoryBarrier();
+    return result;
+}
+
+inline unsigned char syAtomic::fetch_and_sub1(unsigned char* ptr) {
+    unsigned char result;
+    #ifdef AO_USE_GCC
+    result = __sync_fetch_and_sub(ptr, 1);
+    #else
+    result = AO_fetch_and_sub1((AO_t*) ptr);
+    #endif
+    MemoryBarrier();
+    return result;
 }
 
 #endif

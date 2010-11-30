@@ -503,6 +503,10 @@ unsigned long sySafeMutex::GetOwner() {
     return m_Data->m_Owner;
 }
 
+void sySafeMutex::SetRecursive() {
+    m_Data->m_Recursive = true;
+}
+
 // ---------------------
 // End sySafeMutex class
 // ---------------------
