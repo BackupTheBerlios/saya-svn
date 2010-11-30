@@ -9,7 +9,7 @@
  * Created:   2010-11-28
  * Modified:  2010-11-28
  * Copyright: Miguel A. Gavidia, Rick Garcia
- * License:   LGPL Licence version 2.1 or later
+ * License:   LGPL Licence version 3.0 or later
  * Notes:
  *              Modified by juvinious adding in chaining support 01/01/2007:
  *              - Modded to add in specific slot disconnections 01/24/2007
@@ -100,6 +100,17 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #define SIGSLOT_ARGLIST7 SIGSLOT_ARGLIST6, arg7_type
 #define SIGSLOT_ARGLIST8 SIGSLOT_ARGLIST7, arg8_type
 
+// For these we add a leading comma
+#define SIGSLOT_CARGLIST0
+#define SIGSLOT_CARGLIST1 , arg1_type
+#define SIGSLOT_CARGLIST2 SIGSLOT_CARGLIST1, arg2_type
+#define SIGSLOT_CARGLIST3 SIGSLOT_CARGLIST2, arg3_type
+#define SIGSLOT_CARGLIST4 SIGSLOT_CARGLIST3, arg4_type
+#define SIGSLOT_CARGLIST5 SIGSLOT_CARGLIST4, arg5_type
+#define SIGSLOT_CARGLIST6 SIGSLOT_CARGLIST5, arg6_type
+#define SIGSLOT_CARGLIST7 SIGSLOT_CARGLIST6, arg7_type
+#define SIGSLOT_CARGLIST8 SIGSLOT_CARGLIST7, arg8_type
+
 #define SIGSLOT_CLASSLIST0
 #define SIGSLOT_CLASSLIST1 class arg1_type
 #define SIGSLOT_CLASSLIST2 SIGSLOT_CLASSLIST1, class arg2_type
@@ -109,6 +120,18 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #define SIGSLOT_CLASSLIST6 SIGSLOT_CLASSLIST5, class arg6_type
 #define SIGSLOT_CLASSLIST7 SIGSLOT_CLASSLIST6, class arg7_type
 #define SIGSLOT_CLASSLIST8 SIGSLOT_CLASSLIST7, class arg8_type
+
+// For these we add a leading comma
+#define SIGSLOT_CCLASSLIST0
+#define SIGSLOT_CCLASSLIST1 ,class arg1_type
+#define SIGSLOT_CCLASSLIST2 SIGSLOT_CCLASSLIST1, class arg2_type
+#define SIGSLOT_CCLASSLIST3 SIGSLOT_CCLASSLIST2, class arg3_type
+#define SIGSLOT_CCLASSLIST4 SIGSLOT_CCLASSLIST3, class arg4_type
+#define SIGSLOT_CCLASSLIST5 SIGSLOT_CCLASSLIST4, class arg5_type
+#define SIGSLOT_CCLASSLIST6 SIGSLOT_CCLASSLIST5, class arg6_type
+#define SIGSLOT_CCLASSLIST7 SIGSLOT_CCLASSLIST6, class arg7_type
+#define SIGSLOT_CCLASSLIST8 SIGSLOT_CCLASSLIST7, class arg8_type
+
 
 #define SIGSLOT_NAMEDARGLIST0
 #define SIGSLOT_NAMEDARGLIST1 arg1_type a1
@@ -131,7 +154,9 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #define SIGSLOT_PARAMLIST8 SIGSLOT_PARAMLIST7, a8
 
 #define SIGSLOT_VARGLIST(x) SIGSLOT_ARGLIST ## x
+#define SIGSLOT_VCARGLIST(x) SIGSLOT_CARGLIST ## x
 #define SIGSLOT_VCLASSLIST(x) SIGSLOT_CLASSLIST ## x
+#define SIGSLOT_VCCLASSLIST(x) SIGSLOT_CCLASSLIST ## x
 #define SIGSLOT_VNAMEDARGLIST(x) SIGSLOT_NAMEDARGLIST ## x
 #define SIGSLOT_VPARAMLIST(x) SIGSLOT_PARAMLIST ## x
 
@@ -139,13 +164,9 @@ THE POSSIBILITY OF SUCH DAMAGE.
 // End preprocessor arguments expansion
 // ------------------------------------
 
-/** -------------------------------
- *  Begin preprocessor classes code
- *  -------------------------------
- *  We do these to avoid typing the same template over and over. Instead, we type the same code once,
- *  and let the preprocessor expand the variable number of parameters.
- */
+namespace sigslot {
 
+class has_slots;
 
 #define SIGSLOT_TEMPLATE_CONNECTION_BASE(x) \
 template<SIGSLOT_VCLASSLIST(x)> \
@@ -159,88 +180,7 @@ class _connection_base ## x \
         virtual _connection_base ## x<SIGSLOT_VARGLIST(x)>* duplicate(has_slots* pnewdest) = 0; \
 };
 
-#define SIGNAL_BASE_COPY_CONSTRUCTOR \
-            sySafeMutexLocker lock(m_Data->m_Mutex()); \
-            const_iterator  it = s.m_connected_slots.begin(); const_iterator itEnd = s.m_connected_slots.end(); \
-            while (it != itEnd) { (*it)->getdest()->signal_connect(this); m_connected_slots.push_back((*it)->clone()); ++it; }
-
-#define SIGNAL_BASE_DISCONNECT_ALL \
-            sySafeMutexLocker lock(m_Data->m_Mutex()); \
-            const_iterator it  = m_connected_slots.begin(); const_iterator itEnd = m_connected_slots.end(); \
-            while (it != itEnd) { (*it)->getdest()->signal_disconnect(this); delete *it; ++it; } \
-            m_connected_slots.erase(m_connected_slots.begin(), m_connected_slots.end());
-
-#define SIGNAL_BASE_DISCONNECT_SLOTCLASS \
-            sySafeMutexLocker lock(m_Data->m_Mutex()); \
-            iterator it = m_connected_slots.begin(); iterator itEnd = m_connected_slots.end(); \
-            while (it != itEnd) { if ((*it)->getdest() == pclass) { delete *it; m_connected_slots.erase(it); pclass->signal_disconnect(this); return; } ++it; }
-
-#define SIGNAL_BASE_SLOT_DISCONNECT \
-            sySafeMutexLocker lock(m_Data->m_Mutex()); \
-            iterator it = m_connected_slots.begin(); iterator itEnd = m_connected_slots.end(); \
-            while (it != itEnd) { iterator itNext = it; ++itNext; if ((*it)->getdest() == pslot) { delete *it; m_connected_slots.erase(it); } it = itNext; }
-
-#define SIGNAL_BASE_SLOT_DUPLICATE \
-            sySafeMutexLocker lock(m_Data->m_Mutex()); \
-            iterator it = m_connected_slots.begin();iterator itEnd = m_connected_slots.end(); \
-            while (it != itEnd) { if ((*it)->getdest() == oldtarget) { m_connected_slots.push_back((*it)->duplicate(newtarget)); } ++it; }
-
-#define SIGNAL_BASE_COMMON_STUFF \
-        void slot_duplicate(const has_slots* oldtarget, has_slots* newtarget) { SIGNAL_BASE_SLOT_DUPLICATE } \
-        void disconnect_all() { SIGNAL_BASE_DISCONNECT_ALL } \
-        void disconnect(has_slots* pclass) { SIGNAL_BASE_DISCONNECT_SLOTCLASS } \
-        void slot_disconnect(has_slots* pslot) { SIGNAL_BASE_SLOT_DISCONNECT } \
-    protected: \
-        connections_list m_connected_slots;
-
-#define SIGSLOT_TEMPLATE_SIGNAL_BASE(x) \
-template<SIGSLOT_VCLASSLIST(x)> \
-class _signal_base ## x : public _signal_base \
-{ \
-    public: \
-        typedef typename std::list<_connection_base ## x<SIGSLOT_VARGLIST(x)> *>  connections_list; \
-        typedef typename connections_list::const_iterator const_iterator; \
-        typedef typename connections_list::iterator iterator; \
-        _signal_base ## x() {} \
-        ~_signal_base ## x() { disconnect_all(); } \
-        _signal_base ## x(const _signal_base ## x<SIGSLOT_VARGLIST(x)>& s) : _signal_base(s) { SIGNAL_BASE_COPY_CONSTRUCTOR } \
-        SIGNAL_BASE_COMMON_STUFF \
-};
-
-#define SIGSLOT_TEMPLATE_CONNECTION(x) \
-template<class dest_type, SIGSLOT_VCLASSLIST(x)> \
-class _connection ## x : public _connection_base ## x<SIGSLOT_VARGLIST(x)> \
-{ \
-    public: \
-        _connection ## x() { this->pobject = NULL; this->pmemfun = NULL; } \
-        _connection ## x(dest_type* pobject, slot (dest_type::*pmemfun)(SIGSLOT_VARGLIST(x))) { m_pobject = pobject; m_pmemfun = pmemfun; } \
-        virtual ~_connection ## x() {} \
-        virtual _connection_base ## x<SIGSLOT_VARGLIST(x)>* clone() { return new _connection ## x<dest_type, SIGSLOT_VARGLIST(x)>(*this); } \
-        virtual _connection_base ## x<SIGSLOT_VARGLIST(x)>* duplicate(has_slots* pnewdest) { return new _connection ## x<dest_type, SIGSLOT_VARGLIST(x)>((dest_type *)pnewdest, m_pmemfun); } \
-        virtual void emit(SIGSLOT_VNAMEDARGLIST(x)) { (m_pobject->*m_pmemfun)(SIGSLOT_VPARAMLIST(x)); } \
-        virtual has_slots* getdest() const { return m_pobject; } \
-        dest_type* m_pobject; \
-        void (dest_type::* m_pmemfun)(SIGSLOT_VARGLIST(x)); \
-};
-
-// -----------------------------
-// End preprocessor classes code
-// -----------------------------
-
-namespace sigslot {
-
-class has_slots;
-
-class _connection_base0
-{
-    public:
-        virtual ~_connection_base0() {}
-        virtual has_slots* getdest() const = 0;
-        virtual void emit() = 0;
-        virtual _connection_base0* clone() = 0;
-        virtual _connection_base0* duplicate(has_slots* pnewdest) = 0;
-};
-
+SIGSLOT_TEMPLATE_CONNECTION_BASE(0)
 SIGSLOT_TEMPLATE_CONNECTION_BASE(1)
 SIGSLOT_TEMPLATE_CONNECTION_BASE(2)
 SIGSLOT_TEMPLATE_CONNECTION_BASE(3)
@@ -274,18 +214,47 @@ class has_slots {
         void disconnect_all_slots();
 };
 
-class _signal_base0 : public _signal_base
-{
-    public:
-        typedef typename std::list<_connection_base0 *>  connections_list;
-        typedef typename connections_list::const_iterator const_iterator;
-        typedef typename connections_list::iterator iterator;
-        _signal_base0() {}
-        ~_signal_base0() { disconnect_all(); }
-        _signal_base0(const _signal_base0& s) : _signal_base(s) { SIGNAL_BASE_COPY_CONSTRUCTOR }
-        SIGNAL_BASE_COMMON_STUFF
+#define SIGSLOT_TEMPLATE_SIGNAL_BASE(x) \
+template<SIGSLOT_VCLASSLIST(x)> \
+class _signal_base ## x : public _signal_base \
+{ \
+    public: \
+        typedef typename std::list<_connection_base ## x<SIGSLOT_VARGLIST(x)> *>  connections_list; \
+        typedef typename connections_list::const_iterator const_iterator; \
+        typedef typename connections_list::iterator iterator; \
+        _signal_base ## x() {} \
+        ~_signal_base ## x() { disconnect_all(); } \
+        _signal_base ## x(const _signal_base ## x<SIGSLOT_VARGLIST(x)>& s) : _signal_base(s) {  \
+            sySafeMutexLocker lock(m_Data->m_Mutex()); \
+            const_iterator  it = s.m_connected_slots.begin(); const_iterator itEnd = s.m_connected_slots.end(); \
+            while (it != itEnd) { (*it)->getdest()->signal_connect(this); m_connected_slots.push_back((*it)->clone()); ++it; } \
+        } \
+        void slot_duplicate(const has_slots* oldtarget, has_slots* newtarget) { \
+            sySafeMutexLocker lock(m_Data->m_Mutex()); \
+            iterator it = m_connected_slots.begin();iterator itEnd = m_connected_slots.end(); \
+            while (it != itEnd) { if ((*it)->getdest() == oldtarget) { m_connected_slots.push_back((*it)->duplicate(newtarget)); } ++it; } \
+        } \
+        void disconnect_all() { \
+            sySafeMutexLocker lock(m_Data->m_Mutex()); \
+            const_iterator it  = m_connected_slots.begin(); const_iterator itEnd = m_connected_slots.end(); \
+            while (it != itEnd) { (*it)->getdest()->signal_disconnect(this); delete *it; ++it; } \
+            m_connected_slots.erase(m_connected_slots.begin(), m_connected_slots.end()); \
+        } \
+        void disconnect(has_slots* pclass) { \
+            sySafeMutexLocker lock(m_Data->m_Mutex()); \
+            iterator it = m_connected_slots.begin(); iterator itEnd = m_connected_slots.end(); \
+            while (it != itEnd) { if ((*it)->getdest() == pclass) { delete *it; m_connected_slots.erase(it); pclass->signal_disconnect(this); return; } ++it; } \
+        } \
+        void slot_disconnect(has_slots* pslot) { \
+            sySafeMutexLocker lock(m_Data->m_Mutex()); \
+            iterator it = m_connected_slots.begin(); iterator itEnd = m_connected_slots.end(); \
+            while (it != itEnd) { iterator itNext = it; ++itNext; if ((*it)->getdest() == pslot) { delete *it; m_connected_slots.erase(it); } it = itNext; } \
+        } \
+    protected: \
+        connections_list m_connected_slots; \
 };
 
+SIGSLOT_TEMPLATE_SIGNAL_BASE(0)
 SIGSLOT_TEMPLATE_SIGNAL_BASE(1)
 SIGSLOT_TEMPLATE_SIGNAL_BASE(2)
 SIGSLOT_TEMPLATE_SIGNAL_BASE(3)
@@ -297,28 +266,23 @@ SIGSLOT_TEMPLATE_SIGNAL_BASE(8)
 
 typedef void slot;
 
-template<class dest_type> class _connection0 : public _connection_base0
-{
-    public:
-        _connection0() { this->pobject = NULL; this->pmemfun = NULL; }
-
-        _connection0(dest_type* pobject, slot (dest_type::*pmemfun)())
-        { m_pobject = pobject; m_pmemfun = pmemfun; }
-
-        virtual ~_connection0() {}
-        virtual _connection_base0* clone() { return new _connection0<dest_type>(*this); }
-        virtual _connection_base0* duplicate(has_slots* pnewdest) {
-            return new _connection0<dest_type>((dest_type *)pnewdest, m_pmemfun);
-        }
-
-        virtual void emit() { (m_pobject->*m_pmemfun)(); }
-        virtual has_slots* getdest() const { return m_pobject; }
-
-        //private:
-        dest_type* m_pobject;
-        void (dest_type::* m_pmemfun)();
+#define SIGSLOT_TEMPLATE_CONNECTION(x) \
+template<class dest_type SIGSLOT_VCCLASSLIST(x)> \
+class _connection ## x : public _connection_base ## x<SIGSLOT_VARGLIST(x)> \
+{ \
+    public: \
+        _connection ## x() { this->pobject = NULL; this->pmemfun = NULL; } \
+        _connection ## x(dest_type* pobject, slot (dest_type::*pmemfun)(SIGSLOT_VARGLIST(x))) { m_pobject = pobject; m_pmemfun = pmemfun; } \
+        virtual ~_connection ## x() {} \
+        virtual _connection_base ## x<SIGSLOT_VARGLIST(x)>* clone() { return new _connection ## x<dest_type SIGSLOT_VCARGLIST(x)>(*this); } \
+        virtual _connection_base ## x<SIGSLOT_VARGLIST(x)>* duplicate(has_slots* pnewdest) { return new _connection ## x<dest_type SIGSLOT_VCARGLIST(x)>((dest_type *)pnewdest, m_pmemfun); } \
+        virtual void emit(SIGSLOT_VNAMEDARGLIST(x)) { (m_pobject->*m_pmemfun)(SIGSLOT_VPARAMLIST(x)); } \
+        virtual has_slots* getdest() const { return m_pobject; } \
+        dest_type* m_pobject; \
+        void (dest_type::* m_pmemfun)(SIGSLOT_VARGLIST(x)); \
 };
 
+SIGSLOT_TEMPLATE_CONNECTION(0)
 SIGSLOT_TEMPLATE_CONNECTION(1)
 SIGSLOT_TEMPLATE_CONNECTION(2)
 SIGSLOT_TEMPLATE_CONNECTION(3)
