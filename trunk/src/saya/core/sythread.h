@@ -393,9 +393,7 @@ template<class T> class sySharedMutex {
         sySafeMutex* m_Mutex;
         static sySharedMutexData s_Data; /** You must define sySharedMutexData sySharedMutex<T>::s_Data in your .cpp file. */
 };
-
-/** Macro provided for convenience */
-#define DEFINE_SHAREDMUTEXDATA(T) template<> sySharedMutexData sySharedMutex<T>::s_Data
+template<class T> sySharedMutexData sySharedMutex<T>::s_Data;
 
 /** Locks a safe mutex during its existence. */
 class sySafeMutexLocker {

@@ -7,7 +7,7 @@
  * Created:   2010-11-28
  * Modified:  2010-11-28
  * Copyright: Miguel A. Gavidia, Rick Garcia
- * License:   LGPL Licence version 2.1 or later
+ * License:   LGPL Licence version 3.0 or later
  * Notes:
  *              Modified by juvinious adding in chaining support 01/01/2007:
  *              - Modded to add in specific slot disconnections 01/24/2007
@@ -33,9 +33,6 @@ class has_slots::Data {
         sender_set m_senders;
         sySharedMutex<has_slots> m_Mutex;
 };
-
-DEFINE_SHAREDMUTEXDATA(has_slots);
-
 
 has_slots::has_slots() : m_Data(new Data) {
 }
