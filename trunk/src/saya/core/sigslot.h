@@ -74,10 +74,6 @@ THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
-#define SIGSLOT_H__
-#warning sigslot.h: UNDER CONSTRUCTION
-// REMOVE THIS WHEN THE CODE'S FINISHED IMPLEMENTING
-
 #ifndef SIGSLOT_H__
 #define SIGSLOT_H__
 
@@ -86,11 +82,11 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include "sythread.h"
 
 
-// --------------------------------------
-// Begin preprocessor arguments expansion
-// --------------------------------------
+// ------------------------------
+// Begin variable argument macros
+// ------------------------------
 
-#define SIGSLOT_ARGLIST0
+#define SIGSLOT_ARGLIST0 void*
 #define SIGSLOT_ARGLIST1 arg1_type
 #define SIGSLOT_ARGLIST2 SIGSLOT_ARGLIST1, arg2_type
 #define SIGSLOT_ARGLIST3 SIGSLOT_ARGLIST2, arg3_type
@@ -100,18 +96,18 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #define SIGSLOT_ARGLIST7 SIGSLOT_ARGLIST6, arg7_type
 #define SIGSLOT_ARGLIST8 SIGSLOT_ARGLIST7, arg8_type
 
-// For these we add a leading comma
-#define SIGSLOT_CARGLIST0
-#define SIGSLOT_CARGLIST1 , arg1_type
-#define SIGSLOT_CARGLIST2 SIGSLOT_CARGLIST1, arg2_type
-#define SIGSLOT_CARGLIST3 SIGSLOT_CARGLIST2, arg3_type
-#define SIGSLOT_CARGLIST4 SIGSLOT_CARGLIST3, arg4_type
-#define SIGSLOT_CARGLIST5 SIGSLOT_CARGLIST4, arg5_type
-#define SIGSLOT_CARGLIST6 SIGSLOT_CARGLIST5, arg6_type
-#define SIGSLOT_CARGLIST7 SIGSLOT_CARGLIST6, arg7_type
-#define SIGSLOT_CARGLIST8 SIGSLOT_CARGLIST7, arg8_type
+#define SIGSLOT_FUNCARGLIST0
+#define SIGSLOT_FUNCARGLIST1 arg1_type
+#define SIGSLOT_FUNCARGLIST2 SIGSLOT_FUNCARGLIST1, arg2_type
+#define SIGSLOT_FUNCARGLIST3 SIGSLOT_FUNCARGLIST2, arg3_type
+#define SIGSLOT_FUNCARGLIST4 SIGSLOT_FUNCARGLIST3, arg4_type
+#define SIGSLOT_FUNCARGLIST5 SIGSLOT_FUNCARGLIST4, arg5_type
+#define SIGSLOT_FUNCARGLIST6 SIGSLOT_FUNCARGLIST5, arg6_type
+#define SIGSLOT_FUNCARGLIST7 SIGSLOT_FUNCARGLIST6, arg7_type
+#define SIGSLOT_FUNCARGLIST8 SIGSLOT_FUNCARGLIST7, arg8_type
 
-#define SIGSLOT_CLASSLIST0
+
+#define SIGSLOT_CLASSLIST0 class arg0_type = void*
 #define SIGSLOT_CLASSLIST1 class arg1_type
 #define SIGSLOT_CLASSLIST2 SIGSLOT_CLASSLIST1, class arg2_type
 #define SIGSLOT_CLASSLIST3 SIGSLOT_CLASSLIST2, class arg3_type
@@ -120,18 +116,6 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #define SIGSLOT_CLASSLIST6 SIGSLOT_CLASSLIST5, class arg6_type
 #define SIGSLOT_CLASSLIST7 SIGSLOT_CLASSLIST6, class arg7_type
 #define SIGSLOT_CLASSLIST8 SIGSLOT_CLASSLIST7, class arg8_type
-
-// For these we add a leading comma
-#define SIGSLOT_CCLASSLIST0
-#define SIGSLOT_CCLASSLIST1 ,class arg1_type
-#define SIGSLOT_CCLASSLIST2 SIGSLOT_CCLASSLIST1, class arg2_type
-#define SIGSLOT_CCLASSLIST3 SIGSLOT_CCLASSLIST2, class arg3_type
-#define SIGSLOT_CCLASSLIST4 SIGSLOT_CCLASSLIST3, class arg4_type
-#define SIGSLOT_CCLASSLIST5 SIGSLOT_CCLASSLIST4, class arg5_type
-#define SIGSLOT_CCLASSLIST6 SIGSLOT_CCLASSLIST5, class arg6_type
-#define SIGSLOT_CCLASSLIST7 SIGSLOT_CCLASSLIST6, class arg7_type
-#define SIGSLOT_CCLASSLIST8 SIGSLOT_CCLASSLIST7, class arg8_type
-
 
 #define SIGSLOT_NAMEDARGLIST0
 #define SIGSLOT_NAMEDARGLIST1 arg1_type a1
@@ -154,15 +138,16 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #define SIGSLOT_PARAMLIST8 SIGSLOT_PARAMLIST7, a8
 
 #define SIGSLOT_VARGLIST(x) SIGSLOT_ARGLIST ## x
-#define SIGSLOT_VCARGLIST(x) SIGSLOT_CARGLIST ## x
+#define SIGSLOT_VFUNCARGLIST(x) SIGSLOT_FUNCARGLIST ## x
+#define SIGSLOT_VCARGLIST(x) , SIGSLOT_ARGLIST ## x
 #define SIGSLOT_VCLASSLIST(x) SIGSLOT_CLASSLIST ## x
-#define SIGSLOT_VCCLASSLIST(x) SIGSLOT_CCLASSLIST ## x
+#define SIGSLOT_VCCLASSLIST(x) , SIGSLOT_CLASSLIST ## x
 #define SIGSLOT_VNAMEDARGLIST(x) SIGSLOT_NAMEDARGLIST ## x
 #define SIGSLOT_VPARAMLIST(x) SIGSLOT_PARAMLIST ## x
 
-// ------------------------------------
-// End preprocessor arguments expansion
-// ------------------------------------
+// ----------------------------
+// End variable argument macros
+// ----------------------------
 
 namespace sigslot {
 
@@ -175,20 +160,20 @@ class _connection_base ## x \
     public: \
         virtual ~_connection_base ## x() {} \
         virtual has_slots* getdest() const = 0; \
-        virtual void emit(SIGSLOT_VARGLIST(x)) = 0; \
+        virtual void emit(SIGSLOT_VFUNCARGLIST(x)) = 0; \
         virtual _connection_base ## x<SIGSLOT_VARGLIST(x)>* clone() = 0; \
         virtual _connection_base ## x<SIGSLOT_VARGLIST(x)>* duplicate(has_slots* pnewdest) = 0; \
-};
+}
 
-SIGSLOT_TEMPLATE_CONNECTION_BASE(0)
-SIGSLOT_TEMPLATE_CONNECTION_BASE(1)
-SIGSLOT_TEMPLATE_CONNECTION_BASE(2)
-SIGSLOT_TEMPLATE_CONNECTION_BASE(3)
-SIGSLOT_TEMPLATE_CONNECTION_BASE(4)
-SIGSLOT_TEMPLATE_CONNECTION_BASE(5)
-SIGSLOT_TEMPLATE_CONNECTION_BASE(6)
-SIGSLOT_TEMPLATE_CONNECTION_BASE(7)
-SIGSLOT_TEMPLATE_CONNECTION_BASE(8)
+SIGSLOT_TEMPLATE_CONNECTION_BASE(0);
+SIGSLOT_TEMPLATE_CONNECTION_BASE(1);
+SIGSLOT_TEMPLATE_CONNECTION_BASE(2);
+SIGSLOT_TEMPLATE_CONNECTION_BASE(3);
+SIGSLOT_TEMPLATE_CONNECTION_BASE(4);
+SIGSLOT_TEMPLATE_CONNECTION_BASE(5);
+SIGSLOT_TEMPLATE_CONNECTION_BASE(6);
+SIGSLOT_TEMPLATE_CONNECTION_BASE(7);
+SIGSLOT_TEMPLATE_CONNECTION_BASE(8);
 
 
 class _signal_base {
@@ -225,44 +210,44 @@ class _signal_base ## x : public _signal_base \
         _signal_base ## x() {} \
         ~_signal_base ## x() { disconnect_all(); } \
         _signal_base ## x(const _signal_base ## x<SIGSLOT_VARGLIST(x)>& s) : _signal_base(s) {  \
-            sySafeMutexLocker lock(m_Data->m_Mutex()); \
+            sySafeMutexLocker lock(*(this->_signal_base::m_signal_mutex())); \
             const_iterator  it = s.m_connected_slots.begin(); const_iterator itEnd = s.m_connected_slots.end(); \
             while (it != itEnd) { (*it)->getdest()->signal_connect(this); m_connected_slots.push_back((*it)->clone()); ++it; } \
         } \
         void slot_duplicate(const has_slots* oldtarget, has_slots* newtarget) { \
-            sySafeMutexLocker lock(m_Data->m_Mutex()); \
+            sySafeMutexLocker lock(*(this->_signal_base::m_signal_mutex())); \
             iterator it = m_connected_slots.begin();iterator itEnd = m_connected_slots.end(); \
             while (it != itEnd) { if ((*it)->getdest() == oldtarget) { m_connected_slots.push_back((*it)->duplicate(newtarget)); } ++it; } \
         } \
         void disconnect_all() { \
-            sySafeMutexLocker lock(m_Data->m_Mutex()); \
+            sySafeMutexLocker lock(*(this->_signal_base::m_signal_mutex())); \
             const_iterator it  = m_connected_slots.begin(); const_iterator itEnd = m_connected_slots.end(); \
             while (it != itEnd) { (*it)->getdest()->signal_disconnect(this); delete *it; ++it; } \
             m_connected_slots.erase(m_connected_slots.begin(), m_connected_slots.end()); \
         } \
         void disconnect(has_slots* pclass) { \
-            sySafeMutexLocker lock(m_Data->m_Mutex()); \
+            sySafeMutexLocker lock(*(this->_signal_base::m_signal_mutex())); \
             iterator it = m_connected_slots.begin(); iterator itEnd = m_connected_slots.end(); \
             while (it != itEnd) { if ((*it)->getdest() == pclass) { delete *it; m_connected_slots.erase(it); pclass->signal_disconnect(this); return; } ++it; } \
         } \
         void slot_disconnect(has_slots* pslot) { \
-            sySafeMutexLocker lock(m_Data->m_Mutex()); \
+            sySafeMutexLocker lock(*(this->_signal_base::m_signal_mutex())); \
             iterator it = m_connected_slots.begin(); iterator itEnd = m_connected_slots.end(); \
             while (it != itEnd) { iterator itNext = it; ++itNext; if ((*it)->getdest() == pslot) { delete *it; m_connected_slots.erase(it); } it = itNext; } \
         } \
     protected: \
         connections_list m_connected_slots; \
-};
+}
 
-SIGSLOT_TEMPLATE_SIGNAL_BASE(0)
-SIGSLOT_TEMPLATE_SIGNAL_BASE(1)
-SIGSLOT_TEMPLATE_SIGNAL_BASE(2)
-SIGSLOT_TEMPLATE_SIGNAL_BASE(3)
-SIGSLOT_TEMPLATE_SIGNAL_BASE(4)
-SIGSLOT_TEMPLATE_SIGNAL_BASE(5)
-SIGSLOT_TEMPLATE_SIGNAL_BASE(6)
-SIGSLOT_TEMPLATE_SIGNAL_BASE(7)
-SIGSLOT_TEMPLATE_SIGNAL_BASE(8)
+SIGSLOT_TEMPLATE_SIGNAL_BASE(0);
+SIGSLOT_TEMPLATE_SIGNAL_BASE(1);
+SIGSLOT_TEMPLATE_SIGNAL_BASE(2);
+SIGSLOT_TEMPLATE_SIGNAL_BASE(3);
+SIGSLOT_TEMPLATE_SIGNAL_BASE(4);
+SIGSLOT_TEMPLATE_SIGNAL_BASE(5);
+SIGSLOT_TEMPLATE_SIGNAL_BASE(6);
+SIGSLOT_TEMPLATE_SIGNAL_BASE(7);
+SIGSLOT_TEMPLATE_SIGNAL_BASE(8);
 
 typedef void slot;
 
@@ -298,8 +283,7 @@ class has_signals {
         ~has_signals();
 
         void bind_signal(has_signals* chainsig);
-
-        void connect_signal(has_signals* chainsig):
+        void connect_signal(has_signals* chainsig);
         void disconnect_connected(has_signals* chainsig);
         void disconnect_bound(has_signals* chainsig);
         void remove_connections();
@@ -307,1243 +291,163 @@ class has_signals {
     protected:
         std::list<has_signals*> connected_signals;
         std::list<has_signals*> bound_signals;
-        typedef typename std::list<has_signals*>::iterator sig_iterator;
+        typedef std::list<has_signals*>::iterator sig_iterator;
 };
 
-#warning TODO: Fix from this line to below
-class signal0 : public _signal_base0, has_signals
-{
-    public:
-        typedef typename _signal_base0::connections_list::iterator iterator;
-        typedef typename _signal_base0::connections_list::const_iterator const_iterator;
-        typedef typename std::list<has_signals*>::iterator sig_iterator;
-        signal0() {}
-        signal0(const signal0& s) : _signal_base0(s) {}
-        virtual ~signal0() {}
-
-        template<class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)())
-        {
-            lock_block lock(this);
-            _connection0<desttype>* conn =
-                new _connection0<desttype>(pclass, pmemfun);
-            this->m_connected_slots.push_back(conn);
-            pclass->signal_connect(this);
-        }
-
-        template<class desttype>
-        void disconnect_slot(desttype* pclass, void (desttype::*pmemfun)())
-        {
-            lock_block lock(this);
-            iterator itNext, it = this->m_connected_slots.begin();
-            iterator itEnd = this->m_connected_slots.end();
-
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-                _connection0<desttype>* temp = dynamic_cast<_connection0<desttype> *>((*it));
-                if (temp->m_pobject == pclass && temp->m_pmemfun == pmemfun)
-                {
-                    delete (*it);
-                    this->m_connected_slots.erase(it);
-                    pclass->signal_disconnect(this);
-                    break;
-                }
-
-                it = itNext;
-            }
-        }
-
-        void connect(signal0* chainsig)
-        {
-            lock_block lock(this);
-            this->connect_signal(chainsig);
-        }
-
-        void disconnect_signal(signal0* chainsig)
-        {
-            lock_block lock(this);
-            this->disconnect_connected(chainsig);
-        }
-
-        void emit()
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit();
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal0*>(*si)->emit();
-
-                si = siNext;
-            }
-        }
-
-        void operator()()
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit();
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal0*>(*si)->emit();
-
-                si = siNext;
-            }
-        }
-};
-
-template < class arg1_type >
-class signal1 : public _signal_base1<arg1_type>, has_signals
-{
-    public:
-        typedef typename std::list<has_signals*>::iterator sig_iterator;
-        typedef typename _signal_base1<arg1_type>::connections_list::iterator iterator;
-        typedef typename _signal_base1<arg1_type>::connections_list::const_iterator const_iterator;
-        signal1()
-        {
-            ;
-        }
-
-        signal1(const signal1<arg1_type>& s)
-                : _signal_base1<arg1_type>(s)
-        {
-            ;
-        }
-
-        virtual ~signal1()
-        {
-            ;
-        }
-
-        template<class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)(arg1_type))
-        {
-            lock_block lock(this);
-            _connection1<desttype, arg1_type>* conn =
-                new _connection1<desttype, arg1_type>(pclass, pmemfun);
-            this->m_connected_slots.push_back(conn);
-            pclass->signal_connect(this);
-        }
-
-        template<class desttype>
-        void disconnect_slot(desttype* pclass, void (desttype::*pmemfun)(arg1_type))
-        {
-            lock_block lock(this);
-            iterator itNext, it = this->m_connected_slots.begin();
-            iterator itEnd = this->m_connected_slots.end();
-
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-                _connection1<desttype, arg1_type>* temp = dynamic_cast<_connection1<desttype, arg1_type> *>((*it));
-                if (temp->m_pobject == pclass && temp->m_pmemfun == pmemfun)
-                {
-                    delete (*it);
-                    this->m_connected_slots.erase(it);
-                    pclass->signal_disconnect(this);
-                    break;
-                }
-
-                it = itNext;
-            }
-        }
-
-        void bind_signal(signal1<arg1_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->bound_signals.push_back(chainsig);
-        }
-
-        void connect(signal1<arg1_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->connect_signal(chainsig);
-        }
-
-        void disconnect_signal(signal1<arg1_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->disconnect_connected(chainsig);
-        }
-
-        void emit(arg1_type a1)
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit(a1);
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal1<arg1_type>*>(*si)->emit(a1);
-
-                si = siNext;
-            }
-        }
-
-        void operator()(arg1_type a1)
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit(a1);
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal1<arg1_type>*>(*si)->emit(a1);
-
-                si = siNext;
-            }
-        }
-};
-
-template < class arg1_type, typename arg2_type, typename mt_policy = SIGSLOT_DEFAULT_MT_POLICY >
-class signal2 : public _signal_base2<arg1_type, arg2_type>, has_signals
-{
-    public:
-        typedef typename std::list<has_signals*>::iterator sig_iterator;
-        typedef typename _signal_base2<arg1_type, arg2_type>::connections_list::const_iterator const_iterator;
-        typedef typename _signal_base2<arg1_type, arg2_type>::connections_list::iterator iterator;
-        signal2()
-        {
-            ;
-        }
-
-        signal2(const signal2<arg1_type, arg2_type>& s)
-                : _signal_base2<arg1_type, arg2_type>(s)
-        {
-            ;
-        }
-
-        virtual ~signal2()
-        {
-            ;
-        }
-
-        template<class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
-                     arg2_type))
-        {
-            lock_block lock(this);
-            _connection2<desttype, arg1_type, arg2_type>* conn = new
-            _connection2<desttype, arg1_type, arg2_type>(pclass, pmemfun);
-            this->m_connected_slots.push_back(conn);
-            pclass->signal_connect(this);
-        }
-
-        template<class desttype>
-        void disconnect_slot(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
-                             arg2_type))
-        {
-            lock_block lock(this);
-            iterator itNext, it = this->m_connected_slots.begin();
-            iterator itEnd = this->m_connected_slots.end();
-
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-                _connection2<desttype, arg1_type, arg2_type>* temp = dynamic_cast<_connection2<desttype, arg1_type, arg2_type> *>((*it));
-                if (temp->m_pobject == pclass && temp->m_pmemfun == pmemfun)
-                {
-                    delete (*it);
-                    this->m_connected_slots.erase(it);
-                    pclass->signal_disconnect(this);
-                    break;
-                }
-
-                it = itNext;
-            }
-        }
-
-        void connect(signal2<arg1_type, arg2_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->connect_signal(chainsig);
-        }
-
-        void disconnect_signal(signal2<arg1_type, arg2_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->disconnect_connected(chainsig);
-        }
-
-        void emit(arg1_type a1, arg2_type a2)
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit(a1, a2);
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal2<arg1_type, arg2_type>*>(*si)->emit(a1, a2);
-
-                si = siNext;
-            }
-        }
-
-        void operator()(arg1_type a1, arg2_type a2)
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit(a1, a2);
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal2<arg1_type, arg2_type>*>(*si)->emit(a1, a2);
-
-                si = siNext;
-            }
-        }
-};
-
-template < class arg1_type, typename arg2_type, typename arg3_type, typename mt_policy = SIGSLOT_DEFAULT_MT_POLICY >
-class signal3 : public _signal_base3<arg1_type, arg2_type, arg3_type>, has_signals
-{
-    public:
-        typedef typename std::list<has_signals*>::iterator sig_iterator;
-        typedef typename _signal_base3<arg1_type, arg2_type, arg3_type>::connections_list::const_iterator const_iterator;
-        typedef typename _signal_base3<arg1_type, arg2_type, arg3_type>::connections_list::iterator iterator;
-        signal3()
-        {
-            ;
-        }
-
-        signal3(const signal3<arg1_type, arg2_type, arg3_type>& s)
-                : _signal_base3<arg1_type, arg2_type, arg3_type>(s)
-        {
-            ;
-        }
-
-        virtual ~signal3()
-        {
-            ;
-        }
-
-        template<class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
-                     arg2_type, arg3_type))
-        {
-            lock_block lock(this);
-            _connection3<desttype, arg1_type, arg2_type, arg3_type>* conn =
-                new _connection3<desttype, arg1_type, arg2_type, arg3_type>(pclass,
-                        pmemfun);
-            this->m_connected_slots.push_back(conn);
-            pclass->signal_connect(this);
-        }
-
-        template<class desttype>
-        void disconnect_slot(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
-                             arg2_type, arg3_type))
-        {
-            lock_block lock(this);
-            iterator itNext, it = this->m_connected_slots.begin();
-            iterator itEnd = this->m_connected_slots.end();
-
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-                _connection3<desttype, arg1_type, arg2_type, arg3_type>* temp = dynamic_cast<_connection3<desttype, arg1_type, arg2_type, arg3_type> *>((*it));
-                if (temp->m_pobject == pclass && temp->m_pmemfun == pmemfun)
-                {
-                    delete (*it);
-                    this->m_connected_slots.erase(it);
-                    pclass->signal_disconnect(this);
-                    break;
-                }
-
-                it = itNext;
-            }
-        }
-
-        void connect(signal3<arg1_type, arg2_type, arg3_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->connect_signal(chainsig);
-        }
-
-        void disconnect_signal(signal3<arg1_type, arg2_type, arg3_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->disconnect_connected(chainsig);
-        }
-
-        void emit(arg1_type a1, arg2_type a2, arg3_type a3)
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit(a1, a2, a3);
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal3<arg1_type, arg2_type, arg3_type>*>(*si)->emit(a1, a2, a3);
-
-                si = siNext;
-            }
-        }
-
-        void operator()(arg1_type a1, arg2_type a2, arg3_type a3)
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit(a1, a2, a3);
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal3<arg1_type, arg2_type, arg3_type>*>(*si)->emit(a1, a2, a3);
-
-                si = siNext;
-            }
-        }
-};
-
-template < class arg1_type, class arg2_type, class arg3_type, class arg4_type >
-class signal4 : public _signal_base4 < arg1_type, arg2_type, arg3_type,
-            arg4_type > , has_signals
-{
-    public:
-        typedef typename std::list<has_signals*>::iterator sig_iterator;
-        typedef typename _signal_base4<arg1_type, arg2_type, arg3_type, arg4_type>::connections_list::const_iterator const_iterator;
-        typedef typename _signal_base4<arg1_type, arg2_type, arg3_type, arg4_type>::connections_list::iterator iterator;
-        signal4()
-        {
-            ;
-        }
-
-        signal4(const signal4<arg1_type, arg2_type, arg3_type, arg4_type>& s)
-                : _signal_base4<arg1_type, arg2_type, arg3_type, arg4_type>(s)
-        {
-            ;
-        }
-
-        virtual ~signal4()
-        {
-            ;
-        }
-
-        template<class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
-                     arg2_type, arg3_type, arg4_type))
-        {
-            lock_block lock(this);
-            _connection4<desttype, arg1_type, arg2_type, arg3_type, arg4_type>*
-            conn = new _connection4 < desttype, arg1_type, arg2_type, arg3_type,
-            arg4_type > (pclass, pmemfun);
-            this->m_connected_slots.push_back(conn);
-            pclass->signal_connect(this);
-        }
-
-        template<class desttype>
-        void disconnect_slot(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
-                             arg2_type, arg3_type, arg4_type))
-        {
-            lock_block lock(this);
-            iterator itNext, it = this->m_connected_slots.begin();
-            iterator itEnd = this->m_connected_slots.end();
-
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-                _connection4<desttype, arg1_type, arg2_type, arg3_type, arg4_type>* temp = dynamic_cast<_connection4<desttype, arg1_type, arg2_type, arg3_type, arg4_type> *>((*it));
-                if (temp->m_pobject == pclass && temp->m_pmemfun == pmemfun)
-                {
-                    delete (*it);
-                    this->m_connected_slots.erase(it);
-                    pclass->signal_disconnect(this);
-                    break;
-                }
-
-                it = itNext;
-            }
-        }
-
-        void connect(signal4<arg1_type, arg2_type, arg3_type, arg4_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->connect_signal(chainsig);
-        }
-
-        void disconnect_signal(signal4<arg1_type, arg2_type, arg3_type, arg4_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->disconnect_connected(chainsig);
-        }
-
-        void emit(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4)
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit(a1, a2, a3, a4);
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal4<arg1_type, arg2_type, arg3_type, arg4_type>*>(*si)->emit(a1, a2, a3, a4);
-
-                si = siNext;
-            }
-        }
-
-        void operator()(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4)
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit(a1, a2, a3, a4);
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal4<arg1_type, arg2_type, arg3_type, arg4_type>*>(*si)->emit(a1, a2, a3, a4);
-
-                si = siNext;
-            }
-        }
-};
-
-template < class arg1_type, class arg2_type, class arg3_type, class arg4_type,
-class arg5_type >
-class signal5 : public _signal_base5 < arg1_type, arg2_type, arg3_type,
-            arg4_type, arg5_type > , has_signals
-{
-    public:
-        typedef typename std::list<has_signals*>::iterator sig_iterator;
-        typedef typename _signal_base5<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type>::connections_list::const_iterator const_iterator;
-        typedef typename _signal_base5<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type>::connections_list::iterator iterator;
-        signal5()
-        {
-            ;
-        }
-
-        signal5(const signal5 < arg1_type, arg2_type, arg3_type, arg4_type,
-                arg5_type > & s)
-                : _signal_base5 < arg1_type, arg2_type, arg3_type, arg4_type,
-                arg5_type > (s)
-        {
-            ;
-        }
-
-        virtual ~signal5()
-        {
-            ;
-        }
-
-        template<class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
-                     arg2_type, arg3_type, arg4_type, arg5_type))
-        {
-            lock_block lock(this);
-            _connection5 < desttype, arg1_type, arg2_type, arg3_type, arg4_type,
-            arg5_type > * conn = new _connection5 < desttype, arg1_type, arg2_type,
-            arg3_type, arg4_type, arg5_type > (pclass, pmemfun);
-            this->m_connected_slots.push_back(conn);
-            pclass->signal_connect(this);
-        }
-
-        template<class desttype>
-        void disconnect_slot(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
-                             arg2_type, arg3_type, arg4_type, arg5_type))
-        {
-            lock_block lock(this);
-            iterator itNext, it = this->m_connected_slots.begin();
-            iterator itEnd = this->m_connected_slots.end();
-
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-                _connection5<desttype, arg1_type, arg2_type, arg3_type, arg4_type, arg5_type>* temp = dynamic_cast<_connection5<desttype, arg1_type, arg2_type, arg3_type, arg4_type, arg5_type> *>((*it));
-                if (temp->m_pobject == pclass && temp->m_pmemfun == pmemfun)
-                {
-                    delete (*it);
-                    this->m_connected_slots.erase(it);
-                    pclass->signal_disconnect(this);
-                    break;
-                }
-
-                it = itNext;
-            }
-        }
-
-        void connect(signal5<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->connect_signal(chainsig);
-        }
-
-        void disconnect_signal(signal5<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->disconnect_connected(chainsig);
-        }
-
-        void emit(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
-                  arg5_type a5)
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit(a1, a2, a3, a4, a5);
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal5<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type>*>(*si)->emit(a1, a2, a3, a4, a5);
-
-                si = siNext;
-            }
-        }
-
-        void operator()(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
-                        arg5_type a5)
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit(a1, a2, a3, a4, a5);
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal5<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type>*>(*si)->emit(a1, a2, a3, a4, a5);
-
-                si = siNext;
-            }
-        }
-};
-
-
-template < class arg1_type, class arg2_type, class arg3_type, class arg4_type,
-class arg5_type, class arg6_type >
-class signal6 : public _signal_base6 < arg1_type, arg2_type, arg3_type,
-            arg4_type, arg5_type, arg6_type > , has_signals
-{
-    public:
-        typedef typename std::list<has_signals*>::iterator sig_iterator;
-        typedef typename _signal_base6 < arg1_type, arg2_type, arg3_type,
-        arg4_type, arg5_type, arg6_type >::connections_list::const_iterator const_iterator;
-        typedef typename _signal_base6 < arg1_type, arg2_type, arg3_type,
-        arg4_type, arg5_type, arg6_type >::connections_list::iterator iterator;
-        signal6()
-        {
-            ;
-        }
-
-        signal6(const signal6 < arg1_type, arg2_type, arg3_type, arg4_type,
-                arg5_type, arg6_type > & s)
-                : _signal_base6 < arg1_type, arg2_type, arg3_type, arg4_type,
-                arg5_type, arg6_type > (s)
-        {
-            ;
-        }
-
-        virtual ~signal6()
-        {
-            ;
-        }
-
-        template<class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
-                     arg2_type, arg3_type, arg4_type, arg5_type, arg6_type))
-        {
-            lock_block lock(this);
-            _connection6 < desttype, arg1_type, arg2_type, arg3_type, arg4_type,
-            arg5_type, arg6_type > * conn =
-                new _connection6 < desttype, arg1_type, arg2_type, arg3_type,
-            arg4_type, arg5_type, arg6_type > (pclass, pmemfun);
-            this->m_connected_slots.push_back(conn);
-            pclass->signal_connect(this);
-        }
-
-        template<class desttype>
-        void disconnect_slot(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
-                             arg2_type, arg3_type, arg4_type, arg5_type, arg6_type))
-        {
-            lock_block lock(this);
-            iterator itNext, it = this->m_connected_slots.begin();
-            iterator itEnd = this->m_connected_slots.end();
-
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-                _connection6<desttype, arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type>* temp = dynamic_cast<_connection6<desttype, arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type> *>((*it));
-                if (temp->m_pobject == pclass && temp->m_pmemfun == pmemfun)
-                {
-                    delete (*it);
-                    this->m_connected_slots.erase(it);
-                    pclass->signal_disconnect(this);
-                    break;
-                }
-
-                it = itNext;
-            }
-        }
-
-        void connect(signal6<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->connect_signal(chainsig);
-        }
-
-        void disconnect_signal(signal6<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->disconnect_connected(chainsig);
-        }
-
-        void emit(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
-                  arg5_type a5, arg6_type a6)
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit(a1, a2, a3, a4, a5, a6);
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal6<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type>*>(*si)->emit(a1, a2, a3, a4, a5, a6);
-
-                si = siNext;
-            }
-        }
-
-        void operator()(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
-                        arg5_type a5, arg6_type a6)
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit(a1, a2, a3, a4, a5, a6);
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal6<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type>*>(*si)->emit(a1, a2, a3, a4, a5, a6);
-
-                si = siNext;
-            }
-        }
-};
-
-template < class arg1_type, class arg2_type, class arg3_type, class arg4_type,
-class arg5_type, class arg6_type, class arg7_type >
-class signal7 : public _signal_base7 < arg1_type, arg2_type, arg3_type,
-            arg4_type, arg5_type, arg6_type, arg7_type > , has_signals
-{
-    public:
-        typedef typename std::list<has_signals*>::iterator sig_iterator;
-        typedef typename _signal_base7 < arg1_type, arg2_type, arg3_type,
-        arg4_type, arg5_type, arg6_type, arg7_type >::connections_list::const_iterator const_iterator;
-        typedef typename _signal_base7 < arg1_type, arg2_type, arg3_type,
-        arg4_type, arg5_type, arg6_type, arg7_type >::connections_list::iterator iterator;
-        signal7()
-        {
-            ;
-        }
-
-        signal7(const signal7 < arg1_type, arg2_type, arg3_type, arg4_type,
-                arg5_type, arg6_type, arg7_type > & s)
-                : _signal_base7 < arg1_type, arg2_type, arg3_type, arg4_type,
-                arg5_type, arg6_type, arg7_type > (s)
-        {
-            ;
-        }
-
-        virtual ~signal7()
-        {
-            ;
-        }
-
-        template<class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
-                     arg2_type, arg3_type, arg4_type, arg5_type, arg6_type,
-                     arg7_type))
-        {
-            lock_block lock(this);
-            _connection7 < desttype, arg1_type, arg2_type, arg3_type, arg4_type,
-            arg5_type, arg6_type, arg7_type > * conn =
-                new _connection7 < desttype, arg1_type, arg2_type, arg3_type,
-            arg4_type, arg5_type, arg6_type, arg7_type > (pclass, pmemfun);
-            this->m_connected_slots.push_back(conn);
-            pclass->signal_connect(this);
-        }
-
-        template<class desttype>
-        void disconnect_slot(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
-                             arg2_type, arg3_type, arg4_type, arg5_type, arg6_type, arg7_type))
-        {
-            lock_block lock(this);
-            iterator itNext, it = this->m_connected_slots.begin();
-            iterator itEnd = this->m_connected_slots.end();
-
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-                _connection7<desttype, arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type, arg7_type>* temp = dynamic_cast<_connection7<desttype, arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type, arg7_type> *>((*it));
-                if (temp->m_pobject == pclass && temp->m_pmemfun == pmemfun)
-                {
-                    delete (*it);
-                    this->m_connected_slots.erase(it);
-                    pclass->signal_disconnect(this);
-                    break;
-                }
-
-                it = itNext;
-            }
-        }
-
-        void connect(signal7<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type, arg7_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->connect_signal(chainsig);
-        }
-
-        void disconnect_signal(signal7<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type, arg7_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->disconnect_connected(chainsig);
-        }
-
-        void emit(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
-                  arg5_type a5, arg6_type a6, arg7_type a7)
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit(a1, a2, a3, a4, a5, a6, a7);
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal7<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type, arg7_type>*>(*si)->emit(a1, a2, a3, a4, a5, a6, a7);
-
-                si = siNext;
-            }
-        }
-
-        void operator()(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
-                        arg5_type a5, arg6_type a6, arg7_type a7)
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit(a1, a2, a3, a4, a5, a6, a7);
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal7<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type, arg7_type>*>(*si)->emit(a1, a2, a3, a4, a5, a6, a7);
-
-                si = siNext;
-            }
-        }
-};
-
-template < class arg1_type, class arg2_type, class arg3_type, class arg4_type,
-class arg5_type, class arg6_type, class arg7_type, class arg8_type >
-class signal8 : public _signal_base8 < arg1_type, arg2_type, arg3_type,
-            arg4_type, arg5_type, arg6_type, arg7_type, arg8_type > , has_signals
-{
-    public:
-        typedef typename std::list<has_signals*>::iterator sig_iterator;
-        typedef typename _signal_base8 < arg1_type, arg2_type, arg3_type,
-        arg4_type, arg5_type, arg6_type, arg7_type, arg8_type >::connections_list::const_iterator const_iterator;
-        typedef typename _signal_base8 < arg1_type, arg2_type, arg3_type,
-        arg4_type, arg5_type, arg6_type, arg7_type, arg8_type >::connections_list::iterator iterator;
-        signal8()
-        {
-            ;
-        }
-
-        signal8(const signal8 < arg1_type, arg2_type, arg3_type, arg4_type,
-                arg5_type, arg6_type, arg7_type, arg8_type > & s)
-                : _signal_base8 < arg1_type, arg2_type, arg3_type, arg4_type,
-                arg5_type, arg6_type, arg7_type, arg8_type > (s)
-        {
-            ;
-        }
-
-        virtual ~signal8()
-        {
-            ;
-        }
-
-        template<class desttype>
-        void connect(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
-                     arg2_type, arg3_type, arg4_type, arg5_type, arg6_type,
-                     arg7_type, arg8_type))
-        {
-            lock_block lock(this);
-            _connection8 < desttype, arg1_type, arg2_type, arg3_type, arg4_type,
-            arg5_type, arg6_type, arg7_type, arg8_type > * conn =
-                new _connection8 < desttype, arg1_type, arg2_type, arg3_type,
-            arg4_type, arg5_type, arg6_type, arg7_type,
-            arg8_type > (pclass, pmemfun);
-            this->m_connected_slots.push_back(conn);
-            pclass->signal_connect(this);
-        }
-
-        template<class desttype>
-        void disconnect_slot(desttype* pclass, void (desttype::*pmemfun)(arg1_type,
-                             arg2_type, arg3_type, arg4_type, arg5_type, arg6_type, arg7_type, arg8_type))
-        {
-            lock_block lock(this);
-            iterator itNext, it = this->m_connected_slots.begin();
-            iterator itEnd = this->m_connected_slots.end();
-
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-                _connection8<desttype, arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type, arg7_type, arg8_type>* temp = dynamic_cast<_connection8<desttype, arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type, arg7_type, arg8_type> *>((*it));
-                if (temp->m_pobject == pclass && temp->m_pmemfun == pmemfun)
-                {
-                    delete (*it);
-                    this->m_connected_slots.erase(it);
-                    pclass->signal_disconnect(this);
-                    break;
-                }
-
-                it = itNext;
-            }
-        }
-
-        void connect(signal8<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type, arg7_type, arg8_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->connect_signal(chainsig);
-        }
-
-        void disconnect_signal(signal8<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type, arg7_type, arg8_type>* chainsig)
-        {
-            lock_block lock(this);
-            this->disconnect_connected(chainsig);
-        }
-
-        void emit(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
-                  arg5_type a5, arg6_type a6, arg7_type a7, arg8_type a8)
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit(a1, a2, a3, a4, a5, a6, a7, a8);
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal8<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type, arg7_type, arg8_type>*>(*si)->emit(a1, a2, a3, a4, a5, a6, a7, a8);
-
-                si = siNext;
-            }
-        }
-
-        void operator()(arg1_type a1, arg2_type a2, arg3_type a3, arg4_type a4,
-                        arg5_type a5, arg6_type a6, arg7_type a7, arg8_type a8)
-        {
-            lock_block lock(this);
-            const_iterator itNext, it = this->m_connected_slots.begin();
-            const_iterator itEnd = this->m_connected_slots.end();
-
-            while (it != itEnd)
-            {
-                itNext = it;
-                ++itNext;
-
-                (*it)->emit(a1, a2, a3, a4, a5, a6, a7, a8);
-
-                it = itNext;
-            }
-
-            sig_iterator siNext, si = this->connected_signals.begin();
-            sig_iterator siEnd = this->connected_signals.end();
-
-            while (si != siEnd)
-            {
-                siNext = si;
-                ++siNext;
-
-                static_cast<signal8<arg1_type, arg2_type, arg3_type, arg4_type, arg5_type, arg6_type, arg7_type, arg8_type>*>(*si)->emit(a1, a2, a3, a4, a5, a6, a7, a8);
-
-                si = siNext;
-            }
-        }
-};
+#define SIGSLOT_TEMPLATE_SIGNAL(x) \
+template <SIGSLOT_VCLASSLIST(x)> class signal## x : public _signal_base## x <SIGSLOT_VARGLIST(x)> ,has_signals { \
+    public: \
+        typedef typename std::list<has_signals*>::iterator sig_iterator; \
+        typedef typename _signal_base## x <SIGSLOT_VARGLIST(x) >::connections_list::const_iterator const_iterator; \
+        typedef typename _signal_base## x <SIGSLOT_VARGLIST(x) >::connections_list::iterator iterator; \
+        signal## x() {} \
+        signal## x(const signal## x <SIGSLOT_VARGLIST(x)> & s) : _signal_base## x <SIGSLOT_VARGLIST(x)> (s) {} \
+        virtual ~signal## x() {} \
+ \
+        template<class desttype> void connect(desttype* pclass, void (desttype::*pmemfun)(SIGSLOT_VARGLIST(x))) { \
+            sySafeMutexLocker lock(this->_signal_base::m_signal_mutex()); \
+            _connection## x <desttype SIGSLOT_VCARGLIST(x)> * conn = new _connection## x< desttype SIGSLOT_VCARGLIST(x)> (pclass, pmemfun); \
+            this->m_connected_slots.push_back(conn); \
+            pclass->signal_connect(this); \
+        } \
+ \
+        template<class desttype> void disconnect_slot(desttype* pclass, void (desttype::*pmemfun)(SIGSLOT_VARGLIST(x))) { \
+            sySafeMutexLocker lock(this->_signal_base::m_signal_mutex()); \
+            iterator itNext, it = this->m_connected_slots.begin(); \
+            iterator itEnd = this->m_connected_slots.end(); \
+            while (it != itEnd) { \
+                itNext = it; \
+                ++itNext; \
+                _connection## x<desttype SIGSLOT_VCARGLIST(x)>* temp = dynamic_cast<_connection## x<desttype SIGSLOT_VCARGLIST(x)> *>((*it)); \
+                if (temp->m_pobject == pclass && temp->m_pmemfun == pmemfun) { \
+                    delete (*it); \
+                    this->m_connected_slots.erase(it); \
+                    pclass->signal_disconnect(this); \
+                    break; \
+                } \
+                it = itNext; \
+            } \
+        } \
+ \
+        void connect(signal## x<SIGSLOT_VARGLIST(x)>* chainsig) { \
+            sySafeMutexLocker lock(this->_signal_base::m_signal_mutex()); \
+            this->connect_signal(chainsig); \
+        } \
+ \
+        void disconnect_signal(signal## x<SIGSLOT_VARGLIST(x)>* chainsig) { \
+            sySafeMutexLocker lock(this->_signal_base::m_signal_mutex()); \
+            this->disconnect_connected(chainsig); \
+        } \
+ \
+        void emit(SIGSLOT_VNAMEDARGLIST(x)) { \
+            sySafeMutexLocker lock(this->_signal_base::m_signal_mutex()); \
+            const_iterator itNext, it = this->m_connected_slots.begin(); \
+            const_iterator itEnd = this->m_connected_slots.end(); \
+ \
+            while (it != itEnd) { \
+                itNext = it; \
+                ++itNext; \
+                (*it)->emit(SIGSLOT_VPARAMLIST(x)); \
+                it = itNext; \
+            } \
+ \
+            sig_iterator siNext, si = this->connected_signals.begin(); \
+            sig_iterator siEnd = this->connected_signals.end(); \
+ \
+            while (si != siEnd) \
+            { \
+                siNext = si; \
+                ++siNext; \
+                static_cast<signal## x<SIGSLOT_VARGLIST(x)>*>(*si)->emit(SIGSLOT_VPARAMLIST(x)); \
+                si = siNext; \
+            } \
+        } \
+ \
+        inline void operator()(SIGSLOT_VNAMEDARGLIST(x)) { \
+            emit(SIGSLOT_VPARAMLIST(x)); \
+        } \
+}
+
+SIGSLOT_TEMPLATE_SIGNAL(0);
+SIGSLOT_TEMPLATE_SIGNAL(1);
+SIGSLOT_TEMPLATE_SIGNAL(2);
+SIGSLOT_TEMPLATE_SIGNAL(3);
+SIGSLOT_TEMPLATE_SIGNAL(4);
+SIGSLOT_TEMPLATE_SIGNAL(5);
+SIGSLOT_TEMPLATE_SIGNAL(6);
+SIGSLOT_TEMPLATE_SIGNAL(7);
+SIGSLOT_TEMPLATE_SIGNAL(8);
 
 }; // namespace sigslot
 
+// -------------------------
+// Begin macros undefinition
+// -------------------------
+
+#undef SIGSLOT_ARGLIST0
+#undef SIGSLOT_ARGLIST1
+#undef SIGSLOT_ARGLIST2
+#undef SIGSLOT_ARGLIST3
+#undef SIGSLOT_ARGLIST4
+#undef SIGSLOT_ARGLIST5
+#undef SIGSLOT_ARGLIST6
+#undef SIGSLOT_ARGLIST7
+#undef SIGSLOT_ARGLIST8
+
+#undef SIGSLOT_FUNCARGLIST0
+#undef SIGSLOT_FUNCARGLIST1
+#undef SIGSLOT_FUNCARGLIST2
+#undef SIGSLOT_FUNCARGLIST3
+#undef SIGSLOT_FUNCARGLIST4
+#undef SIGSLOT_FUNCARGLIST5
+#undef SIGSLOT_FUNCARGLIST6
+#undef SIGSLOT_FUNCARGLIST7
+#undef SIGSLOT_FUNCARGLIST8
+
+#undef SIGSLOT_CLASSLIST0
+#undef SIGSLOT_CLASSLIST1
+#undef SIGSLOT_CLASSLIST2
+#undef SIGSLOT_CLASSLIST3
+#undef SIGSLOT_CLASSLIST4
+#undef SIGSLOT_CLASSLIST5
+#undef SIGSLOT_CLASSLIST6
+#undef SIGSLOT_CLASSLIST7
+#undef SIGSLOT_CLASSLIST8
+
+#undef SIGSLOT_NAMEDARGLIST0
+#undef SIGSLOT_NAMEDARGLIST1
+#undef SIGSLOT_NAMEDARGLIST2
+#undef SIGSLOT_NAMEDARGLIST3
+#undef SIGSLOT_NAMEDARGLIST4
+#undef SIGSLOT_NAMEDARGLIST5
+#undef SIGSLOT_NAMEDARGLIST6
+#undef SIGSLOT_NAMEDARGLIST7
+#undef SIGSLOT_NAMEDARGLIST8
+
+#undef SIGSLOT_PARAMLIST0
+#undef SIGSLOT_PARAMLIST1
+#undef SIGSLOT_PARAMLIST2
+#undef SIGSLOT_PARAMLIST3
+#undef SIGSLOT_PARAMLIST4
+#undef SIGSLOT_PARAMLIST5
+#undef SIGSLOT_PARAMLIST6
+#undef SIGSLOT_PARAMLIST7
+#undef SIGSLOT_PARAMLIST8
+
+#undef SIGSLOT_VARGLIST
+#undef SIGSLOT_VFUNCARGLIST
+#undef SIGSLOT_VCARGLIST
+#undef SIGSLOT_VCLASSLIST
+#undef SIGSLOT_VCCLASSLIST
+#undef SIGSLOT_VNAMEDARGLIST
+#undef SIGSLOT_VPARAMLIST
+
+#undef SIGSLOT_TEMPLATE_CONNECTION_BASE
+#undef SIGSLOT_TEMPLATE_SIGNAL_BASE
+#undef SIGSLOT_TEMPLATE_CONNECTION
+#undef SIGSLOT_TEMPLATE_SIGNAL
+// -----------------------
+// End macros undefinition
+// -----------------------
+
 #endif // SIGSLOT_H__
-
-
-

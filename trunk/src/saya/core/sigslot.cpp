@@ -15,20 +15,18 @@
  *              Modified by Rick Garcia 28/11/2010:
  *              - Removed saggui stuff that we don't need
  *              - Moved some classes to an external .cpp file
+ *              - Made multithreaded by default using a special shared mutex template.
+ *              - Removed now deprecated thread policies.
+ *              - Replaced multiple template class definitions with CPP macros
  **************************************************************************************/
 
 #include "sigslot.h"
-#warning sigslot.cpp: UNDER CONSTRUCTION
-#define SIGSLOT_H__
-#ifndef SIGSLOT_H__
-// REMOVE THIS WHEN THE CODE'S FINISHED IMPLEMENTING
 
 #include <set>
 
 namespace sigslot {
 
-typedef typename std::set<_signal_base *> sender_set;
-typedef typename sender_set::const_iterator const_iterator;
+typedef std::set<_signal_base *> sender_set;
 
 class has_slots::Data {
     public:
@@ -43,9 +41,9 @@ has_slots::has_slots() : m_Data(new Data) {
 }
 
 has_slots::has_slots(const has_slots& hs) : m_Data(new Data) {
-    sySafeMutexLocker lock(m_Data->m_Mutex());
-    const_iterator it = hs->m_Data.m_senders.begin();
-    const_iterator itEnd = hs->m_Data.m_senders.end();
+    sySafeMutexLocker lock(*(m_Data->m_Mutex()));
+   sender_set::const_iterator it = hs.m_Data->m_senders.begin();
+   sender_set::const_iterator itEnd = hs.m_Data->m_senders.end();
 
     while (it != itEnd) {
         (*it)->slot_duplicate(&hs, this);
@@ -56,28 +54,28 @@ has_slots::has_slots(const has_slots& hs) : m_Data(new Data) {
 
 void has_slots::signal_connect(_signal_base* sender)
 {
-    sySafeMutexLocker lock(m_Data->m_Mutex());
+    sySafeMutexLocker lock(*(m_Data->m_Mutex()));
     m_Data->m_senders.insert(sender);
 }
 
 void has_slots::signal_disconnect(_signal_base* sender)
 {
-    sySafeMutexLocker lock(m_Data->m_Mutex());
+    sySafeMutexLocker lock(*(m_Data->m_Mutex()));
     m_Data->m_senders.erase(sender);
 }
 
-virtual has_slots::~has_slots()
+has_slots::~has_slots()
 {
-    disconnect_all();
+    disconnect_all_slots();
     delete m_Data;
     m_Data = 0;
 }
 
 void has_slots::disconnect_all_slots()
 {
-    sySafeMutexLocker lock(m_Data->m_Mutex());
-    const_iterator it = m_Data->m_senders.begin();
-    const_iterator itEnd = m_Data->m_senders.end();
+   sySafeMutexLocker lock(*(m_Data->m_Mutex()));
+   sender_set::const_iterator it = m_Data->m_senders.begin();
+   sender_set::const_iterator itEnd = m_Data->m_senders.end();
 
     while (it != itEnd)
     {
@@ -85,7 +83,7 @@ void has_slots::disconnect_all_slots()
         ++it;
     }
 
-    m_senders.erase(m_Data->m_senders.begin(), m_Data->m_senders.end());
+    m_Data->m_senders.erase(m_Data->m_senders.begin(), m_Data->m_senders.end());
 }
 
 
@@ -169,5 +167,3 @@ void has_signals::remove_connections() {
 
 
 } // namespace sigslot
-
-#endif
