@@ -331,7 +331,7 @@ class sySafeMutex {
         /** Waits for the mutex to be unlocked */
         bool Wait(syAborter* aborter = 0);
 
-        /** @Checks if the mutex is unlocked. Useful for when you want to use the mutex as a "busy" flag.
+        /** @brief Checks if the mutex is unlocked. Useful for when you want to use the mutex as a "busy" flag.
          *
          */
         bool IsUnlocked();
@@ -391,7 +391,7 @@ template<class T> class sySharedMutex {
     private:
         friend class sySharedMutexLocker;
         sySafeMutex* m_Mutex;
-        static sySharedMutexData s_Data; /** You must define sySharedMutexData sySharedMutex<T>::s_Data in your .cpp file. */
+        static sySharedMutexData s_Data;
 };
 template<class T> sySharedMutexData sySharedMutex<T>::s_Data;
 

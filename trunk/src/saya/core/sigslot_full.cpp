@@ -1,5 +1,5 @@
 /**************************************************************************************
- * Name:      sigslot.h
+ * Name:      sigslot_full.cpp
  * Purpose:   Implementation of a threaded signal and slot library.
  * Original Author:
  *            Sarah Thompson
@@ -74,54 +74,75 @@ THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
-#ifndef SIGSLOT_H__
-#define SIGSLOT_H__
+#include "sigslot_full.h"
+#include "sythread.h"
 
 namespace sigslot {
 
-class has_slots;
+// ----------------
+// begin _signal_mp
+// ----------------
 
-class _signal_base {
+class _signal_mp::Data {
     public:
-        _signal_base() {}
-        virtual ~_signal_base() {}
-        virtual void slot_disconnect(has_slots* pslot) = 0;
-        virtual void slot_duplicate(const has_slots* poldslot, has_slots* pnewslot) = 0;
+        sySharedMutex<_signal_mp> m_signal_mutex;
 };
 
-class has_slots {
-    public:
-        has_slots();
-        has_slots(const has_slots& hs);
-        ~has_slots();
-        void signal_connect(_signal_base* sender);
-        void signal_disconnect(_signal_base* sender);
-        void disconnect_all_slots();
-    private:
-        class Data;
-        friend class Data;
-        Data* m_Data;
-};
+_signal_mp::_signal_mp() : m_Data(new Data) {}
+_signal_mp::~_signal_mp() {
+    delete m_Data;
+    m_Data = 0;
+}
 
-class has_signals {
-    public:
-        has_signals();
-        ~has_signals();
+bool _signal_mp::sig_lock() {
+    return m_Data->m_signal_mutex()->SafeLock();
+}
 
-        void bind_signal(has_signals* chainsig);
-        void connect_signal(has_signals* chainsig);
-        void disconnect_connected(has_signals* chainsig);
-        void disconnect_bound(has_signals* chainsig);
-        void remove_connections();
+bool _signal_mp::sig_locked() {
+    return !(m_Data->m_signal_mutex()->IsUnlocked());
+}
 
-    private:
-        class Data;
-        friend class Data;
-        Data* m_Data;
-};
+void _signal_mp::sig_unlock() {
+    m_Data->m_signal_mutex()->Unlock();
+}
 
+bool _signal_mp::sig_safe() {
+    return !syThread::MustAbort();
+}
+// --------------
+// end _signal_mp
+// --------------
 
+// ----------------
+// begin sig_locker
+// ----------------
 
-}; // namespace sig_slot
+sig_locker::sig_locker(_signal_mp& sig) : m_sig(sig) {
+    Lock();
+}
 
-#endif // SIGSLOT_H__
+/** Destructor */
+sig_locker::~sig_locker() {
+    Unlock();
+}
+
+/** (re)Locks the mutex */
+bool sig_locker::Lock() {
+    return m_sig.sig_lock();
+}
+
+/** Unlocks the mutex */
+void sig_locker::Unlock() {
+    m_sig.sig_unlock();
+}
+
+/** @return true if the mutex is currently locked and owned by the current thread. */
+bool sig_locker::IsLocked() {
+    return m_sig.sig_locked();
+}
+
+// --------------
+// end sig_locker
+// --------------
+
+}; // namespace sigslot
