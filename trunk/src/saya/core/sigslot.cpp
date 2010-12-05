@@ -1,23 +1,22 @@
 /**************************************************************************************
  * Name:      sigslot.cpp
  * Purpose:   Implementation of a platform-independent signal and slot library.
- * Author:    Sarah Thompson
+ * Original
+ *   author:  Sarah Thompson, 2002.
  * Modified
- * by:        Miguel A. Gavidia, Rick Garcia
+ *   by:      Rick Garcia
  * Created:   2010-11-28
- * Modified:  2010-11-28
- * Copyright: Miguel A. Gavidia, Rick Garcia
+ * Modified:  2010-12-05
+ * Copyright: (c) 2010, Rick Garcia
  * License:   LGPL Licence version 3.0 or later
  * Notes:
- *              Modified by juvinious adding in chaining support 01/01/2007:
- *              - Modded to add in specific slot disconnections 01/24/2007
- *              - Added in stuff to be inclusive to saggui
- *              Modified by Rick Garcia 28/11/2010:
- *              - Removed saggui stuff that we don't need
- *              - Moved some classes to an external .cpp file
- *              - Made multithreaded by default using a special shared mutex template.
- *              - Removed now deprecated thread policies.
+ *              Original code available at http://sigslot.sourceforge.net/
+ *              Modified by Rick Garcia 05/12/2010:
+ *              - Completely discarded Miguel A. Gavidia's modifications (sorry, found a better way)
+ *              - Moved the emitting code to a _signal_call_base class to get rid of many templates
  *              - Replaced multiple template class definitions with CPP macros
+ *              - Added signal chaining support through the _connection_base class
+ *              - Replaced thread policies with a special shared mutex template.
  **************************************************************************************/
 
 #include "sythread.h"
@@ -25,15 +24,145 @@
 
 #include <set>
 #include <list>
-#include <algorithm>
 
 namespace sigslot {
 
-typedef std::set<_signal_base *> sender_set;
+typedef std::set<_signal_base *> signal_set;
+
+// ------------------------
+// begin _signal_base::Data
+// ------------------------
+
+class _signal_base::Data {
+    public:
+        typedef std::list<_connection_base*> connections_list;
+        typedef connections_list::const_iterator const_iterator;
+        typedef connections_list::iterator iterator;
+        connections_list m_connections;
+        sySharedMutex<_signal_base> m_Mutex;
+};
+
+// ------------------------
+// end _signal_base::Data
+// ------------------------
+
+// ------------------
+// begin _signal_base
+// ------------------
+
+_signal_base::_signal_base() : m_Data(new Data) {}
+
+_signal_base::~_signal_base() {
+    disconnect_all();
+    delete m_Data;
+    m_Data = 0;
+}
+
+_signal_base::_signal_base(const _signal_base& s) {
+    sySafeMutexLocker lock(*(m_Data->m_Mutex())); if(lock.IsLocked()) {
+        Data::const_iterator  it = s.m_Data->m_connections.begin(); Data::const_iterator itEnd = s.m_Data->m_connections.end();
+        while (it != itEnd) { (*it)->getdest()->connect_signal(this); m_Data->m_connections.push_back((*it)->clone()); ++it; }
+    }
+}
+
+void _signal_base::slot_duplicate(const has_slots* oldtarget, has_slots* newtarget) {
+    sySafeMutexLocker lock(*(m_Data->m_Mutex())); if(lock.IsLocked()) {
+        Data::iterator it = m_Data->m_connections.begin();Data::iterator itEnd = m_Data->m_connections.end();
+        while (it != itEnd) { if ((*it)->getdest() == oldtarget) { m_Data->m_connections.push_back((*it)->duplicate(newtarget)); } ++it; }
+    }
+}
+
+void _signal_base::disconnect(has_slots* target) {
+    sySafeMutexLocker lock(*(m_Data->m_Mutex()));
+    Data::connections_list::iterator it = m_Data->m_connections.begin();
+    Data::connections_list::iterator itEnd = m_Data->m_connections.end();
+
+    while(it != itEnd) {
+        if((*it)->getdest() == target) {
+            delete *it;
+            m_Data->m_connections.erase(it);
+            target->disconnect_signal(this);
+            return;
+        }
+        ++it;
+    }
+}
+
+void _signal_base::disconnect_all() {
+    sySafeMutexLocker lock(*(m_Data->m_Mutex()));
+    Data::connections_list::const_iterator it = m_Data->m_connections.begin();
+    Data::connections_list::const_iterator itEnd = m_Data->m_connections.end();
+
+    while(it != itEnd) {
+        (*it)->getdest()->disconnect_signal(this);
+        delete *it;
+        ++it;
+    }
+    m_Data->m_connections.erase(m_Data->m_connections.begin(), m_Data->m_connections.end());
+}
+
+void _signal_base::emit_base(signal_call_base* pcall) {
+    sySafeMutexLocker lock(*(m_Data->m_Mutex())); if(lock.IsLocked()) {
+        Data::const_iterator itNext, it = m_Data->m_connections.begin();
+        Data::const_iterator itEnd = m_Data->m_connections.end();
+
+        while (it != itEnd) {
+            itNext = it;
+            ++itNext;
+            (*it)->emit(pcall);
+            it = itNext;
+        }
+    }
+
+}
+
+
+void _signal_base::add_connection(const _connection_base &conn) {
+    sySafeMutexLocker lock(*(m_Data->m_Mutex())); if(lock.IsLocked()) {
+        _connection_base* pconn = const_cast<_connection_base*>(&conn)->clone();
+        m_Data->m_connections.push_back(pconn);
+        pconn->getdest()->connect_signal(this);
+    }
+}
+
+void _signal_base::remove_connection(const _connection_base &conn) {
+    sySafeMutexLocker lock(*(m_Data->m_Mutex())); if(lock.IsLocked()) {
+        has_slots* pobj = conn.getdest();
+        Data::iterator itNext, it = m_Data->m_connections.begin(); \
+        Data::iterator itEnd = m_Data->m_connections.end();
+        bool wasconnected = false;
+        while (it != itEnd) {
+            itNext = it;
+            ++itNext;
+            if((*it)->equals(&conn)) {
+                delete (*it);
+                m_Data->m_connections.erase(it);
+                wasconnected = true;
+                break;
+            }
+            it = itNext;
+        }
+        if(wasconnected) {
+            pobj->disconnect_signal(this);
+        }
+    }
+}
+
+void _signal_base::kill_connection(has_slots* target) {
+    sySafeMutexLocker lock(*(m_Data->m_Mutex())); if(lock.IsLocked()) {
+        Data::iterator it = m_Data->m_connections.begin(); Data::iterator itEnd = m_Data->m_connections.end();
+        while (it != itEnd) { Data::iterator itNext = it; ++itNext; if ((*it)->getdest() == target) { delete *it; m_Data->m_connections.erase(it); } it = itNext; }
+    }
+}
+
+// ----------------
+// end _signal_base
+// ----------------
+
 
 class has_slots::Data {
     public:
-        sender_set m_senders;
+        signal_set m_signals;
         sySharedMutex<has_slots> m_Mutex;
 };
 
@@ -43,12 +172,12 @@ has_slots::has_slots() : m_Data(new Data) {
 has_slots::has_slots(const has_slots& hs) : m_Data(new Data) {
    sySafeMutexLocker lock(*(m_Data->m_Mutex()));
    if(lock.IsLocked()) {
-       sender_set::const_iterator it = hs.m_Data->m_senders.begin();
-       sender_set::const_iterator itEnd = hs.m_Data->m_senders.end();
+       signal_set::const_iterator it = hs.m_Data->m_signals.begin();
+       signal_set::const_iterator itEnd = hs.m_Data->m_signals.end();
 
         while (it != itEnd) {
             (*it)->slot_duplicate(&hs, this);
-            m_Data->m_senders.insert(*it);
+            m_Data->m_signals.insert(*it);
             ++it;
         }
    }
@@ -56,141 +185,36 @@ has_slots::has_slots(const has_slots& hs) : m_Data(new Data) {
 
 has_slots::~has_slots()
 {
-    disconnect_all_slots();
+    disconnect_all();
     delete m_Data;
     m_Data = 0;
 }
 
-void has_slots::signal_connect(_signal_base* sender)
+void has_slots::connect_signal(_signal_base* signal)
 {
     sySafeMutexLocker lock(*(m_Data->m_Mutex()));
     if(lock.IsLocked()) {
-        m_Data->m_senders.insert(sender);
+        m_Data->m_signals.insert(signal);
     }
 }
 
-void has_slots::signal_disconnect(_signal_base* sender)
+void has_slots::disconnect_signal(_signal_base* signal)
 {
     sySafeMutexLocker lock(*(m_Data->m_Mutex()));
-    if(lock.IsLocked()) {
-        m_Data->m_senders.erase(sender);
-    }
+    m_Data->m_signals.erase(signal);
 }
 
-void has_slots::disconnect_all_slots()
+void has_slots::disconnect_all()
 {
    sySafeMutexLocker lock(*(m_Data->m_Mutex()));
-   if(lock.IsLocked()) {
-       sender_set::const_iterator it = m_Data->m_senders.begin();
-       sender_set::const_iterator itEnd = m_Data->m_senders.end();
+    signal_set::const_iterator it = m_Data->m_signals.begin();
+    signal_set::const_iterator itEnd = m_Data->m_signals.end();
 
-        while (it != itEnd)
-        {
-            (*it)->slot_disconnect(this);
-            ++it;
-        }
-        m_Data->m_senders.erase(m_Data->m_senders.begin(), m_Data->m_senders.end());
-   }
-}
-
-
-// -----------------
-// Begin has_signals
-// -----------------
-
-class has_signals::Data {
-    public:
-        std::list<has_signals*> connected_signals;
-        std::list<has_signals*> bound_signals;
-        typedef std::list<has_signals*>::iterator sig_iterator;
-        sySharedMutex<has_signals> m_Mutex;
-};
-
-has_signals::has_signals() : m_Data(new Data) {}
-
-has_signals::~has_signals() {
-    remove_connections();
-    delete m_Data;
-    m_Data = 0;
-}
-
-void has_signals::bind_signal(has_signals* chainsig) {
-    sySafeMutexLocker lock(*(m_Data->m_Mutex()));if(lock.IsLocked()) {
-        this->m_Data->bound_signals.push_back(chainsig);
+    while (it != itEnd) {
+        (*it)->kill_connection(this);
+        ++it;
     }
+    m_Data->m_signals.erase(m_Data->m_signals.begin(), m_Data->m_signals.end());
 }
-
-void has_signals::connect_signal(has_signals* chainsig) {
-    if (chainsig == this)return;
-    sySafeMutexLocker lock(*(m_Data->m_Mutex()));if(lock.IsLocked()) {
-        Data::sig_iterator it = m_Data->connected_signals.begin();
-        Data::sig_iterator itEnd = m_Data->connected_signals.end();
-        Data::sig_iterator itFind;
-
-        if ((itFind = std::find(it, itEnd, chainsig)) == itEnd) {
-            this->m_Data->connected_signals.push_back(chainsig);
-            chainsig->bind_signal(this);
-        }
-    }
-}
-
-void has_signals::disconnect_connected(has_signals* chainsig) {
-    sySafeMutexLocker lock(*(m_Data->m_Mutex()));if(lock.IsLocked()) {
-        Data::sig_iterator it = m_Data->connected_signals.begin();
-        Data::sig_iterator itEnd = m_Data->connected_signals.end();
-        Data::sig_iterator itFind;
-
-        if ((itFind = std::find(it, itEnd, chainsig)) != itEnd) {
-            if ((*itFind)) {
-                (*itFind)->m_Data->bound_signals.remove(this);
-            }
-            m_Data->connected_signals.erase(itFind);
-        }
-    }
-}
-
-void has_signals::disconnect_bound(has_signals* chainsig) {
-    sySafeMutexLocker lock(*(m_Data->m_Mutex()));if(lock.IsLocked()) {
-        Data::sig_iterator it = m_Data->bound_signals.begin();
-        Data::sig_iterator itEnd = m_Data->bound_signals.end();
-        Data::sig_iterator itFind;
-
-        if ((itFind = std::find(it, itEnd, chainsig)) != itEnd) {
-            if ((*itFind)) {
-                (*itFind)->m_Data->connected_signals.remove(this);
-            }
-            m_Data->bound_signals.erase(itFind);
-        }
-    }
-}
-
-void has_signals::remove_connections() {
-    sySafeMutexLocker lock(*(m_Data->m_Mutex()));if(lock.IsLocked()) {
-        if (!m_Data->connected_signals.empty()) {
-            Data::sig_iterator it = m_Data->connected_signals.begin();
-            Data::sig_iterator itEnd = m_Data->connected_signals.end();
-            while (it != itEnd) {
-                if ((*it))(*it)->m_Data->bound_signals.remove(this);
-                ++it;
-            }
-            m_Data->connected_signals.resize(0);
-        }
-
-        if (!m_Data->bound_signals.empty()) {
-            Data::sig_iterator it = m_Data->bound_signals.begin();
-            Data::sig_iterator itEnd = m_Data->bound_signals.end();
-            while (it != itEnd) {
-                if ((*it))(*it)->m_Data->connected_signals.remove(this);
-                ++it;
-            }
-            m_Data->bound_signals.resize(0);
-        }
-    }
-}
-
-// -----------------
-// End has_signals
-// -----------------
-
 
 }; // namespace sigslot
