@@ -163,7 +163,6 @@
 		<Unit filename="saya/core/sentryfuncs.h" />
 		<Unit filename="saya/core/sigslot.cpp" />
 		<Unit filename="saya/core/sigslot.h" />
-		<Unit filename="saya/core/sigslot_full.h" />
 		<Unit filename="saya/core/sybitmap.cpp">
 			<Option weight="10" />
 		</Unit>
