@@ -94,16 +94,18 @@ class has_slots {
         /** Virtual dſestructor. */
         virtual ~has_slots();
 
+        /** Disconnects all slots. */
+        void disconnect_all();
+
+    private:
+        friend class _signal_base;
+
         /** Connects itself into a signal. */
         void connect_signal(_signal_base* signal);
 
         /** Disconnects from a signal. */
         void disconnect_signal(_signal_base* signal);
 
-        /** Disconnects all slots. */
-        void disconnect_all();
-
-    private:
         class Data;
         friend class Data;
         Data* m_Data;
