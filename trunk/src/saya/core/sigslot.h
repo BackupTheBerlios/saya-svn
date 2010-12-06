@@ -284,11 +284,12 @@ template<class dest_type SIGSLOT_VCCLASSLIST(x)> class _connection ## x : public
         } \
         virtual void emit(_signal_call_base* pcall) {  \
             _signal_call_ ## x<SIGSLOT_VARGLIST(x)>* call = dynamic_cast< _signal_call_ ## x<SIGSLOT_VARGLIST(x)>* >(pcall); \
-            if(call) { \
+            dest_type* callee = dynamic_cast<dest_type*>(m_pobject); \
+            if(call && callee) { \
                 if(m_pmemfun) { \
-                    (m_pobject->*m_pmemfun)(SIGSLOT_CALL_VEMIT(x)); \
+                    (callee->*m_pmemfun)(SIGSLOT_CALL_VEMIT(x)); \
                 } else if(m_psignal) { \
-                    (m_pobject->*m_psignal).emit_base(pcall); \
+                    (callee->*m_psignal).emit_base(pcall); \
                 } \
             } \
         } \
