@@ -25,7 +25,7 @@
 namespace sigslot {
 
 class has_slots;
-class signal_call_base;
+class _signal_call_base;
 class _connection_base;
 
 /** @class _signal_base
@@ -56,7 +56,7 @@ class _signal_base {
         void disconnect_all();
 
         /** Emits a signal to all the connected slots. */
-        void emit_base(signal_call_base* pcall);
+        void emit_base(_signal_call_base* pcall);
 
     protected:
 
@@ -138,7 +138,7 @@ class _connection_base {
         virtual _connection_base* duplicate(has_slots* pnewdest) = 0;
 
         /** Emits a signal to the connected slots. */
-        virtual void emit(signal_call_base* pcall) = 0;
+        virtual void emit(_signal_call_base* pcall) = 0;
 
         /** Compares with another connection.
          *  @return true if both connections are of the same type and point to the same objects and slots; false otherwise.
@@ -312,6 +312,41 @@ SIGSLOT_TEMPLATE_CONNECTION(6);
 SIGSLOT_TEMPLATE_CONNECTION(7);
 SIGSLOT_TEMPLATE_CONNECTION(8);
 
+class signal0 : public _signal_base {
+    public:
+        signal0() {}
+        signal0(const signal0 & s) : _signal_base(s) {}
+        virtual ~signal0() {}
+
+        template<class desttype> void connect(desttype* pobj, void (desttype::*pmemfun)()) {
+            _connection0<desttype> conn(pobj, pmemfun);
+            this->_signal_base::add_connection(conn);
+        }
+        template<class desttype> void connect(desttype* pobj, _signal_base desttype::* psignal) {
+            _connection0<desttype> conn(pobj, psignal);
+            this->_signal_base::add_connection(conn);
+        }
+
+        template<class desttype> void disconnect(desttype* pobj, void (desttype::*pmemfun)()) {
+            _connection0<desttype> conn(pobj, pmemfun);
+            this->_signal_base::remove_connection(conn);
+        }
+        template<class desttype> void disconnect(desttype* pobj, _signal_base desttype::* psignal) {
+            _connection0<desttype> conn(pobj, psignal);
+            this->_signal_base::remove_connection(conn);
+        }
+
+        inline void emit() {
+            _signal_call_0<void*> call;
+            this->_signal_base::emit_base(&call);
+        }
+
+        inline void operator()() {
+            _signal_call_0<void*> call;
+            this->_signal_base::emit_base(&call);
+        }
+};
+
 #define SIGSLOT_TEMPLATE_SIGNAL(x) \
 template <SIGSLOT_VCLASSLIST(x)> class signal## x : public _signal_base { \
     public: \
@@ -328,11 +363,11 @@ template <SIGSLOT_VCLASSLIST(x)> class signal## x : public _signal_base { \
             this->_signal_base::add_connection(conn); \
         } \
  \
-        template<class desttype> void disconnect_slot(desttype* pobj, void (desttype::*pmemfun)(SIGSLOT_VARGLIST(x))) { \
+        template<class desttype> void disconnect(desttype* pobj, void (desttype::*pmemfun)(SIGSLOT_VARGLIST(x))) { \
             _connection## x< desttype SIGSLOT_VCARGLIST(x)> conn(pobj, pmemfun); \
             this->_signal_base::remove_connection(conn); \
         } \
-        template<class desttype> void disconnect_slot(desttype* pobj, _signal_base desttype::* psignal) { \
+        template<class desttype> void disconnect(desttype* pobj, _signal_base desttype::* psignal) { \
             _connection## x< desttype SIGSLOT_VCARGLIST(x)> conn(pobj, psignal); \
             this->_signal_base::remove_connection(conn); \
         } \
@@ -348,7 +383,6 @@ template <SIGSLOT_VCLASSLIST(x)> class signal## x : public _signal_base { \
         } \
 }
 
-SIGSLOT_TEMPLATE_SIGNAL(0);
 SIGSLOT_TEMPLATE_SIGNAL(1);
 SIGSLOT_TEMPLATE_SIGNAL(2);
 SIGSLOT_TEMPLATE_SIGNAL(3);
