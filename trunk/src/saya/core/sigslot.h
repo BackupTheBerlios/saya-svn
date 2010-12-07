@@ -138,7 +138,7 @@ class _connection_base {
         virtual _connection_base* duplicate(has_slots* pnewdest) = 0;
 
         /** Emits a signal to the connected slots. */
-        virtual void emit(_signal_call_base* pcall) = 0;
+        virtual void emit(const _signal_call_base* pcall) = 0;
 
         /** Compares with another connection.
          *  @return true if both connections are of the same type and point to the same objects and slots; false otherwise.
@@ -282,8 +282,8 @@ template<class dest_type SIGSLOT_VCCLASSLIST(x)> class _connection ## x : public
         virtual _connection_base* duplicate(has_slots* pnewdest) { \
             return new _connection ## x<dest_type SIGSLOT_VCARGLIST(x)>((dest_type *)pnewdest, m_psignal, m_pmemfun); \
         } \
-        virtual void emit(_signal_call_base* pcall) {  \
-            _signal_call_ ## x<SIGSLOT_VARGLIST(x)>* call = dynamic_cast< _signal_call_ ## x<SIGSLOT_VARGLIST(x)>* >(pcall); \
+        virtual void emit(const _signal_call_base* pcall) {  \
+            const _signal_call_ ## x<SIGSLOT_VARGLIST(x)>* call = dynamic_cast<const _signal_call_ ## x<SIGSLOT_VARGLIST(x)>* >(pcall); \
             dest_type* callee = dynamic_cast<dest_type*>(m_pobject); \
             if(call && callee) { \
                 if(m_pmemfun) { \
