@@ -349,8 +349,13 @@
 		<Unit filename="ui/ui/welcomedlg.ui.h" />
 		<Unit filename="ui/welcomedlg.cpp" />
 		<Unit filename="ui/welcomedlg.h" />
-		<Unit filename="ui/widgets/generic.cpp" />
-		<Unit filename="ui/widgets/generic.h" />
+		<Unit filename="ui/widgets/generic/moc/pushbutton.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/pushbutton.h -o ui/widgets/generic/moc/pushbutton.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/generic/pushbutton.cpp" />
+		<Unit filename="ui/widgets/generic/pushbutton.h" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.cpp" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.h" />
 		<Unit filename="ui/widgets/jog_ctrl/moc/jog_ctrl.moc_trigger">

@@ -22,6 +22,8 @@
 #ifndef SIGSLOT_H__
 #define SIGSLOT_H__
 
+#undef emit
+
 namespace sigslot {
 
 class has_slots;
