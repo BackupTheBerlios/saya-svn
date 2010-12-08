@@ -351,10 +351,17 @@
 		<Unit filename="ui/welcomedlg.h" />
 		<Unit filename="ui/widgets/generic/action.cpp" />
 		<Unit filename="ui/widgets/generic/action.h" />
+		<Unit filename="ui/widgets/generic/menu.cpp" />
+		<Unit filename="ui/widgets/generic/menu.h" />
 		<Unit filename="ui/widgets/generic/moc/action.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/action.h -o ui/widgets/generic/moc/action.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/generic/moc/menu.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/menu.h -o ui/widgets/generic/moc/menu.moc.h" />
 		</Unit>
 		<Unit filename="ui/widgets/generic/moc/pushbutton.moc_trigger">
 			<Option compile="1" />
