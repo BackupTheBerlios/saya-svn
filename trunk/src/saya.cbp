@@ -349,6 +349,13 @@
 		<Unit filename="ui/ui/welcomedlg.ui.h" />
 		<Unit filename="ui/welcomedlg.cpp" />
 		<Unit filename="ui/welcomedlg.h" />
+		<Unit filename="ui/widgets/generic/action.cpp" />
+		<Unit filename="ui/widgets/generic/action.h" />
+		<Unit filename="ui/widgets/generic/moc/action.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/action.h -o ui/widgets/generic/moc/action.moc.h" />
+		</Unit>
 		<Unit filename="ui/widgets/generic/moc/pushbutton.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />
@@ -356,6 +363,7 @@
 		</Unit>
 		<Unit filename="ui/widgets/generic/pushbutton.cpp" />
 		<Unit filename="ui/widgets/generic/pushbutton.h" />
+		<Unit filename="ui/widgets/generic/sigslot.h" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.cpp" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.h" />
 		<Unit filename="ui/widgets/jog_ctrl/moc/jog_ctrl.moc_trigger">

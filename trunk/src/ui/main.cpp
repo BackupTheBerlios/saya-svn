@@ -329,6 +329,7 @@ class AppFrame::Data : public QObject, public syEvtHandler {
         void ShowMainWindow();
 
         void OpenRecentFile(unsigned int fileno);
+        void OpenRecentImport(unsigned int fileno);
 
         void OnProjectStatusChanged(syProjectStatusEvent& event);
 
@@ -376,6 +377,17 @@ class AppFrame::Data : public QObject, public syEvtHandler {
         void OnOpenRecentFile7() { OpenRecentFile(6); }
         void OnOpenRecentFile8() { OpenRecentFile(7); }
         void OnOpenRecentFile9() { OpenRecentFile(8); }
+        void OnOpenRecentImport1() { OpenRecentImport(0); }
+        void OnOpenRecentImport2() { OpenRecentImport(1); }
+        void OnOpenRecentImport3() { OpenRecentImport(2); }
+        void OnOpenRecentImport4() { OpenRecentImport(3); }
+        void OnOpenRecentImport5() { OpenRecentImport(4); }
+        void OnOpenRecentImport6() { OpenRecentImport(5); }
+        void OnOpenRecentImport7() { OpenRecentImport(6); }
+        void OnOpenRecentImport8() { OpenRecentImport(7); }
+        void OnOpenRecentImport9() { OpenRecentImport(8); }
+
+        void OnFileImport();
         void OnFileSave();
         void OnFileSaveAs();
         void OnFileSaveCopy();
@@ -383,6 +395,8 @@ class AppFrame::Data : public QObject, public syEvtHandler {
         void OnFileRevert();
         void OnFileCapture();
         void OnFileBatchCapture();
+        void OnFileInterpretFootage();
+        void OnFileTimecode();
 
         void OnQuit();
         void OnAbout();
@@ -682,6 +696,21 @@ void AppFrame::Data::OnClearRecentImportList(){
     ProjectManager::Get()->GetRecentImports()->clear();
 }
 
+void AppFrame::Data::OnFileImport() {
+    if(IsAppShuttingDown())
+        return;
+    #warning TODO: Implement AppFrame::Data::OnFileImport
+}
+
+void AppFrame::Data::OpenRecentImport(unsigned int fileno) {
+    if(IsAppShuttingDown())
+        return;
+    if(fileno < 0) fileno = 0;
+    if(fileno > 8) fileno = 8;
+    ++fileno; // The list is one-based so we add 1.
+    #warning TODO: Implement AppFrame::Data::OpenRecentImport(unsigned int fileno)
+}
+
 void AppFrame::Data::OpenRecentFile(unsigned int fileno) {
     if(IsAppShuttingDown())
         return;
@@ -722,12 +751,23 @@ void AppFrame::Data::OnNewProject(){
 }
 
 void AppFrame::Data::OnFileRevert(){
+    #warning TODO: Implement AppFrame::Data::OnFileRevert
 }
 
 void AppFrame::Data::OnFileCapture(){
+    #warning TODO: Implement AppFrame::Data::OnFileCapture
 }
 
 void AppFrame::Data::OnFileBatchCapture(){
+    #warning TODO: Implement AppFrame::Data::OnFileBatchCapture
+}
+
+void AppFrame::Data::OnFileInterpretFootage(){
+    #warning TODO: Implement AppFrame::Data::OnFileInterpretFootage
+}
+
+void AppFrame::Data::OnFileTimecode(){
+    #warning TODO: Implement AppFrame::Data::OnFileTimecode
 }
 
 void AppFrame::Data::OnQuit(){

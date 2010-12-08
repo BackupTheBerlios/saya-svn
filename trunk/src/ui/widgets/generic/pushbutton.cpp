@@ -21,5 +21,6 @@ void syPushButton::connectFakeSlots() {
     connect(this,SIGNAL(pressed()),this, SLOT(sigpressed()), Qt::DirectConnection);
     connect(this,SIGNAL(released()),this, SLOT(sigreleased()), Qt::DirectConnection);
     connect(this,SIGNAL(toggled(bool)),this, SLOT(sigtoggled(bool)), Qt::DirectConnection);
-    connect(this,SIGNAL(clicked(bool)),this, SLOT(sigclicked(bool)), Qt::DirectConnection);
+    connect(this,SIGNAL(clicked(bool)),this, SLOT(sigclickedcheckable(bool)), Qt::DirectConnection);
+    connect(this,SIGNAL(clicked()),this, SLOT(sigclicked()), Qt::DirectConnection);
 }

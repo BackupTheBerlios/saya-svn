@@ -1,19 +1,19 @@
 /**************************************************************************************
- * Name:      pushbutton.h
+ * Name:      action.h
  * Purpose:   Declaration of widgets with new signal implementations.
  *            These widgets will allow us to declare new signals and slots
  *            without having to rely on Qt's MOC.
  * Authors:   Ricardo Garcia
- * Created:   2010-11-28
- * Modified:  2010-11-28
+ * Created:   2010-12-07
+ * Modified:  2010-12-07
  * Copyright: Ricardo Garcia
  * License:   LGPL Licence version 3.0 or later
  **************************************************************************************/
 
-#ifndef WIDGETS_GENERIC_PUSHBUTTON_H_INCLUDED
-#define WIDGETS_GENERIC_PUSHBUTTON_H_INCLUDED
+#ifndef WIDGETS_GENERIC_ACTION_H_INCLUDED
+#define WIDGETS_GENERIC_ACTION_H_INCLUDED
 
-#include <QPushButton>
+#include <QAction>
 
 #include "sigslot.h"
 using namespace sigslot;
@@ -23,27 +23,27 @@ using namespace sigslot;
     #undef SY_FAKE_SLOTS
 #endif
 
-class syPushButton : public QPushButton, public has_slots {
+class syAction : public QAction, public has_slots {
     Q_OBJECT
     public:
-        syPushButton( QWidget * parent = 0 );
-        syPushButton( const QString & text, QWidget * parent = 0 );
-        syPushButton( const QIcon & icon, const QString & text, QWidget * parent = 0 );
+        syAction( QObject * parent = 0 );
+        syAction( const QString & text, QObject * parent = 0 );
+        syAction( const QIcon & icon, const QString & text, QObject * parent = 0 );
 
     #ifndef Q_MOC_RUN
-        signal0 sigpressed;
-        signal0 sigreleased;
+        signal0 sigchanged;
+        signal0 sighovered;
         signal1<bool> sigtoggled;
-        signal0 sigclicked;
-        signal1<bool> sigclickedcheckable;
+        signal0 sigtriggered;
+        signal1<bool> sigtriggeredcheckable;
     #endif
     #ifdef SY_FAKE_SLOTS
     public slots:
-        void sigpressed();
-        void sigreleased();
-        void sigtoggled(bool toggled);
-        void sigclicked();
-        void sigclickedcheckable(bool checked);
+        void sigchanged();
+        void sighovered();
+        void sigtoggled(bool checked);
+        void sigtriggered();
+        void sigtriggeredcheckable(bool checked);
     #endif
 
     private:
