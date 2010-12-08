@@ -1,5 +1,5 @@
 /**************************************************************************************
- * Name:      generic.h
+ * Name:      pushbutton.cpp
  * Purpose:   Implementation of widgets with new signal implementations.
  *            These widgets will allow us to declare new signals and slots
  *            without having to rely on Qt's MOC.
@@ -23,4 +23,7 @@ void syPushButton::connectFakeSlots() {
     connect(this,SIGNAL(toggled(bool)),this, SLOT(sigtoggled(bool)), Qt::DirectConnection);
     connect(this,SIGNAL(clicked(bool)),this, SLOT(sigclickedcheckable(bool)), Qt::DirectConnection);
     connect(this,SIGNAL(clicked()),this, SLOT(sigclicked()), Qt::DirectConnection);
+    connect(this,SIGNAL(customContextMenuRequested(const QPoint &)),SLOT(sigcustomContextMenuRequested(const QPoint &)), Qt::DirectConnection);
+    connect(this,SIGNAL(destroyed(QObject*)),SLOT(sigobjdestroyed(QObject*)), Qt::DirectConnection);
+    connect(this,SIGNAL(destroyed()),SLOT(sigdestroyed()), Qt::DirectConnection);
 }

@@ -1,5 +1,5 @@
 /**************************************************************************************
- * Name:      pushbutton.h
+ * Name:      slider.h
  * Purpose:   Declaration of widgets with new signal implementations.
  *            These widgets will allow us to declare new signals and slots
  *            without having to rely on Qt's MOC.
@@ -10,10 +10,10 @@
  * License:   LGPL Licence version 3.0 or later
  **************************************************************************************/
 
-#ifndef WIDGETS_GENERIC_PUSHBUTTON_H_INCLUDED
-#define WIDGETS_GENERIC_PUSHBUTTON_H_INCLUDED
+#ifndef WIDGETS_GENERIC_SLIDER_H_INCLUDED
+#define WIDGETS_GENERIC_SLIDER_H_INCLUDED
 
-#include <QPushButton>
+#include <QSlider>
 
 #include "sigslot.h"
 using namespace sigslot;
@@ -23,30 +23,31 @@ using namespace sigslot;
     #undef SY_FAKE_SLOTS
 #endif
 
-class syPushButton : public QPushButton, public has_slots {
+class sySlider : public QSlider, public has_slots {
     Q_OBJECT
     public:
-        syPushButton( QWidget * parent = 0 );
-        syPushButton( const QString & text, QWidget * parent = 0 );
-        syPushButton( const QIcon & icon, const QString & text, QWidget * parent = 0 );
+        sySlider( QWidget * parent = 0 );
+        sySlider( Qt::Orientation orientation, QWidget * parent = 0 );
 
     #ifndef Q_MOC_RUN
-        signal0 sigpressed;
-        signal0 sigreleased;
-        signal1<bool> sigtoggled;
-        signal0 sigclicked;
-        signal1<bool> sigclickedcheckable;
+        signal1<int> sigactionTriggered;
+        signal2<int, int> sigrangeChanged;
+        signal1<int> sigsliderMoved;
+        signal0 sigsliderPressed;
+        signal0 sigsliderReleased;
+        signal1<int> sigvalueChanged;
         signal1<const QPoint&> sigcustomContextMenuRequested;
         signal1<QObject*> sigobjdestroyed;
         signal0 sigdestroyed;
     #endif
     #ifdef SY_FAKE_SLOTS
     public slots:
-        void sigpressed();
-        void sigreleased();
-        void sigtoggled(bool toggled);
-        void sigclicked();
-        void sigclickedcheckable(bool checked);
+        void sigactionTriggered(int action);
+        void sigrangeChanged(int min,int max);
+        void sigsliderMoved(int value);
+        void sigsliderPressed();
+        void sigsliderReleased();
+        void sigvalueChanged(int value);
         void sigcustomContextMenuRequested(const QPoint &pos);
         void sigobjdestroyed(QObject* obj);
         void sigdestroyed();
