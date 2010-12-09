@@ -1,159 +1,172 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <author>Rigoberto Calleja Cervantes</author>
  <class>new_project_dialog</class>
- <widget class="QDialog" name="new_project_dialog" >
-  <property name="enabled" >
+ <widget class="QDialog" name="new_project_dialog">
+  <property name="enabled">
    <bool>true</bool>
   </property>
-  <property name="geometry" >
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>625</width>
+    <width>679</width>
     <height>730</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Create new project</string>
   </property>
-  <layout class="QVBoxLayout" >
+  <property name="styleSheet">
+   <string>QGroupBox { border:none; padding-top: 12px;  }</string>
+  </property>
+  <layout class="QVBoxLayout">
    <item>
-    <widget class="QGroupBox" name="m_TitleAndFilename" >
-     <property name="font" >
+    <widget class="QGroupBox" name="m_TitleAndFilename">
+     <property name="font">
       <font>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
-     <property name="title" >
-      <string>Title and filename</string>
+     <property name="title">
+      <string>Title and filename:</string>
      </property>
-     <layout class="QFormLayout" name="formLayout" >
-      <property name="fieldGrowthPolicy" >
+     <layout class="QFormLayout" name="formLayout">
+      <property name="fieldGrowthPolicy">
        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
       </property>
-      <item row="0" column="0" >
-       <widget class="QLabel" name="m_label" >
-        <property name="font" >
+      <item row="0" column="0">
+       <widget class="QLabel" name="m_label">
+        <property name="font">
          <font>
           <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
-        <property name="toolTip" >
-         <string comment="This will be the project's official name." >This will be the Project's official name.</string>
+        <property name="toolTip">
+         <string comment="This will be the project's official name.">This will be the Project's official name.</string>
         </property>
-        <property name="text" >
+        <property name="text">
          <string>Title:</string>
         </property>
+        <property name="buddy">
+         <cstring>edNewPrjTitle</cstring>
+        </property>
        </widget>
       </item>
-      <item row="0" column="1" >
-       <widget class="QLineEdit" name="idNewPrjTitle" >
-        <property name="font" >
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="edNewPrjTitle">
+        <property name="font">
          <font>
           <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
-        <property name="toolTip" >
-         <string comment="This will be the project's official name." >This will be the Project's official name.</string>
+        <property name="toolTip">
+         <string comment="This will be the project's official name.">This will be the Project's official name.</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0" >
-       <widget class="QLabel" name="m_label_3" >
-        <property name="font" >
+      <item row="2" column="0">
+       <widget class="QLabel" name="m_label_3">
+        <property name="font">
          <font>
           <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
-        <property name="toolTip" >
+        <property name="toolTip">
          <string>The project's filename. Note that replacing spaces with underscores is recommended.</string>
         </property>
-        <property name="text" >
+        <property name="text">
          <string>Filename:</string>
         </property>
+        <property name="buddy">
+         <cstring>edNewPrjFilename</cstring>
+        </property>
        </widget>
       </item>
-      <item row="2" column="1" >
-       <widget class="QLineEdit" name="idNewPrjFilename" >
-        <property name="font" >
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="edNewPrjFilename">
+        <property name="font">
          <font>
           <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
-        <property name="toolTip" >
+        <property name="toolTip">
          <string>The project's filename. Note that replacing spaces with underscores is recommended.</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1" >
-       <widget class="QCheckBox" name="idNewPrjUnderscores" >
-        <property name="enabled" >
+      <item row="3" column="1">
+       <widget class="QCheckBox" name="chkNewPrjUnderscores">
+        <property name="enabled">
          <bool>true</bool>
         </property>
-        <property name="font" >
+        <property name="font">
          <font>
           <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
-        <property name="text" >
+        <property name="text">
          <string>Auto-replace spaces with underscores (recommended)</string>
         </property>
-        <property name="checked" >
+        <property name="checked">
          <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="1" column="0" >
-       <widget class="QLabel" name="m_label_2" >
-        <property name="font" >
+      <item row="1" column="0">
+       <widget class="QLabel" name="m_label_2">
+        <property name="font">
          <font>
           <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
-        <property name="toolTip" >
+        <property name="toolTip">
          <string>The directory where the project file will be created.
 For portability purposes, all resources (video, audio, etc.) SHOULD be beneath this directory.</string>
         </property>
-        <property name="text" >
+        <property name="text">
          <string>Location:</string>
+        </property>
+        <property name="buddy">
+         <cstring>btnPrjLocation</cstring>
         </property>
        </widget>
       </item>
-      <item row="1" column="1" >
-       <layout class="QHBoxLayout" name="m_horizontalLayout_2" >
+      <item row="1" column="1">
+       <layout class="QHBoxLayout" name="m_horizontalLayout_2">
         <item>
-         <widget class="QPushButton" name="btnPrjLocation" >
-          <property name="enabled" >
+         <widget class="QPushButton" name="btnPrjLocation">
+          <property name="enabled">
            <bool>true</bool>
           </property>
-          <property name="font" >
+          <property name="font">
            <font>
             <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
-          <property name="toolTip" >
+          <property name="toolTip">
            <string>The directory where the project file will be created.
 For portability purposes, all resources (video, audio, etc.) SHOULD be beneath this directory.</string>
           </property>
-          <property name="text" >
+          <property name="text">
            <string>Browse...</string>
           </property>
          </widget>
         </item>
         <item>
-         <spacer name="m_horizontalSpacer" >
-          <property name="orientation" >
+         <spacer name="m_horizontalSpacer">
+          <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
-          <property name="sizeHint" stdset="0" >
+          <property name="sizeHint" stdset="0">
            <size>
             <width>40</width>
             <height>20</height>
@@ -167,38 +180,51 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="m_ProjectSettings" >
-     <property name="font" >
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="m_ProjectSettings">
+     <property name="font">
       <font>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
-     <property name="title" >
-      <string>Project settings</string>
+     <property name="styleSheet">
+      <string/>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout" >
+     <property name="title">
+      <string>Project settings:</string>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <layout class="QHBoxLayout" name="m_horizontalLayout" >
+       <layout class="QHBoxLayout" name="m_horizontalLayout">
         <item>
-         <widget class="QLabel" name="m_label_4" >
-          <property name="font" >
+         <widget class="QLabel" name="m_label_4">
+          <property name="font">
            <font>
             <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
-          <property name="text" >
+          <property name="text">
            <string>Predefined settings:</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="idNewPrjPresets" >
-          <property name="enabled" >
+         <widget class="QComboBox" name="cmbNewPrjPresets">
+          <property name="enabled">
            <bool>false</bool>
           </property>
-          <property name="font" >
+          <property name="font">
            <font>
             <weight>50</weight>
             <bold>false</bold>
@@ -207,20 +233,20 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btnNewPrjSaveSettingsAs" >
-          <property name="enabled" >
+         <widget class="QPushButton" name="btnNewPrjSaveSettingsAs">
+          <property name="enabled">
            <bool>true</bool>
           </property>
-          <property name="font" >
+          <property name="font">
            <font>
             <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
-          <property name="toolTip" >
+          <property name="toolTip">
            <string>Saves the current project's settings as predefined settings</string>
           </property>
-          <property name="text" >
+          <property name="text">
            <string>Save custom settings as ...</string>
           </property>
          </widget>
@@ -228,141 +254,153 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
        </layout>
       </item>
       <item>
-       <widget class="QTabWidget" name="m_tabWidget" >
-        <property name="enabled" >
+       <widget class="QTabWidget" name="m_tabWidget">
+        <property name="enabled">
          <bool>true</bool>
         </property>
-        <property name="font" >
+        <property name="font">
          <font>
           <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
-        <property name="tabPosition" >
+        <property name="tabPosition">
          <enum>QTabWidget::North</enum>
         </property>
-        <property name="currentIndex" >
+        <property name="currentIndex">
          <number>0</number>
         </property>
-        <widget class="QWidget" name="m_AudioVideoSettingsTab" >
-         <property name="enabled" >
+        <widget class="QWidget" name="m_AudioVideoSettingsTab">
+         <property name="enabled">
           <bool>true</bool>
          </property>
-         <attribute name="title" >
+         <attribute name="title">
           <string>A/V Settings</string>
          </attribute>
-         <layout class="QVBoxLayout" name="verticalLayout_3" >
+         <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <layout class="QVBoxLayout" name="m_verticalLayout_2" >
+           <layout class="QVBoxLayout" name="m_verticalLayout_2">
             <item>
-             <layout class="QHBoxLayout" name="m_horizontalLayout_5" >
+             <layout class="QHBoxLayout" name="m_horizontalLayout_5">
               <item>
-               <widget class="QGroupBox" name="m_ProjectSettingsVideo" >
-                <property name="font" >
+               <widget class="QGroupBox" name="m_ProjectSettingsVideo">
+                <property name="font">
                  <font>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
                 </property>
-                <property name="title" >
-                 <string>Video</string>
+                <property name="title">
+                 <string>Video:</string>
                 </property>
-                <layout class="QFormLayout" name="formLayout_3" >
-                 <item row="0" column="0" >
-                  <widget class="QLabel" name="m_label_5" >
-                   <property name="font" >
+                <layout class="QFormLayout" name="formLayout_3">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="m_label_5">
+                   <property name="font">
                     <font>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
-                   <property name="text" >
+                   <property name="text">
                     <string>Size (w x h):</string>
                    </property>
+                   <property name="buddy">
+                    <cstring>edNewPrjAVSettings_width</cstring>
+                   </property>
                   </widget>
                  </item>
-                 <item row="1" column="0" >
-                  <widget class="QLabel" name="m_label_6" >
-                   <property name="font" >
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="m_label_6">
+                   <property name="font">
                     <font>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
-                   <property name="text" >
+                   <property name="text">
                     <string>Framerate (f / s):</string>
                    </property>
+                   <property name="buddy">
+                    <cstring>cmbNewPrjAVSettings_fps</cstring>
+                   </property>
                   </widget>
                  </item>
-                 <item row="2" column="0" >
-                  <widget class="QLabel" name="m_label_7" >
-                   <property name="font" >
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="m_label_7">
+                   <property name="font">
                     <font>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
-                   <property name="text" >
+                   <property name="text">
                     <string>Interlacing:</string>
+                   </property>
+                   <property name="buddy">
+                    <cstring>cmbNewPrjAVSettings_interlacing</cstring>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="1" >
-                  <widget class="QComboBox" name="idNewPrjAVSettings_interlacing" >
-                   <property name="font" >
+                 <item row="2" column="1">
+                  <widget class="QComboBox" name="cmbNewPrjAVSettings_interlacing">
+                   <property name="font">
                     <font>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>Progressive (non interlaced)</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>Interlaced; bottom field first</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>interlaced; top field first</string>
                     </property>
                    </item>
                   </widget>
                  </item>
-                 <item row="3" column="0" >
-                  <widget class="QLabel" name="m_label_8" >
-                   <property name="enabled" >
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="m_label_8">
+                   <property name="enabled">
                     <bool>true</bool>
                    </property>
-                   <property name="font" >
+                   <property name="font">
                     <font>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
-                   <property name="toolTip" >
+                   <property name="toolTip">
                     <string>Sets the pixels' aspect ratio.
 2.0: The pixels are twice as wide as they're tall.
 0.5: The pixels are half as wide as they're tall.
 1.0: The pixels are square.</string>
                    </property>
-                   <property name="text" >
+                   <property name="text">
                     <string>Pixel aspect:</string>
                    </property>
+                   <property name="buddy">
+                    <cstring>edNewPrjAVSettings_pixelaspect</cstring>
+                   </property>
                   </widget>
                  </item>
-                 <item row="3" column="1" >
-                  <widget class="QLineEdit" name="idNewPrjAVSettings_pixelaspect" >
-                   <property name="font" >
+                 <item row="3" column="1">
+                  <widget class="QLineEdit" name="edNewPrjAVSettings_pixelaspect">
+                   <property name="font">
                     <font>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
-                   <property name="toolTip" >
+                   <property name="toolTip">
                     <string>Sets the pixels' aspect ratio.
 2.0: The pixels are twice as wide as they're tall.
 0.5: The pixels are half as wide as they're tall.
@@ -370,11 +408,11 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="1" >
-                  <layout class="QHBoxLayout" name="m_horizontalLayout_6" >
+                 <item row="0" column="1">
+                  <layout class="QHBoxLayout" name="m_horizontalLayout_6">
                    <item>
-                    <widget class="QLineEdit" name="idNewPrjAVSettings_width" >
-                     <property name="font" >
+                    <widget class="QLineEdit" name="edNewPrjAVSettings_width">
+                     <property name="font">
                       <font>
                        <weight>50</weight>
                        <bold>false</bold>
@@ -383,21 +421,21 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLabel" name="m_label_13" >
-                     <property name="font" >
+                    <widget class="QLabel" name="m_label_13">
+                     <property name="font">
                       <font>
                        <weight>50</weight>
                        <bold>false</bold>
                       </font>
                      </property>
-                     <property name="text" >
+                     <property name="text">
                       <string>x</string>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="idNewPrjAVSettings_height" >
-                     <property name="font" >
+                    <widget class="QLineEdit" name="edNewPrjAVSettings_height">
+                     <property name="font">
                       <font>
                        <weight>50</weight>
                        <bold>false</bold>
@@ -407,42 +445,42 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
                    </item>
                   </layout>
                  </item>
-                 <item row="1" column="1" >
-                  <widget class="QComboBox" name="idNewPrjAVSettings_fps" >
-                   <property name="font" >
+                 <item row="1" column="1">
+                  <widget class="QComboBox" name="cmbNewPrjAVSettings_fps">
+                   <property name="font">
                     <font>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
-                   <property name="currentIndex" >
+                   <property name="currentIndex">
                     <number>0</number>
                    </property>
-                   <property name="minimumContentsLength" >
+                   <property name="minimumContentsLength">
                     <number>0</number>
                    </property>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>23.97</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>24</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>25</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>29.997</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>30</string>
                     </property>
                    </item>
@@ -452,205 +490,224 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="m_ProjectSettingsAudio" >
-                <property name="font" >
+               <widget class="Line" name="line_3">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="m_ProjectSettingsAudio">
+                <property name="font">
                  <font>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
                 </property>
-                <property name="title" >
-                 <string>Audio</string>
+                <property name="title">
+                 <string>Audio:</string>
                 </property>
-                <layout class="QFormLayout" name="formLayout_4" >
-                 <property name="fieldGrowthPolicy" >
+                <layout class="QFormLayout" name="formLayout_4">
+                 <property name="fieldGrowthPolicy">
                   <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
                  </property>
-                 <item row="0" column="0" >
-                  <widget class="QLabel" name="m_label_9" >
-                   <property name="font" >
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="m_label_9">
+                   <property name="font">
                     <font>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
-                   <property name="text" >
+                   <property name="text">
                     <string>Sample rate (Hz):</string>
+                   </property>
+                   <property name="buddy">
+                    <cstring>cmbNewPrjAVSettings_samplerate</cstring>
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="1" >
-                  <widget class="QComboBox" name="idNewPrjAVSettings_samplerate" >
-                   <property name="font" >
+                 <item row="0" column="1">
+                  <widget class="QComboBox" name="cmbNewPrjAVSettings_samplerate">
+                   <property name="font">
                     <font>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>8000</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>11025</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>16000</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>22050</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>24000</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>32000</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>44100</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>48000</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>96000</string>
                     </property>
                    </item>
                   </widget>
                  </item>
-                 <item row="1" column="0" >
-                  <widget class="QLabel" name="m_label_10" >
-                   <property name="font" >
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="m_label_10">
+                   <property name="font">
                     <font>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
-                   <property name="text" >
+                   <property name="text">
                     <string>Sample size:</string>
+                   </property>
+                   <property name="buddy">
+                    <cstring>cmbNewPrjAVSettings_samplesize</cstring>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1" >
-                  <widget class="QComboBox" name="idNewPrjAVSettings_samplesize" >
-                   <property name="font" >
+                 <item row="1" column="1">
+                  <widget class="QComboBox" name="cmbNewPrjAVSettings_samplesize">
+                   <property name="font">
                     <font>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>16 bit</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>8 bit</string>
                     </property>
                    </item>
                   </widget>
                  </item>
-                 <item row="2" column="0" >
-                  <widget class="QLabel" name="m_label_11" >
-                   <property name="font" >
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="m_label_11">
+                   <property name="font">
                     <font>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
-                   <property name="text" >
+                   <property name="text">
                     <string>Surround:</string>
+                   </property>
+                   <property name="buddy">
+                    <cstring>cmbNewPrjAVSettings_surround</cstring>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="1" >
-                  <widget class="QComboBox" name="idNewPrjAVSettings_surround" >
-                   <property name="font" >
+                 <item row="2" column="1">
+                  <widget class="QComboBox" name="cmbNewPrjAVSettings_surround">
+                   <property name="font">
                     <font>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>Mono</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>Stereo</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>5.1 Surround</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>7.1 Surround</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>10.2 Surround</string>
                     </property>
                    </item>
                    <item>
-                    <property name="text" >
+                    <property name="text">
                      <string>Custom</string>
                     </property>
                    </item>
                   </widget>
                  </item>
-                 <item row="3" column="0" >
-                  <widget class="QLabel" name="m_label_12" >
-                   <property name="enabled" >
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="m_label_12">
+                   <property name="enabled">
                     <bool>true</bool>
                    </property>
-                   <property name="font" >
+                   <property name="font">
                     <font>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
-                   <property name="text" >
+                   <property name="text">
                     <string>Channels:</string>
+                   </property>
+                   <property name="buddy">
+                    <cstring>spnNewPrjAVSettings_channels</cstring>
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="1" >
-                  <widget class="QSpinBox" name="idNewPrjAVSettings_channels" >
-                   <property name="font" >
+                 <item row="3" column="1">
+                  <widget class="QSpinBox" name="spnNewPrjAVSettings_channels">
+                   <property name="font">
                     <font>
                      <weight>50</weight>
                      <bold>false</bold>
                     </font>
                    </property>
-                   <property name="minimum" >
+                   <property name="minimum">
                     <number>1</number>
                    </property>
-                   <property name="maximum" >
+                   <property name="maximum">
                     <number>32</number>
                    </property>
-                   <property name="value" >
+                   <property name="value">
                     <number>2</number>
                    </property>
                   </widget>
@@ -661,26 +718,26 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
              </layout>
             </item>
             <item>
-             <widget class="QGroupBox" name="m_ProjectSettingsAbout" >
-              <property name="font" >
+             <widget class="QGroupBox" name="m_ProjectSettingsAbout">
+              <property name="font">
                <font>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
               </property>
-              <property name="title" >
-               <string>About these settings</string>
+              <property name="title">
+               <string>About these settings:</string>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_5" >
+              <layout class="QVBoxLayout" name="verticalLayout_5">
                <item>
-                <widget class="QTextEdit" name="idNewPrjAVSettings_description" >
-                 <property name="sizePolicy" >
-                  <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+                <widget class="QTextEdit" name="txtNewPrjAVSettings_description">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                 <property name="font" >
+                 <property name="font">
                   <font>
                    <weight>50</weight>
                    <bold>false</bold>
@@ -695,22 +752,22 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="m_EncoderSettingsTab" >
-         <property name="enabled" >
+        <widget class="QWidget" name="m_EncoderSettingsTab">
+         <property name="enabled">
           <bool>true</bool>
          </property>
-         <attribute name="title" >
+         <attribute name="title">
           <string>Encoder Settings</string>
          </attribute>
         </widget>
-        <widget class="QWidget" name="m_DefaultSequenceSettingsTab" >
-         <property name="enabled" >
+        <widget class="QWidget" name="m_DefaultSequenceSettingsTab">
+         <property name="enabled">
           <bool>true</bool>
          </property>
-         <property name="toolTip" >
+         <property name="toolTip">
           <string>When you create a new sequence, it will adopt these settings.</string>
          </property>
-         <attribute name="title" >
+         <attribute name="title">
           <string>Default Sequence Settings</string>
          </attribute>
         </widget>
@@ -720,13 +777,13 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="m_horizontalLayout_3" >
+    <layout class="QHBoxLayout" name="m_horizontalLayout_3">
      <item>
-      <spacer name="m_horizontalSpacer_2" >
-       <property name="orientation" >
+      <spacer name="m_horizontalSpacer_2">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
          <height>20</height>
@@ -735,15 +792,15 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="btnOk" >
-       <property name="text" >
+      <widget class="QPushButton" name="btnOk">
+       <property name="text">
         <string>Ok</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnCancel" >
-       <property name="text" >
+      <widget class="QPushButton" name="btnCancel">
+       <property name="text">
         <string>Cancel</string>
        </property>
       </widget>
@@ -752,7 +809,27 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
    </item>
   </layout>
  </widget>
- <includes/>
+ <tabstops>
+  <tabstop>edNewPrjTitle</tabstop>
+  <tabstop>btnPrjLocation</tabstop>
+  <tabstop>edNewPrjFilename</tabstop>
+  <tabstop>chkNewPrjUnderscores</tabstop>
+  <tabstop>cmbNewPrjPresets</tabstop>
+  <tabstop>btnNewPrjSaveSettingsAs</tabstop>
+  <tabstop>m_tabWidget</tabstop>
+  <tabstop>edNewPrjAVSettings_width</tabstop>
+  <tabstop>edNewPrjAVSettings_height</tabstop>
+  <tabstop>cmbNewPrjAVSettings_fps</tabstop>
+  <tabstop>cmbNewPrjAVSettings_interlacing</tabstop>
+  <tabstop>edNewPrjAVSettings_pixelaspect</tabstop>
+  <tabstop>cmbNewPrjAVSettings_samplerate</tabstop>
+  <tabstop>cmbNewPrjAVSettings_samplesize</tabstop>
+  <tabstop>cmbNewPrjAVSettings_surround</tabstop>
+  <tabstop>spnNewPrjAVSettings_channels</tabstop>
+  <tabstop>txtNewPrjAVSettings_description</tabstop>
+  <tabstop>btnOk</tabstop>
+  <tabstop>btnCancel</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
