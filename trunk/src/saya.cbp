@@ -305,12 +305,6 @@
 			<Option weight="100" />
 		</Unit>
 		<Unit filename="ui/main.h" />
-		<Unit filename="ui/moc/debuglog.moc.h" />
-		<Unit filename="ui/moc/debuglog.moc_trigger">
-			<Option compile="1" />
-			<Option weight="0" />
-			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/debuglog.cpp -o ui/moc/debuglog.moc.h" />
-		</Unit>
 		<Unit filename="ui/moc/main.moc.h" />
 		<Unit filename="ui/moc/main.moc_trigger">
 			<Option compile="1" />

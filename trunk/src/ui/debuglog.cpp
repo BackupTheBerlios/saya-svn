@@ -25,21 +25,21 @@ static volatile bool s_DebugLogPending = false;
 syMutex s_MyDebugLogMutex;
 
 class AppDebugLog::Data: public QTextEdit {
-    Q_OBJECT
     public:
         Data(AppDebugLog* parent);
         virtual ~Data();
         AppDebugLog* m_Parent;
-        QTimer* m_Timer;
-    public slots:
         void OnIdle();
+        void timerEvent(QTimerEvent* event) { OnIdle(); }
+    private:
+        int m_TimerId;
 
 };
 
 AppDebugLog::Data::Data(AppDebugLog* parent) :
 QTextEdit(0),
 m_Parent(parent),
-m_Timer(new QTimer(this))
+m_TimerId(0)
 {
 	this->setWindowFlags(Qt::Window);
 	this->setAttribute(Qt::WA_QuitOnClose, true);
@@ -49,20 +49,16 @@ m_Timer(new QTimer(this))
 	this->resize(450,300);
 	syApp::Get()->SetTopWindow(this);
     this->show();
-    connect(m_Timer, SIGNAL(timeout()), this, SLOT(OnIdle()) );
-    m_Timer->start(3);
+    m_TimerId = startTimer(3);
 }
 
 AppDebugLog::Data::~Data() {
+    killTimer(m_TimerId);
     if(m_Parent) {
         m_Parent->m_Data = 0;
     }
-    if(m_Timer) {
-        disconnect(m_Timer, SIGNAL(timeout()), this, SLOT(OnIdle()) );
-        delete m_Timer;
-        m_Timer = 0;
-    }
     m_Parent = 0;
+
 }
 
 AppDebugLog::AppDebugLog() :
@@ -112,7 +108,3 @@ AppDebugLog::~AppDebugLog() {
     delete m_Data;
     m_Data = 0;
 }
-
-#ifndef Q_MOC_RUN
-  #include "moc/debuglog.moc.h"
-#endif
