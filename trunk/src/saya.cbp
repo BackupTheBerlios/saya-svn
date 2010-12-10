@@ -381,6 +381,11 @@
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/slider.h -o ui/widgets/generic/moc/slider.moc.h" />
 		</Unit>
+		<Unit filename="ui/widgets/generic/moc/spinbox.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/spinbox.h -o ui/widgets/generic/moc/spinbox.moc.h" />
+		</Unit>
 		<Unit filename="ui/widgets/generic/moc/textbrowser.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />
@@ -396,6 +401,8 @@
 		<Unit filename="ui/widgets/generic/sigslot.h" />
 		<Unit filename="ui/widgets/generic/slider.cpp" />
 		<Unit filename="ui/widgets/generic/slider.h" />
+		<Unit filename="ui/widgets/generic/spinbox.cpp" />
+		<Unit filename="ui/widgets/generic/spinbox.h" />
 		<Unit filename="ui/widgets/generic/textbrowser.cpp" />
 		<Unit filename="ui/widgets/generic/textbrowser.h" />
 		<Unit filename="ui/widgets/generic/textedit.cpp" />
