@@ -1,5 +1,5 @@
 /**************************************************************************************
- * Name:      pushbutton.h
+ * Name:      lineedit.h
  * Purpose:   Declaration of widgets with new signal implementations.
  *            These widgets will allow us to declare new signals and slots
  *            without having to rely on Qt's MOC.
@@ -10,10 +10,10 @@
  * License:   LGPL Licence version 3.0 or later
  **************************************************************************************/
 
-#ifndef WIDGETS_GENERIC_PUSHBUTTON_H_INCLUDED
-#define WIDGETS_GENERIC_PUSHBUTTON_H_INCLUDED
+#ifndef WIDGETS_GENERIC_LINEEDIT_H_INCLUDED
+#define WIDGETS_GENERIC_LINEEDIT_H_INCLUDED
 
-#include <QPushButton>
+#include <QLineEdit>
 
 #include "sigslot.h"
 using namespace sigslot;
@@ -23,31 +23,32 @@ using namespace sigslot;
     #undef SY_FAKE_SLOTS
 #endif
 
-class syPushButton : public QPushButton, public has_slots {
+class syLineEdit : public QLineEdit, public has_slots {
     Q_OBJECT
     public:
-        syPushButton( QWidget * parent = 0 );
-        syPushButton( const QString & text, QWidget * parent = 0 );
-        syPushButton( const QIcon & icon, const QString & text, QWidget * parent = 0 );
-        virtual ~syPushButton() {}
+        syLineEdit( QWidget * parent = 0 );
+        syLineEdit ( const QString & contents, QWidget * parent = 0 );
+        virtual ~syLineEdit() {}
 
     #ifndef Q_MOC_RUN
-        signal0 sigpressed;
-        signal0 sigreleased;
-        signal1<bool> sigtoggled;
-        signal0 sigclicked;
-        signal1<bool> sigclickedcheckable;
+        signal2<int,int> sigcursorPositionChanged;
+        signal0 sigeditingFinished;
+        signal0 sigreturnPressed;
+        signal0 sigselectionChanged;
+        signal1<const QString &> sigtextChanged;
+        signal1<const QString &> sigtextEdited;
         signal1<const QPoint&> sigcustomContextMenuRequested;
         signal1<QObject*> sigobjdestroyed;
         signal0 sigdestroyed;
     #endif
     #ifdef SY_FAKE_SLOTS
     public slots:
-        void sigpressed();
-        void sigreleased();
-        void sigtoggled(bool toggled);
-        void sigclicked();
-        void sigclickedcheckable(bool checked);
+        void sigcursorPositionChanged ( int old, int new );
+        void sigeditingFinished ();
+        void sigreturnPressed ();
+        void sigselectionChanged ();
+        void sigtextChanged ( const QString & text );
+        void sigtextEdited ( const QString & text );
         void sigcustomContextMenuRequested(const QPoint &pos);
         void sigobjdestroyed(QObject* obj);
         void sigdestroyed();

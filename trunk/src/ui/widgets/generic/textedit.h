@@ -1,5 +1,5 @@
 /**************************************************************************************
- * Name:      pushbutton.h
+ * Name:      textedit.h
  * Purpose:   Declaration of widgets with new signal implementations.
  *            These widgets will allow us to declare new signals and slots
  *            without having to rely on Qt's MOC.
@@ -10,10 +10,10 @@
  * License:   LGPL Licence version 3.0 or later
  **************************************************************************************/
 
-#ifndef WIDGETS_GENERIC_PUSHBUTTON_H_INCLUDED
-#define WIDGETS_GENERIC_PUSHBUTTON_H_INCLUDED
+#ifndef WIDGETS_GENERIC_TEXTEDIT_H_INCLUDED
+#define WIDGETS_GENERIC_TEXTEDIT_H_INCLUDED
 
-#include <QPushButton>
+#include <QTextEdit>
 
 #include "sigslot.h"
 using namespace sigslot;
@@ -23,31 +23,34 @@ using namespace sigslot;
     #undef SY_FAKE_SLOTS
 #endif
 
-class syPushButton : public QPushButton, public has_slots {
+class syTextEdit : public QTextEdit, public has_slots {
     Q_OBJECT
     public:
-        syPushButton( QWidget * parent = 0 );
-        syPushButton( const QString & text, QWidget * parent = 0 );
-        syPushButton( const QIcon & icon, const QString & text, QWidget * parent = 0 );
-        virtual ~syPushButton() {}
+        syTextEdit( QWidget * parent = 0 );
+        syTextEdit ( const QString & text, QWidget * parent = 0 );
+        virtual ~syTextEdit() {}
 
     #ifndef Q_MOC_RUN
-        signal0 sigpressed;
-        signal0 sigreleased;
-        signal1<bool> sigtoggled;
-        signal0 sigclicked;
-        signal1<bool> sigclickedcheckable;
+        signal1<bool> sigcopyAvailable;
+        signal1<const QTextCharFormat &> sigcurrentCharFormatChanged;
+        signal0 sigcursorPositionChanged;
+        signal1<bool> sigredoAvailable;
+        signal0 sigselectionChanged;
+        signal0 sigtextChanged;
+        signal1<bool> sigundoAvailable;
         signal1<const QPoint&> sigcustomContextMenuRequested;
         signal1<QObject*> sigobjdestroyed;
         signal0 sigdestroyed;
     #endif
     #ifdef SY_FAKE_SLOTS
     public slots:
-        void sigpressed();
-        void sigreleased();
-        void sigtoggled(bool toggled);
-        void sigclicked();
-        void sigclickedcheckable(bool checked);
+        void sigcopyAvailable ( bool yes );
+        void sigcurrentCharFormatChanged ( const QTextCharFormat & f );
+        void sigcursorPositionChanged ();
+        void sigredoAvailable ( bool available );
+        void sigselectionChanged ();
+        void sigtextChanged ();
+        void sigundoAvailable ( bool available );
         void sigcustomContextMenuRequested(const QPoint &pos);
         void sigobjdestroyed(QObject* obj);
         void sigdestroyed();

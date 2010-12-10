@@ -28,6 +28,7 @@ class sySlider : public QSlider, public has_slots {
     public:
         sySlider( QWidget * parent = 0 );
         sySlider( Qt::Orientation orientation, QWidget * parent = 0 );
+        virtual ~sySlider() {}
 
     #ifndef Q_MOC_RUN
         signal1<int> sigactionTriggered;

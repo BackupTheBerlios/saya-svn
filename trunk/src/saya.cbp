@@ -345,12 +345,26 @@
 		<Unit filename="ui/welcomedlg.h" />
 		<Unit filename="ui/widgets/generic/action.cpp" />
 		<Unit filename="ui/widgets/generic/action.h" />
+		<Unit filename="ui/widgets/generic/combobox.cpp" />
+		<Unit filename="ui/widgets/generic/combobox.h" />
+		<Unit filename="ui/widgets/generic/lineedit.cpp" />
+		<Unit filename="ui/widgets/generic/lineedit.h" />
 		<Unit filename="ui/widgets/generic/menu.cpp" />
 		<Unit filename="ui/widgets/generic/menu.h" />
 		<Unit filename="ui/widgets/generic/moc/action.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/action.h -o ui/widgets/generic/moc/action.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/generic/moc/combobox.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/combobox.h -o ui/widgets/generic/moc/combobox.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/generic/moc/lineedit.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/lineedit.h -o ui/widgets/generic/moc/lineedit.moc.h" />
 		</Unit>
 		<Unit filename="ui/widgets/generic/moc/menu.moc_trigger">
 			<Option compile="1" />
@@ -367,11 +381,25 @@
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/slider.h -o ui/widgets/generic/moc/slider.moc.h" />
 		</Unit>
+		<Unit filename="ui/widgets/generic/moc/textbrowser.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/textbrowser.h -o ui/widgets/generic/moc/textbrowser.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/generic/moc/textedit.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/textedit.h -o ui/widgets/generic/moc/textedit.moc.h" />
+		</Unit>
 		<Unit filename="ui/widgets/generic/pushbutton.cpp" />
 		<Unit filename="ui/widgets/generic/pushbutton.h" />
 		<Unit filename="ui/widgets/generic/sigslot.h" />
 		<Unit filename="ui/widgets/generic/slider.cpp" />
 		<Unit filename="ui/widgets/generic/slider.h" />
+		<Unit filename="ui/widgets/generic/textbrowser.cpp" />
+		<Unit filename="ui/widgets/generic/textbrowser.h" />
+		<Unit filename="ui/widgets/generic/textedit.cpp" />
+		<Unit filename="ui/widgets/generic/textedit.h" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.cpp" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.h" />
 		<Unit filename="ui/widgets/jog_ctrl/moc/jog_ctrl.moc_trigger">

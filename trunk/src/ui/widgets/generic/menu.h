@@ -30,6 +30,7 @@ class syMenu : public QMenu, public has_slots {
     public:
         syMenu( QWidget * parent = 0 );
         syMenu( const QString & title, QWidget * parent = 0 );
+        virtual ~syMenu() {}
 
     #ifndef Q_MOC_RUN
         signal0 sigaboutToHide;

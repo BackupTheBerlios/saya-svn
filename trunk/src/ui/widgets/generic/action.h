@@ -29,6 +29,7 @@ class syAction : public QAction, public has_slots {
         syAction( QObject * parent = 0 );
         syAction( const QString & text, QObject * parent = 0 );
         syAction( const QIcon & icon, const QString & text, QObject * parent = 0 );
+        virtual ~syAction() {}
 
     #ifndef Q_MOC_RUN
         signal0 sigchanged;
