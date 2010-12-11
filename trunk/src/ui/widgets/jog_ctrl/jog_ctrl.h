@@ -3,6 +3,7 @@
  * Purpose:   Declaration of class JogControl
  * Authors:   Ricardo Garcia
  * Created:   2009-02-06
+ * Modified:  2010-12-11
  * Copyright: Ricardo Garcia
  * License:   LGPL license version 3 or later, with linking exception.
  **************************************************************************************/
@@ -10,10 +11,9 @@
 #ifndef JOG_CTRL_H_INCLUDED
 #define JOG_CTRL_H_INCLUDED
 
-#include <QWidget>
+#include "../generic/widget.h"
 
-class JogControl : public QWidget {
-    Q_OBJECT
+class JogControl : public syWidget {
     public:
         JogControl(QWidget *parent = 0, Qt::WindowFlags f=0);
         QSize sizeHint() const;
@@ -25,9 +25,8 @@ class JogControl : public QWidget {
         void SetCurrentAngle(double angle);  // 0 = 12 o' clock, 180 = 6 o' clock)
         virtual ~JogControl();
 
-    signals:
-        void JogStepUp();
-        void JogStepDown();
+        signal0 JogStepUp;
+        signal0 JogStepDown;
 
     protected:
         void mousePressEvent(QMouseEvent *event);

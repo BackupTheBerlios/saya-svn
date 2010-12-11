@@ -410,11 +410,6 @@
 		<Unit filename="ui/widgets/generic/widget.h" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.cpp" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.h" />
-		<Unit filename="ui/widgets/jog_ctrl/moc/jog_ctrl.moc_trigger">
-			<Option compile="1" />
-			<Option weight="0" />
-			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/jog_ctrl/jog_ctrl.h -o ui/widgets/jog_ctrl/moc/jog_ctrl.moc.h" />
-		</Unit>
 		<Unit filename="ui/widgets/playbackcontrol/moc/playbackcontrol.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />

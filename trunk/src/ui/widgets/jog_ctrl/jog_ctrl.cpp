@@ -3,16 +3,17 @@
  * Purpose:   Implementation of class JogControl
  * Authors:   Ricardo Garcia
  * Created:   2009-02-06
+ * Modified:  2010-12-11
  * Copyright: Ricardo Garcia
  * License:   LGPL license version 3 or later, with linking exception.
  **************************************************************************************/
 
-#include "jog_ctrl.h"
 #include <math.h>
 #include <QtSvg>
 #include <QSvgRenderer>
+#include "jog_ctrl.h"
 
-class JogControl::Data : public QObject {
+class JogControl::Data {
     public:
         static const char* base64_knob;
         static const char* base64_handle;
@@ -131,8 +132,8 @@ m_BgRenderer(0),
 m_TotalSteps(12), m_CurrentStep(0),
 m_CurrentAngle(0),m_LastAngle(0),m_StepAngle(120.0)
 {
-    m_FgRenderer = new QSvgRenderer(this);
-    m_BgRenderer = new QSvgRenderer(this);
+    m_FgRenderer = new QSvgRenderer();
+    m_BgRenderer = new QSvgRenderer();
     m_StepAngle = 360.0 / m_TotalSteps;
 }
 
@@ -142,7 +143,6 @@ JogControl::Data::~Data() {
     delete m_FgRenderer;
     m_FgRenderer = 0;
     if(m_Parent) {
-        disconnect();
         m_Parent->m_Data = 0;
         m_Parent = 0;
     }
@@ -333,11 +333,11 @@ void JogControl::mouseMoveEvent(QMouseEvent *event) {
         int i;
         if(delta > 0) {
             for(i = 0; i < delta; ++i) {
-                emit JogStepUp();
+                JogStepUp();
             }
         } else {
             for(i = 0; i > delta; --i) {
-                emit JogStepDown();
+                JogStepDown();
             }
         }
     }
@@ -377,14 +377,12 @@ void JogControl::wheelEvent(QWheelEvent *event) {
         int i;
         if(delta > 0) {
             for(i = 0; i < delta; ++i) {
-                emit JogStepUp();
+                JogStepUp();
             }
         } else {
             for(i = 0; i > delta; --i) {
-                emit JogStepDown();
+                JogStepDown();
             }
         }
     }
 }
-
-#include "moc/jog_ctrl.moc.h"
