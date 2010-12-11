@@ -27,8 +27,7 @@ extern int idFileOpen;
 extern int idNewProject;
 extern int idRecentProject1;
 
-class WelcomeDialog::Data : public QObject {
-    Q_OBJECT
+class WelcomeDialog::Data : public has_slots {
     public:
         Data(WelcomeDialog* parent, syEvtHandler* eventhandler);
         void ConnectSignalsAndSlots();
@@ -40,12 +39,12 @@ class WelcomeDialog::Data : public QObject {
 
         // Objects in the parent widget
         Ui::welcomedlg* m_Ui;
-        QTextBrowser* m_Browser;
-        QPushButton* m_NewButton;
-        QPushButton* m_OpenButton;
-        QPushButton* m_QuitButton;
+        syTextBrowser* m_Browser;
+        syPushButton* m_NewButton;
+        syPushButton* m_OpenButton;
+        syPushButton* m_QuitButton;
 
-    public slots:
+    public:
         void OnNewProject();  // Called when the "New Project" button is clicked.
         void OnOpenProject(); // Called when the "Open Project" button is clicked.
         void OnQuitButton(); // Called when the "Quit" button is clicked.
@@ -69,15 +68,17 @@ m_QuitButton(0)
 }
 
 void WelcomeDialog::Data::ConnectSignalsAndSlots() {
-    if(m_NewButton)
-        connect(m_NewButton, SIGNAL(clicked()), this, SLOT(OnNewProject()) );
-    if(m_OpenButton)
-        connect(m_OpenButton, SIGNAL(clicked()), this, SLOT(OnOpenProject()) );
-    if(m_QuitButton)
-        connect(m_QuitButton, SIGNAL(clicked()), this, SLOT(OnQuitButton()) );
+    if(m_NewButton) {
+        m_NewButton->sigclicked.connect(this,&WelcomeDialog::Data::OnNewProject);
+    }
+    if(m_OpenButton) {
+        m_OpenButton->sigclicked.connect(this,&WelcomeDialog::Data::OnOpenProject);
+    }
+    if(m_QuitButton) {
+        m_QuitButton->sigclicked.connect(this,&WelcomeDialog::Data::OnQuitButton);
+    }
     if(m_Browser) {
-        m_Browser->setOpenLinks(false);
-        connect(m_Browser, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(OnLinkClicked(const QUrl &)));
+        m_Browser->siganchorClicked.connect(this,&WelcomeDialog::Data::OnLinkClicked);
     }
 }
 
@@ -173,7 +174,3 @@ void WelcomeDialog::showEvent(QShowEvent * event) {
     int iYpos=(qRect.height() - height()) /2;
     this->move(iXpos,iYpos);
 }
-
-#ifndef Q_MOC_RUN
-  #include "moc/welcomedlg.moc.h"
-#endif

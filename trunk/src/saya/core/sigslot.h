@@ -58,7 +58,7 @@ class _signal_base {
         void disconnect_all();
 
         /** Emits a signal to all the connected slots. */
-        void emit_base(_signal_call_base* pcall);
+        void emit_base(const _signal_call_base* pcall);
 
     protected:
 
@@ -270,15 +270,13 @@ SIGSLOT_TEMPLATE_CALL(6);
 SIGSLOT_TEMPLATE_CALL(7);
 SIGSLOT_TEMPLATE_CALL(8);
 
-typedef void slot;
-
 #define SIGSLOT_TEMPLATE_CONNECTION(x) \
 template<class dest_type SIGSLOT_VCCLASSLIST(x)> class _connection ## x : public _connection_base { \
     public: \
         _connection ## x() : m_psignal(0),m_pmemfun(0) {} \
-        _connection ## x(dest_type* pobject, slot (dest_type::*pmemfun)(SIGSLOT_VARGLIST(x))) : m_psignal(0), m_pmemfun(pmemfun) { m_pobject = pobject; } \
+        _connection ## x(dest_type* pobject, void (dest_type::*pmemfun)(SIGSLOT_VFUNCARGLIST(x))) : m_psignal(0), m_pmemfun(pmemfun) { m_pobject = pobject; } \
         _connection ## x(dest_type* pobject, _signal_base dest_type::*psignal) : m_psignal(psignal), m_pmemfun(0) { m_pobject = pobject; } \
-        _connection ## x(dest_type* pobject, _signal_base dest_type::*psignal, slot (dest_type::*pmemfun)(SIGSLOT_VARGLIST(x))) : m_psignal(psignal), m_pmemfun(pmemfun) {  m_pobject = pobject; } \
+        _connection ## x(dest_type* pobject, _signal_base dest_type::*psignal, void (dest_type::*pmemfun)(SIGSLOT_VFUNCARGLIST(x))) : m_psignal(psignal), m_pmemfun(pmemfun) {  m_pobject = pobject; } \
         virtual ~_connection ## x() {} \
         virtual _connection_base* clone() { return new _connection ## x<dest_type SIGSLOT_VCARGLIST(x)>(*this); } \
         virtual _connection_base* duplicate(has_slots* pnewdest) { \
@@ -301,7 +299,7 @@ template<class dest_type SIGSLOT_VCCLASSLIST(x)> class _connection ## x : public
             return true; \
         } \
         _signal_base dest_type::* m_psignal; \
-        void (dest_type::* m_pmemfun)(SIGSLOT_VARGLIST(x)); \
+        void (dest_type::* m_pmemfun)(SIGSLOT_VFUNCARGLIST(x)); \
 }
 
 SIGSLOT_TEMPLATE_CONNECTION(0);
@@ -356,7 +354,7 @@ template <SIGSLOT_VCLASSLIST(x)> class signal## x : public _signal_base { \
         signal## x(const signal## x<SIGSLOT_VARGLIST(x)> & s) : _signal_base(s) {} \
         virtual ~signal## x() {} \
  \
-        template<class desttype> void connect(desttype* pobj, void (desttype::*pmemfun)(SIGSLOT_VARGLIST(x))) { \
+        template<class desttype> void connect(desttype* pobj, void (desttype::*pmemfun)(SIGSLOT_VFUNCARGLIST(x))) { \
             _connection## x< desttype SIGSLOT_VCARGLIST(x)> conn(pobj, pmemfun); \
             this->_signal_base::add_connection(conn); \
         } \
@@ -365,7 +363,7 @@ template <SIGSLOT_VCLASSLIST(x)> class signal## x : public _signal_base { \
             this->_signal_base::add_connection(conn); \
         } \
  \
-        template<class desttype> void disconnect(desttype* pobj, void (desttype::*pmemfun)(SIGSLOT_VARGLIST(x))) { \
+        template<class desttype> void disconnect(desttype* pobj, void (desttype::*pmemfun)(SIGSLOT_VFUNCARGLIST(x))) { \
             _connection## x< desttype SIGSLOT_VCARGLIST(x)> conn(pobj, pmemfun); \
             this->_signal_base::remove_connection(conn); \
         } \

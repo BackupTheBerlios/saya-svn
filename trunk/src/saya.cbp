@@ -323,12 +323,6 @@
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/projectpane.cpp -o ui/moc/projectpane.moc.h" />
 		</Unit>
-		<Unit filename="ui/moc/welcomedlg.moc.h" />
-		<Unit filename="ui/moc/welcomedlg.moc_trigger">
-			<Option compile="1" />
-			<Option weight="0" />
-			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/welcomedlg.cpp -o ui/moc/welcomedlg.moc.h" />
-		</Unit>
 		<Unit filename="ui/newprojectdlg.cpp" />
 		<Unit filename="ui/newprojectdlg.h" />
 		<Unit filename="ui/picknamedlg.cpp" />

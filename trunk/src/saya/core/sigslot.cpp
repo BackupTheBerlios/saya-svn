@@ -101,7 +101,7 @@ void _signal_base::disconnect_all() {
     m_Data->m_connections.erase(m_Data->m_connections.begin(), m_Data->m_connections.end());
 }
 
-void _signal_base::emit_base(_signal_call_base* pcall) {
+void _signal_base::emit_base(const _signal_call_base* pcall) {
     sySafeMutexLocker lock(*(m_Data->m_Mutex())); if(lock.IsLocked()) {
         Data::const_iterator itNext, it = m_Data->m_connections.begin();
         Data::const_iterator itEnd = m_Data->m_connections.end();

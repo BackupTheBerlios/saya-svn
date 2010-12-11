@@ -1,10 +1,11 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>welcomedlg</class>
- <widget class="QWidget" name="welcomedlg" >
-  <property name="windowModality" >
+ <widget class="QWidget" name="welcomedlg">
+  <property name="windowModality">
    <enum>Qt::NonModal</enum>
   </property>
-  <property name="geometry" >
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -12,50 +13,50 @@
     <height>455</height>
    </rect>
   </property>
-  <property name="sizePolicy" >
-   <sizepolicy vsizetype="Preferred" hsizetype="Maximum" >
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="maximumSize" >
+  <property name="maximumSize">
    <size>
     <width>460</width>
     <height>480</height>
    </size>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Welcome to Saya!</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" >
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="lblRecentProjects" >
-     <property name="font" >
+    <widget class="QLabel" name="lblRecentProjects">
+     <property name="font">
       <font>
        <pointsize>11</pointsize>
        <weight>75</weight>
        <bold>true</bold>
       </font>
      </property>
-     <property name="text" >
+     <property name="text">
       <string>Recent Projects:</string>
      </property>
-     <property name="alignment" >
+     <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QTextBrowser" name="browser1" />
+    <widget class="syTextBrowser" name="browser1"/>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" >
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <spacer name="horizontalSpacer_3" >
-       <property name="orientation" >
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
          <height>20</height>
@@ -64,53 +65,53 @@
       </spacer>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_2" >
+      <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QPushButton" name="btnNew" >
-         <property name="maximumSize" >
+        <widget class="syPushButton" name="btnNew">
+         <property name="maximumSize">
           <size>
            <width>96</width>
            <height>96</height>
           </size>
          </property>
-         <property name="toolTip" >
+         <property name="toolTip">
           <string/>
          </property>
-         <property name="text" >
+         <property name="text">
           <string/>
          </property>
-         <property name="icon" >
-          <iconset resource="welcomedlg.qrc" >
+         <property name="icon">
+          <iconset resource="welcomedlg.qrc">
            <normaloff>:/img/new_video.png</normaloff>:/img/new_video.png</iconset>
          </property>
-         <property name="iconSize" >
+         <property name="iconSize">
           <size>
            <width>96</width>
            <height>96</height>
           </size>
          </property>
-         <property name="flat" >
+         <property name="flat">
           <bool>false</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="lblNew" >
-         <property name="font" >
+        <widget class="QLabel" name="lblNew">
+         <property name="font">
           <font>
            <pointsize>11</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>Create new
 Project</string>
          </property>
-         <property name="textFormat" >
+         <property name="textFormat">
           <enum>Qt::PlainText</enum>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignHCenter|Qt::AlignTop</set>
          </property>
         </widget>
@@ -118,11 +119,11 @@ Project</string>
       </layout>
      </item>
      <item>
-      <spacer name="horizontalSpacer" >
-       <property name="orientation" >
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
          <height>20</height>
@@ -131,53 +132,53 @@ Project</string>
       </spacer>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_3" >
+      <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QPushButton" name="btnOpen" >
-         <property name="maximumSize" >
+        <widget class="syPushButton" name="btnOpen">
+         <property name="maximumSize">
           <size>
            <width>96</width>
            <height>96</height>
           </size>
          </property>
-         <property name="toolTip" >
+         <property name="toolTip">
           <string/>
          </property>
-         <property name="text" >
+         <property name="text">
           <string/>
          </property>
-         <property name="icon" >
-          <iconset resource="welcomedlg.qrc" >
+         <property name="icon">
+          <iconset resource="welcomedlg.qrc">
            <normaloff>:/img/folder_video.png</normaloff>:/img/folder_video.png</iconset>
          </property>
-         <property name="iconSize" >
+         <property name="iconSize">
           <size>
            <width>96</width>
            <height>96</height>
           </size>
          </property>
-         <property name="flat" >
+         <property name="flat">
           <bool>false</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="lblOpen" >
-         <property name="font" >
+        <widget class="QLabel" name="lblOpen">
+         <property name="font">
           <font>
            <pointsize>11</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>Open existing
 Project</string>
          </property>
-         <property name="textFormat" >
+         <property name="textFormat">
           <enum>Qt::PlainText</enum>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignHCenter|Qt::AlignTop</set>
          </property>
         </widget>
@@ -185,11 +186,11 @@ Project</string>
       </layout>
      </item>
      <item>
-      <spacer name="horizontalSpacer_2" >
-       <property name="orientation" >
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
          <height>20</height>
@@ -198,52 +199,52 @@ Project</string>
       </spacer>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_4" >
+      <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="QPushButton" name="btnQuit" >
-         <property name="maximumSize" >
+        <widget class="syPushButton" name="btnQuit">
+         <property name="maximumSize">
           <size>
            <width>96</width>
            <height>96</height>
           </size>
          </property>
-         <property name="toolTip" >
+         <property name="toolTip">
           <string/>
          </property>
-         <property name="text" >
+         <property name="text">
           <string/>
          </property>
-         <property name="icon" >
-          <iconset resource="welcomedlg.qrc" >
+         <property name="icon">
+          <iconset resource="welcomedlg.qrc">
            <normaloff>:/img/exit.png</normaloff>:/img/exit.png</iconset>
          </property>
-         <property name="iconSize" >
+         <property name="iconSize">
           <size>
            <width>96</width>
            <height>96</height>
           </size>
          </property>
-         <property name="flat" >
+         <property name="flat">
           <bool>false</bool>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="lblQuit" >
-         <property name="font" >
+        <widget class="QLabel" name="lblQuit">
+         <property name="font">
           <font>
            <pointsize>11</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
-         <property name="text" >
+         <property name="text">
           <string>Quit</string>
          </property>
-         <property name="textFormat" >
+         <property name="textFormat">
           <enum>Qt::PlainText</enum>
          </property>
-         <property name="alignment" >
+         <property name="alignment">
           <set>Qt::AlignHCenter|Qt::AlignTop</set>
          </property>
         </widget>
@@ -251,11 +252,11 @@ Project</string>
       </layout>
      </item>
      <item>
-      <spacer name="horizontalSpacer_4" >
-       <property name="orientation" >
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
          <height>20</height>
@@ -267,8 +268,20 @@ Project</string>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>syTextBrowser</class>
+   <extends>QTextBrowser</extends>
+   <header>../widgets/generic/textbrowser.h</header>
+  </customwidget>
+  <customwidget>
+   <class>syPushButton</class>
+   <extends>QPushButton</extends>
+   <header>../widgets/generic/pushbutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
-  <include location="welcomedlg.qrc" />
+  <include location="welcomedlg.qrc"/>
  </resources>
  <connections/>
 </ui>
