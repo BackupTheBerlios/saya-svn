@@ -390,6 +390,11 @@
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/textedit.h -o ui/widgets/generic/moc/textedit.moc.h" />
 		</Unit>
+		<Unit filename="ui/widgets/generic/moc/widget.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/widget.h -o ui/widgets/generic/moc/widget.moc.h" />
+		</Unit>
 		<Unit filename="ui/widgets/generic/pushbutton.cpp" />
 		<Unit filename="ui/widgets/generic/pushbutton.h" />
 		<Unit filename="ui/widgets/generic/sigslot.h" />
@@ -401,6 +406,8 @@
 		<Unit filename="ui/widgets/generic/textbrowser.h" />
 		<Unit filename="ui/widgets/generic/textedit.cpp" />
 		<Unit filename="ui/widgets/generic/textedit.h" />
+		<Unit filename="ui/widgets/generic/widget.cpp" />
+		<Unit filename="ui/widgets/generic/widget.h" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.cpp" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.h" />
 		<Unit filename="ui/widgets/jog_ctrl/moc/jog_ctrl.moc_trigger">
@@ -420,11 +427,6 @@
 		</Unit>
 		<Unit filename="ui/widgets/playbackcontrol/playbackcontrol.cpp" />
 		<Unit filename="ui/widgets/playbackcontrol/playbackcontrol.h" />
-		<Unit filename="ui/widgets/tubeslider/moc/tubeslider.moc_trigger">
-			<Option compile="1" />
-			<Option weight="0" />
-			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/tubeslider/tubeslider.h -o ui/widgets/tubeslider/moc/tubeslider.moc.h" />
-		</Unit>
 		<Unit filename="ui/widgets/tubeslider/tubeslider.cpp" />
 		<Unit filename="ui/widgets/tubeslider/tubeslider.h" />
 		<Unit filename="ui/widgets/videopanel/videopanel.cpp" />

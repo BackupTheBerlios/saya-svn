@@ -10,20 +10,18 @@
 #ifndef TUBESLIDER_H_INCLUDED
 #define TUBESLIDER_H_INCLUDED
 
-#include <QWidget>
+#include "../generic/widget.h"
 
-class TubeSlider : public QWidget {
-    Q_OBJECT
+class TubeSlider : public syWidget {
     public:
         TubeSlider(QWidget *parent = 0);
         virtual ~TubeSlider();
         QSize sizeHint() const;
         double getCurrentTime();
 
-    signals:
-        void TimeChanged(double time);
+        signal1<double> TimeChanged;
 
-    public slots:
+    public: // slots
         void setTimeRange(double start, double finish); // In seconds
         void setCurrentTime(double time); // Update the seek bar's current position.
 

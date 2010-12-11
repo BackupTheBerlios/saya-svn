@@ -19,7 +19,7 @@
 // Begin TubeSlider::Data
 // ----------------------
 
-class TubeSlider::Data : public QObject {
+class TubeSlider::Data {
     public:
         static const char* svg_button;
         Data(TubeSlider* parent);
@@ -84,7 +84,7 @@ void TubeSlider::Data::MoveToMouse() {
     if(local_x >= m_x1 && local_x <= m_x2 && m_x2 > m_x1) {
         double time = m_StartTime + ((local_x - m_x1)*(m_EndTime - m_StartTime))/(m_x2 - m_x1);
         m_Parent->setCurrentTime(time);
-        emit m_Parent->TimeChanged(m_CurrentTime);
+        m_Parent->TimeChanged(m_CurrentTime);
         ShowToolTip();
     }
 }
@@ -95,7 +95,7 @@ void TubeSlider::Data::MoveToMouse() {
 // ----------------
 
 TubeSlider::TubeSlider(QWidget *parent) :
-QWidget(parent),
+syWidget(parent),
 m_Data(new Data(this))
 {
     setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed));
@@ -123,7 +123,7 @@ void TubeSlider::setTimeRange(double start, double finish) {
     if(m_Data->m_CurrentTime < start || m_Data->m_CurrentTime > finish) {
         m_Data->m_CurrentTime = start;
         update();
-        emit TimeChanged(m_Data->m_CurrentTime);
+        TimeChanged(m_Data->m_CurrentTime);
     } else {
         update();
     }
@@ -228,8 +228,6 @@ void TubeSlider::mouseReleaseEvent ( QMouseEvent * event ) {
         setCursor(Qt::ArrowCursor);
     }
 }
-
-#include "moc/tubeslider.moc.h"
 
 const char* TubeSlider::Data::svg_button =
 "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjwh"

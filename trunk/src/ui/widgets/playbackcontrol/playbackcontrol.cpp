@@ -251,7 +251,7 @@ bool PlaybackControl::Data::eventFilter(QObject *obj, QEvent *event) {
 // --- Signal handling for the Playback slider ---
 
 void PlaybackControl::Data::PlaybackSliderMoved(double time) {
-    emit m_Parent->playbackSeekAndPlayFrame(time);
+    m_Parent->playbackSeekAndPlayFrame(time);
 }
 
 // --- Signal handling for the Mute button ---
@@ -259,10 +259,10 @@ void PlaybackControl::Data::PlaybackSliderMoved(double time) {
 void PlaybackControl::Data::muteButtonToggled(bool muted) {
     if(muted) {
         m_btnMute->setIcon(*m_pixVolumeMuted);
-        emit playbackSetVolume(0);
+        playbackSetVolume(0);
     } else {
         m_btnMute->setIcon(*m_pixVolumeNormal);
-        emit playbackSetVolume(m_VolumeSlider->value());
+        playbackSetVolume(m_VolumeSlider->value());
     }
     m_Parent->update();
 }
@@ -286,7 +286,7 @@ void PlaybackControl::Data::volumeSliderMoved(int value) {
     QPoint tmppos = QPoint(QCursor::pos().x(),m_VolumeSlider->mapToGlobal(QPoint(0,16)).y());
     QToolTip::showText (tmppos, s, m_Parent);
     if(!m_btnMute->isChecked()) {
-        emit playbackSetVolume(value);
+        playbackSetVolume(value);
     }
 }
 
@@ -307,7 +307,7 @@ void PlaybackControl::Data::shuttleSliderMoved(int value) {
     double speed = (double)m_Shuttle->value() / 100;
     QPoint tmppos = QPoint(QCursor::pos().x(),m_Shuttle->mapToGlobal(QPoint(0,16)).y());
     QToolTip::showText (tmppos, QString("Playing at %1x").arg(speed, 5, 'f', 2), m_Parent);
-    emit playbackAtSpeed(value);
+    playbackAtSpeed(value);
 }
 
 void PlaybackControl::Data::shuttleSliderReleased() {
