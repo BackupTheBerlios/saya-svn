@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="saya_moc" />
+		<Option pch_mode="0" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="moc">
+				<Option type="4" />
+				<Option compiler="gcc" />
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-march=i486" />
+			<Add option="-Wall" />
+			<Add option="-pipe" />
+			<Add option='[[if (PLATFORM == PLATFORM_MSW) print(_T(&quot;-mthreads -D__GNUWIN32__ -D__WXMSW__&quot;));;]]' />
+			<Add option="-DTIXML_USE_STL" />
+			<Add option="-DSY_QSTRING_COMPATIBILITY" />
+			<Add directory="$(#qt4.include)" />
+			<Add directory="$(#qt4.include)/QtGui" />
+			<Add directory="$(#qt4.include)/QtCore" />
+			<Add directory="$(#qt4.include)/QtSvg" />
+		</Compiler>
+		<Linker>
+			<Add option="-pipe" />
+			<Add option='[[if (PLATFORM == PLATFORM_MSW) print(_T(&quot;-mthreads -lintl.dll&quot;));;]]' />
+			<Add library="QtCore$(#qt4.libsuffix)" />
+			<Add library="QtGui$(#qt4.libsuffix)" />
+			<Add library="QtSvg$(#qt4.libsuffix)" />
+			<Add directory="$(#qt4.lib)" />
+		</Linker>
+		<Unit filename="ui/widgets/generic/moc/action.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/action.h -o ui/widgets/generic/moc/action.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/generic/moc/combobox.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/combobox.h -o ui/widgets/generic/moc/combobox.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/generic/moc/lineedit.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/lineedit.h -o ui/widgets/generic/moc/lineedit.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/generic/moc/menu.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/menu.h -o ui/widgets/generic/moc/menu.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/generic/moc/pushbutton.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/pushbutton.h -o ui/widgets/generic/moc/pushbutton.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/generic/moc/slider.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/slider.h -o ui/widgets/generic/moc/slider.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/generic/moc/spinbox.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/spinbox.h -o ui/widgets/generic/moc/spinbox.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/generic/moc/textbrowser.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/textbrowser.h -o ui/widgets/generic/moc/textbrowser.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/generic/moc/textedit.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/textedit.h -o ui/widgets/generic/moc/textedit.moc.h" />
+		</Unit>
+		<Unit filename="ui/widgets/generic/moc/widget.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/widget.h -o ui/widgets/generic/moc/widget.moc.h" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+			<envvars />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
