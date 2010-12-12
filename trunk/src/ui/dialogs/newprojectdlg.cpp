@@ -15,7 +15,7 @@
 #include <saya/timeline/smapxstr.h>
 
 #include "newprojectdlg.h"
-#include "../ui/newprojectdlg.ui.h"
+#include "ui/newprojectdlg.ui.h"
 
 #include <QFileDialog>
 #include <QInputDialog>

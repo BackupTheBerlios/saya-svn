@@ -22,7 +22,7 @@
 #include <qapplication.h>
 #include <qdesktopwidget.h>
 
-#include "../ui/welcomedlg.ui.h"
+#include "ui/welcomedlg.ui.h"
 
 extern int idFileOpen;
 extern int idNewProject;

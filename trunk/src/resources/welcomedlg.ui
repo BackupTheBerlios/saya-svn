@@ -272,12 +272,12 @@ Project</string>
   <customwidget>
    <class>syTextBrowser</class>
    <extends>QTextBrowser</extends>
-   <header>../widgets/generic/textbrowser.h</header>
+   <header location="global">ui/widgets/generic/textbrowser.h</header>
   </customwidget>
   <customwidget>
    <class>syPushButton</class>
    <extends>QPushButton</extends>
-   <header>../widgets/generic/pushbutton.h</header>
+   <header location="global">ui/widgets/generic/pushbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources>

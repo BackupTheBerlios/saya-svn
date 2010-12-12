@@ -302,6 +302,8 @@
 		<Unit filename="ui/debuglog.h" />
 		<Unit filename="ui/dialogs/newprojectdlg.cpp" />
 		<Unit filename="ui/dialogs/newprojectdlg.h" />
+		<Unit filename="ui/dialogs/ui/newprojectdlg.ui.h" />
+		<Unit filename="ui/dialogs/ui/welcomedlg.ui.h" />
 		<Unit filename="ui/dialogs/welcomedlg.cpp" />
 		<Unit filename="ui/dialogs/welcomedlg.h" />
 		<Unit filename="ui/main.cpp">
@@ -333,9 +335,7 @@
 		<Unit filename="ui/resources.cpp" />
 		<Unit filename="ui/resources.h" />
 		<Unit filename="ui/ui/main.ui.h" />
-		<Unit filename="ui/ui/newprojectdlg.ui.h" />
 		<Unit filename="ui/ui/projectpane.ui.h" />
-		<Unit filename="ui/ui/welcomedlg.ui.h" />
 		<Unit filename="ui/widgets/generic/action.cpp" />
 		<Unit filename="ui/widgets/generic/action.h" />
 		<Unit filename="ui/widgets/generic/combobox.cpp" />

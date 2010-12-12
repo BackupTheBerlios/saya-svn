@@ -20,8 +20,9 @@
 #include <QtGui/QSpacerItem>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
-#include "../widgets/generic/pushbutton.h"
-#include "../widgets/generic/textbrowser.h"
+
+#include <ui/widgets/generic/pushbutton.h>
+#include <ui/widgets/generic/textbrowser.h>
 
 QT_BEGIN_NAMESPACE
 
