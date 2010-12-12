@@ -12,12 +12,16 @@
 #include "projectpane.h"
 #include "projectpane.ui.h"
 #include <QMenu>
+#include <ui/widgets/generic/action.h>
+#include <saya/core/sigslot.h>
+
+using namespace sigslot;
 
 // -----------------------
 // Begin ProjectPane::Data
 // -----------------------
 
-class ProjectPane::Data {
+class ProjectPane::Data : public has_slots {
     public:
         Data(ProjectPane *parent = 0);
         virtual ~Data();
@@ -26,8 +30,8 @@ class ProjectPane::Data {
 
     private:
         ProjectPane* m_Parent;
-        QAction* action_import;
-        QAction* action_rescan;
+        syAction* action_import;
+        syAction* action_rescan;
 };
 
 ProjectPane::Data::Data(ProjectPane* parent) :
@@ -57,8 +61,8 @@ m_Parent(parent)
     // TODO: Setup the signals and slots for the Project Pane
     // TODO: Connect the actions to the corresponding slots in the main window, or use syEvents (preferred)
 
-    action_import = new QAction(_("&Import..."),m_Parent);
-    action_rescan = new QAction(_("&Rescan project directory"),m_Parent);
+    action_import = new syAction(_("&Import..."),m_Parent);
+    action_rescan = new syAction(_("&Rescan project directory"),m_Parent);
 
 }
 
@@ -66,6 +70,8 @@ ProjectPane::Data::~Data() {
     delete m_Ui;
     delete action_import;
     delete action_rescan;
+    m_Parent->m_Data = 0;
+    m_Parent = 0;
     action_import = 0;
     action_rescan = 0;
     m_Ui = 0;

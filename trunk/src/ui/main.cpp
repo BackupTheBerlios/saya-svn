@@ -22,26 +22,27 @@
 #include "widgets/playbackcontrol/playbackcontrol.h"
 #include "widgets/videoplaybackcontrol/videoplaybackcontrol.h"
 
-#include "../saya/core/app.h"
-#include "../saya/core/systring.h"
-#include "../saya/core/intl.h"
-#include "../saya/core/iocommon.h"
-#include "../saya/core/config.h"
-#include "../saya/core/debuglog.h"
-#include "../saya/core/evtregistry.h"
-#include "../saya/core/sythread.h"
+#include <saya/core/app.h>
+#include <saya/core/systring.h>
+#include <saya/core/intl.h>
+#include <saya/core/iocommon.h>
+#include <saya/core/config.h>
+#include <saya/core/debuglog.h>
+#include <saya/core/evtregistry.h>
+#include <saya/core/sythread.h>
+#include <saya/core/dialogs.h>
 
-#include "../saya/saya_events.h"
-#include "../saya/vidproject.h"
-#include "../saya/recentfileslist.h"
-#include "../saya/projectmanager.h"
-#include "../saya/playbackmanager.h"
+#include <saya/saya_events.h>
+#include <saya/vidproject.h>
+#include <saya/recentfileslist.h>
+#include <saya/projectmanager.h>
+#include <saya/playbackmanager.h>
 
 #include "main.h"
-#include "welcomedlg.h"
-#include "newprojectdlg.h"
-#include "app.h"
-#include "projectpane.h"
+#include "dialogs/welcomedlg.h"
+#include "dialogs/newprojectdlg.h"
+// #include "classes/qsyapp.h"
+#include "widgets/projectpane/projectpane.h"
 
 //helper functions
 enum qbuildinfoformat {
