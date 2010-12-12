@@ -15,7 +15,7 @@
 
 #include <QPushButton>
 
-#include "sigslot.h"
+#include <saya/core/sigslot.h>
 using namespace sigslot;
 
 #define SY_FAKE_SLOTS
