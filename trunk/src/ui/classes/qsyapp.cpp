@@ -24,10 +24,8 @@
 #include <saya/core/dialogs.h>
 #include <saya/core/eventqueue.h>
 #include <saya/core/avdevice.h>
-#include <saya/playbackmanager.h>
-#include <saya/projectmanager.h>
 
-#include "app.h"
+#include "qsyapp.h"
 #include "resources.h"
 #include "debuglog.h"
 #include "config.h"
@@ -44,23 +42,19 @@ class qsyEvent : public QEvent {
 class QMainWindow;
 extern QMainWindow* CreateMainFrame();
 
-class qMyApp : public QApplication {
+class qMySyApp : public QApplication {
     public:
-        qMyApp(int & argc, char ** argv ) : QApplication(argc, argv) {}
+        qMySyApp(int & argc, char ** argv ) : QApplication(argc, argv) {}
     protected:
         virtual void customEvent(QEvent *event);
 };
 
-void qMyApp::customEvent(QEvent *event) {
+void qMySyApp::customEvent(QEvent *event) {
     if(event && static_cast<int>(event->type()) == idsyEventpassed) {
         syEvtQueue::ProcessNextEvent();
     }
 }
 
-const char* APP_NAME = "SayaVideoEditor";
-const char* APP_VENDOR = "Rick Garcia";
-const char* APP_SHOWNAME = "Saya";
-const char* APP_SHOWOFFNAME = "SayaVE Ain't Yet Another Video Editor";
 syString APP_DIR;
 syString APP_FILENAME;
 // ---------------------
@@ -71,11 +65,9 @@ class qsyApp::Data {
     public:
         Data();
         ~Data();
-        bool LoadResources();
-        bool LoadResource(const syString& filename);
         syDebugLog* m_DebugLog;
         void* m_TopWindow;
-        qMyApp* m_App;
+        qMySyApp* m_App;
         volatile bool m_MainLoopRunning;
 };
 
@@ -91,29 +83,8 @@ m_MainLoopRunning(false)
 }
 
 qsyApp::Data::~Data() {
-    PlaybackManager::Unload();
-    ProjectManager::Unload();
     delete m_App;
     m_App = 0;
-}
-
-bool qsyApp::Data::LoadResource(const syString& filename) {
-    syString fullresource = ResourcesPath + filename;
-    if(!QResource::registerResource(fullresource)) {
-        ioCommon::Print(syString::Format("Error loading resource: '%s'. Aborting...\n",filename.c_str()));
-        return false;
-    }
-    return true;
-}
-
-bool qsyApp::Data::LoadResources() {
-    bool result = false;
-    do {
-        if(!LoadResource("welcomedlg.rcc")) break;
-        if(!LoadResource("playbackcontrol.rcc")) break;
-        result = true;
-    }while(false);
-    return result;
 }
 
 // -------------------
@@ -128,27 +99,20 @@ qsyApp::qsyApp(int argc, char** argv) :
 syApp(argc, argv),
 m_Data(new Data)
 {
-    m_Data->m_App = new qMyApp(m_argc, m_argv);
+    m_Data->m_App = new qMySyApp(m_argc, m_argv);
 }
 
 qsyApp::~qsyApp() {
     delete m_Data;
 }
 
-const char* qsyApp::GetApplicationName() const {
-    return APP_NAME;
-}
-
-const char* qsyApp::GetApplicationDisplayName() const {
-    return APP_SHOWNAME;
-}
-
-const char* qsyApp::GetApplicationVendor() const {
-    return APP_VENDOR;
-}
-
-const char* qsyApp::GetApplicationShowOffName() const {
-    return APP_SHOWOFFNAME;
+bool qsyApp::LoadResource(const syString& filename) {
+    syString fullresource = ResourcesPath + filename;
+    if(!QResource::registerResource(fullresource)) {
+        ioCommon::Print(syString::Format("Error loading resource: '%s'. Aborting...\n",filename.c_str()));
+        return false;
+    }
+    return true;
 }
 
 const char* qsyApp::GetApplicationPath() const {
@@ -173,34 +137,19 @@ bool qsyApp::OnInit() {
     APP_DIR = QCoreApplication::applicationDirPath();
     APP_FILENAME = QCoreApplication::applicationFilePath();
 
+    DebugLog(_("Initializing Resources path..."));
+    syInitResourcesPaths();
+
     do {
         // Init Project Manager and Playback Manager.
-        DebugLog(_("Initializing Playback Manager..."));
-        PlaybackManager::Get();
 
-        DebugLog(_("Initializing Project Manager..."));
-        ProjectManager::Get();
-
-        DebugLog(_("Initializing Resources path..."));
-        syInitResourcesPaths();
-
-        if(!ProjectManager::Get()->LoadConfig()) {
-            ErrorMessageBox(_("WARNING: Could not read configuration!"));
+        DebugLog(_("Initializing Application Objects..."));
+        if(!InitializeApplicationObjects()) {
+            ErrorMessageBox(_("ERROR. Could not initialize the application's objects. Aborting..."));
+            break;
         }
-
-
-//        DebugLog(_("Initializing File system handlers..."));
-//        wxFileSystem::AddHandler(new wxZipFSHandler);
-//        wxFileSystem::AddHandler(new wxMemoryFSHandler);
-//        wxImage::AddHandler(new wxPNGHandler);
-//        DebugLog(_("Initializing XML Resource handlers..."));
-//        wxXmlResource::Get()->InitAllHandlers();
-
-//        DebugLog(_("Initializing Image handlers..."));
-//        wxInitAllImageHandlers();
-
         DebugLog(_("Loading resources..."));
-        if(!m_Data->LoadResources()) {
+        if(!LoadResources()) {
             break;
         }
 
@@ -226,8 +175,7 @@ void qsyApp::Exit(bool now) {
 }
 
 void qsyApp::OnExit() {
-    ProjectManager::Get()->SaveConfig();
-    ProjectManager::Get()->CloseProject(true);
+    OnBeforeExit();
     // The debug log is a QWidget, and it must be deleted before ~QApplication() is called. So we do it here.
     delete m_Data->m_DebugLog;
     m_Data->m_DebugLog = 0;

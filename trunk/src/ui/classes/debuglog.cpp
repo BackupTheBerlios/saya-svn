@@ -7,10 +7,10 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
-#include "../saya/core/iocommon.h"
-#include "../saya/core/systring.h"
-#include "../saya/core/app.h"
-#include "../saya/core/sythread.h"
+#include <saya/core/iocommon.h>
+#include <saya/core/systring.h>
+#include <saya/core/app.h>
+#include <saya/core/sythread.h>
 #include "debuglog.h"
 
 #include <qframe.h>

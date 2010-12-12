@@ -6,25 +6,23 @@
  * Copyright: Ricardo Garcia (rick.g777 {at} gmail {dot} com)
  * License:   GPL version 3 or later
  ********************************************************************/
-#include "../saya/core/intl.h"
-#include "../saya/core/dialogs.h"
+
+#include <saya/core/intl.h>
+#include <saya/core/dialogs.h>
 #include "projectpane.h"
-#include "ui/projectpane.ui.h"
+#include "projectpane.ui.h"
 #include <QMenu>
+
 // -----------------------
 // Begin ProjectPane::Data
 // -----------------------
 
-class ProjectPane::Data : public QObject {
-    Q_OBJECT
-
+class ProjectPane::Data {
     public:
         Data(ProjectPane *parent = 0);
         virtual ~Data();
         Ui::projectPane* m_Ui;
         void OnResourceTreeContextMenu(QContextMenuEvent * ev);
-
-    public slots:
 
     private:
         ProjectPane* m_Parent;
@@ -33,7 +31,6 @@ class ProjectPane::Data : public QObject {
 };
 
 ProjectPane::Data::Data(ProjectPane* parent) :
-QObject(0),
 m_Ui(new Ui::projectPane),
 m_Parent(parent)
 {
@@ -60,8 +57,8 @@ m_Parent(parent)
     // TODO: Setup the signals and slots for the Project Pane
     // TODO: Connect the actions to the corresponding slots in the main window, or use syEvents (preferred)
 
-    action_import = new QAction(_("&Import..."),this);
-    action_rescan = new QAction(_("&Rescan project directory"),this);
+    action_import = new QAction(_("&Import..."),m_Parent);
+    action_rescan = new QAction(_("&Rescan project directory"),m_Parent);
 
 }
 
@@ -86,9 +83,6 @@ void ProjectPane::Data::OnResourceTreeContextMenu(QContextMenuEvent * ev) {
     }
 }
 
-#ifndef Q_MOC_RUN
-  #include "moc/projectpane.moc.h"
-#endif
 // ---------------------
 // End ProjectPane::Data
 // ---------------------

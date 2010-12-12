@@ -292,16 +292,18 @@
 		</Unit>
 		<Unit filename="saya/vidproject.h" />
 		<Unit filename="todo.txt" />
-		<Unit filename="ui/app.cpp">
-			<Option weight="100" />
-		</Unit>
-		<Unit filename="ui/app.h" />
-		<Unit filename="ui/config.cpp" />
-		<Unit filename="ui/config.h" />
-		<Unit filename="ui/debuglog.cpp" />
-		<Unit filename="ui/debuglog.h" />
+		<Unit filename="ui/classes/config.cpp" />
+		<Unit filename="ui/classes/config.h" />
+		<Unit filename="ui/classes/debuglog.cpp" />
+		<Unit filename="ui/classes/debuglog.h" />
+		<Unit filename="ui/classes/qsyapp.cpp" />
+		<Unit filename="ui/classes/qsyapp.h" />
+		<Unit filename="ui/classes/resources.cpp" />
+		<Unit filename="ui/classes/resources.h" />
 		<Unit filename="ui/dialogs/newprojectdlg.cpp" />
 		<Unit filename="ui/dialogs/newprojectdlg.h" />
+		<Unit filename="ui/dialogs/picknamedlg.cpp" />
+		<Unit filename="ui/dialogs/picknamedlg.h" />
 		<Unit filename="ui/dialogs/ui/newprojectdlg.ui.h" />
 		<Unit filename="ui/dialogs/ui/welcomedlg.ui.h" />
 		<Unit filename="ui/dialogs/welcomedlg.cpp" />
@@ -322,20 +324,7 @@
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/newprojectdlg.cpp -o ui/moc/newprojectdlg.moc.h" />
 		</Unit>
-		<Unit filename="ui/moc/projectpane.moc.h" />
-		<Unit filename="ui/moc/projectpane.moc_trigger">
-			<Option compile="1" />
-			<Option weight="0" />
-			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/projectpane.cpp -o ui/moc/projectpane.moc.h" />
-		</Unit>
-		<Unit filename="ui/picknamedlg.cpp" />
-		<Unit filename="ui/picknamedlg.h" />
-		<Unit filename="ui/projectpane.cpp" />
-		<Unit filename="ui/projectpane.h" />
-		<Unit filename="ui/resources.cpp" />
-		<Unit filename="ui/resources.h" />
 		<Unit filename="ui/ui/main.ui.h" />
-		<Unit filename="ui/ui/projectpane.ui.h" />
 		<Unit filename="ui/widgets/generic/action.cpp" />
 		<Unit filename="ui/widgets/generic/action.h" />
 		<Unit filename="ui/widgets/generic/combobox.cpp" />
@@ -370,6 +359,9 @@
 		</Unit>
 		<Unit filename="ui/widgets/playbackcontrol/playbackcontrol.cpp" />
 		<Unit filename="ui/widgets/playbackcontrol/playbackcontrol.h" />
+		<Unit filename="ui/widgets/projectpane/projectpane.cpp" />
+		<Unit filename="ui/widgets/projectpane/projectpane.h" />
+		<Unit filename="ui/widgets/projectpane/projectpane.ui.h" />
 		<Unit filename="ui/widgets/tubeslider/tubeslider.cpp" />
 		<Unit filename="ui/widgets/tubeslider/tubeslider.h" />
 		<Unit filename="ui/widgets/videopanel/videopanel.cpp" />
