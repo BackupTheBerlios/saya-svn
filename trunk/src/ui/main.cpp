@@ -18,7 +18,7 @@
 #include <qdesktopwidget.h>
 #include <QCloseEvent>
 
-#include "ui/main.ui.h"
+#include "main.ui.h"
 #include "widgets/playbackcontrol/playbackcontrol.h"
 #include "widgets/videoplaybackcontrol/videoplaybackcontrol.h"
 
