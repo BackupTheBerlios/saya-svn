@@ -68,16 +68,6 @@
 		<Unit filename="main.cpp" />
 		<Unit filename="main.h" />
 		<Unit filename="plugins/demovideo.cpp" />
-		<Unit filename="resources/deprecated/README" />
-		<Unit filename="resources/deprecated/debuglog.fbp" />
-		<Unit filename="resources/deprecated/mainmenu.xrc" />
-		<Unit filename="resources/deprecated/newproject.fbp" />
-		<Unit filename="resources/deprecated/newproject.xrc" />
-		<Unit filename="resources/deprecated/pickname.fbp" />
-		<Unit filename="resources/deprecated/pickname.xrc" />
-		<Unit filename="resources/deprecated/saya_welcome.fbp" />
-		<Unit filename="resources/deprecated/welcome.xrc" />
-		<Unit filename="resources/deprecated/wxplaybackcontrolpanel.fbp" />
 		<Unit filename="resources/mainwindow.ui" />
 		<Unit filename="resources/newproject.ui" />
 		<Unit filename="resources/projectpane.ui" />
@@ -312,13 +302,13 @@
 			<Option weight="100" />
 		</Unit>
 		<Unit filename="ui/main.h" />
+		<Unit filename="ui/main.ui.h" />
 		<Unit filename="ui/moc/main.moc.h" />
 		<Unit filename="ui/moc/main.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 ui/main.cpp -o ui/moc/main.moc.h" />
 		</Unit>
-		<Unit filename="ui/ui/main.ui.h" />
 		<Unit filename="ui/widgets/generic/action.cpp" />
 		<Unit filename="ui/widgets/generic/action.h" />
 		<Unit filename="ui/widgets/generic/combobox.cpp" />
