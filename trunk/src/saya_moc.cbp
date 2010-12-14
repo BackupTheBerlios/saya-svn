@@ -36,6 +36,11 @@
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/action.h -o ui/widgets/generic/moc/action.moc.h" />
 		</Unit>
+		<Unit filename="ui/widgets/generic/moc/checkbox.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/checkbox.h -o ui/widgets/generic/moc/checkbox.moc.h" />
+		</Unit>
 		<Unit filename="ui/widgets/generic/moc/combobox.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />

@@ -56,7 +56,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="edNewPrjTitle">
+       <widget class="syLineEdit" name="edNewPrjTitle">
         <property name="font">
          <font>
           <weight>50</weight>
@@ -88,7 +88,7 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QLineEdit" name="edNewPrjFilename">
+       <widget class="syLineEdit" name="edNewPrjFilename">
         <property name="font">
          <font>
           <weight>50</weight>
@@ -101,7 +101,7 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QCheckBox" name="chkNewPrjUnderscores">
+       <widget class="syCheckBox" name="chkNewPrjUnderscores">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -142,7 +142,7 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
       <item row="1" column="1">
        <layout class="QHBoxLayout" name="m_horizontalLayout_2">
         <item>
-         <widget class="QPushButton" name="btnPrjLocation">
+         <widget class="syPushButton" name="btnPrjLocation">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -220,7 +220,7 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="cmbNewPrjPresets">
+         <widget class="syComboBox" name="cmbNewPrjPresets">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -233,7 +233,7 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btnNewPrjSaveSettingsAs">
+         <widget class="syPushButton" name="btnNewPrjSaveSettingsAs">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -343,7 +343,7 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
                   </widget>
                  </item>
                  <item row="2" column="1">
-                  <widget class="QComboBox" name="cmbNewPrjAVSettings_interlacing">
+                  <widget class="syComboBox" name="cmbNewPrjAVSettings_interlacing">
                    <property name="font">
                     <font>
                      <weight>50</weight>
@@ -393,7 +393,7 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
                   </widget>
                  </item>
                  <item row="3" column="1">
-                  <widget class="QLineEdit" name="edNewPrjAVSettings_pixelaspect">
+                  <widget class="syLineEdit" name="edNewPrjAVSettings_pixelaspect">
                    <property name="font">
                     <font>
                      <weight>50</weight>
@@ -411,7 +411,7 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
                  <item row="0" column="1">
                   <layout class="QHBoxLayout" name="m_horizontalLayout_6">
                    <item>
-                    <widget class="QLineEdit" name="edNewPrjAVSettings_width">
+                    <widget class="syLineEdit" name="edNewPrjAVSettings_width">
                      <property name="font">
                       <font>
                        <weight>50</weight>
@@ -434,7 +434,7 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="edNewPrjAVSettings_height">
+                    <widget class="syLineEdit" name="edNewPrjAVSettings_height">
                      <property name="font">
                       <font>
                        <weight>50</weight>
@@ -446,7 +446,7 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
                   </layout>
                  </item>
                  <item row="1" column="1">
-                  <widget class="QComboBox" name="cmbNewPrjAVSettings_fps">
+                  <widget class="syComboBox" name="cmbNewPrjAVSettings_fps">
                    <property name="font">
                     <font>
                      <weight>50</weight>
@@ -528,7 +528,7 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
                   </widget>
                  </item>
                  <item row="0" column="1">
-                  <widget class="QComboBox" name="cmbNewPrjAVSettings_samplerate">
+                  <widget class="syComboBox" name="cmbNewPrjAVSettings_samplerate">
                    <property name="font">
                     <font>
                      <weight>50</weight>
@@ -599,7 +599,7 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
                   </widget>
                  </item>
                  <item row="1" column="1">
-                  <widget class="QComboBox" name="cmbNewPrjAVSettings_samplesize">
+                  <widget class="syComboBox" name="cmbNewPrjAVSettings_samplesize">
                    <property name="font">
                     <font>
                      <weight>50</weight>
@@ -635,7 +635,7 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
                   </widget>
                  </item>
                  <item row="2" column="1">
-                  <widget class="QComboBox" name="cmbNewPrjAVSettings_surround">
+                  <widget class="syComboBox" name="cmbNewPrjAVSettings_surround">
                    <property name="font">
                     <font>
                      <weight>50</weight>
@@ -694,7 +694,7 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
                   </widget>
                  </item>
                  <item row="3" column="1">
-                  <widget class="QSpinBox" name="spnNewPrjAVSettings_channels">
+                  <widget class="sySpinBox" name="spnNewPrjAVSettings_channels">
                    <property name="font">
                     <font>
                      <weight>50</weight>
@@ -730,7 +730,7 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_5">
                <item>
-                <widget class="QTextEdit" name="txtNewPrjAVSettings_description">
+                <widget class="syTextEdit" name="txtNewPrjAVSettings_description">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                    <horstretch>0</horstretch>
@@ -792,14 +792,14 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="btnOk">
+      <widget class="syPushButton" name="btnOk">
        <property name="text">
         <string>Ok</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnCancel">
+      <widget class="syPushButton" name="btnCancel">
        <property name="text">
         <string>Cancel</string>
        </property>
@@ -809,6 +809,38 @@ For portability purposes, all resources (video, audio, etc.) SHOULD be beneath t
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>syPushButton</class>
+   <extends>QPushButton</extends>
+   <header location="global">ui/widgets/generic/pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>syLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">ui/widgets/generic/lineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>syTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header location="global">ui/widgets/generic/textedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>syComboBox</class>
+   <extends>QComboBox</extends>
+   <header location="global">ui/widgets/generic/combobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>syCheckBox</class>
+   <extends>QCheckBox</extends>
+   <header location="global">ui/widgets/generic/checkbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>sySpinBox</class>
+   <extends>QSpinBox</extends>
+   <header location="global">ui/widgets/generic/spinbox.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>edNewPrjTitle</tabstop>
   <tabstop>btnPrjLocation</tabstop>

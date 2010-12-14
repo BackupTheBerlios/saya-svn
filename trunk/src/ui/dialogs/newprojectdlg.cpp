@@ -34,7 +34,9 @@ class NewProjectDlg::Data : public has_slots {
         Ui::new_project_dialog* m_Ui;
 
     // slots
+        void OnCancel();
         void OnAVSettingsUpdateUI();
+        void OnAVSettingsUpdateUI_int(int x) { OnAVSettingsUpdateUI(); }
         void OnPrjPresetsChanged(int i);
         void OnPrjSaveSettingsAsClicked();
         void OnBrowseDir();
@@ -57,25 +59,26 @@ m_Ui(new Ui::new_project_dialog) {
 }
 
 void NewProjectDlg::Data::ConnectSignalsAndSlots() {
-//    connect(m_Ui->cmbNewPrjPresets, SIGNAL(activated(int)), this, SLOT(OnPrjPresetsChanged(int)));
-//
-//    connect(m_Ui->btnPrjLocation, SIGNAL(clicked()), this, SLOT(OnBrowseDir()));
-//    connect(m_Ui->btnNewPrjSaveSettingsAs, SIGNAL(clicked()), this, SLOT(OnPrjSaveSettingsAsClicked()));
-//    connect(m_Ui->btnOk, SIGNAL(clicked()), this, SLOT(OnPressOk()));
-//    connect(m_Ui->btnCancel, SIGNAL(clicked()), this, SLOT(close()));
-//
-//    connect(m_Ui->edNewPrjFilename, SIGNAL(editingFinished()), this, SLOT(OnEditingFinished()));
-//
-//    connect(m_Ui->edNewPrjAVSettings_width, SIGNAL(editingFinished()), this, SLOT(OnAVSettingsUpdateUI()));
-//    connect(m_Ui->edNewPrjAVSettings_height, SIGNAL(editingFinished()), this, SLOT(OnAVSettingsUpdateUI()));
-//    connect(m_Ui->cmbNewPrjAVSettings_fps, SIGNAL(currentIndexChanged(int)), this, SLOT(OnAVSettingsUpdateUI()));
-//    connect(m_Ui->cmbNewPrjAVSettings_interlacing, SIGNAL(currentIndexChanged(int)), this, SLOT(OnAVSettingsUpdateUI()));
-//    connect(m_Ui->edNewPrjAVSettings_pixelaspect, SIGNAL(editingFinished()), this, SLOT(OnAVSettingsUpdateUI()));
-//    connect(m_Ui->cmbNewPrjAVSettings_samplerate, SIGNAL(currentIndexChanged(int)), this, SLOT(OnAVSettingsUpdateUI()));
-//    connect(m_Ui->cmbNewPrjAVSettings_samplesize, SIGNAL(currentIndexChanged(int)), this, SLOT(OnAVSettingsUpdateUI()));
-//    connect(m_Ui->cmbNewPrjAVSettings_surround, SIGNAL(currentIndexChanged(int)), this, SLOT(OnAVSettingsUpdateUI()));
-//    connect(m_Ui->spnNewPrjAVSettings_channels, SIGNAL(valueChanged(int)), this, SLOT(OnAVSettingsUpdateUI()));
-//    connect(m_Ui->txtNewPrjAVSettings_description, SIGNAL(textChanged()), this, SLOT(OnAVSettingsUpdateUI()));
+
+    m_Ui->cmbNewPrjPresets->sigactivated_index.connect(this, &NewProjectDlg::Data::OnPrjPresetsChanged);
+
+    m_Ui->btnPrjLocation->sigclicked.connect(this, &NewProjectDlg::Data::OnBrowseDir);
+    m_Ui->btnNewPrjSaveSettingsAs->sigclicked.connect(this, &NewProjectDlg::Data::OnPrjSaveSettingsAsClicked);
+    m_Ui->btnOk->sigclicked.connect(this, &NewProjectDlg::Data::OnPressOk);
+    m_Ui->btnCancel->sigclicked.connect(this, &NewProjectDlg::Data::OnCancel);
+
+    m_Ui->edNewPrjFilename->sigeditingFinished.connect(this, &NewProjectDlg::Data::OnEditingFinished);
+
+    m_Ui->edNewPrjAVSettings_width->sigeditingFinished.connect(this, &NewProjectDlg::Data::OnAVSettingsUpdateUI);
+    m_Ui->edNewPrjAVSettings_height->sigeditingFinished.connect(this, &NewProjectDlg::Data::OnAVSettingsUpdateUI);
+    m_Ui->cmbNewPrjAVSettings_fps->sigcurrentIndexChanged_index.connect(this, &NewProjectDlg::Data::OnAVSettingsUpdateUI_int);
+    m_Ui->cmbNewPrjAVSettings_interlacing->sigcurrentIndexChanged_index.connect(this, &NewProjectDlg::Data::OnAVSettingsUpdateUI_int);
+    m_Ui->edNewPrjAVSettings_pixelaspect->sigeditingFinished.connect(this, &NewProjectDlg::Data::OnAVSettingsUpdateUI);
+    m_Ui->cmbNewPrjAVSettings_samplerate->sigcurrentIndexChanged_index.connect(this, &NewProjectDlg::Data::OnAVSettingsUpdateUI_int);
+    m_Ui->cmbNewPrjAVSettings_samplesize->sigcurrentIndexChanged_index.connect(this, &NewProjectDlg::Data::OnAVSettingsUpdateUI_int);
+    m_Ui->cmbNewPrjAVSettings_surround->sigcurrentIndexChanged_index.connect(this, &NewProjectDlg::Data::OnAVSettingsUpdateUI_int);
+    m_Ui->spnNewPrjAVSettings_channels->sigvalueChanged_int.connect(this, &NewProjectDlg::Data::OnAVSettingsUpdateUI_int);
+    m_Ui->txtNewPrjAVSettings_description->sigtextChanged.connect(this, &NewProjectDlg::Data::OnAVSettingsUpdateUI);
 }
 
 NewProjectDlg::Data::~Data() {
@@ -112,6 +115,10 @@ NewProjectDlg::~NewProjectDlg()
 
 void NewProjectDlg::Data::OnAVSettingsUpdateUI()
 {
+}
+
+void NewProjectDlg::Data::OnCancel() {
+    m_Parent->close();
 }
 
 void NewProjectDlg::Data::OnPrjPresetsChanged(int i)

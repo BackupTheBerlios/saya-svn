@@ -1,21 +1,19 @@
 /********************************************************************************
-** Form generated from reading ui file 'newprojectKx6132.ui'
+** Form generated from reading ui file 'newprojectjd6120.ui'
 **
-** Created: Wed Dec 8 23:55:34 2010
+** Created: Mon Dec 13 22:47:39 2010
 **      by: Qt User Interface Compiler version 4.5.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!
 ********************************************************************************/
 
-#ifndef NEWPROJECTDLG_UI_H
-#define NEWPROJECTDLG_UI_H
+#ifndef NEWPROJECTJD6120_H
+#define NEWPROJECTJD6120_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
-#include <QtGui/QCheckBox>
-#include <QtGui/QComboBox>
 #include <QtGui/QDialog>
 #include <QtGui/QFormLayout>
 #include <QtGui/QFrame>
@@ -23,14 +21,16 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
-#include <QtGui/QLineEdit>
-#include <QtGui/QPushButton>
 #include <QtGui/QSpacerItem>
-#include <QtGui/QSpinBox>
 #include <QtGui/QTabWidget>
-#include <QtGui/QTextEdit>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
+#include <ui/widgets/generic/checkbox.h>
+#include <ui/widgets/generic/combobox.h>
+#include <ui/widgets/generic/lineedit.h>
+#include <ui/widgets/generic/pushbutton.h>
+#include <ui/widgets/generic/spinbox.h>
+#include <ui/widgets/generic/textedit.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -41,21 +41,21 @@ public:
     QGroupBox *m_TitleAndFilename;
     QFormLayout *formLayout;
     QLabel *m_label;
-    QLineEdit *edNewPrjTitle;
+    syLineEdit *edNewPrjTitle;
     QLabel *m_label_3;
-    QLineEdit *edNewPrjFilename;
-    QCheckBox *chkNewPrjUnderscores;
+    syLineEdit *edNewPrjFilename;
+    syCheckBox *chkNewPrjUnderscores;
     QLabel *m_label_2;
     QHBoxLayout *m_horizontalLayout_2;
-    QPushButton *btnPrjLocation;
+    syPushButton *btnPrjLocation;
     QSpacerItem *m_horizontalSpacer;
     QFrame *line;
     QGroupBox *m_ProjectSettings;
     QVBoxLayout *verticalLayout;
     QHBoxLayout *m_horizontalLayout;
     QLabel *m_label_4;
-    QComboBox *cmbNewPrjPresets;
-    QPushButton *btnNewPrjSaveSettingsAs;
+    syComboBox *cmbNewPrjPresets;
+    syPushButton *btnNewPrjSaveSettingsAs;
     QTabWidget *m_tabWidget;
     QWidget *m_AudioVideoSettingsTab;
     QVBoxLayout *verticalLayout_3;
@@ -66,34 +66,34 @@ public:
     QLabel *m_label_5;
     QLabel *m_label_6;
     QLabel *m_label_7;
-    QComboBox *cmbNewPrjAVSettings_interlacing;
+    syComboBox *cmbNewPrjAVSettings_interlacing;
     QLabel *m_label_8;
-    QLineEdit *edNewPrjAVSettings_pixelaspect;
+    syLineEdit *edNewPrjAVSettings_pixelaspect;
     QHBoxLayout *m_horizontalLayout_6;
-    QLineEdit *edNewPrjAVSettings_width;
+    syLineEdit *edNewPrjAVSettings_width;
     QLabel *m_label_13;
-    QLineEdit *edNewPrjAVSettings_height;
-    QComboBox *cmbNewPrjAVSettings_fps;
+    syLineEdit *edNewPrjAVSettings_height;
+    syComboBox *cmbNewPrjAVSettings_fps;
     QFrame *line_3;
     QGroupBox *m_ProjectSettingsAudio;
     QFormLayout *formLayout_4;
     QLabel *m_label_9;
-    QComboBox *cmbNewPrjAVSettings_samplerate;
+    syComboBox *cmbNewPrjAVSettings_samplerate;
     QLabel *m_label_10;
-    QComboBox *cmbNewPrjAVSettings_samplesize;
+    syComboBox *cmbNewPrjAVSettings_samplesize;
     QLabel *m_label_11;
-    QComboBox *cmbNewPrjAVSettings_surround;
+    syComboBox *cmbNewPrjAVSettings_surround;
     QLabel *m_label_12;
-    QSpinBox *spnNewPrjAVSettings_channels;
+    sySpinBox *spnNewPrjAVSettings_channels;
     QGroupBox *m_ProjectSettingsAbout;
     QVBoxLayout *verticalLayout_5;
-    QTextEdit *txtNewPrjAVSettings_description;
+    syTextEdit *txtNewPrjAVSettings_description;
     QWidget *m_EncoderSettingsTab;
     QWidget *m_DefaultSequenceSettingsTab;
     QHBoxLayout *m_horizontalLayout_3;
     QSpacerItem *m_horizontalSpacer_2;
-    QPushButton *btnOk;
-    QPushButton *btnCancel;
+    syPushButton *btnOk;
+    syPushButton *btnCancel;
 
     void setupUi(QDialog *new_project_dialog)
     {
@@ -121,7 +121,7 @@ public:
 
         formLayout->setWidget(0, QFormLayout::LabelRole, m_label);
 
-        edNewPrjTitle = new QLineEdit(m_TitleAndFilename);
+        edNewPrjTitle = new syLineEdit(m_TitleAndFilename);
         edNewPrjTitle->setObjectName(QString::fromUtf8("edNewPrjTitle"));
         edNewPrjTitle->setFont(font1);
 
@@ -133,13 +133,13 @@ public:
 
         formLayout->setWidget(2, QFormLayout::LabelRole, m_label_3);
 
-        edNewPrjFilename = new QLineEdit(m_TitleAndFilename);
+        edNewPrjFilename = new syLineEdit(m_TitleAndFilename);
         edNewPrjFilename->setObjectName(QString::fromUtf8("edNewPrjFilename"));
         edNewPrjFilename->setFont(font1);
 
         formLayout->setWidget(2, QFormLayout::FieldRole, edNewPrjFilename);
 
-        chkNewPrjUnderscores = new QCheckBox(m_TitleAndFilename);
+        chkNewPrjUnderscores = new syCheckBox(m_TitleAndFilename);
         chkNewPrjUnderscores->setObjectName(QString::fromUtf8("chkNewPrjUnderscores"));
         chkNewPrjUnderscores->setEnabled(true);
         chkNewPrjUnderscores->setFont(font1);
@@ -155,7 +155,7 @@ public:
 
         m_horizontalLayout_2 = new QHBoxLayout();
         m_horizontalLayout_2->setObjectName(QString::fromUtf8("m_horizontalLayout_2"));
-        btnPrjLocation = new QPushButton(m_TitleAndFilename);
+        btnPrjLocation = new syPushButton(m_TitleAndFilename);
         btnPrjLocation->setObjectName(QString::fromUtf8("btnPrjLocation"));
         btnPrjLocation->setEnabled(true);
         btnPrjLocation->setFont(font1);
@@ -193,14 +193,14 @@ public:
 
         m_horizontalLayout->addWidget(m_label_4);
 
-        cmbNewPrjPresets = new QComboBox(m_ProjectSettings);
+        cmbNewPrjPresets = new syComboBox(m_ProjectSettings);
         cmbNewPrjPresets->setObjectName(QString::fromUtf8("cmbNewPrjPresets"));
         cmbNewPrjPresets->setEnabled(false);
         cmbNewPrjPresets->setFont(font1);
 
         m_horizontalLayout->addWidget(cmbNewPrjPresets);
 
-        btnNewPrjSaveSettingsAs = new QPushButton(m_ProjectSettings);
+        btnNewPrjSaveSettingsAs = new syPushButton(m_ProjectSettings);
         btnNewPrjSaveSettingsAs->setObjectName(QString::fromUtf8("btnNewPrjSaveSettingsAs"));
         btnNewPrjSaveSettingsAs->setEnabled(true);
         btnNewPrjSaveSettingsAs->setFont(font1);
@@ -247,7 +247,7 @@ public:
 
         formLayout_3->setWidget(2, QFormLayout::LabelRole, m_label_7);
 
-        cmbNewPrjAVSettings_interlacing = new QComboBox(m_ProjectSettingsVideo);
+        cmbNewPrjAVSettings_interlacing = new syComboBox(m_ProjectSettingsVideo);
         cmbNewPrjAVSettings_interlacing->setObjectName(QString::fromUtf8("cmbNewPrjAVSettings_interlacing"));
         cmbNewPrjAVSettings_interlacing->setFont(font1);
 
@@ -260,7 +260,7 @@ public:
 
         formLayout_3->setWidget(3, QFormLayout::LabelRole, m_label_8);
 
-        edNewPrjAVSettings_pixelaspect = new QLineEdit(m_ProjectSettingsVideo);
+        edNewPrjAVSettings_pixelaspect = new syLineEdit(m_ProjectSettingsVideo);
         edNewPrjAVSettings_pixelaspect->setObjectName(QString::fromUtf8("edNewPrjAVSettings_pixelaspect"));
         edNewPrjAVSettings_pixelaspect->setFont(font1);
 
@@ -268,7 +268,7 @@ public:
 
         m_horizontalLayout_6 = new QHBoxLayout();
         m_horizontalLayout_6->setObjectName(QString::fromUtf8("m_horizontalLayout_6"));
-        edNewPrjAVSettings_width = new QLineEdit(m_ProjectSettingsVideo);
+        edNewPrjAVSettings_width = new syLineEdit(m_ProjectSettingsVideo);
         edNewPrjAVSettings_width->setObjectName(QString::fromUtf8("edNewPrjAVSettings_width"));
         edNewPrjAVSettings_width->setFont(font1);
 
@@ -280,7 +280,7 @@ public:
 
         m_horizontalLayout_6->addWidget(m_label_13);
 
-        edNewPrjAVSettings_height = new QLineEdit(m_ProjectSettingsVideo);
+        edNewPrjAVSettings_height = new syLineEdit(m_ProjectSettingsVideo);
         edNewPrjAVSettings_height->setObjectName(QString::fromUtf8("edNewPrjAVSettings_height"));
         edNewPrjAVSettings_height->setFont(font1);
 
@@ -289,7 +289,7 @@ public:
 
         formLayout_3->setLayout(0, QFormLayout::FieldRole, m_horizontalLayout_6);
 
-        cmbNewPrjAVSettings_fps = new QComboBox(m_ProjectSettingsVideo);
+        cmbNewPrjAVSettings_fps = new syComboBox(m_ProjectSettingsVideo);
         cmbNewPrjAVSettings_fps->setObjectName(QString::fromUtf8("cmbNewPrjAVSettings_fps"));
         cmbNewPrjAVSettings_fps->setFont(font1);
         cmbNewPrjAVSettings_fps->setMinimumContentsLength(0);
@@ -318,7 +318,7 @@ public:
 
         formLayout_4->setWidget(0, QFormLayout::LabelRole, m_label_9);
 
-        cmbNewPrjAVSettings_samplerate = new QComboBox(m_ProjectSettingsAudio);
+        cmbNewPrjAVSettings_samplerate = new syComboBox(m_ProjectSettingsAudio);
         cmbNewPrjAVSettings_samplerate->setObjectName(QString::fromUtf8("cmbNewPrjAVSettings_samplerate"));
         cmbNewPrjAVSettings_samplerate->setFont(font1);
 
@@ -330,7 +330,7 @@ public:
 
         formLayout_4->setWidget(1, QFormLayout::LabelRole, m_label_10);
 
-        cmbNewPrjAVSettings_samplesize = new QComboBox(m_ProjectSettingsAudio);
+        cmbNewPrjAVSettings_samplesize = new syComboBox(m_ProjectSettingsAudio);
         cmbNewPrjAVSettings_samplesize->setObjectName(QString::fromUtf8("cmbNewPrjAVSettings_samplesize"));
         cmbNewPrjAVSettings_samplesize->setFont(font1);
 
@@ -342,7 +342,7 @@ public:
 
         formLayout_4->setWidget(2, QFormLayout::LabelRole, m_label_11);
 
-        cmbNewPrjAVSettings_surround = new QComboBox(m_ProjectSettingsAudio);
+        cmbNewPrjAVSettings_surround = new syComboBox(m_ProjectSettingsAudio);
         cmbNewPrjAVSettings_surround->setObjectName(QString::fromUtf8("cmbNewPrjAVSettings_surround"));
         cmbNewPrjAVSettings_surround->setFont(font1);
 
@@ -355,7 +355,7 @@ public:
 
         formLayout_4->setWidget(3, QFormLayout::LabelRole, m_label_12);
 
-        spnNewPrjAVSettings_channels = new QSpinBox(m_ProjectSettingsAudio);
+        spnNewPrjAVSettings_channels = new sySpinBox(m_ProjectSettingsAudio);
         spnNewPrjAVSettings_channels->setObjectName(QString::fromUtf8("spnNewPrjAVSettings_channels"));
         spnNewPrjAVSettings_channels->setFont(font1);
         spnNewPrjAVSettings_channels->setMinimum(1);
@@ -375,7 +375,7 @@ public:
         m_ProjectSettingsAbout->setFont(font);
         verticalLayout_5 = new QVBoxLayout(m_ProjectSettingsAbout);
         verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
-        txtNewPrjAVSettings_description = new QTextEdit(m_ProjectSettingsAbout);
+        txtNewPrjAVSettings_description = new syTextEdit(m_ProjectSettingsAbout);
         txtNewPrjAVSettings_description->setObjectName(QString::fromUtf8("txtNewPrjAVSettings_description"));
         QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy.setHorizontalStretch(0);
@@ -413,12 +413,12 @@ public:
 
         m_horizontalLayout_3->addItem(m_horizontalSpacer_2);
 
-        btnOk = new QPushButton(new_project_dialog);
+        btnOk = new syPushButton(new_project_dialog);
         btnOk->setObjectName(QString::fromUtf8("btnOk"));
 
         m_horizontalLayout_3->addWidget(btnOk);
 
-        btnCancel = new QPushButton(new_project_dialog);
+        btnCancel = new syPushButton(new_project_dialog);
         btnCancel->setObjectName(QString::fromUtf8("btnCancel"));
 
         m_horizontalLayout_3->addWidget(btnCancel);
@@ -587,4 +587,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // NEWPROJECTKX6132_H
+#endif // NEWPROJECTJD6120_H
