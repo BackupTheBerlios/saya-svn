@@ -295,8 +295,7 @@ unsigned int idHelpAbout = syActionEvent::RegisterId("action_About");
 // begin AppFrame::Data
 // --------------------
 
-class AppFrame::Data : public QObject, public syEvtHandler, public has_slots {
-    Q_OBJECT
+class AppFrame::Data : public syEvtHandler, public has_slots {
     public:
         Data(AppFrame* parent);
         virtual ~Data();
@@ -345,34 +344,34 @@ class AppFrame::Data : public QObject, public syEvtHandler, public has_slots {
         syString m_FactoryDefaultLayout;
         unsigned int m_recentfilesmodcounter;
         unsigned int m_recentimportsmodcounter;
-        QAction* m_RecentFiles[9];
-        QAction* m_RecentImports[9];
+        syAction* m_RecentFiles[9];
+        syAction* m_RecentImports[9];
 
         Ui::MainWindow* m_Ui;
 
-        void RegisterAction(unsigned int id, QAction* action);
+        void RegisterAction(unsigned int id, syAction* action);
         void UnregisterAction(unsigned int id);
         void UnregisterAllActions();
         void EnableAction(unsigned int id, bool enable = true);
-        void EnableAction(QAction* action, bool enable = true);
+        void EnableAction(syAction* action, bool enable = true);
         void DisableAction(unsigned int id);
-        void DisableAction(QAction* action);
-        QAction* GetAction(unsigned int id);
+        void DisableAction(syAction* action);
+        syAction* GetAction(unsigned int id);
         void OnActionEvent(syActionEvent& event);
 
     private:
-        void InnerRegisterAction(unsigned int id, QAction* action);
+        void InnerRegisterAction(unsigned int id, syAction* action);
         void RegisterSlots();
         void RegisterSlot(unsigned int id, void (AppFrame::Data::*pmemfun)());
         void (AppFrame::Data::*FindSlot(unsigned int id))();
 
-        typedef std::map<unsigned int, QAction*> ActionsMap;
+        typedef std::map<unsigned int, syAction*> ActionsMap;
         typedef std::map<unsigned int, void (AppFrame::Data::*)()> SlotsMap;
         ActionsMap m_ActionsMap;
         SlotsMap m_SlotsMap;
         syMutex m_ActionsMutex;
 
-    public slots:
+    public: // slots
 
         void OnFileOpen();
         void OnFileClose();
@@ -480,15 +479,17 @@ m_Ui(new Ui::MainWindow)
     CreateConnections(m_Ui->menubar);
 
     // Connect the aboutToShow() signals to the On*UpdateUI() slots.
-    m_Ui->file_menu->connect(static_cast<QObject*>(m_Ui->file_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnFileMenuUpdateUI()));
-    m_Ui->action_FileOpenRecentProject->connect(static_cast<QObject*>(m_Ui->action_FileOpenRecentProject), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnRecentFilesMenuUpdateUI()));
-    m_Ui->action_FileImportRecent->connect(static_cast<QObject*>(m_Ui->action_FileImportRecent), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnRecentImportsMenuUpdateUI()));
-    m_Ui->edit_menu->connect(static_cast<QObject*>(m_Ui->edit_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnEditMenuUpdateUI()));
-    m_Ui->project_menu->connect(static_cast<QObject*>(m_Ui->project_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnProjectMenuUpdateUI()));
-    m_Ui->clip_menu->connect(static_cast<QObject*>(m_Ui->clip_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnClipMenuUpdateUI()));
-    m_Ui->sequence_menu->connect(static_cast<QObject*>(m_Ui->sequence_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnSequenceMenuUpdateUI()));
-    m_Ui->marker_menu->connect(static_cast<QObject*>(m_Ui->marker_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnMarkerMenuUpdateUI()));
-    m_Ui->window_menu->connect(static_cast<QObject*>(m_Ui->window_menu), SIGNAL(aboutToShow()), dynamic_cast<QObject*>(this), SLOT(OnWindowMenuUpdateUI()));
+
+    m_Ui->file_menu->sigaboutToShow.connect(this, &AppFrame::Data::OnFileMenuUpdateUI);
+    m_Ui->action_FileOpenRecentProject->sigaboutToShow.connect(this, &AppFrame::Data::OnRecentFilesMenuUpdateUI);
+    m_Ui->action_FileImportRecent->sigaboutToShow.connect(this, &AppFrame::Data::OnRecentImportsMenuUpdateUI);
+    m_Ui->edit_menu->sigaboutToShow.connect(this, &AppFrame::Data::OnEditMenuUpdateUI);
+    m_Ui->project_menu->sigaboutToShow.connect(this, &AppFrame::Data::OnProjectMenuUpdateUI);
+    m_Ui->clip_menu->sigaboutToShow.connect(this, &AppFrame::Data::OnClipMenuUpdateUI);
+    m_Ui->sequence_menu->sigaboutToShow.connect(this, &AppFrame::Data::OnSequenceMenuUpdateUI);
+    m_Ui->marker_menu->sigaboutToShow.connect(this, &AppFrame::Data::OnMarkerMenuUpdateUI);
+    m_Ui->window_menu->sigaboutToShow.connect(this, &AppFrame::Data::OnWindowMenuUpdateUI);
+
     m_Ui->action_EditLabel->setEnabled(false); // TODO: Re-enable the "Edit Label" menu and set the actions as mutually exclusive.
 
 }
@@ -562,13 +563,13 @@ void (AppFrame::Data::*AppFrame::Data::FindSlot(unsigned int id))() {
     return it->second;
 }
 
-void AppFrame::Data::RegisterAction(unsigned int id, QAction* action) {
+void AppFrame::Data::RegisterAction(unsigned int id, syAction* action) {
     if(!this) return;
     syMutexLocker locker(m_ActionsMutex);
     InnerRegisterAction(id, action);
 }
 
-void AppFrame::Data::InnerRegisterAction(unsigned int id, QAction* action) {
+void AppFrame::Data::InnerRegisterAction(unsigned int id, syAction* action) {
     if(!this) return;
     m_ActionsMap[id] = action;
     action->setData(id);
@@ -586,7 +587,7 @@ void AppFrame::Data::UnregisterAllActions() {
     m_ActionsMap.clear();
 }
 
-inline QAction* AppFrame::Data::GetAction(unsigned int id) {
+inline syAction* AppFrame::Data::GetAction(unsigned int id) {
     if(!this) return 0;
     ActionsMap::iterator it = m_ActionsMap.find(id);
     if(it == m_ActionsMap.end()) {
@@ -596,13 +597,13 @@ inline QAction* AppFrame::Data::GetAction(unsigned int id) {
 }
 
 inline void AppFrame::Data::EnableAction(unsigned int id, bool enable) {
-    QAction* action = GetAction(id);
+    syAction* action = GetAction(id);
     if(action) {
         action->setEnabled(enable);
     }
 }
 
-inline void AppFrame::Data::EnableAction(QAction* action, bool enable) {
+inline void AppFrame::Data::EnableAction(syAction* action, bool enable) {
     if(action) {
         action->setEnabled(enable);
     }
@@ -612,7 +613,7 @@ inline void AppFrame::Data::DisableAction(unsigned int id) {
     EnableAction(id, false);
 }
 
-inline void AppFrame::Data::DisableAction(QAction* action) {
+inline void AppFrame::Data::DisableAction(syAction* action) {
     if(action) {
         action->setEnabled(false);
     }
@@ -620,7 +621,7 @@ inline void AppFrame::Data::DisableAction(QAction* action) {
 
 void AppFrame::Data::OnActionEvent(syActionEvent& event) {
     if(!this) return;
-    QAction* action = GetAction(event.EventId);
+    syAction* action = GetAction(event.EventId);
     if(action) {
         action->trigger();
     }
@@ -653,7 +654,9 @@ void AppFrame::Data::CreateConnections(QWidget* parentwidget) {
     QList<QAction*>::iterator it = all_actions.begin();
     for(;it != all_actions.end();++it) {
         QAction* theaction = *it;
-        if(!theaction) continue;
+        if(!theaction) {
+            continue;
+        }
 
         QMenu* themenu = theaction->menu();
         if(themenu) {
@@ -663,20 +666,16 @@ void AppFrame::Data::CreateConnections(QWidget* parentwidget) {
             unsigned int id = syActionEvent::GetRegisteredId(thename.c_str());
             if(!id) { continue; }
 
-            InnerRegisterAction(id, theaction);
+            syAction* tmpaction = dynamic_cast<syAction*>(theaction);
+            InnerRegisterAction(id, tmpaction);
 
             pmemfun = FindSlot(id);
             if(pmemfun) {
-                // theaction->sigtriggered.connect(this,pmemfun);
-            }
-
-            syString theslot(syActionEvent::GetUserStringFromId(id));
-            if(!theslot.empty()) {
-                theslot = syString(SLOT()) + theslot;
-                theaction->connect(static_cast<QObject*>(theaction), SIGNAL(triggered()), dynamic_cast<QObject*>(this), theslot.c_str(), Qt::QueuedConnection);
+                tmpaction->sigtriggered.connect(this,pmemfun);
             }
         }
     }
+
     // Now we'll Register OnActionEvent as an event handler function.
     m_Parent->m_Delegate = this;
     syConnect(this, -1, &AppFrame::Data::OnActionEvent);
@@ -1500,7 +1499,3 @@ void AppFrame::closeEvent(QCloseEvent *event) {
         deleteLater(); // Closing the main window will quit the application.
     }
 }
-
-#ifndef Q_MOC_RUN
-  #include "moc/main.moc.h"
-#endif

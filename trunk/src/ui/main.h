@@ -12,7 +12,7 @@
 
 #include <qmainwindow.h>
 
-#include "../saya/core/events.h"
+#include <saya/core/events.h>
 
 class syString;
 class ProjectManager;

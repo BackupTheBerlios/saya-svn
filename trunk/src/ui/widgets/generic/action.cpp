@@ -18,8 +18,8 @@ syAction::syAction ( const QString & text, QObject* parent)  : QAction(text, par
 syAction::syAction ( const QIcon & icon, const QString & text, QObject* parent) : QAction(icon, text, parent) { connectFakeSlots(); }
 
 void syAction::connectFakeSlots() {
-    connect(this,SIGNAL(changed()),this, SLOT(sigpressed()), Qt::DirectConnection);
-    connect(this,SIGNAL(hovered()),this, SLOT(sigreleased()), Qt::DirectConnection);
+    connect(this,SIGNAL(changed()),this, SLOT(sigchanged()), Qt::DirectConnection);
+    connect(this,SIGNAL(hovered()),this, SLOT(sighovered()), Qt::DirectConnection);
     connect(this,SIGNAL(toggled(bool)),this, SLOT(sigtoggled(bool)), Qt::DirectConnection);
     connect(this,SIGNAL(triggered()),this, SLOT(sigtriggered()), Qt::DirectConnection);
     connect(this,SIGNAL(triggered(bool)),this, SLOT(sigtriggeredcheckable(bool)), Qt::DirectConnection);

@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow" >
-  <property name="geometry" >
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,2105 +10,2112 @@
     <height>600</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Saya-VE ain't yet Another Video Editor</string>
   </property>
-  <widget class="QWidget" name="centralwidget" />
-  <widget class="QMenuBar" name="menubar" >
-   <property name="geometry" >
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>30</height>
+     <height>28</height>
     </rect>
    </property>
-   <widget class="QMenu" name="file_menu" >
-    <property name="title" >
+   <widget class="syMenu" name="file_menu">
+    <property name="title">
      <string>&amp;File</string>
     </property>
-    <widget class="QMenu" name="action_FileNew" >
-     <property name="title" >
+    <widget class="syMenu" name="action_FileNew">
+     <property name="title">
       <string>&amp;New</string>
      </property>
-     <addaction name="action_NewProject" />
-     <addaction name="action_NewSequence" />
-     <addaction name="action_NewBin" />
-     <addaction name="action_NewOfflineFile" />
-     <addaction name="action_NewTitle" />
-     <addaction name="separator" />
-     <addaction name="action_NewBarsandTone" />
-     <addaction name="action_NewBlackVideo" />
-     <addaction name="action_NewColorMatte" />
-     <addaction name="action_NewUniversalCountingLeader" />
+     <addaction name="action_NewProject"/>
+     <addaction name="action_NewSequence"/>
+     <addaction name="action_NewBin"/>
+     <addaction name="action_NewOfflineFile"/>
+     <addaction name="action_NewTitle"/>
+     <addaction name="separator"/>
+     <addaction name="action_NewBarsandTone"/>
+     <addaction name="action_NewBlackVideo"/>
+     <addaction name="action_NewColorMatte"/>
+     <addaction name="action_NewUniversalCountingLeader"/>
     </widget>
-    <widget class="QMenu" name="action_FileOpenRecentProject" >
-     <property name="title" >
+    <widget class="syMenu" name="action_FileOpenRecentProject">
+     <property name="title">
       <string>Open recent &amp;project</string>
      </property>
-     <addaction name="action_ClearRecentProjectsHistory" />
-     <addaction name="separator" />
-     <addaction name="action_RecentProject1" />
-     <addaction name="action_RecentProject2" />
-     <addaction name="action_RecentProject3" />
-     <addaction name="action_RecentProject4" />
-     <addaction name="action_RecentProject5" />
-     <addaction name="action_RecentProject6" />
-     <addaction name="action_RecentProject7" />
-     <addaction name="action_RecentProject8" />
-     <addaction name="action_RecentProject9" />
+     <addaction name="action_ClearRecentProjectsHistory"/>
+     <addaction name="separator"/>
+     <addaction name="action_RecentProject1"/>
+     <addaction name="action_RecentProject2"/>
+     <addaction name="action_RecentProject3"/>
+     <addaction name="action_RecentProject4"/>
+     <addaction name="action_RecentProject5"/>
+     <addaction name="action_RecentProject6"/>
+     <addaction name="action_RecentProject7"/>
+     <addaction name="action_RecentProject8"/>
+     <addaction name="action_RecentProject9"/>
     </widget>
-    <widget class="QMenu" name="action_FileImportRecent" >
-     <property name="enabled" >
+    <widget class="syMenu" name="action_FileImportRecent">
+     <property name="enabled">
       <bool>false</bool>
      </property>
-     <property name="title" >
+     <property name="title">
       <string>I&amp;mport Recent File</string>
      </property>
-     <addaction name="action_ClearRecentImportsHistory" />
-     <addaction name="separator" />
-     <addaction name="action_RecentImport1" />
-     <addaction name="action_RecentImport2" />
-     <addaction name="action_RecentImport3" />
-     <addaction name="action_RecentImport4" />
-     <addaction name="action_RecentImport5" />
-     <addaction name="action_RecentImport6" />
-     <addaction name="action_RecentImport7" />
-     <addaction name="action_RecentImport8" />
-     <addaction name="action_RecentImport9" />
+     <addaction name="action_ClearRecentImportsHistory"/>
+     <addaction name="separator"/>
+     <addaction name="action_RecentImport1"/>
+     <addaction name="action_RecentImport2"/>
+     <addaction name="action_RecentImport3"/>
+     <addaction name="action_RecentImport4"/>
+     <addaction name="action_RecentImport5"/>
+     <addaction name="action_RecentImport6"/>
+     <addaction name="action_RecentImport7"/>
+     <addaction name="action_RecentImport8"/>
+     <addaction name="action_RecentImport9"/>
     </widget>
-    <widget class="QMenu" name="action_FileExport" >
-     <property name="title" >
+    <widget class="syMenu" name="action_FileExport">
+     <property name="title">
       <string>&amp;Export</string>
      </property>
-     <addaction name="action_ExportMovie" />
-     <addaction name="action_ExportFrame" />
-     <addaction name="action_ExportAudio" />
-     <addaction name="separator" />
-     <addaction name="action_ExportToTape" />
-     <addaction name="separator" />
-     <addaction name="action_ExportMediaEncoder" />
-     <addaction name="action_ExportToDVD" />
+     <addaction name="action_ExportMovie"/>
+     <addaction name="action_ExportFrame"/>
+     <addaction name="action_ExportAudio"/>
+     <addaction name="separator"/>
+     <addaction name="action_ExportToTape"/>
+     <addaction name="separator"/>
+     <addaction name="action_ExportMediaEncoder"/>
+     <addaction name="action_ExportToDVD"/>
     </widget>
-    <widget class="QMenu" name="action_FileGetProperties" >
-     <property name="title" >
+    <widget class="syMenu" name="action_FileGetProperties">
+     <property name="title">
       <string>&amp;Get Properties for</string>
      </property>
-     <addaction name="action_FileGetPropertiesFile" />
-     <addaction name="action_FileGetPropertiesSelection" />
+     <addaction name="action_FileGetPropertiesFile"/>
+     <addaction name="action_FileGetPropertiesSelection"/>
     </widget>
-    <addaction name="action_FileNew" />
-    <addaction name="action_FileOpen" />
-    <addaction name="action_FileOpenRecentProject" />
-    <addaction name="separator" />
-    <addaction name="action_FileClose" />
-    <addaction name="action_FileSave" />
-    <addaction name="action_FileSaveAs" />
-    <addaction name="action_FileSaveCopy" />
-    <addaction name="action_FileRevert" />
-    <addaction name="separator" />
-    <addaction name="action_FileCapture" />
-    <addaction name="action_FileBatchCapture" />
-    <addaction name="separator" />
-    <addaction name="action_FileImport" />
-    <addaction name="action_FileImportRecent" />
-    <addaction name="separator" />
-    <addaction name="action_FileExport" />
-    <addaction name="separator" />
-    <addaction name="action_FileGetProperties" />
-    <addaction name="separator" />
-    <addaction name="action_FileInterpretFootage" />
-    <addaction name="action_FileTimecode" />
-    <addaction name="separator" />
-    <addaction name="action_Quit" />
+    <addaction name="action_FileNew"/>
+    <addaction name="action_FileOpen"/>
+    <addaction name="action_FileOpenRecentProject"/>
+    <addaction name="separator"/>
+    <addaction name="action_FileClose"/>
+    <addaction name="action_FileSave"/>
+    <addaction name="action_FileSaveAs"/>
+    <addaction name="action_FileSaveCopy"/>
+    <addaction name="action_FileRevert"/>
+    <addaction name="separator"/>
+    <addaction name="action_FileCapture"/>
+    <addaction name="action_FileBatchCapture"/>
+    <addaction name="separator"/>
+    <addaction name="action_FileImport"/>
+    <addaction name="action_FileImportRecent"/>
+    <addaction name="separator"/>
+    <addaction name="action_FileExport"/>
+    <addaction name="separator"/>
+    <addaction name="action_FileGetProperties"/>
+    <addaction name="separator"/>
+    <addaction name="action_FileInterpretFootage"/>
+    <addaction name="action_FileTimecode"/>
+    <addaction name="separator"/>
+    <addaction name="action_Quit"/>
    </widget>
-   <widget class="QMenu" name="edit_menu" >
-    <property name="title" >
+   <widget class="syMenu" name="edit_menu">
+    <property name="title">
      <string>&amp;Edit</string>
     </property>
-    <widget class="QMenu" name="action_EditLabel" >
-     <property name="title" >
+    <widget class="syMenu" name="action_EditLabel">
+     <property name="title">
       <string>Label</string>
      </property>
-     <addaction name="action_EditLabelSelectLabelGroup" />
-     <addaction name="separator" />
-     <addaction name="action_EditLabelBlue" />
-     <addaction name="action_EditLabelCyan" />
-     <addaction name="action_EditLabelGreen" />
-     <addaction name="action_EditLabelViolet" />
-     <addaction name="action_EditLabelPink" />
-     <addaction name="action_EditLabelGray" />
-     <addaction name="action_EditLabelRed" />
-     <addaction name="action_EditLabelOrange" />
+     <addaction name="action_EditLabelSelectLabelGroup"/>
+     <addaction name="separator"/>
+     <addaction name="action_EditLabelBlue"/>
+     <addaction name="action_EditLabelCyan"/>
+     <addaction name="action_EditLabelGreen"/>
+     <addaction name="action_EditLabelViolet"/>
+     <addaction name="action_EditLabelPink"/>
+     <addaction name="action_EditLabelGray"/>
+     <addaction name="action_EditLabelRed"/>
+     <addaction name="action_EditLabelOrange"/>
     </widget>
-    <addaction name="action_EditUndo" />
-    <addaction name="action_EditRedo" />
-    <addaction name="separator" />
-    <addaction name="action_EditClearUndoHistory" />
-    <addaction name="separator" />
-    <addaction name="action_EditCut" />
-    <addaction name="action_EditCopy" />
-    <addaction name="action_EditPaste" />
-    <addaction name="action_EditPasteInsert" />
-    <addaction name="action_EditPasteAttributes" />
-    <addaction name="action_EditClear" />
-    <addaction name="action_EditRippleDelete" />
-    <addaction name="separator" />
-    <addaction name="action_EditDuplicate" />
-    <addaction name="action_EditSelectAll" />
-    <addaction name="action_EditDeselectAll" />
-    <addaction name="separator" />
-    <addaction name="action_EditFind" />
-    <addaction name="separator" />
-    <addaction name="action_EditLabel" />
-    <addaction name="separator" />
-    <addaction name="action_EditOriginal" />
+    <addaction name="action_EditUndo"/>
+    <addaction name="action_EditRedo"/>
+    <addaction name="separator"/>
+    <addaction name="action_EditClearUndoHistory"/>
+    <addaction name="separator"/>
+    <addaction name="action_EditCut"/>
+    <addaction name="action_EditCopy"/>
+    <addaction name="action_EditPaste"/>
+    <addaction name="action_EditPasteInsert"/>
+    <addaction name="action_EditPasteAttributes"/>
+    <addaction name="action_EditClear"/>
+    <addaction name="action_EditRippleDelete"/>
+    <addaction name="separator"/>
+    <addaction name="action_EditDuplicate"/>
+    <addaction name="action_EditSelectAll"/>
+    <addaction name="action_EditDeselectAll"/>
+    <addaction name="separator"/>
+    <addaction name="action_EditFind"/>
+    <addaction name="separator"/>
+    <addaction name="action_EditLabel"/>
+    <addaction name="separator"/>
+    <addaction name="action_EditOriginal"/>
    </widget>
-   <widget class="QMenu" name="project_menu" >
-    <property name="title" >
+   <widget class="syMenu" name="project_menu">
+    <property name="title">
      <string>&amp;Project</string>
     </property>
-    <widget class="QMenu" name="action_ProjectSettings" >
-     <property name="title" >
+    <widget class="syMenu" name="action_ProjectSettings">
+     <property name="title">
       <string>Project &amp;Settings</string>
      </property>
-     <addaction name="action_ProjectSettingsGeneral" />
-     <addaction name="action_ProjectSettingsCapture" />
-     <addaction name="action_ProjectSettingsVideoRendering" />
-     <addaction name="action_ProjectSettingsDefaultSequence" />
+     <addaction name="action_ProjectSettingsGeneral"/>
+     <addaction name="action_ProjectSettingsCapture"/>
+     <addaction name="action_ProjectSettingsVideoRendering"/>
+     <addaction name="action_ProjectSettingsDefaultSequence"/>
     </widget>
-    <addaction name="action_ProjectSettings" />
-    <addaction name="action_ProjectLinkMedia" />
-    <addaction name="action_ProjectUnlinkMedia" />
-    <addaction name="separator" />
-    <addaction name="action_ProjectAutomateToSequence" />
-    <addaction name="separator" />
-    <addaction name="action_ProjectImportBatchList" />
-    <addaction name="action_ProjectExportBatchList" />
-    <addaction name="separator" />
-    <addaction name="action_ProjectExportAsAAF" />
+    <addaction name="action_ProjectSettings"/>
+    <addaction name="action_ProjectLinkMedia"/>
+    <addaction name="action_ProjectUnlinkMedia"/>
+    <addaction name="separator"/>
+    <addaction name="action_ProjectAutomateToSequence"/>
+    <addaction name="separator"/>
+    <addaction name="action_ProjectImportBatchList"/>
+    <addaction name="action_ProjectExportBatchList"/>
+    <addaction name="separator"/>
+    <addaction name="action_ProjectExportAsAAF"/>
    </widget>
-   <widget class="QMenu" name="clip_menu" >
-    <property name="title" >
+   <widget class="syMenu" name="clip_menu">
+    <property name="title">
      <string>&amp;Clip</string>
     </property>
-    <widget class="QMenu" name="action_ClipCaptureSettings" >
-     <property name="title" >
+    <widget class="syMenu" name="action_ClipCaptureSettings">
+     <property name="title">
       <string>&amp;Capture Settings</string>
      </property>
-     <addaction name="action_ClipSetCaptureSettings" />
-     <addaction name="action_ClipClearCaptureSettings" />
+     <addaction name="action_ClipSetCaptureSettings"/>
+     <addaction name="action_ClipClearCaptureSettings"/>
     </widget>
-    <widget class="QMenu" name="action_ClipVideoOptions" >
-     <property name="title" >
+    <widget class="syMenu" name="action_ClipVideoOptions">
+     <property name="title">
       <string>&amp;Video Options</string>
      </property>
-     <addaction name="action_ClipVOptFrameHold" />
-     <addaction name="action_ClipVOptFieldOptions" />
+     <addaction name="action_ClipVOptFrameHold"/>
+     <addaction name="action_ClipVOptFieldOptions"/>
     </widget>
-    <widget class="QMenu" name="action_ClipAudioOptions" >
-     <property name="title" >
+    <widget class="syMenu" name="action_ClipAudioOptions">
+     <property name="title">
       <string>&amp;Audio Options</string>
      </property>
-     <addaction name="action_ClipAOptGain" />
-     <addaction name="action_ClipAOptBreakoutToMono" />
-     <addaction name="action_ClipOptTreatAsStereo" />
-     <addaction name="action_ClipOptRenderAndReplace" />
+     <addaction name="action_ClipAOptGain"/>
+     <addaction name="action_ClipAOptBreakoutToMono"/>
+     <addaction name="action_ClipOptTreatAsStereo"/>
+     <addaction name="action_ClipOptRenderAndReplace"/>
     </widget>
-    <addaction name="action_ClipRename" />
-    <addaction name="separator" />
-    <addaction name="action_ClipCaptureSettings" />
-    <addaction name="separator" />
-    <addaction name="action_ClipInsert" />
-    <addaction name="action_ClipOverlay" />
-    <addaction name="separator" />
-    <addaction name="action_ClipToggleEnable" />
-    <addaction name="action_ClipUnlinkAV" />
-    <addaction name="action_ClipLinkAV" />
-    <addaction name="action_ClipGroup" />
-    <addaction name="action_ClipUngroup" />
-    <addaction name="separator" />
-    <addaction name="action_ClipVideoOptions" />
-    <addaction name="action_ClipAudioOptions" />
-    <addaction name="action_ClipSpeedDuration" />
+    <addaction name="action_ClipRename"/>
+    <addaction name="separator"/>
+    <addaction name="action_ClipCaptureSettings"/>
+    <addaction name="separator"/>
+    <addaction name="action_ClipInsert"/>
+    <addaction name="action_ClipOverlay"/>
+    <addaction name="separator"/>
+    <addaction name="action_ClipToggleEnable"/>
+    <addaction name="action_ClipUnlinkAV"/>
+    <addaction name="action_ClipLinkAV"/>
+    <addaction name="action_ClipGroup"/>
+    <addaction name="action_ClipUngroup"/>
+    <addaction name="separator"/>
+    <addaction name="action_ClipVideoOptions"/>
+    <addaction name="action_ClipAudioOptions"/>
+    <addaction name="action_ClipSpeedDuration"/>
    </widget>
-   <widget class="QMenu" name="sequence_menu" >
-    <property name="title" >
+   <widget class="syMenu" name="sequence_menu">
+    <property name="title">
      <string>&amp;Sequence</string>
     </property>
-    <addaction name="action_SequenceRender" />
-    <addaction name="action_SequenceDeleteRenderFiles" />
-    <addaction name="separator" />
-    <addaction name="action_SequenceRazor" />
-    <addaction name="action_SequenceRazorSelectedTracks" />
-    <addaction name="action_SequenceLift" />
-    <addaction name="action_SequenceExtract" />
-    <addaction name="separator" />
-    <addaction name="action_SequenceApplyVideoTransition" />
-    <addaction name="action_SequenceApplyAudioTransition" />
-    <addaction name="separator" />
-    <addaction name="action_SequenceZoomIn" />
-    <addaction name="action_SequenceZoomOut" />
-    <addaction name="separator" />
-    <addaction name="action_SequenceSnap" />
-    <addaction name="separator" />
-    <addaction name="action_SequenceAddTracks" />
-    <addaction name="action_SequenceDelTracks" />
+    <addaction name="action_SequenceRender"/>
+    <addaction name="action_SequenceDeleteRenderFiles"/>
+    <addaction name="separator"/>
+    <addaction name="action_SequenceRazor"/>
+    <addaction name="action_SequenceRazorSelectedTracks"/>
+    <addaction name="action_SequenceLift"/>
+    <addaction name="action_SequenceExtract"/>
+    <addaction name="separator"/>
+    <addaction name="action_SequenceApplyVideoTransition"/>
+    <addaction name="action_SequenceApplyAudioTransition"/>
+    <addaction name="separator"/>
+    <addaction name="action_SequenceZoomIn"/>
+    <addaction name="action_SequenceZoomOut"/>
+    <addaction name="separator"/>
+    <addaction name="action_SequenceSnap"/>
+    <addaction name="separator"/>
+    <addaction name="action_SequenceAddTracks"/>
+    <addaction name="action_SequenceDelTracks"/>
    </widget>
-   <widget class="QMenu" name="marker_menu" >
-    <property name="title" >
+   <widget class="syMenu" name="marker_menu">
+    <property name="title">
      <string>&amp;Marker</string>
     </property>
-    <widget class="QMenu" name="action_SetClipMarkerMenu" >
-     <property name="title" >
+    <widget class="syMenu" name="action_SetClipMarkerMenu">
+     <property name="title">
       <string>&amp;Set Clip Marker</string>
      </property>
-     <addaction name="action_SetClipMarkerIn" />
-     <addaction name="action_SetClipMarkerOut" />
-     <addaction name="separator" />
-     <addaction name="action_SetClipMarkerVideoIn" />
-     <addaction name="action_SetClipMarkerVideoOut" />
-     <addaction name="action_SetClipMarkerAudioIn" />
-     <addaction name="action_SetClipMarkerAudioOut" />
-     <addaction name="separator" />
-     <addaction name="action_SetClipMarkerUnnumbered" />
-     <addaction name="separator" />
-     <addaction name="action_SetClipMarkerNextAvailableNumbered" />
-     <addaction name="action_SetClipMarkerOtherNumbered" />
+     <addaction name="action_SetClipMarkerIn"/>
+     <addaction name="action_SetClipMarkerOut"/>
+     <addaction name="separator"/>
+     <addaction name="action_SetClipMarkerVideoIn"/>
+     <addaction name="action_SetClipMarkerVideoOut"/>
+     <addaction name="action_SetClipMarkerAudioIn"/>
+     <addaction name="action_SetClipMarkerAudioOut"/>
+     <addaction name="separator"/>
+     <addaction name="action_SetClipMarkerUnnumbered"/>
+     <addaction name="separator"/>
+     <addaction name="action_SetClipMarkerNextAvailableNumbered"/>
+     <addaction name="action_SetClipMarkerOtherNumbered"/>
     </widget>
-    <widget class="QMenu" name="action_GotoClipMarkerMenu" >
-     <property name="title" >
+    <widget class="syMenu" name="action_GotoClipMarkerMenu">
+     <property name="title">
       <string>&amp;Go to Clip Marker</string>
      </property>
-     <addaction name="action_GotoNextClipMarker" />
-     <addaction name="action_GotoPrevClipMarker" />
-     <addaction name="separator" />
-     <addaction name="action_GotoInClipMarker" />
-     <addaction name="action_GotoOutClipMarker" />
-     <addaction name="separator" />
-     <addaction name="action_GotoVideoInClipMarker" />
-     <addaction name="action_GotoVideoOutClipMarker" />
-     <addaction name="action_GotoAudioInClipMarker" />
-     <addaction name="action_GotoAudioOutClipMarker" />
-     <addaction name="separator" />
-     <addaction name="action_GotoNumberedClipMarker" />
+     <addaction name="action_GotoNextClipMarker"/>
+     <addaction name="action_GotoPrevClipMarker"/>
+     <addaction name="separator"/>
+     <addaction name="action_GotoInClipMarker"/>
+     <addaction name="action_GotoOutClipMarker"/>
+     <addaction name="separator"/>
+     <addaction name="action_GotoVideoInClipMarker"/>
+     <addaction name="action_GotoVideoOutClipMarker"/>
+     <addaction name="action_GotoAudioInClipMarker"/>
+     <addaction name="action_GotoAudioOutClipMarker"/>
+     <addaction name="separator"/>
+     <addaction name="action_GotoNumberedClipMarker"/>
     </widget>
-    <widget class="QMenu" name="action_ClearClipMarkerMenu" >
-     <property name="title" >
+    <widget class="syMenu" name="action_ClearClipMarkerMenu">
+     <property name="title">
       <string>&amp;Clear Clip Marker</string>
      </property>
-     <addaction name="action_ClearCurrentClipMarker" />
-     <addaction name="action_ClearAllClipMarkers" />
-     <addaction name="separator" />
-     <addaction name="action_ClearInOutClipMarkers" />
-     <addaction name="action_ClearInClipMarker" />
-     <addaction name="action_ClearOutClipMarker" />
-     <addaction name="separator" />
-     <addaction name="action_ClearNumberedClipMarker" />
+     <addaction name="action_ClearCurrentClipMarker"/>
+     <addaction name="action_ClearAllClipMarkers"/>
+     <addaction name="separator"/>
+     <addaction name="action_ClearInOutClipMarkers"/>
+     <addaction name="action_ClearInClipMarker"/>
+     <addaction name="action_ClearOutClipMarker"/>
+     <addaction name="separator"/>
+     <addaction name="action_ClearNumberedClipMarker"/>
     </widget>
-    <widget class="QMenu" name="action_SetSequenceMarkerMenu" >
-     <property name="title" >
+    <widget class="syMenu" name="action_SetSequenceMarkerMenu">
+     <property name="title">
       <string>Se&amp;t Sequence Marker</string>
      </property>
-     <addaction name="action_SetInSequenceMarker" />
-     <addaction name="action_SetOutSequenceMarker" />
-     <addaction name="action_SetInOutAroundSelSeqMarker" />
-     <addaction name="separator" />
-     <addaction name="action_SetUnnumberedSequenceMarker" />
-     <addaction name="separator" />
-     <addaction name="action_SetNextAvailNumberedSeqMarker" />
-     <addaction name="action_SetOtherNumberedSequenceMarker" />
+     <addaction name="action_SetInSequenceMarker"/>
+     <addaction name="action_SetOutSequenceMarker"/>
+     <addaction name="action_SetInOutAroundSelSeqMarker"/>
+     <addaction name="separator"/>
+     <addaction name="action_SetUnnumberedSequenceMarker"/>
+     <addaction name="separator"/>
+     <addaction name="action_SetNextAvailNumberedSeqMarker"/>
+     <addaction name="action_SetOtherNumberedSequenceMarker"/>
     </widget>
-    <widget class="QMenu" name="action_GotoSequenceMarkerMenu" >
-     <property name="title" >
+    <widget class="syMenu" name="action_GotoSequenceMarkerMenu">
+     <property name="title">
       <string>G&amp;o to Sequence Marker</string>
      </property>
-     <addaction name="action_GotoNextSequenceMarker" />
-     <addaction name="action_GotoPrevSequenceMarker" />
-     <addaction name="separator" />
-     <addaction name="action_GotoInSequenceMarker" />
-     <addaction name="action_GotoOutSequenceMarker" />
-     <addaction name="separator" />
-     <addaction name="action_GotoNumberedSeqMarker" />
+     <addaction name="action_GotoNextSequenceMarker"/>
+     <addaction name="action_GotoPrevSequenceMarker"/>
+     <addaction name="separator"/>
+     <addaction name="action_GotoInSequenceMarker"/>
+     <addaction name="action_GotoOutSequenceMarker"/>
+     <addaction name="separator"/>
+     <addaction name="action_GotoNumberedSeqMarker"/>
     </widget>
-    <widget class="QMenu" name="action_ClearSequenceMarkerMenu" >
-     <property name="title" >
+    <widget class="syMenu" name="action_ClearSequenceMarkerMenu">
+     <property name="title">
       <string>Cle&amp;ar Sequence Marker</string>
      </property>
-     <addaction name="action_ClearCurSequenceMarker" />
-     <addaction name="action_ClearAllSequenceMarkers" />
-     <addaction name="separator" />
-     <addaction name="action_ClearInOutSeqMarkers" />
-     <addaction name="action_ClearInSeqMarker" />
-     <addaction name="action_ClearOutSeqMarker" />
-     <addaction name="separator" />
-     <addaction name="action_ClearNumberedSeqMarker" />
+     <addaction name="action_ClearCurSequenceMarker"/>
+     <addaction name="action_ClearAllSequenceMarkers"/>
+     <addaction name="separator"/>
+     <addaction name="action_ClearInOutSeqMarkers"/>
+     <addaction name="action_ClearInSeqMarker"/>
+     <addaction name="action_ClearOutSeqMarker"/>
+     <addaction name="separator"/>
+     <addaction name="action_ClearNumberedSeqMarker"/>
     </widget>
-    <addaction name="action_SetClipMarkerMenu" />
-    <addaction name="action_GotoClipMarkerMenu" />
-    <addaction name="action_ClearClipMarkerMenu" />
-    <addaction name="separator" />
-    <addaction name="action_SetSequenceMarkerMenu" />
-    <addaction name="action_GotoSequenceMarkerMenu" />
-    <addaction name="action_ClearSequenceMarkerMenu" />
-    <addaction name="separator" />
-    <addaction name="action_EditSequenceMarker" />
+    <addaction name="action_SetClipMarkerMenu"/>
+    <addaction name="action_GotoClipMarkerMenu"/>
+    <addaction name="action_ClearClipMarkerMenu"/>
+    <addaction name="separator"/>
+    <addaction name="action_SetSequenceMarkerMenu"/>
+    <addaction name="action_GotoSequenceMarkerMenu"/>
+    <addaction name="action_ClearSequenceMarkerMenu"/>
+    <addaction name="separator"/>
+    <addaction name="action_EditSequenceMarker"/>
    </widget>
-   <widget class="QMenu" name="window_menu" >
-    <property name="title" >
+   <widget class="syMenu" name="window_menu">
+    <property name="title">
      <string>&amp;Window</string>
     </property>
-    <widget class="QMenu" name="action_WindowWorkspaceMenu" >
-     <property name="title" >
+    <widget class="syMenu" name="action_WindowWorkspaceMenu">
+     <property name="title">
       <string>&amp;Workspace</string>
      </property>
-     <addaction name="action_WorkspaceEditing" />
-     <addaction name="action_WorkspaceEffects" />
-     <addaction name="action_WorkspaceAudio" />
-     <addaction name="action_WorkspaceColorCorrection" />
-     <addaction name="action_WorkspaceDefault" />
-     <addaction name="separator" />
-     <addaction name="action_WorkspaceFactoryDefault" />
-     <addaction name="separator" />
-     <addaction name="action_WorkspaceSaveAs" />
-     <addaction name="action_WorkspaceDelete" />
-     <addaction name="action_WorkspaceCustom" />
-     <addaction name="separator" />
-     <addaction name="action_MenuSaveFrameLayout" />
+     <addaction name="action_WorkspaceEditing"/>
+     <addaction name="action_WorkspaceEffects"/>
+     <addaction name="action_WorkspaceAudio"/>
+     <addaction name="action_WorkspaceColorCorrection"/>
+     <addaction name="action_WorkspaceDefault"/>
+     <addaction name="separator"/>
+     <addaction name="action_WorkspaceFactoryDefault"/>
+     <addaction name="separator"/>
+     <addaction name="action_WorkspaceSaveAs"/>
+     <addaction name="action_WorkspaceDelete"/>
+     <addaction name="action_WorkspaceCustom"/>
+     <addaction name="separator"/>
+     <addaction name="action_MenuSaveFrameLayout"/>
     </widget>
-    <widget class="QMenu" name="action_WindowTimelinesMenu" >
-     <property name="statusTip" >
+    <widget class="syMenu" name="action_WindowTimelinesMenu">
+     <property name="statusTip">
       <string>Timelines Menu</string>
      </property>
-     <property name="title" >
+     <property name="title">
       <string>Time&amp;lines</string>
      </property>
     </widget>
-    <addaction name="action_WindowWorkspaceMenu" />
-    <addaction name="separator" />
-    <addaction name="action_WindowEffects" />
-    <addaction name="action_WindowEffectControls" />
-    <addaction name="separator" />
-    <addaction name="action_WindowHistory" />
-    <addaction name="action_WindowInfo" />
-    <addaction name="action_WindowTools" />
-    <addaction name="separator" />
-    <addaction name="action_WindowAudioMixer" />
-    <addaction name="action_WindowMonitor" />
-    <addaction name="action_WindowProject" />
-    <addaction name="action_WindowTimelinesMenu" />
+    <addaction name="action_WindowWorkspaceMenu"/>
+    <addaction name="separator"/>
+    <addaction name="action_WindowEffects"/>
+    <addaction name="action_WindowEffectControls"/>
+    <addaction name="separator"/>
+    <addaction name="action_WindowHistory"/>
+    <addaction name="action_WindowInfo"/>
+    <addaction name="action_WindowTools"/>
+    <addaction name="separator"/>
+    <addaction name="action_WindowAudioMixer"/>
+    <addaction name="action_WindowMonitor"/>
+    <addaction name="action_WindowProject"/>
+    <addaction name="action_WindowTimelinesMenu"/>
    </widget>
-   <widget class="QMenu" name="options_menu" >
-    <property name="title" >
+   <widget class="syMenu" name="options_menu">
+    <property name="title">
      <string>&amp;Options</string>
     </property>
-    <addaction name="action_PrefsGeneral" />
-    <addaction name="action_PrefsAudio" />
-    <addaction name="action_PrefsAudioHardware" />
-    <addaction name="action_PrefsAutoSave" />
-    <addaction name="action_PrefsCapture" />
-    <addaction name="action_PrefsDeviceControl" />
-    <addaction name="action_PrefsLabelColors" />
-    <addaction name="action_PrefsLabelDefaults" />
-    <addaction name="action_PrefsScratchDisks" />
-    <addaction name="action_PrefsStillImage" />
-    <addaction name="action_PrefsTitler" />
-    <addaction name="action_PrefsTrim" />
-    <addaction name="separator" />
-    <addaction name="action_KeyboardCustomization" />
+    <addaction name="action_PrefsGeneral"/>
+    <addaction name="action_PrefsAudio"/>
+    <addaction name="action_PrefsAudioHardware"/>
+    <addaction name="action_PrefsAutoSave"/>
+    <addaction name="action_PrefsCapture"/>
+    <addaction name="action_PrefsDeviceControl"/>
+    <addaction name="action_PrefsLabelColors"/>
+    <addaction name="action_PrefsLabelDefaults"/>
+    <addaction name="action_PrefsScratchDisks"/>
+    <addaction name="action_PrefsStillImage"/>
+    <addaction name="action_PrefsTitler"/>
+    <addaction name="action_PrefsTrim"/>
+    <addaction name="separator"/>
+    <addaction name="action_KeyboardCustomization"/>
    </widget>
-   <widget class="QMenu" name="help_menu" >
-    <property name="title" >
+   <widget class="syMenu" name="help_menu">
+    <property name="title">
      <string>&amp;Help</string>
     </property>
-    <addaction name="action_HelpContents" />
-    <addaction name="separator" />
-    <addaction name="action_HelpSearch" />
-    <addaction name="action_HelpKeyboard" />
-    <addaction name="action_HelpWebsite" />
-    <addaction name="separator" />
-    <addaction name="action_About" />
-    <addaction name="action_AboutQt" />
+    <addaction name="action_HelpContents"/>
+    <addaction name="separator"/>
+    <addaction name="action_HelpSearch"/>
+    <addaction name="action_HelpKeyboard"/>
+    <addaction name="action_HelpWebsite"/>
+    <addaction name="separator"/>
+    <addaction name="action_About"/>
+    <addaction name="action_AboutQt"/>
    </widget>
-   <addaction name="file_menu" />
-   <addaction name="edit_menu" />
-   <addaction name="project_menu" />
-   <addaction name="clip_menu" />
-   <addaction name="sequence_menu" />
-   <addaction name="marker_menu" />
-   <addaction name="window_menu" />
-   <addaction name="options_menu" />
-   <addaction name="help_menu" />
+   <addaction name="file_menu"/>
+   <addaction name="edit_menu"/>
+   <addaction name="project_menu"/>
+   <addaction name="clip_menu"/>
+   <addaction name="sequence_menu"/>
+   <addaction name="marker_menu"/>
+   <addaction name="window_menu"/>
+   <addaction name="options_menu"/>
+   <addaction name="help_menu"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar" />
-  <action name="action_NewProject" >
-   <property name="text" >
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_NewProject">
+   <property name="text">
     <string>&amp;Project</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Creates a new project</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+N</string>
    </property>
   </action>
-  <action name="action_NewSequence" >
-   <property name="text" >
+  <action name="action_NewSequence">
+   <property name="text">
     <string>&amp;Sequence...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Inserts a new sequence into the current project</string>
    </property>
   </action>
-  <action name="action_NewBin" >
-   <property name="text" >
+  <action name="action_NewBin">
+   <property name="text">
     <string>&amp;Bin</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Creates a new Bin</string>
    </property>
   </action>
-  <action name="action_NewOfflineFile" >
-   <property name="text" >
+  <action name="action_NewOfflineFile">
+   <property name="text">
     <string>&amp;Offline File...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Creates a placeholder for a file currently unavailable</string>
    </property>
   </action>
-  <action name="action_NewTitle" >
-   <property name="text" >
+  <action name="action_NewTitle">
+   <property name="text">
     <string>&amp;Title...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Creates a new title screen</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>F9</string>
    </property>
   </action>
-  <action name="action_NewBarsandTone" >
-   <property name="text" >
+  <action name="action_NewBarsandTone">
+   <property name="text">
     <string>Bars &amp;and Tone</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Creates a new Bars / Tone clip</string>
    </property>
   </action>
-  <action name="action_NewBlackVideo" >
-   <property name="text" >
+  <action name="action_NewBlackVideo">
+   <property name="text">
     <string>Blac&amp;k Video</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Creates a new clip with black background</string>
    </property>
   </action>
-  <action name="action_NewColorMatte" >
-   <property name="text" >
+  <action name="action_NewColorMatte">
+   <property name="text">
     <string>&amp;Color Matte...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Creates a new clip of a specified color</string>
    </property>
   </action>
-  <action name="action_NewUniversalCountingLeader" >
-   <property name="text" >
+  <action name="action_NewUniversalCountingLeader">
+   <property name="text">
     <string>&amp;Universal Counting Leader...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Creates a 5...4...3...2... clip</string>
    </property>
   </action>
-  <action name="action_FileOpen" >
-   <property name="text" >
+  <action name="action_FileOpen">
+   <property name="text">
     <string>&amp;Open Project...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Opens a project</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="action_ClearRecentProjectsHistory" >
-   <property name="text" >
+  <action name="action_ClearRecentProjectsHistory">
+   <property name="text">
     <string>&amp;Clear History</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Clears Recent Projects History</string>
    </property>
   </action>
-  <action name="action_RecentProject1" >
-   <property name="text" >
+  <action name="action_RecentProject1">
+   <property name="text">
     <string>&amp;1. Recent Project 1.</string>
    </property>
   </action>
-  <action name="action_RecentProject2" >
-   <property name="text" >
+  <action name="action_RecentProject2">
+   <property name="text">
     <string>&amp;2. Recent Project 2.</string>
    </property>
   </action>
-  <action name="action_RecentProject3" >
-   <property name="text" >
+  <action name="action_RecentProject3">
+   <property name="text">
     <string>&amp;3. Recent Project 3.</string>
    </property>
   </action>
-  <action name="action_RecentProject4" >
-   <property name="text" >
+  <action name="action_RecentProject4">
+   <property name="text">
     <string>&amp;4. Recent Project 4.</string>
    </property>
   </action>
-  <action name="action_RecentProject5" >
-   <property name="text" >
+  <action name="action_RecentProject5">
+   <property name="text">
     <string>&amp;5. Recent Project 5.</string>
    </property>
   </action>
-  <action name="action_RecentProject6" >
-   <property name="text" >
+  <action name="action_RecentProject6">
+   <property name="text">
     <string>&amp;6. Recent Project 6.</string>
    </property>
   </action>
-  <action name="action_RecentProject7" >
-   <property name="text" >
+  <action name="action_RecentProject7">
+   <property name="text">
     <string>&amp;7. Recent Project 7.</string>
    </property>
   </action>
-  <action name="action_RecentProject8" >
-   <property name="text" >
+  <action name="action_RecentProject8">
+   <property name="text">
     <string>&amp;8. Recent Project 8.</string>
    </property>
   </action>
-  <action name="action_RecentProject9" >
-   <property name="text" >
+  <action name="action_RecentProject9">
+   <property name="text">
     <string>&amp;9. Recent Project 9.</string>
    </property>
   </action>
-  <action name="action_ClearRecentImportsHistory" >
-   <property name="text" >
+  <action name="action_ClearRecentImportsHistory">
+   <property name="text">
     <string>&amp;Clear History</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Clears Recent Imports History</string>
    </property>
   </action>
-  <action name="action_RecentImport1" >
-   <property name="text" >
+  <action name="action_RecentImport1">
+   <property name="text">
     <string>&amp;1. Recent Import 1.</string>
    </property>
   </action>
-  <action name="action_RecentImport2" >
-   <property name="text" >
+  <action name="action_RecentImport2">
+   <property name="text">
     <string>&amp;2. Recent Import 2.</string>
    </property>
   </action>
-  <action name="action_RecentImport3" >
-   <property name="text" >
+  <action name="action_RecentImport3">
+   <property name="text">
     <string>&amp;3. Recent Import 3.</string>
    </property>
   </action>
-  <action name="action_RecentImport4" >
-   <property name="text" >
+  <action name="action_RecentImport4">
+   <property name="text">
     <string>&amp;4. Recent Import 4.</string>
    </property>
   </action>
-  <action name="action_RecentImport5" >
-   <property name="text" >
+  <action name="action_RecentImport5">
+   <property name="text">
     <string>&amp;5. Recent Import 5.</string>
    </property>
   </action>
-  <action name="action_RecentImport6" >
-   <property name="text" >
+  <action name="action_RecentImport6">
+   <property name="text">
     <string>&amp;6. Recent Import 6.</string>
    </property>
   </action>
-  <action name="action_RecentImport7" >
-   <property name="text" >
+  <action name="action_RecentImport7">
+   <property name="text">
     <string>&amp;7. Recent Import 7.</string>
    </property>
   </action>
-  <action name="action_RecentImport8" >
-   <property name="text" >
+  <action name="action_RecentImport8">
+   <property name="text">
     <string>&amp;8. Recent Import 8.</string>
    </property>
   </action>
-  <action name="action_RecentImport9" >
-   <property name="text" >
+  <action name="action_RecentImport9">
+   <property name="text">
     <string>&amp;9. Recent Import 9.</string>
    </property>
   </action>
-  <action name="action_FileClose" >
-   <property name="text" >
+  <action name="action_FileClose">
+   <property name="text">
     <string>&amp;Close</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Closes project</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+W</string>
    </property>
   </action>
-  <action name="action_FileSave" >
-   <property name="text" >
+  <action name="action_FileSave">
+   <property name="text">
     <string>&amp;Save</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Saves current project</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="action_FileSaveAs" >
-   <property name="text" >
+  <action name="action_FileSaveAs">
+   <property name="text">
     <string>Save &amp;As...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Saves project under a new name</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Shift+S</string>
    </property>
   </action>
-  <action name="action_FileSaveCopy" >
-   <property name="text" >
+  <action name="action_FileSaveCopy">
+   <property name="text">
     <string>Sa&amp;ve a Copy</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Saves a copy of the current project (original file will be unmodified)</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Alt+S</string>
    </property>
   </action>
-  <action name="action_FileRevert" >
-   <property name="enabled" >
+  <action name="action_FileRevert">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Revert</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Reloads current project from disk</string>
    </property>
   </action>
-  <action name="action_FileCapture" >
-   <property name="text" >
+  <action name="action_FileCapture">
+   <property name="text">
     <string>Capt&amp;ure...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Captures video from an external source</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>F5</string>
    </property>
   </action>
-  <action name="action_FileBatchCapture" >
-   <property name="text" >
+  <action name="action_FileBatchCapture">
+   <property name="text">
     <string>&amp;Batch Capture...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Captures several videos without user intervention</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>F6</string>
    </property>
   </action>
-  <action name="action_FileImport" >
-   <property name="text" >
+  <action name="action_FileImport">
+   <property name="text">
     <string>&amp;Import...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Imports a clip from a file</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+I</string>
    </property>
   </action>
-  <action name="action_ExportMovie" >
-   <property name="text" >
+  <action name="action_ExportMovie">
+   <property name="text">
     <string>&amp;Movie</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Exports project as a Movie</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+M</string>
    </property>
   </action>
-  <action name="action_ExportFrame" >
-   <property name="text" >
+  <action name="action_ExportFrame">
+   <property name="text">
     <string>&amp;Frame</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Renders and Export the current frame</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Shift+M</string>
    </property>
   </action>
-  <action name="action_ExportAudio" >
-   <property name="text" >
+  <action name="action_ExportAudio">
+   <property name="text">
     <string>&amp;Audio...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Exports the project's rendered audio</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Alt+Shift+M</string>
    </property>
   </action>
-  <action name="action_ExportToTape" >
-   <property name="enabled" >
+  <action name="action_ExportToTape">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Export to &amp;Tape...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Exports the project to Tape</string>
    </property>
   </action>
-  <action name="action_ExportMediaEncoder" >
-   <property name="text" >
+  <action name="action_ExportMediaEncoder">
+   <property name="text">
     <string>Media &amp;Encoder...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Launches the Media Encoder Tool</string>
    </property>
   </action>
-  <action name="action_ExportToDVD" >
-   <property name="text" >
+  <action name="action_ExportToDVD">
+   <property name="text">
     <string>Export To &amp;DVD...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Creates a DVD ISO image of the current project</string>
    </property>
   </action>
-  <action name="action_FileGetPropertiesFile" >
-   <property name="text" >
+  <action name="action_FileGetPropertiesFile">
+   <property name="text">
     <string>&amp;File...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Gets a file's properties</string>
    </property>
   </action>
-  <action name="action_FileGetPropertiesSelection" >
-   <property name="text" >
+  <action name="action_FileGetPropertiesSelection">
+   <property name="text">
     <string>&amp;Selection</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Gets properties for current selection</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Shift+H</string>
    </property>
   </action>
-  <action name="action_FileInterpretFootage" >
-   <property name="enabled" >
+  <action name="action_FileInterpretFootage">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Interpret &amp;Footage...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Change clip's framerate, aspect ratio or transparency</string>
    </property>
   </action>
-  <action name="action_FileTimecode" >
-   <property name="enabled" >
+  <action name="action_FileTimecode">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Timeco&amp;de...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Adds a timecode to an analog video clip.</string>
    </property>
   </action>
-  <action name="action_Quit" >
-   <property name="text" >
+  <action name="action_Quit">
+   <property name="text">
     <string>&amp;Quit</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Exits the program</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Q</string>
    </property>
-   <property name="menuRole" >
+   <property name="menuRole">
     <enum>QAction::QuitRole</enum>
    </property>
   </action>
-  <action name="action_EditUndo" >
-   <property name="text" >
+  <action name="action_EditUndo">
+   <property name="text">
     <string>&amp;Undo</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Undoes last operation</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Z</string>
    </property>
   </action>
-  <action name="action_EditRedo" >
-   <property name="text" >
+  <action name="action_EditRedo">
+   <property name="text">
     <string>&amp;Redo</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Redoes last undone operation</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Shift+Z</string>
    </property>
   </action>
-  <action name="action_EditClearUndoHistory" >
-   <property name="text" >
+  <action name="action_EditClearUndoHistory">
+   <property name="text">
     <string>Clear Undo History</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Clears the Undo History</string>
    </property>
   </action>
-  <action name="action_EditCut" >
-   <property name="text" >
+  <action name="action_EditCut">
+   <property name="text">
     <string>Cu&amp;t</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Cuts current selection and adds it to the clipboard</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+X</string>
    </property>
   </action>
-  <action name="action_EditCopy" >
-   <property name="text" >
+  <action name="action_EditCopy">
+   <property name="text">
     <string>&amp;Copy</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Copies current selection into the clipboard</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+C</string>
    </property>
   </action>
-  <action name="action_EditPaste" >
-   <property name="text" >
+  <action name="action_EditPaste">
+   <property name="text">
     <string>&amp;Paste</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Pastes the clipboard's contents and replaces the current selection</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+V</string>
    </property>
   </action>
-  <action name="action_EditPasteInsert" >
-   <property name="text" >
+  <action name="action_EditPasteInsert">
+   <property name="text">
     <string>Paste &amp;Insert</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Pastes the clipboard's contents and inserts them at the current position</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Shift+V</string>
    </property>
   </action>
-  <action name="action_EditPasteAttributes" >
-   <property name="text" >
+  <action name="action_EditPasteAttributes">
+   <property name="text">
     <string>Paste &amp;Attributes</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Pastes the clipboard's contents' attributes into the current selection</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Alt+V</string>
    </property>
   </action>
-  <action name="action_EditClear" >
-   <property name="text" >
+  <action name="action_EditClear">
+   <property name="text">
     <string>Cl&amp;ear</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Clears the current selection</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Del</string>
    </property>
   </action>
-  <action name="action_EditRippleDelete" >
-   <property name="text" >
+  <action name="action_EditRippleDelete">
+   <property name="text">
     <string>Ripple De&amp;lete</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Deletes the current selection and drags the clips after it</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Shift+Del</string>
    </property>
   </action>
-  <action name="action_EditDuplicate" >
-   <property name="text" >
+  <action name="action_EditDuplicate">
+   <property name="text">
     <string>D&amp;uplicate</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Duplicates the current selection</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Shift+C</string>
    </property>
   </action>
-  <action name="action_EditSelectAll" >
-   <property name="text" >
+  <action name="action_EditSelectAll">
+   <property name="text">
     <string>&amp;Select All</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Selects everything</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+A</string>
    </property>
   </action>
-  <action name="action_EditDeselectAll" >
-   <property name="text" >
+  <action name="action_EditDeselectAll">
+   <property name="text">
     <string>&amp;Deselect All</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Deselects everything</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Shift+A</string>
    </property>
   </action>
-  <action name="action_EditFind" >
-   <property name="text" >
+  <action name="action_EditFind">
+   <property name="text">
     <string>&amp;Find...</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+F</string>
    </property>
   </action>
-  <action name="action_EditLabelSelectLabelGroup" >
-   <property name="enabled" >
+  <action name="action_EditLabelSelectLabelGroup">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Select Label Group</string>
    </property>
   </action>
-  <action name="action_EditLabelBlue" >
-   <property name="checkable" >
+  <action name="action_EditLabelBlue">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Blue</string>
    </property>
   </action>
-  <action name="action_EditLabelCyan" >
-   <property name="checkable" >
+  <action name="action_EditLabelCyan">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Cyan</string>
    </property>
   </action>
-  <action name="action_EditLabelGreen" >
-   <property name="checkable" >
+  <action name="action_EditLabelGreen">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Green</string>
    </property>
   </action>
-  <action name="action_EditLabelViolet" >
-   <property name="checkable" >
+  <action name="action_EditLabelViolet">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Violet</string>
    </property>
   </action>
-  <action name="action_EditLabelPink" >
-   <property name="checkable" >
+  <action name="action_EditLabelPink">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Pink</string>
    </property>
   </action>
-  <action name="action_EditLabelGray" >
-   <property name="checkable" >
+  <action name="action_EditLabelGray">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Gray</string>
    </property>
   </action>
-  <action name="action_EditLabelRed" >
-   <property name="checkable" >
+  <action name="action_EditLabelRed">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Red</string>
    </property>
   </action>
-  <action name="action_EditLabelOrange" >
-   <property name="checkable" >
+  <action name="action_EditLabelOrange">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Orange</string>
    </property>
   </action>
-  <action name="action_EditOriginal" >
-   <property name="text" >
+  <action name="action_EditOriginal">
+   <property name="text">
     <string>Edit &amp;Original</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Edits a clip in its original application</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+E</string>
    </property>
   </action>
-  <action name="action_ProjectSettingsGeneral" >
-   <property name="text" >
+  <action name="action_ProjectSettingsGeneral">
+   <property name="text">
     <string>&amp;General...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Changes Project's general settings</string>
    </property>
   </action>
-  <action name="action_ProjectSettingsCapture" >
-   <property name="text" >
+  <action name="action_ProjectSettingsCapture">
+   <property name="text">
     <string>&amp;Capture...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Changes Project's video capture settings</string>
    </property>
   </action>
-  <action name="action_ProjectSettingsVideoRendering" >
-   <property name="text" >
+  <action name="action_ProjectSettingsVideoRendering">
+   <property name="text">
     <string>&amp;Video Rendering...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Changes Project's rendering settings</string>
    </property>
   </action>
-  <action name="action_ProjectSettingsDefaultSequence" >
-   <property name="text" >
+  <action name="action_ProjectSettingsDefaultSequence">
+   <property name="text">
     <string>&amp;Default Sequence...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Changes the default parameters for new sequences</string>
    </property>
   </action>
-  <action name="action_ProjectLinkMedia" >
-   <property name="text" >
+  <action name="action_ProjectLinkMedia">
+   <property name="text">
     <string>&amp;Link Media</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Links an Offline File to a media file on disk</string>
    </property>
   </action>
-  <action name="action_ProjectUnlinkMedia" >
-   <property name="text" >
+  <action name="action_ProjectUnlinkMedia">
+   <property name="text">
     <string>&amp;Unlink Media</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Unlinks the media file from the currently selected Offline File</string>
    </property>
   </action>
-  <action name="action_ProjectAutomateToSequence" >
-   <property name="text" >
+  <action name="action_ProjectAutomateToSequence">
+   <property name="text">
     <string>&amp;Automate to Sequence...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Joins the selected clips into a sequence with transitions</string>
    </property>
   </action>
-  <action name="action_ProjectImportBatchList" >
-   <property name="text" >
+  <action name="action_ProjectImportBatchList">
+   <property name="text">
     <string>&amp;Import Batch List...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Imports Offline files from a batch-list timecode log (see Help)</string>
    </property>
   </action>
-  <action name="action_ProjectExportBatchList" >
-   <property name="text" >
+  <action name="action_ProjectExportBatchList">
+   <property name="text">
     <string>&amp;Export Batch List...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Exports currently selected files into a batch-list timecode log (see Help)</string>
    </property>
   </action>
-  <action name="action_ProjectExportAsAAF" >
-   <property name="text" >
+  <action name="action_ProjectExportAsAAF">
+   <property name="text">
     <string>E&amp;xport Project as AAF...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Exports the current project as an Advanced Authoring Format (AAF) file</string>
    </property>
   </action>
-  <action name="action_ClipRename" >
-   <property name="text" >
+  <action name="action_ClipRename">
+   <property name="text">
     <string>&amp;Rename</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Gives the currently selected clip a new internal (not OS-based) name</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+H</string>
    </property>
   </action>
-  <action name="action_ClipSetCaptureSettings" >
-   <property name="text" >
+  <action name="action_ClipSetCaptureSettings">
+   <property name="text">
     <string>&amp;Set Capture Settings...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Sets the capture settings for the current Offline File</string>
    </property>
   </action>
-  <action name="action_ClipClearCaptureSettings" >
-   <property name="text" >
+  <action name="action_ClipClearCaptureSettings">
+   <property name="text">
     <string>&amp;Clear Capture Settings...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Clears the capture settings for the current Offline File</string>
    </property>
   </action>
-  <action name="action_ClipInsert" >
-   <property name="text" >
+  <action name="action_ClipInsert">
+   <property name="text">
     <string>&amp;Insert</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Inserts the currently selected clip at the cursor position.</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>,</string>
    </property>
   </action>
-  <action name="action_ClipOverlay" >
-   <property name="text" >
+  <action name="action_ClipOverlay">
+   <property name="text">
     <string>&amp;Overlay</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Overwrites whatever is at the cursor position with the currently selected clip.</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>.</string>
    </property>
   </action>
-  <action name="action_ClipToggleEnable" >
-   <property name="checkable" >
+  <action name="action_ClipToggleEnable">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Enable</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Enables or disables the clip at the cursor position</string>
    </property>
   </action>
-  <action name="action_ClipUnlinkAV" >
-   <property name="enabled" >
+  <action name="action_ClipUnlinkAV">
+   <property name="enabled">
     <bool>false</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Unlink Audio and Video</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Separates the clip's video and audio in the timeline so you can edit one without affecting the other.</string>
    </property>
   </action>
-  <action name="action_ClipLinkAV" >
-   <property name="text" >
+  <action name="action_ClipLinkAV">
+   <property name="text">
     <string>&amp;Link Audio and Video</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Links a video and audio clips in the timeline so any action affects both at the same time.</string>
    </property>
   </action>
-  <action name="action_ClipGroup" >
-   <property name="text" >
+  <action name="action_ClipGroup">
+   <property name="text">
     <string>&amp;Group</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Groups various clips so you can move them as if they were a single clip.</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+G</string>
    </property>
   </action>
-  <action name="action_ClipUngroup" >
-   <property name="text" >
+  <action name="action_ClipUngroup">
+   <property name="text">
     <string>&amp;Ungroup</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Ungroups clips so you can move and edit them separately.</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Shift+G</string>
    </property>
   </action>
-  <action name="action_ClipVOptFrameHold" >
-   <property name="text" >
+  <action name="action_ClipVOptFrameHold">
+   <property name="text">
     <string>&amp;Frame Hold...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Sets the options for freezing a frame of the clip</string>
    </property>
   </action>
-  <action name="action_ClipVOptFieldOptions" >
-   <property name="text" >
+  <action name="action_ClipVOptFieldOptions">
+   <property name="text">
     <string>Field &amp;Options...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Sets the clip's field processing options</string>
    </property>
   </action>
-  <action name="action_ClipAOptGain" >
-   <property name="text" >
+  <action name="action_ClipAOptGain">
+   <property name="text">
     <string>&amp;Audio Gain...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Sets the clip's audio gain</string>
    </property>
   </action>
-  <action name="action_ClipAOptBreakoutToMono" >
-   <property name="text" >
+  <action name="action_ClipAOptBreakoutToMono">
+   <property name="text">
     <string>&amp;Breakout to Mono Clips</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Separates a clip's stereo or 5.1 surround audio tracks into multiple mono clips.</string>
    </property>
   </action>
-  <action name="action_ClipOptTreatAsStereo" >
-   <property name="text" >
+  <action name="action_ClipOptTreatAsStereo">
+   <property name="text">
     <string>&amp;Treat as Stereo</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Treats a mono audio clip as if it was stereo</string>
    </property>
   </action>
-  <action name="action_ClipOptRenderAndReplace" >
-   <property name="text" >
+  <action name="action_ClipOptRenderAndReplace">
+   <property name="text">
     <string>&amp;Render and Replace</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Applies effects / trimming to an audio clip and replaces it in the timeline. The original is kept unaltered.</string>
    </property>
   </action>
-  <action name="action_ClipSpeedDuration" >
-   <property name="text" >
+  <action name="action_ClipSpeedDuration">
+   <property name="text">
     <string>&amp;Speed/Duration...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Changes the Speed / Duration of a clip</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+R</string>
    </property>
   </action>
-  <action name="action_SequenceRender" >
-   <property name="text" >
+  <action name="action_SequenceRender">
+   <property name="text">
     <string>&amp;Render Work Area</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Renders the work area into a temporary file and plays it</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Enter</string>
    </property>
   </action>
-  <action name="action_SequenceDeleteRenderFiles" >
-   <property name="text" >
+  <action name="action_SequenceDeleteRenderFiles">
+   <property name="text">
     <string>&amp;Delete Render Files</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Deletes the temporary render files</string>
    </property>
   </action>
-  <action name="action_SequenceRazor" >
-   <property name="text" >
+  <action name="action_SequenceRazor">
+   <property name="text">
     <string>Ra&amp;zor at Current Time Indicator </string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Splits all clips at the cursor position</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+K</string>
    </property>
   </action>
-  <action name="action_SequenceRazorSelectedTracks" >
-   <property name="text" >
+  <action name="action_SequenceRazorSelectedTracks">
+   <property name="text">
     <string>Razor o&amp;nly selected track(s)</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Splits the selected tracks at the cursor position</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Shift+K</string>
    </property>
   </action>
-  <action name="action_SequenceLift" >
-   <property name="text" >
+  <action name="action_SequenceLift">
+   <property name="text">
     <string>&amp;Lift</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Removes a range of frames without affecting the other clips</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>;</string>
    </property>
   </action>
-  <action name="action_SequenceExtract" >
-   <property name="text" >
+  <action name="action_SequenceExtract">
+   <property name="text">
     <string>&amp;Extract </string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Removes a range of frames, shifting other clips in the affected tracks</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>'</string>
    </property>
   </action>
-  <action name="action_SequenceApplyVideoTransition" >
-   <property name="text" >
+  <action name="action_SequenceApplyVideoTransition">
+   <property name="text">
     <string>Apply &amp;Video Transition</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Applies a video transition between two adjacent clips</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+D</string>
    </property>
   </action>
-  <action name="action_SequenceApplyAudioTransition" >
-   <property name="text" >
+  <action name="action_SequenceApplyAudioTransition">
+   <property name="text">
     <string>Apply &amp;Audio Transition </string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Applies an audio transition between two adjacent clips</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Shift+D</string>
    </property>
   </action>
-  <action name="action_SequenceZoomIn" >
-   <property name="text" >
+  <action name="action_SequenceZoomIn">
+   <property name="text">
     <string>Zoom &amp;In </string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Zooms in the timeline</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>+</string>
    </property>
   </action>
-  <action name="action_SequenceZoomOut" >
-   <property name="text" >
+  <action name="action_SequenceZoomOut">
+   <property name="text">
     <string>Zoom &amp;Out </string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Zooms out the timeline</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>-</string>
    </property>
   </action>
-  <action name="action_SequenceSnap" >
-   <property name="checkable" >
+  <action name="action_SequenceSnap">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="checked" >
+   <property name="checked">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>&amp;Snap </string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Turns on/off snap when moving clips</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>S</string>
    </property>
   </action>
-  <action name="action_SequenceAddTracks" >
-   <property name="text" >
+  <action name="action_SequenceAddTracks">
+   <property name="text">
     <string>Add &amp;Tracks...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Adds tracks to the currently edited sequence</string>
    </property>
   </action>
-  <action name="action_SequenceDelTracks" >
-   <property name="text" >
+  <action name="action_SequenceDelTracks">
+   <property name="text">
     <string>Delete Tra&amp;cks...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Deletes tracks from the currently edited sequence</string>
    </property>
   </action>
-  <action name="action_SetClipMarkerIn" >
-   <property name="text" >
+  <action name="action_SetClipMarkerIn">
+   <property name="text">
     <string>&amp;Video In</string>
    </property>
-   <property name="statusTip" >
-    <string>Sets the "Video In" Clip Marker</string>
+   <property name="statusTip">
+    <string>Sets the &quot;Video In&quot; Clip Marker</string>
    </property>
   </action>
-  <action name="action_SetClipMarkerOut" >
-   <property name="text" >
+  <action name="action_SetClipMarkerOut">
+   <property name="text">
     <string>&amp;Out</string>
    </property>
-   <property name="statusTip" >
-    <string>Sets the "out" Clip Marker</string>
+   <property name="statusTip">
+    <string>Sets the &quot;out&quot; Clip Marker</string>
    </property>
   </action>
-  <action name="action_SetClipMarkerVideoIn" >
-   <property name="text" >
+  <action name="action_SetClipMarkerVideoIn">
+   <property name="text">
     <string>&amp;Video In</string>
    </property>
-   <property name="statusTip" >
-    <string>Sets the "Video In" Clip Marker</string>
+   <property name="statusTip">
+    <string>Sets the &quot;Video In&quot; Clip Marker</string>
    </property>
   </action>
-  <action name="action_SetClipMarkerVideoOut" >
-   <property name="text" >
+  <action name="action_SetClipMarkerVideoOut">
+   <property name="text">
     <string>Vid&amp;eo Out</string>
    </property>
-   <property name="statusTip" >
-    <string>Sets the "Video Out" Clip Marker</string>
+   <property name="statusTip">
+    <string>Sets the &quot;Video Out&quot; Clip Marker</string>
    </property>
   </action>
-  <action name="action_SetClipMarkerAudioIn" >
-   <property name="text" >
+  <action name="action_SetClipMarkerAudioIn">
+   <property name="text">
     <string>&amp;Audio In</string>
    </property>
-   <property name="statusTip" >
-    <string>Sets the "Audio In" Clip Marker</string>
+   <property name="statusTip">
+    <string>Sets the &quot;Audio In&quot; Clip Marker</string>
    </property>
   </action>
-  <action name="action_SetClipMarkerAudioOut" >
-   <property name="text" >
+  <action name="action_SetClipMarkerAudioOut">
+   <property name="text">
     <string>Au&amp;dio Out</string>
    </property>
-   <property name="statusTip" >
-    <string>Sets the "Audio Out" Clip Marker</string>
+   <property name="statusTip">
+    <string>Sets the &quot;Audio Out&quot; Clip Marker</string>
    </property>
   </action>
-  <action name="action_SetClipMarkerUnnumbered" >
-   <property name="text" >
+  <action name="action_SetClipMarkerUnnumbered">
+   <property name="text">
     <string>&amp;Unnumbered</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Sets an unnumbered Clip Marker</string>
    </property>
   </action>
-  <action name="action_SetClipMarkerNextAvailableNumbered" >
-   <property name="text" >
+  <action name="action_SetClipMarkerNextAvailableNumbered">
+   <property name="text">
     <string>&amp;Next Available Numbered</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Sets a Clip Marker with the next available number</string>
    </property>
   </action>
-  <action name="action_SetClipMarkerOtherNumbered" >
-   <property name="text" >
+  <action name="action_SetClipMarkerOtherNumbered">
+   <property name="text">
     <string>Other Nu&amp;mbered...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Sets a Numbered Clip Marker with a number of your choice</string>
    </property>
   </action>
-  <action name="action_GotoNextClipMarker" >
-   <property name="text" >
+  <action name="action_GotoNextClipMarker">
+   <property name="text">
     <string>&amp;Next</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Goes to the next Clip Marker</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Shift+Left</string>
    </property>
   </action>
-  <action name="action_GotoPrevClipMarker" >
-   <property name="text" >
+  <action name="action_GotoPrevClipMarker">
+   <property name="text">
     <string>&amp;Previous</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Goes to the previous Clip Marker</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Shift+Right</string>
    </property>
   </action>
-  <action name="action_GotoInClipMarker" >
-   <property name="text" >
+  <action name="action_GotoInClipMarker">
+   <property name="text">
     <string>&amp;In</string>
    </property>
-   <property name="statusTip" >
-    <string>Goes to the "in" Clip Marker</string>
+   <property name="statusTip">
+    <string>Goes to the &quot;in&quot; Clip Marker</string>
    </property>
   </action>
-  <action name="action_GotoOutClipMarker" >
-   <property name="text" >
+  <action name="action_GotoOutClipMarker">
+   <property name="text">
     <string>&amp;Out</string>
    </property>
-   <property name="statusTip" >
-    <string>Goes to the "out" Clip Marker</string>
+   <property name="statusTip">
+    <string>Goes to the &quot;out&quot; Clip Marker</string>
    </property>
   </action>
-  <action name="action_GotoVideoInClipMarker" >
-   <property name="text" >
+  <action name="action_GotoVideoInClipMarker">
+   <property name="text">
     <string>&amp;Video In</string>
    </property>
-   <property name="statusTip" >
-    <string>Goes to the "Video In" Clip Marker</string>
+   <property name="statusTip">
+    <string>Goes to the &quot;Video In&quot; Clip Marker</string>
    </property>
   </action>
-  <action name="action_GotoVideoOutClipMarker" >
-   <property name="text" >
+  <action name="action_GotoVideoOutClipMarker">
+   <property name="text">
     <string>Vid&amp;eo Out</string>
    </property>
-   <property name="statusTip" >
-    <string>Goes to the "Video Out" Clip Marker</string>
+   <property name="statusTip">
+    <string>Goes to the &quot;Video Out&quot; Clip Marker</string>
    </property>
   </action>
-  <action name="action_GotoAudioInClipMarker" >
-   <property name="text" >
+  <action name="action_GotoAudioInClipMarker">
+   <property name="text">
     <string>&amp;Audio In</string>
    </property>
-   <property name="statusTip" >
-    <string>Goes to the "Audio In" Clip Marker</string>
+   <property name="statusTip">
+    <string>Goes to the &quot;Audio In&quot; Clip Marker</string>
    </property>
   </action>
-  <action name="action_GotoAudioOutClipMarker" >
-   <property name="text" >
+  <action name="action_GotoAudioOutClipMarker">
+   <property name="text">
     <string>Au&amp;dio Out</string>
    </property>
-   <property name="statusTip" >
-    <string>Goes to the "Audio Out" Clip Marker</string>
+   <property name="statusTip">
+    <string>Goes to the &quot;Audio Out&quot; Clip Marker</string>
    </property>
   </action>
-  <action name="action_GotoNumberedClipMarker" >
-   <property name="text" >
+  <action name="action_GotoNumberedClipMarker">
+   <property name="text">
     <string>Nu&amp;mbered...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Goes to a numbered clip marker</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Shift+3</string>
    </property>
   </action>
-  <action name="action_ClearCurrentClipMarker" >
-   <property name="text" >
+  <action name="action_ClearCurrentClipMarker">
+   <property name="text">
     <string>&amp;Current Marker</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Clears current Clip Marker</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Shift+0</string>
    </property>
   </action>
-  <action name="action_ClearAllClipMarkers" >
-   <property name="text" >
+  <action name="action_ClearAllClipMarkers">
+   <property name="text">
     <string>&amp;All Markers</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Clears all Clip Markers</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Alt+Shift+0</string>
    </property>
   </action>
-  <action name="action_ClearInOutClipMarkers" >
-   <property name="text" >
+  <action name="action_ClearInOutClipMarkers">
+   <property name="text">
     <string>In a&amp;nd Out</string>
    </property>
-   <property name="statusTip" >
-    <string>Clears "In" and "Out" Clip Markers</string>
+   <property name="statusTip">
+    <string>Clears &quot;In&quot; and &quot;Out&quot; Clip Markers</string>
    </property>
   </action>
-  <action name="action_ClearInClipMarker" >
-   <property name="text" >
+  <action name="action_ClearInClipMarker">
+   <property name="text">
     <string>&amp;In</string>
    </property>
-   <property name="statusTip" >
-    <string>Clears "In" Clip Marker</string>
+   <property name="statusTip">
+    <string>Clears &quot;In&quot; Clip Marker</string>
    </property>
   </action>
-  <action name="action_ClearOutClipMarker" >
-   <property name="text" >
+  <action name="action_ClearOutClipMarker">
+   <property name="text">
     <string>&amp;Out</string>
    </property>
-   <property name="statusTip" >
-    <string>Clears "Out" Clip Marker</string>
+   <property name="statusTip">
+    <string>Clears &quot;Out&quot; Clip Marker</string>
    </property>
   </action>
-  <action name="action_ClearNumberedClipMarker" >
-   <property name="text" >
+  <action name="action_ClearNumberedClipMarker">
+   <property name="text">
     <string>Nu&amp;mbered...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Clears a numbered Clip Marker</string>
    </property>
   </action>
-  <action name="action_SetInSequenceMarker" >
-   <property name="text" >
+  <action name="action_SetInSequenceMarker">
+   <property name="text">
     <string>&amp;In</string>
    </property>
-   <property name="statusTip" >
-    <string>Sets the "in" Sequence Marker</string>
+   <property name="statusTip">
+    <string>Sets the &quot;in&quot; Sequence Marker</string>
    </property>
   </action>
-  <action name="action_SetOutSequenceMarker" >
-   <property name="text" >
+  <action name="action_SetOutSequenceMarker">
+   <property name="text">
     <string>&amp;Out</string>
    </property>
-   <property name="statusTip" >
-    <string>Sets the "out" Sequence Marker</string>
+   <property name="statusTip">
+    <string>Sets the &quot;out&quot; Sequence Marker</string>
    </property>
   </action>
-  <action name="action_SetInOutAroundSelSeqMarker" >
-   <property name="text" >
+  <action name="action_SetInOutAroundSelSeqMarker">
+   <property name="text">
     <string>In and Out Around &amp;Selection</string>
    </property>
-   <property name="statusTip" >
-    <string>Sets the "in" and "out" Sequence Markers to the selection's begin and end, respectively</string>
+   <property name="statusTip">
+    <string>Sets the &quot;in&quot; and &quot;out&quot; Sequence Markers to the selection's begin and end, respectively</string>
    </property>
   </action>
-  <action name="action_SetUnnumberedSequenceMarker" >
-   <property name="text" >
+  <action name="action_SetUnnumberedSequenceMarker">
+   <property name="text">
     <string>Unnum&amp;bered</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Sets an unnumbered Sequence Marker</string>
    </property>
   </action>
-  <action name="action_SetNextAvailNumberedSeqMarker" >
-   <property name="text" >
+  <action name="action_SetNextAvailNumberedSeqMarker">
+   <property name="text">
     <string>&amp;Next Available Numbered</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Sets a Sequence Marker with the next available number</string>
    </property>
   </action>
-  <action name="action_SetOtherNumberedSequenceMarker" >
-   <property name="text" >
+  <action name="action_SetOtherNumberedSequenceMarker">
+   <property name="text">
     <string>Other Nu&amp;mbered...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Sets a Numbered Sequence Marker with a number of your choice</string>
    </property>
   </action>
-  <action name="action_GotoNextSequenceMarker" >
-   <property name="text" >
+  <action name="action_GotoNextSequenceMarker">
+   <property name="text">
     <string>&amp;Next</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Goes to the next Sequence Marker</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Right</string>
    </property>
   </action>
-  <action name="action_GotoPrevSequenceMarker" >
-   <property name="text" >
+  <action name="action_GotoPrevSequenceMarker">
+   <property name="text">
     <string>&amp;Previous</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Goes to the previous Sequence Marker</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+Left</string>
    </property>
   </action>
-  <action name="action_GotoInSequenceMarker" >
-   <property name="text" >
+  <action name="action_GotoInSequenceMarker">
+   <property name="text">
     <string>&amp;In</string>
    </property>
-   <property name="statusTip" >
-    <string>Goes to the "in" Sequence Marker</string>
+   <property name="statusTip">
+    <string>Goes to the &quot;in&quot; Sequence Marker</string>
    </property>
   </action>
-  <action name="action_GotoOutSequenceMarker" >
-   <property name="text" >
+  <action name="action_GotoOutSequenceMarker">
+   <property name="text">
     <string>&amp;Out</string>
    </property>
-   <property name="statusTip" >
-    <string>Goes to the "out" Sequence Marker</string>
+   <property name="statusTip">
+    <string>Goes to the &quot;out&quot; Sequence Marker</string>
    </property>
   </action>
-  <action name="action_GotoNumberedSeqMarker" >
-   <property name="text" >
+  <action name="action_GotoNumberedSeqMarker">
+   <property name="text">
     <string>Nu&amp;mbered...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Goes to a Sequence Marker with a specific number</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+3</string>
    </property>
   </action>
-  <action name="action_ClearCurSequenceMarker" >
-   <property name="text" >
+  <action name="action_ClearCurSequenceMarker">
+   <property name="text">
     <string>&amp;Current Marker</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Clears current Sequence Marker</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Ctrl+0</string>
    </property>
   </action>
-  <action name="action_ClearAllSequenceMarkers" >
-   <property name="text" >
+  <action name="action_ClearAllSequenceMarkers">
+   <property name="text">
     <string>&amp;All Markers</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Clears All Sequence Markers</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Alt+0</string>
    </property>
   </action>
-  <action name="action_ClearInOutSeqMarkers" >
-   <property name="text" >
+  <action name="action_ClearInOutSeqMarkers">
+   <property name="text">
     <string>In a&amp;nd Out</string>
    </property>
-   <property name="statusTip" >
-    <string>Clears the "in" and "out" Sequence Markers</string>
+   <property name="statusTip">
+    <string>Clears the &quot;in&quot; and &quot;out&quot; Sequence Markers</string>
    </property>
   </action>
-  <action name="action_ClearInSeqMarker" >
-   <property name="text" >
+  <action name="action_ClearInSeqMarker">
+   <property name="text">
     <string>&amp;In</string>
    </property>
-   <property name="statusTip" >
-    <string>Clears the "in" Sequence Marker</string>
+   <property name="statusTip">
+    <string>Clears the &quot;in&quot; Sequence Marker</string>
    </property>
   </action>
-  <action name="action_ClearOutSeqMarker" >
-   <property name="text" >
+  <action name="action_ClearOutSeqMarker">
+   <property name="text">
     <string>&amp;Out</string>
    </property>
-   <property name="statusTip" >
-    <string>Clears the "out" Sequence Marker</string>
+   <property name="statusTip">
+    <string>Clears the &quot;out&quot; Sequence Marker</string>
    </property>
   </action>
-  <action name="action_ClearNumberedSeqMarker" >
-   <property name="text" >
+  <action name="action_ClearNumberedSeqMarker">
+   <property name="text">
     <string>Nu&amp;mbered...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Clears a numbered Sequence Marker</string>
    </property>
   </action>
-  <action name="action_EditSequenceMarker" >
-   <property name="text" >
+  <action name="action_EditSequenceMarker">
+   <property name="text">
     <string>&amp;Edit Sequence Marker...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Edits the selected Sequence Marker's properties and info</string>
    </property>
   </action>
-  <action name="action_WorkspaceEditing" >
-   <property name="text" >
+  <action name="action_WorkspaceEditing">
+   <property name="text">
     <string>&amp;Editing</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Switches to the Editing Workspace</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Shift+F9</string>
    </property>
   </action>
-  <action name="action_WorkspaceEffects" >
-   <property name="text" >
+  <action name="action_WorkspaceEffects">
+   <property name="text">
     <string>E&amp;ffects</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Switches to the Effects Workspace</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Shift+F10</string>
    </property>
   </action>
-  <action name="action_WorkspaceAudio" >
-   <property name="text" >
+  <action name="action_WorkspaceAudio">
+   <property name="text">
     <string>&amp;Audio</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Switches to the Audio Workspace</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Shift+F11</string>
    </property>
   </action>
-  <action name="action_WorkspaceColorCorrection" >
-   <property name="text" >
+  <action name="action_WorkspaceColorCorrection">
+   <property name="text">
     <string>&amp;Color Correction</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Switches to the Color Correction Workspace</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>Shift+F12</string>
    </property>
   </action>
-  <action name="action_WorkspaceCustom" >
-   <property name="text" >
+  <action name="action_WorkspaceCustom">
+   <property name="text">
     <string>C&amp;ustom</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Switches to a previously saved Custom Workspace</string>
    </property>
   </action>
-  <action name="action_WorkspaceDefault" >
-   <property name="text" >
+  <action name="action_WorkspaceDefault">
+   <property name="text">
     <string>Defaul&amp;t</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Switches to the default Workspace</string>
    </property>
   </action>
-  <action name="action_WorkspaceFactoryDefault" >
-   <property name="text" >
+  <action name="action_WorkspaceFactoryDefault">
+   <property name="text">
     <string>&amp;Factory Default</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Switches to the Factory Default</string>
    </property>
   </action>
-  <action name="action_WorkspaceSaveAs" >
-   <property name="text" >
+  <action name="action_WorkspaceSaveAs">
+   <property name="text">
     <string>&amp;Save Workspace as...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Saves a Custom workspace</string>
    </property>
   </action>
-  <action name="action_WorkspaceDelete" >
-   <property name="text" >
+  <action name="action_WorkspaceDelete">
+   <property name="text">
     <string>&amp;Delete Workspace...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Deletes a saved Custom Workspace</string>
    </property>
   </action>
-  <action name="action_MenuSaveFrameLayout" >
-   <property name="text" >
+  <action name="action_MenuSaveFrameLayout">
+   <property name="text">
     <string>Save as Defau&amp;lt</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Saves the current Workspace as the default</string>
    </property>
   </action>
-  <action name="action_WindowEffects" >
-   <property name="text" >
+  <action name="action_WindowEffects">
+   <property name="text">
     <string>&amp;Effects</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Switches to the Effects Window</string>
    </property>
   </action>
-  <action name="action_WindowEffectControls" >
-   <property name="text" >
+  <action name="action_WindowEffectControls">
+   <property name="text">
     <string>Effect &amp;Controls</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Switches to the Effect Controls Window</string>
    </property>
   </action>
-  <action name="action_WindowHistory" >
-   <property name="text" >
+  <action name="action_WindowHistory">
+   <property name="text">
     <string>&amp;History</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Switches to the History Window</string>
    </property>
   </action>
-  <action name="action_WindowInfo" >
-   <property name="text" >
+  <action name="action_WindowInfo">
+   <property name="text">
     <string>&amp;Info</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Switches to the Info Window</string>
    </property>
   </action>
-  <action name="action_WindowTools" >
-   <property name="text" >
+  <action name="action_WindowTools">
+   <property name="text">
     <string>&amp;Tools</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Switches to the Tools Window</string>
    </property>
   </action>
-  <action name="action_WindowAudioMixer" >
-   <property name="text" >
+  <action name="action_WindowAudioMixer">
+   <property name="text">
     <string>&amp;Audio Mixer</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Switches to the Audio Mixer Window</string>
    </property>
   </action>
-  <action name="action_WindowMonitor" >
-   <property name="text" >
+  <action name="action_WindowMonitor">
+   <property name="text">
     <string>&amp;Monitor</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Switches to the Monitor Window</string>
    </property>
   </action>
-  <action name="action_WindowProject" >
-   <property name="text" >
+  <action name="action_WindowProject">
+   <property name="text">
     <string>&amp;Project</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Switches to the Project Window</string>
    </property>
   </action>
-  <action name="action_PrefsGeneral" >
-   <property name="text" >
+  <action name="action_PrefsGeneral">
+   <property name="text">
     <string>&amp;General...</string>
    </property>
-   <property name="menuRole" >
+   <property name="menuRole">
     <enum>QAction::PreferencesRole</enum>
    </property>
   </action>
-  <action name="action_PrefsAudio" >
-   <property name="text" >
+  <action name="action_PrefsAudio">
+   <property name="text">
     <string>&amp;Audio...</string>
    </property>
   </action>
-  <action name="action_PrefsAudioHardware" >
-   <property name="text" >
+  <action name="action_PrefsAudioHardware">
+   <property name="text">
     <string>Audio &amp;Hardware...</string>
    </property>
   </action>
-  <action name="action_PrefsAutoSave" >
-   <property name="text" >
+  <action name="action_PrefsAutoSave">
+   <property name="text">
     <string>A&amp;uto Save...</string>
    </property>
   </action>
-  <action name="action_PrefsCapture" >
-   <property name="text" >
+  <action name="action_PrefsCapture">
+   <property name="text">
     <string>&amp;Capture...</string>
    </property>
   </action>
-  <action name="action_PrefsDeviceControl" >
-   <property name="text" >
+  <action name="action_PrefsDeviceControl">
+   <property name="text">
     <string>&amp;Device Control...</string>
    </property>
   </action>
-  <action name="action_PrefsLabelColors" >
-   <property name="text" >
+  <action name="action_PrefsLabelColors">
+   <property name="text">
     <string>&amp;Label Colors...</string>
    </property>
   </action>
-  <action name="action_PrefsLabelDefaults" >
-   <property name="text" >
+  <action name="action_PrefsLabelDefaults">
+   <property name="text">
     <string>Label De&amp;faults...</string>
    </property>
   </action>
-  <action name="action_PrefsScratchDisks" >
-   <property name="text" >
+  <action name="action_PrefsScratchDisks">
+   <property name="text">
     <string>&amp;Scratch Disks...</string>
    </property>
   </action>
-  <action name="action_PrefsStillImage" >
-   <property name="text" >
+  <action name="action_PrefsStillImage">
+   <property name="text">
     <string>Still &amp;Image...</string>
    </property>
   </action>
-  <action name="action_PrefsTitler" >
-   <property name="text" >
+  <action name="action_PrefsTitler">
+   <property name="text">
     <string>&amp;Titler...</string>
    </property>
   </action>
-  <action name="action_PrefsTrim" >
-   <property name="text" >
+  <action name="action_PrefsTrim">
+   <property name="text">
     <string>T&amp;rim...</string>
    </property>
   </action>
-  <action name="action_KeyboardCustomization" >
-   <property name="text" >
+  <action name="action_KeyboardCustomization">
+   <property name="text">
     <string>&amp;Keyboard Customization...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Customizes the keyboard shortcuts</string>
    </property>
   </action>
-  <action name="action_HelpContents" >
-   <property name="text" >
+  <action name="action_HelpContents">
+   <property name="text">
     <string>&amp;Contents</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Help Contents</string>
    </property>
-   <property name="shortcut" >
+   <property name="shortcut">
     <string>F1</string>
    </property>
   </action>
-  <action name="action_HelpSearch" >
-   <property name="text" >
+  <action name="action_HelpSearch">
+   <property name="text">
     <string>&amp;Search...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Search for a help topic</string>
    </property>
   </action>
-  <action name="action_HelpKeyboard" >
-   <property name="text" >
+  <action name="action_HelpKeyboard">
+   <property name="text">
     <string>&amp;Keyboard...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Shows Keyboard Shortcuts</string>
    </property>
   </action>
-  <action name="action_HelpWebsite" >
-   <property name="text" >
+  <action name="action_HelpWebsite">
+   <property name="text">
     <string>Visit &amp;Website</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Visit our website and forums</string>
    </property>
   </action>
-  <action name="action_About" >
-   <property name="text" >
+  <action name="action_About">
+   <property name="text">
     <string>&amp;About Saya...</string>
    </property>
-   <property name="statusTip" >
-    <string>Launches the famous "about" dialog</string>
+   <property name="statusTip">
+    <string>Launches the famous &quot;about&quot; dialog</string>
    </property>
-   <property name="menuRole" >
+   <property name="menuRole">
     <enum>QAction::AboutRole</enum>
    </property>
   </action>
-  <action name="action_AboutQt" >
-   <property name="text" >
+  <action name="action_AboutQt">
+   <property name="text">
     <string>&amp;About Qt...</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Shows information of the Qt library being used</string>
    </property>
-   <property name="menuRole" >
+   <property name="menuRole">
     <enum>QAction::AboutQtRole</enum>
    </property>
   </action>
-  <action name="action_ResourcesScan" >
-   <property name="text" >
+  <action name="action_ResourcesScan">
+   <property name="text">
     <string>&amp;Re-scan project directory</string>
    </property>
-   <property name="statusTip" >
+   <property name="statusTip">
     <string>Scans the project directory for resources</string>
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>syMenu</class>
+   <extends>QMenu</extends>
+   <header location="global">ui/widgets/generic/menu.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
