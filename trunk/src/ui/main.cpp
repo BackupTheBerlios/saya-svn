@@ -31,6 +31,7 @@
 #include <saya/core/evtregistry.h>
 #include <saya/core/sythread.h>
 #include <saya/core/dialogs.h>
+#include <saya/core/sigslot.h>
 
 #include <saya/saya_events.h>
 #include <saya/vidproject.h>
@@ -43,6 +44,7 @@
 #include "dialogs/newprojectdlg.h"
 // #include "classes/qsyapp.h"
 #include "widgets/projectpane/projectpane.h"
+using namespace sigslot;
 
 //helper functions
 enum qbuildinfoformat {
@@ -283,6 +285,7 @@ unsigned int idWindowAudioMixer = syActionEvent::RegisterId("action_WindowAudioM
 unsigned int idWindowMonitor = syActionEvent::RegisterId("action_WindowMonitor");
 unsigned int idWindowProject = syActionEvent::RegisterId("action_WindowProject", "OnShowProjectWindow()");
 unsigned int idWindowTimelinesMenu = syActionEvent::RegisterId("action_WindowTimelinesMenu");
+unsigned int idHelpAbout = syActionEvent::RegisterId("action_About");
 
 // ----------------------------
 // end constants and event id's
@@ -292,7 +295,7 @@ unsigned int idWindowTimelinesMenu = syActionEvent::RegisterId("action_WindowTim
 // begin AppFrame::Data
 // --------------------
 
-class AppFrame::Data : public QObject, public syEvtHandler {
+class AppFrame::Data : public QObject, public syEvtHandler, public has_slots {
     Q_OBJECT
     public:
         Data(AppFrame* parent);
@@ -358,8 +361,15 @@ class AppFrame::Data : public QObject, public syEvtHandler {
         void OnActionEvent(syActionEvent& event);
 
     private:
+        void InnerRegisterAction(unsigned int id, QAction* action);
+        void RegisterSlots();
+        void RegisterSlot(unsigned int id, void (AppFrame::Data::*pmemfun)());
+        void (AppFrame::Data::*FindSlot(unsigned int id))();
+
         typedef std::map<unsigned int, QAction*> ActionsMap;
+        typedef std::map<unsigned int, void (AppFrame::Data::*)()> SlotsMap;
         ActionsMap m_ActionsMap;
+        SlotsMap m_SlotsMap;
         syMutex m_ActionsMutex;
 
     public slots:
@@ -422,6 +432,7 @@ class AppFrame::Data : public QObject, public syEvtHandler {
         void OnWindowMenuUpdateUI();
 
 
+    public:
         void LoadAndSetFrameSize();
         void SaveDefaultLayout(bool showmsg);
         bool LoadDefaultLayout(bool firsttime = false);
@@ -465,6 +476,7 @@ m_Ui(new Ui::MainWindow)
     m_RecentImports[7] = m_Ui->action_RecentImport8;
     m_RecentImports[8] = m_Ui->action_RecentImport9;
 
+    RegisterSlots();
     CreateConnections(m_Ui->menubar);
 
     // Connect the aboutToShow() signals to the On*UpdateUI() slots.
@@ -490,13 +502,74 @@ AppFrame::Data::~Data() {
 
 }
 
-bool AppFrame::Data::LoadResources() {
-    return true;
+void AppFrame::Data::RegisterSlots() {
+
+        RegisterSlot(idFileOpen, &AppFrame::Data::OnFileOpen);
+        RegisterSlot(idFileClose, &AppFrame::Data::OnFileClose);
+
+        RegisterSlot(idFileClearRecentProjectList, &AppFrame::Data::OnClearRecentProjectList);
+        RegisterSlot(idFileClearRecentImportList, &AppFrame::Data::OnClearRecentImportList);
+        RegisterSlot(idRecentProject1, &AppFrame::Data::OnOpenRecentFile1);
+        RegisterSlot(idRecentProject2, &AppFrame::Data::OnOpenRecentFile2);
+        RegisterSlot(idRecentProject3, &AppFrame::Data::OnOpenRecentFile3);
+        RegisterSlot(idRecentProject4, &AppFrame::Data::OnOpenRecentFile4);
+        RegisterSlot(idRecentProject5, &AppFrame::Data::OnOpenRecentFile5);
+        RegisterSlot(idRecentProject6, &AppFrame::Data::OnOpenRecentFile6);
+        RegisterSlot(idRecentProject7, &AppFrame::Data::OnOpenRecentFile7);
+        RegisterSlot(idRecentProject8, &AppFrame::Data::OnOpenRecentFile8);
+        RegisterSlot(idRecentProject9, &AppFrame::Data::OnOpenRecentFile9);
+        RegisterSlot(idRecentImport1, &AppFrame::Data::OnOpenRecentImport1);
+        RegisterSlot(idRecentImport2, &AppFrame::Data::OnOpenRecentImport2);
+        RegisterSlot(idRecentImport3, &AppFrame::Data::OnOpenRecentImport3);
+        RegisterSlot(idRecentImport4, &AppFrame::Data::OnOpenRecentImport4);
+        RegisterSlot(idRecentImport5, &AppFrame::Data::OnOpenRecentImport5);
+        RegisterSlot(idRecentImport6, &AppFrame::Data::OnOpenRecentImport6);
+        RegisterSlot(idRecentImport7, &AppFrame::Data::OnOpenRecentImport7);
+        RegisterSlot(idRecentImport8, &AppFrame::Data::OnOpenRecentImport8);
+        RegisterSlot(idRecentImport9, &AppFrame::Data::OnOpenRecentImport9);
+
+        RegisterSlot(idFileImport,&AppFrame::Data::OnFileImport);
+        RegisterSlot(idFileSave,&AppFrame::Data::OnFileSave);
+        RegisterSlot(idFileSaveAs,&AppFrame::Data::OnFileSaveAs);
+        RegisterSlot(idFileSaveCopy,&AppFrame::Data::OnFileSaveCopy);
+        RegisterSlot(idNewProject,&AppFrame::Data::OnNewProject);
+        RegisterSlot(idFileRevert,&AppFrame::Data::OnFileRevert);
+        RegisterSlot(idFileCapture,&AppFrame::Data::OnFileCapture);
+        RegisterSlot(idFileBatchCapture,&AppFrame::Data::OnFileBatchCapture);
+        RegisterSlot(idFileInterpretFootage,&AppFrame::Data::OnFileInterpretFootage);
+        RegisterSlot(idFileTimecode,&AppFrame::Data::OnFileTimecode);
+
+        RegisterSlot(idQuit, &AppFrame::Data::OnQuit);
+        RegisterSlot(idHelpAbout, &AppFrame::Data::OnAbout);
+        RegisterSlot(idMenuSaveFrameLayout, &AppFrame::Data::OnSaveFrameLayout);
+        RegisterSlot(idWorkspaceDefault, &AppFrame::Data::OnLoadDefaultLayout);
+        RegisterSlot(idWorkspaceFactoryDefault, &AppFrame::Data::OnWorkspaceFactoryDefault);
+
+        // Window Menu
+        RegisterSlot(idWindowProject, &AppFrame::Data::OnShowProjectWindow);
+}
+
+
+void AppFrame::Data::RegisterSlot(unsigned int id, void (AppFrame::Data::*pmemfun)()) {
+    m_SlotsMap[id] = pmemfun;
+}
+
+void (AppFrame::Data::*AppFrame::Data::FindSlot(unsigned int id))() {
+    SlotsMap::iterator it = m_SlotsMap.find(id);
+    if(it == m_SlotsMap.end()) {
+        return 0;
+    }
+    return it->second;
 }
 
 void AppFrame::Data::RegisterAction(unsigned int id, QAction* action) {
     if(!this) return;
     syMutexLocker locker(m_ActionsMutex);
+    InnerRegisterAction(id, action);
+}
+
+void AppFrame::Data::InnerRegisterAction(unsigned int id, QAction* action) {
+    if(!this) return;
     m_ActionsMap[id] = action;
     action->setData(id);
 }
@@ -553,6 +626,10 @@ void AppFrame::Data::OnActionEvent(syActionEvent& event) {
     }
 }
 
+bool AppFrame::Data::LoadResources() {
+    return true;
+}
+
 void AppFrame::Data::ShowWelcomeDialog() {
     m_Parent->hide();
     if(m_WelcomeDialog) {
@@ -570,6 +647,8 @@ void AppFrame::Data::ShowMainWindow() {
 }
 
 void AppFrame::Data::CreateConnections(QWidget* parentwidget) {
+    void (AppFrame::Data::*pmemfun)();
+
     QList<QAction*> all_actions = parentwidget->actions();
     QList<QAction*>::iterator it = all_actions.begin();
     for(;it != all_actions.end();++it) {
@@ -582,8 +661,15 @@ void AppFrame::Data::CreateConnections(QWidget* parentwidget) {
         } else {
             syString thename(theaction->objectName());
             unsigned int id = syActionEvent::GetRegisteredId(thename.c_str());
-            if(!id) continue;
-            m_ActionsMap[id] = theaction;
+            if(!id) { continue; }
+
+            InnerRegisterAction(id, theaction);
+
+            pmemfun = FindSlot(id);
+            if(pmemfun) {
+                // theaction->sigtriggered.connect(this,pmemfun);
+            }
+
             syString theslot(syActionEvent::GetUserStringFromId(id));
             if(!theslot.empty()) {
                 theslot = syString(SLOT()) + theslot;
