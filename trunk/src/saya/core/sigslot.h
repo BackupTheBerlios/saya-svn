@@ -270,13 +270,48 @@ SIGSLOT_TEMPLATE_CALL(6);
 SIGSLOT_TEMPLATE_CALL(7);
 SIGSLOT_TEMPLATE_CALL(8);
 
+class signal0;
+
+template<class dest_type, class arg0_type = void*> class _connection0 : public _connection_base {
+    public:
+        _connection0() : m_psignal(0),m_pmemfun(0) {}
+        _connection0(dest_type* pobject, void (dest_type::*pmemfun)()) : m_psignal(0), m_pmemfun(pmemfun) { m_pobject = pobject; }
+        _connection0(dest_type* pobject, signal0 dest_type::*psignal) : m_psignal(psignal), m_pmemfun(0) { m_pobject = pobject; }
+        _connection0(dest_type* pobject, signal0 dest_type::*psignal, void (dest_type::*pmemfun)()) : m_psignal(psignal), m_pmemfun(pmemfun) {  m_pobject = pobject; }
+        virtual ~_connection0() {}
+        virtual _connection_base* clone() { return new _connection0<dest_type, arg0_type>(*this); }
+        virtual _connection_base* duplicate(has_slots* pnewdest) {
+            return new _connection0<dest_type, arg0_type>((dest_type *)pnewdest, m_psignal, m_pmemfun);
+        }
+        virtual void emit(const _signal_call_base* pcall) {
+            const _signal_call_0<void*>* call = dynamic_cast<const _signal_call_0<void*>* >(pcall);
+            dest_type* callee = dynamic_cast<dest_type*>(m_pobject);
+            if(call && callee) {
+                if(m_pmemfun) {
+                    (callee->*m_pmemfun)();
+                } else if(m_psignal) {
+                    (callee->*m_psignal).emit_base(pcall);
+                }
+            }
+        }
+        virtual bool equals(const _connection_base *other) const {
+            const _connection0<dest_type, arg0_type> *pconn = dynamic_cast<const _connection0<dest_type, arg0_type> * >(other);
+            if( !pconn || (m_pobject != pconn->m_pobject) || (m_pmemfun != pconn->m_pmemfun) || (m_psignal != pconn->m_psignal) ) { return false; }
+            return true;
+        }
+        signal0 dest_type::* m_psignal;
+        void (dest_type::* m_pmemfun)();
+};
+
+
 #define SIGSLOT_TEMPLATE_CONNECTION(x) \
+template<SIGSLOT_VCLASSLIST(x)> class signal## x; \
 template<class dest_type SIGSLOT_VCCLASSLIST(x)> class _connection ## x : public _connection_base { \
     public: \
         _connection ## x() : m_psignal(0),m_pmemfun(0) {} \
         _connection ## x(dest_type* pobject, void (dest_type::*pmemfun)(SIGSLOT_VFUNCARGLIST(x))) : m_psignal(0), m_pmemfun(pmemfun) { m_pobject = pobject; } \
-        _connection ## x(dest_type* pobject, _signal_base dest_type::*psignal) : m_psignal(psignal), m_pmemfun(0) { m_pobject = pobject; } \
-        _connection ## x(dest_type* pobject, _signal_base dest_type::*psignal, void (dest_type::*pmemfun)(SIGSLOT_VFUNCARGLIST(x))) : m_psignal(psignal), m_pmemfun(pmemfun) {  m_pobject = pobject; } \
+        _connection ## x(dest_type* pobject, signal## x<SIGSLOT_VARGLIST(x)> dest_type::*psignal) : m_psignal(psignal), m_pmemfun(0) { m_pobject = pobject; } \
+        _connection ## x(dest_type* pobject, signal## x<SIGSLOT_VARGLIST(x)> dest_type::*psignal, void (dest_type::*pmemfun)(SIGSLOT_VFUNCARGLIST(x))) : m_psignal(psignal), m_pmemfun(pmemfun) {  m_pobject = pobject; } \
         virtual ~_connection ## x() {} \
         virtual _connection_base* clone() { return new _connection ## x<dest_type SIGSLOT_VCARGLIST(x)>(*this); } \
         virtual _connection_base* duplicate(has_slots* pnewdest) { \
@@ -298,11 +333,10 @@ template<class dest_type SIGSLOT_VCCLASSLIST(x)> class _connection ## x : public
             if( !pconn || (m_pobject != pconn->m_pobject) || (m_pmemfun != pconn->m_pmemfun) || (m_psignal != pconn->m_psignal) ) { return false; } \
             return true; \
         } \
-        _signal_base dest_type::* m_psignal; \
+        signal## x<SIGSLOT_VARGLIST(x)> dest_type::* m_psignal; \
         void (dest_type::* m_pmemfun)(SIGSLOT_VFUNCARGLIST(x)); \
 }
 
-SIGSLOT_TEMPLATE_CONNECTION(0);
 SIGSLOT_TEMPLATE_CONNECTION(1);
 SIGSLOT_TEMPLATE_CONNECTION(2);
 SIGSLOT_TEMPLATE_CONNECTION(3);
@@ -322,7 +356,7 @@ class signal0 : public _signal_base {
             _connection0<desttype> conn(pobj, pmemfun);
             this->_signal_base::add_connection(conn);
         }
-        template<class desttype> void connect(desttype* pobj, _signal_base desttype::* psignal) {
+        template<class desttype> void connect(desttype* pobj, signal0 desttype::* psignal) {
             _connection0<desttype> conn(pobj, psignal);
             this->_signal_base::add_connection(conn);
         }
@@ -331,7 +365,7 @@ class signal0 : public _signal_base {
             _connection0<desttype> conn(pobj, pmemfun);
             this->_signal_base::remove_connection(conn);
         }
-        template<class desttype> void disconnect(desttype* pobj, _signal_base desttype::* psignal) {
+        template<class desttype> void disconnect(desttype* pobj, signal0 desttype::* psignal) {
             _connection0<desttype> conn(pobj, psignal);
             this->_signal_base::remove_connection(conn);
         }
@@ -358,7 +392,7 @@ template <SIGSLOT_VCLASSLIST(x)> class signal## x : public _signal_base { \
             _connection## x< desttype SIGSLOT_VCARGLIST(x)> conn(pobj, pmemfun); \
             this->_signal_base::add_connection(conn); \
         } \
-        template<class desttype> void connect(desttype* pobj, _signal_base desttype::* psignal) { \
+        template<class desttype> void connect(desttype* pobj, signal## x<SIGSLOT_VARGLIST(x)> desttype::* psignal) { \
             _connection## x< desttype SIGSLOT_VCARGLIST(x)> conn(pobj, psignal); \
             this->_signal_base::add_connection(conn); \
         } \
@@ -367,7 +401,7 @@ template <SIGSLOT_VCLASSLIST(x)> class signal## x : public _signal_base { \
             _connection## x< desttype SIGSLOT_VCARGLIST(x)> conn(pobj, pmemfun); \
             this->_signal_base::remove_connection(conn); \
         } \
-        template<class desttype> void disconnect(desttype* pobj, _signal_base desttype::* psignal) { \
+        template<class desttype> void disconnect(desttype* pobj, signal## x<SIGSLOT_VARGLIST(x)> desttype::* psignal) { \
             _connection## x< desttype SIGSLOT_VCARGLIST(x)> conn(pobj, psignal); \
             this->_signal_base::remove_connection(conn); \
         } \
