@@ -22,27 +22,29 @@ class QLabel;
 class JogControl;
 class QVBoxLayout;
 
-class PlaybackControl : public QWidget
+#include <saya/core/sigslot.h>
+#include <ui/widgets/generic/widget.h>
+using namespace sigslot;
+
+class PlaybackControl : public syWidget
 {
-    Q_OBJECT
     public:
         PlaybackControl(QWidget *parent = 0);
         virtual ~PlaybackControl();
 
-    signals:
-        void playbackFirstFrame();
-        void playbackFastRewind();
-        void playbackPreviousFrame();
-        void playbackPlay();
-        void playbackStop();
-        void playbackNextFrame();
-        void playbackFastForward();
-        void playbackLastFrame();
-        void playbackSeekAndPlayFrame(double time);
-        void playbackAtSpeed(int percentage); // Sets playback speed at given percentage. Can be negative,greater than 100.
-        void playbackSetVolume(unsigned int percentage); // from 0 to 100.
+        signal0 playbackFirstFrame;
+        signal0 playbackFastRewind;
+        signal0 playbackPreviousFrame;
+        signal0 playbackPlay;
+        signal0 playbackStop;
+        signal0 playbackNextFrame;
+        signal0 playbackFastForward;
+        signal0 playbackLastFrame;
+        signal1<double> playbackSeekAndPlayFrame; /** Seeks frame at given time (in seconds) and plays it, then pauses. */
+        signal1<int> playbackAtSpeed; /** Sets playback speed at given percentage. Can be negative,greater than 100. */
+        signal1<unsigned int> playbackSetVolume; /** Sets playback volume. From 0 to 100. */
 
-    public slots:
+    public: // slots
         void setTimeRange(double start, double finish); // In seconds
         void setCurrentTime(double time); // Update the seek bar's current position.
 

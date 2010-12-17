@@ -19,16 +19,12 @@
 // --- Begin VideoPlaybackControl::Data ---
 // ----------------------------------------
 
-class VideoPlaybackControl::Data : public QObject {
-    Q_OBJECT
+class VideoPlaybackControl::Data : public has_slots {
     public:
         Data(VideoPlaybackControl* parent);
         virtual ~Data();
         VideoPlaybackControl *m_Parent;
         VideoPanel* m_VideoPanel;
-
-    public slots:
-
 };
 
 VideoPlaybackControl::Data::Data(VideoPlaybackControl* parent) :
@@ -86,5 +82,3 @@ QWidget* VideoPlaybackControl::GetVideoPanel() {
 // --------------------------------
 // --- End VideoPlaybackControl ---
 // --------------------------------
-
-#include "moc/videoplaybackcontrol_data.moc.h"

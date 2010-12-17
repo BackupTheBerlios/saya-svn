@@ -7,17 +7,21 @@
  * Copyright: Ricardo Garcia
  * License:   LGPL license version 3 or later, with linking exception.
  **************************************************************************************/
+
 #include <QtGui>
+#include <QtGui>
+
 #include "playbackcontrol.h"
-#include "../jog_ctrl/jog_ctrl.h"
-#include "../tubeslider/tubeslider.h"
+#include <ui/widgets/generic/pushbutton.h>
+#include <ui/widgets/generic/slider.h>
+#include <ui/widgets/jog_ctrl/jog_ctrl.h>
+#include <ui/widgets/tubeslider/tubeslider.h>
 
 // ---------------------------
 // Begin PlaybackControl::Data
 // ---------------------------
 
-class PlaybackControl::Data : public QObject {
-    Q_OBJECT
+class PlaybackControl::Data : public QObject, public has_slots {
     public:
         Data(PlaybackControl* parent);
         virtual ~Data();
@@ -36,26 +40,26 @@ class PlaybackControl::Data : public QObject {
 
         QPixmap* m_pixVolumeNormal;
         QPixmap* m_pixVolumeMuted;
-        QPushButton* m_btnMute;
+        syPushButton* m_btnMute;
 
-        QPushButton* m_btnFirstFrame;
-		QPushButton* m_btnFastRewind;
-		QPushButton* m_btnPreviousFrame;
-		QPushButton* m_btnPlay;
-		QPushButton* m_btnNextFrame;
-		QPushButton* m_btnFastForward;
-		QPushButton* m_btnLastFrame;
+        syPushButton* m_btnFirstFrame;
+		syPushButton* m_btnFastRewind;
+		syPushButton* m_btnPreviousFrame;
+		syPushButton* m_btnPlay;
+		syPushButton* m_btnNextFrame;
+		syPushButton* m_btnFastForward;
+		syPushButton* m_btnLastFrame;
 		TubeSlider* m_PlaybackSlider;
-		QSlider* m_VolumeSlider;
-		QSlider* m_Shuttle;
+		sySlider* m_VolumeSlider;
+		sySlider* m_Shuttle;
 		JogControl* m_Jog;
 		QVBoxLayout* m_VBoxLayout;
 
-    signals:
-        void playbackSetVolume(unsigned int percentage); // from 0 to 100.
-        void playbackAtSpeed(int percentage);
 
-    public slots:
+        signal1<unsigned int> playbackSetVolume; // From 0 to 100
+        signal1<int> playbackAtSpeed; // From -100 to 100
+
+    public: // slots
         void PlaybackSliderMoved(double time);
         void volumeSliderPressed();
         void volumeSliderMoved(int value);
@@ -87,13 +91,13 @@ m_VBoxLayout(0)
     m_PlaybackSlider = new TubeSlider();
     m_PlaybackSlider->setFocusPolicy(Qt::NoFocus);
 
-    m_btnMute = new QPushButton();
+    m_btnMute = new syPushButton();
     m_btnMute->setCheckable(true);
     m_btnMute->setChecked(false);
     m_btnMute->setFocusPolicy(Qt::NoFocus);
     m_btnMute->setIcon(*m_pixVolumeNormal);
 
-    m_VolumeSlider = new QSlider(Qt::Horizontal);
+    m_VolumeSlider = new sySlider(Qt::Horizontal);
     m_VolumeSlider->setFocusPolicy(Qt::NoFocus);
     m_VolumeSlider->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
     m_VolumeSlider->setMaximumWidth(72);
@@ -104,13 +108,13 @@ m_VBoxLayout(0)
     m_VolumeSlider->setTickInterval(10);
     m_VolumeSlider->setTickPosition(QSlider::TicksBelow);
 
-    m_btnFirstFrame = new QPushButton();m_btnFirstFrame->setCursor(Qt::PointingHandCursor);
-    m_btnFastRewind = new QPushButton();m_btnFastRewind->setCursor(Qt::PointingHandCursor);
-    m_btnPreviousFrame = new QPushButton();m_btnPreviousFrame->setCursor(Qt::PointingHandCursor);
-    m_btnPlay = new QPushButton();m_btnPlay->setCursor(Qt::PointingHandCursor);
-    m_btnNextFrame = new QPushButton();m_btnNextFrame->setCursor(Qt::PointingHandCursor);
-    m_btnFastForward = new QPushButton();m_btnFastForward->setCursor(Qt::PointingHandCursor);
-    m_btnLastFrame = new QPushButton();m_btnLastFrame->setCursor(Qt::PointingHandCursor);
+    m_btnFirstFrame = new syPushButton();m_btnFirstFrame->setCursor(Qt::PointingHandCursor);
+    m_btnFastRewind = new syPushButton();m_btnFastRewind->setCursor(Qt::PointingHandCursor);
+    m_btnPreviousFrame = new syPushButton();m_btnPreviousFrame->setCursor(Qt::PointingHandCursor);
+    m_btnPlay = new syPushButton();m_btnPlay->setCursor(Qt::PointingHandCursor);
+    m_btnNextFrame = new syPushButton();m_btnNextFrame->setCursor(Qt::PointingHandCursor);
+    m_btnFastForward = new syPushButton();m_btnFastForward->setCursor(Qt::PointingHandCursor);
+    m_btnLastFrame = new syPushButton();m_btnLastFrame->setCursor(Qt::PointingHandCursor);
     m_Jog = new JogControl();
     m_Jog->setFocusPolicy(Qt::NoFocus);
     m_Jog->setMinimumSize(40, 40);
@@ -147,7 +151,7 @@ m_VBoxLayout(0)
     m_btnFastForward->setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_fastforward))));
     m_btnLastFrame->setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_lastframe))));
 
-    m_Shuttle = new QSlider(Qt::Horizontal);
+    m_Shuttle = new sySlider(Qt::Horizontal);
     m_Shuttle->setMinimumWidth(84);
     m_Shuttle->setMaximumWidth(84);
     m_Shuttle->setFocusPolicy(Qt::NoFocus);
@@ -198,33 +202,34 @@ m_VBoxLayout(0)
     );
     // In this section the private slots connections are setup. We use Queued Connections
     // to support events from background threads.
-    connect(m_btnFirstFrame,    SIGNAL(clicked()), m_Parent, SIGNAL(playbackFirstFrame()), Qt::QueuedConnection);
-    connect(m_btnFastRewind,    SIGNAL(clicked()), m_Parent, SIGNAL(playbackFastRewind()), Qt::QueuedConnection);
-    connect(m_btnPreviousFrame, SIGNAL(clicked()), m_Parent, SIGNAL(playbackPreviousFrame()), Qt::QueuedConnection);
-    connect(m_btnPlay,          SIGNAL(clicked()), m_Parent, SIGNAL(playbackPlay()), Qt::QueuedConnection);
-    connect(m_btnNextFrame,     SIGNAL(clicked()), m_Parent, SIGNAL(playbackNextFrame()), Qt::QueuedConnection);
-    connect(m_btnFastForward,   SIGNAL(clicked()), m_Parent, SIGNAL(playbackFastForward()), Qt::QueuedConnection);
-    connect(m_btnLastFrame,     SIGNAL(clicked()), m_Parent, SIGNAL(playbackLastFrame()), Qt::QueuedConnection);
-    connect(m_Jog,              SIGNAL(JogStepUp()),m_Parent, SIGNAL(playbackNextFrame()), Qt::QueuedConnection);
-    connect(m_Jog,              SIGNAL(JogStepDown()),m_Parent, SIGNAL(playbackPreviousFrame()), Qt::QueuedConnection);
-    connect(m_btnFirstFrame,    SIGNAL(clicked()), m_Parent, SIGNAL(playbackFirstFrame()), Qt::QueuedConnection);
+    m_btnFirstFrame->sigclicked.connect(m_Parent,&PlaybackControl::playbackFirstFrame);
+    m_btnFirstFrame->sigclicked.connect(m_Parent, &PlaybackControl::playbackFirstFrame);
+    m_btnFastRewind->sigclicked.connect(m_Parent, &PlaybackControl::playbackFastRewind);
+    m_btnPreviousFrame->sigclicked.connect(m_Parent, &PlaybackControl::playbackPreviousFrame);
+    m_btnPlay->sigclicked.connect(m_Parent, &PlaybackControl::playbackPlay);
+    m_btnNextFrame->sigclicked.connect(m_Parent, &PlaybackControl::playbackNextFrame);
+    m_btnFastForward->sigclicked.connect(m_Parent, &PlaybackControl::playbackFastForward);
+    m_btnLastFrame->sigclicked.connect(m_Parent, &PlaybackControl::playbackLastFrame);
+    m_Jog->JogStepUp.connect(m_Parent, &PlaybackControl::playbackNextFrame);
+    m_Jog->JogStepDown.connect(m_Parent, &PlaybackControl::playbackPreviousFrame);
 
     // --- Signals and slots for the playback slider ---
-    connect(m_PlaybackSlider, SIGNAL(TimeChanged(double)), this, SLOT(PlaybackSliderMoved(double)), Qt::QueuedConnection);
+    m_PlaybackSlider->TimeChanged.connect(this, &PlaybackControl::Data::PlaybackSliderMoved);
     // --- Signals and slots for volume handling ---
-    connect(m_btnMute, SIGNAL(toggled(bool)), this, SLOT(muteButtonToggled(bool)), Qt::QueuedConnection);
-    connect(m_VolumeSlider, SIGNAL(sliderPressed()), m_Parent, SIGNAL(volumeSliderPressed()), Qt::QueuedConnection);
-    connect(m_VolumeSlider, SIGNAL(sliderMoved(int)), this, SLOT(volumeSliderMoved(int)), Qt::QueuedConnection);
-    connect(m_VolumeSlider, SIGNAL(valueChanged(int)), this, SLOT(volumeSliderMoved(int)), Qt::QueuedConnection);
-    connect(m_VolumeSlider, SIGNAL(sliderReleased()), this, SLOT(volumeSliderReleased()), Qt::QueuedConnection);
-    connect(this, SIGNAL(playbackSetVolume(unsigned int)), m_Parent, SIGNAL(playbackSetVolume(unsigned int)), Qt::QueuedConnection);
+    m_btnMute->sigtoggled.connect(this, &PlaybackControl::Data::muteButtonToggled);
+    m_VolumeSlider->sigsliderPressed.connect(this, &PlaybackControl::Data::volumeSliderPressed);
+    m_VolumeSlider->sigsliderMoved.connect(this, &PlaybackControl::Data::volumeSliderMoved);
+    m_VolumeSlider->sigvalueChanged.connect(this, &PlaybackControl::Data::volumeSliderMoved);
+    m_VolumeSlider->sigsliderReleased.connect(this, &PlaybackControl::Data::volumeSliderReleased);
+    playbackSetVolume.connect(m_Parent, &PlaybackControl::playbackSetVolume);
 
     // --- Signals and slots for the shuttle control ---
-    connect(m_Shuttle, SIGNAL(sliderPressed()), m_Parent, SIGNAL(shuttleSliderPressed()), Qt::QueuedConnection);
-    connect(m_Shuttle, SIGNAL(sliderMoved(int)), this, SLOT(shuttleSliderMoved(int)), Qt::QueuedConnection);
-    connect(m_Shuttle, SIGNAL(sliderReleased()), this, SLOT(shuttleSliderReleased()), Qt::QueuedConnection);
-    connect(m_Shuttle, SIGNAL(sliderReleased()), m_Parent, SIGNAL(playbackStop()), Qt::QueuedConnection);
-    connect(this, SIGNAL(playbackAtSpeed(int)), m_Parent, SIGNAL(playbackAtSpeed(int)), Qt::QueuedConnection);
+
+    m_Shuttle->sigsliderPressed.connect(this, &PlaybackControl::Data::shuttleSliderPressed);
+    m_Shuttle->sigsliderMoved.connect(this, &PlaybackControl::Data::shuttleSliderMoved);
+    m_Shuttle->sigsliderReleased.connect(this, &PlaybackControl::Data::shuttleSliderReleased);
+    m_Shuttle->sigsliderReleased.connect(m_Parent, &PlaybackControl::playbackStop);
+    playbackAtSpeed.connect(m_Parent, &PlaybackControl::playbackAtSpeed);
     m_Shuttle->installEventFilter(this);
 }
 
@@ -324,7 +329,7 @@ void PlaybackControl::Data::shuttleSliderReleased() {
 // ---------------------
 
 PlaybackControl::PlaybackControl(QWidget* parent)
-: QWidget (parent)
+: syWidget (parent)
 , m_Data(new Data(this))
 {
     setTimeRange(0,10);
@@ -350,11 +355,6 @@ QVBoxLayout* PlaybackControl::GetVBoxLayout() {
 // -------------------
 // End PlaybackControl
 // -------------------
-
-#ifndef Q_MOC_RUN
-  #include "moc/playbackcontrol_data.moc.h"
-  #include "moc/playbackcontrol.moc.h"
-#endif
 
 const char* PlaybackControl::Data::s_icon_fastforward =
 "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A"

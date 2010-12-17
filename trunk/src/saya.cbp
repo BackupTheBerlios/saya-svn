@@ -327,16 +327,6 @@
 		<Unit filename="ui/widgets/generic/widget.h" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.cpp" />
 		<Unit filename="ui/widgets/jog_ctrl/jog_ctrl.h" />
-		<Unit filename="ui/widgets/playbackcontrol/moc/playbackcontrol.moc_trigger">
-			<Option compile="1" />
-			<Option weight="0" />
-			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/playbackcontrol/playbackcontrol.h -o ui/widgets/playbackcontrol/moc/playbackcontrol.moc.h" />
-		</Unit>
-		<Unit filename="ui/widgets/playbackcontrol/moc/playbackcontrol_data.moc_trigger">
-			<Option compile="1" />
-			<Option weight="0" />
-			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/playbackcontrol/playbackcontrol.cpp -o ui/widgets/playbackcontrol/moc/playbackcontrol_data.moc.h" />
-		</Unit>
 		<Unit filename="ui/widgets/playbackcontrol/playbackcontrol.cpp" />
 		<Unit filename="ui/widgets/playbackcontrol/playbackcontrol.h" />
 		<Unit filename="ui/widgets/projectpane/projectpane.cpp" />
@@ -346,11 +336,6 @@
 		<Unit filename="ui/widgets/tubeslider/tubeslider.h" />
 		<Unit filename="ui/widgets/videopanel/videopanel.cpp" />
 		<Unit filename="ui/widgets/videopanel/videopanel.h" />
-		<Unit filename="ui/widgets/videoplaybackcontrol/moc/videoplaybackcontrol_data.moc_trigger">
-			<Option compile="1" />
-			<Option weight="0" />
-			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/videoplaybackcontrol/videoplaybackcontrol.cpp -o ui/widgets/videoplaybackcontrol/moc/videoplaybackcontrol_data.moc.h" />
-		</Unit>
 		<Unit filename="ui/widgets/videoplaybackcontrol/videoplaybackcontrol.cpp" />
 		<Unit filename="ui/widgets/videoplaybackcontrol/videoplaybackcontrol.h" />
 		<Extensions>
