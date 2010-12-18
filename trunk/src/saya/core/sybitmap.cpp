@@ -156,6 +156,7 @@ void syBitmap::Realloc(unsigned int newwidth,unsigned int newheight,VideoColorFo
     m_Data->m_bypp = CalculateBytesperPixel(newformat);
     m_Data->m_Width = newwidth;
     m_Data->m_Height = newheight;
+    Clear();
 }
 
 bool syBitmap::ReleaseBuffer(bool force) {
