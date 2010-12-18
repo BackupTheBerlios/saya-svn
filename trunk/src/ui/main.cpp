@@ -1242,15 +1242,19 @@ bool AppFrame::Data::CreateDialogs() {
 bool AppFrame::Data::CreatePanels() {
     bool result = false;
     do {
-        QWidget* tmpwidget = new VideoPlaybackControl(0);
-        tmpwidget->show();
+        // QWidget* tmpwidget = new VideoPlaybackControl(0);
+        // tmpwidget->show();
 
         m_ProjectPanel = CreateProjectPane();
         if(!m_ProjectPanel) { LoadFail("project_panel"); break; }
         // TODO: Create the timeline and video playback widgets here.
-        m_EffectsPanel = new VideoPlaybackControl;
-        m_MonitorPanel = new VideoPlaybackControl;
-        m_TimelinePanel = new QFrame;
+        m_EffectsPanel = new VideoPlaybackControl(0);
+        m_EffectsPanel->setWindowTitle(_("Input / Effects"));
+        m_MonitorPanel = new VideoPlaybackControl(0);
+        m_MonitorPanel->setWindowTitle(_("Output Monitor"));
+        m_TimelinePanel = new QDockWidget;
+        m_TimelinePanel->setFeatures(QDockWidget::NoDockWidgetFeatures);
+        m_TimelinePanel->setWindowTitle(_("Timeline"));
 
         m_EffectsPanel->SetAVPlayer(PlaybackManager::Get()->GetInputMonitor());
         m_MonitorPanel->SetAVPlayer(PlaybackManager::Get()->GetPreviewMonitor());
@@ -1268,9 +1272,12 @@ bool AppFrame::Data::CreatePanels() {
 void AppFrame::Data::FillDockAreas() {
 
     m_Parent->addDockWidget(Qt::LeftDockWidgetArea, m_ProjectPanel);
+    m_Parent->setCentralWidget(m_TimelinePanel);
     m_Parent->addDockWidget(Qt::BottomDockWidgetArea, m_EffectsPanel);
     m_Parent->addDockWidget(Qt::BottomDockWidgetArea, m_MonitorPanel);
-    m_Parent->addDockWidget(Qt::NoDockWidgetArea, m_TimelinePanel);
+    m_EffectsPanel->show();
+    m_MonitorPanel->show();
+    m_TimelinePanel->show();
 }
 
 QDockWidget* AppFrame::Data::CreateProjectPane() {

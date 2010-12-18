@@ -55,6 +55,7 @@ class PlaybackControl::Data : public QObject, public has_slots {
 		sySlider* m_Shuttle;
 		JogControl* m_Jog;
 		QVBoxLayout* m_VBoxLayout;
+		syWidget* m_Widget;
 
 
         signal1<unsigned int> playbackSetVolume; // From 0 to 100
@@ -85,7 +86,7 @@ m_pixVolumeNormal(0),
 m_pixVolumeMuted(0),
 m_VBoxLayout(0)
 {
-
+    m_Widget = new syWidget(0);
     m_pixVolumeNormal = new QPixmap(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_mute1))));
     m_pixVolumeMuted = new QPixmap(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(Data::s_icon_mute2))));
 
@@ -188,11 +189,11 @@ m_VBoxLayout(0)
     mainLayout->addLayout(topLayout);
     mainLayout->addLayout(bottomLayout);
     m_VBoxLayout = mainLayout;
-    m_Parent->setLayout(mainLayout);
-    m_Parent->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
-
+    m_Widget->setLayout(mainLayout);
+    m_Widget->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding);
+//    m_Parent->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding);
     m_Parent->setStyleSheet(
-        "QWidget { background-color: #ccc; }"
+        /* "QWidget { background-color: #ccc; }" */
         "QPushButton { background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #474747, stop: 1 #999999);"
         "  border:2px outset #666666; border-radius: 3px; }"
         "QPushButton:pressed { margin-top:2px;margin-left:2px; border-right:none;border-bottom:none;border-top-right-radius:0;border-bottom-left-radius:0; }"
@@ -232,6 +233,7 @@ m_VBoxLayout(0)
     m_Shuttle->sigsliderReleased.connect(m_Parent, &PlaybackControl::playbackStop);
     playbackAtSpeed.connect(m_Parent, &PlaybackControl::playbackAtSpeed);
     m_Shuttle->installEventFilter(this);
+    m_Parent->setWidget(m_Widget);
 }
 
 PlaybackControl::Data::~Data() {
