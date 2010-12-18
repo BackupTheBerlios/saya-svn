@@ -303,8 +303,8 @@ class AppFrame::Data : public syEvtHandler, public has_slots {
 
         QDockWidget* CreateProjectPane(); /// Creates the project pane
         QDockWidget* m_ProjectPanel; /// Project Panel
-        QDockWidget* m_MonitorPanel; /// Monitor Panel
-        QDockWidget* m_EffectsPanel; /// Effects Panel
+        VideoPlaybackControl* m_MonitorPanel; /// Monitor Panel
+        VideoPlaybackControl* m_EffectsPanel; /// Effects Panel
         QDockWidget* m_TimelinePanel; /// Timeline Panel
         WelcomeDialog* m_WelcomeDialog;
         NewProjectDlg *m_NewProjectDlg;
@@ -819,14 +819,6 @@ void AppFrame::Data::OpenRecentFile(unsigned int fileno) {
 }
 
 void AppFrame::Data::OnNewProject(){
-//    syMessageBox("OnNewProject() called.");
-    // TODO: Implement the New project Dialog
-//    NewProjectDlg* mydialog = new NewProjectDlg(this);
-//    if(!mydialog) {
-//        return;
-//    }
-//    mydialog->ShowModal();
-
     if (m_NewProjectDlg) {
         delete m_NewProjectDlg;
         m_NewProjectDlg = 0;
@@ -1256,6 +1248,13 @@ bool AppFrame::Data::CreatePanels() {
         m_ProjectPanel = CreateProjectPane();
         if(!m_ProjectPanel) { LoadFail("project_panel"); break; }
         // TODO: Create the timeline and video playback widgets here.
+        m_EffectsPanel = new VideoPlaybackControl;
+        m_MonitorPanel = new VideoPlaybackControl;
+        m_TimelinePanel = new QFrame;
+
+        m_EffectsPanel->SetAVPlayer(PlaybackManager::Get()->GetInputMonitor());
+        m_MonitorPanel->SetAVPlayer(PlaybackManager::Get()->GetPreviewMonitor());
+
 //           m_effectspanel = new wxVideoPlaybackPanel(this);
 //           m_monitorpanel = new wxVideoPlaybackPanel(this);
 //           static_cast<wxVideoPlaybackPanel*>(m_effectspanel)->SetAVPlayer(PlaybackManager::Get()->GetInputMonitor());
@@ -1268,9 +1267,10 @@ bool AppFrame::Data::CreatePanels() {
 
 void AppFrame::Data::FillDockAreas() {
 
-    // TODO: Add the video player widgets to the bottom dock widget area
     m_Parent->addDockWidget(Qt::LeftDockWidgetArea, m_ProjectPanel);
-    // TODO: Add the timeline widget to the main (center) widget area.
+    m_Parent->addDockWidget(Qt::BottomDockWidgetArea, m_EffectsPanel);
+    m_Parent->addDockWidget(Qt::BottomDockWidgetArea, m_MonitorPanel);
+    m_Parent->addDockWidget(Qt::NoDockWidgetArea, m_TimelinePanel);
 }
 
 QDockWidget* AppFrame::Data::CreateProjectPane() {
