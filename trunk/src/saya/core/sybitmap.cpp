@@ -407,9 +407,9 @@ void syBitmap::Clear() {
     }
     // Now we'll clear all the buffer and not just the visible part
 
-    // By using pointer to longs, we can cut the clearing time by 4x.
+    // By using pointer to ints, we can cut the clearing time by 4x.
     // In Realloc() we already made sure that our buffer fits in 4-byte chunks, so this is 100% safe.
-    unsigned long* ptr = (unsigned long*)m_Data->m_Buffer;
+    unsigned int* ptr = (unsigned int*)m_Data->m_Buffer;
     for(unsigned long i = m_Data->m_BufferSize >> 2;i; --i, ++ptr) {
         *ptr = 0;
     }
