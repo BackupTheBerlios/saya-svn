@@ -32,7 +32,7 @@ class syDockWidget : public QDockWidget, public has_slots {
     #ifndef Q_MOC_RUN
         signal1<Qt::DockWidgetAreas> sigallowedAreasChanged; // (Qt::DockWidgetAreas allowedAreas)
         signal1<Qt::DockWidgetArea> sigdockLocationChanged; // (Qt::DockWidgetArea area)
-        signal1<QDockWidget::DockWidgetFeatures> sigdockfeaturesChanged; //  (QDockWidget::DockWidgetFeatures features)
+        signal1<QDockWidget::DockWidgetFeatures> sigfeaturesChanged; //  (QDockWidget::DockWidgetFeatures features)
         signal1<bool> sigtopLevelChanged; // (bool topLevel)
         signal1<bool> sigvisibilityChanged; // (bool visible)
         signal1<const QPoint&> sigcustomContextMenuRequested;
@@ -41,11 +41,11 @@ class syDockWidget : public QDockWidget, public has_slots {
     #endif
     #ifdef SY_FAKE_SLOTS
     public slots:
-        void allowedAreasChanged(Qt::DockWidgetAreas allowedAreas);
-        void dockLocationChanged(Qt::DockWidgetArea area);
-        void featuresChanged(QDockWidget::DockWidgetFeatures features);
-        void topLevelChanged(bool topLevel);
-        void visibilityChanged(bool visible);
+        void sigallowedAreasChanged(Qt::DockWidgetAreas allowedAreas);
+        void sigdockLocationChanged(Qt::DockWidgetArea area);
+        void sigfeaturesChanged(QDockWidget::DockWidgetFeatures features);
+        void sigtopLevelChanged(bool topLevel);
+        void sigvisibilityChanged(bool visible);
         void sigcustomContextMenuRequested(const QPoint &pos);
         void sigobjdestroyed(QObject* obj);
         void sigdestroyed();

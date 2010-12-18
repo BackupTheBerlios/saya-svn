@@ -1259,11 +1259,6 @@ bool AppFrame::Data::CreatePanels() {
         m_EffectsPanel->SetAVPlayer(PlaybackManager::Get()->GetInputMonitor());
         m_MonitorPanel->SetAVPlayer(PlaybackManager::Get()->GetPreviewMonitor());
 
-//           m_effectspanel = new wxVideoPlaybackPanel(this);
-//           m_monitorpanel = new wxVideoPlaybackPanel(this);
-//           static_cast<wxVideoPlaybackPanel*>(m_effectspanel)->SetAVPlayer(PlaybackManager::Get()->GetInputMonitor());
-//           static_cast<wxVideoPlaybackPanel*>(m_monitorpanel)->SetAVPlayer(PlaybackManager::Get()->GetPreviewMonitor());
-//        m_timelinepanel = new wxPanel(this, -1,wxDefaultPosition, wxSize(800,400));
         result = true;
     }while(false);
     return result;

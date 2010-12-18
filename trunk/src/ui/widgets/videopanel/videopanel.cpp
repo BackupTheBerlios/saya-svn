@@ -87,6 +87,8 @@ m_Bitmap2(new syBitmap()),
 m_BitmapPointer(m_Bitmap1),
 m_NativeFormat(vcfRGB32) // Due to Qt limitations, we're restricted to use this format.
 {
+    m_Bitmap1->Clear();
+    m_Bitmap2->Clear();
     m_Video->SetBitmapSink(this);
     m_Video->Init();
 }

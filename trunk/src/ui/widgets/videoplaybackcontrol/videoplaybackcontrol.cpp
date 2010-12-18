@@ -11,8 +11,8 @@
  **************************************************************************************/
 
 #include "videoplaybackcontrol.h"
-#include "../../../saya/inputmonitor.h"
-#include "../videopanel/videopanel.h"
+#include <saya/inputmonitor.h>
+#include <ui/widgets/videopanel/videopanel.h>
 
 #include <QVBoxLayout>
 // ----------------------------------------

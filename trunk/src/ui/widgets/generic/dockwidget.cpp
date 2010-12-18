@@ -20,7 +20,7 @@ void syDockWidget::connectFakeSlots() {
     connect(this,SIGNAL(dockLocationChanged(Qt::DockWidgetArea)),SLOT(sigdockLocationChanged(Qt::DockWidgetArea)), Qt::DirectConnection);
     connect(this,SIGNAL(featuresChanged(QDockWidget::DockWidgetFeatures)),SLOT(sigfeaturesChanged(QDockWidget::DockWidgetFeatures)), Qt::DirectConnection);
     connect(this,SIGNAL(topLevelChanged(bool)),SLOT(sigtopLevelChanged(bool)), Qt::DirectConnection);
-    connect(this,SIGNAL(visibſilityChanged(bool)),SLOT(sigvisibilityChanged(bool)), Qt::DirectConnection);
+    connect(this,SIGNAL(visibilityChanged(bool)),SLOT(sigvisibilityChanged(bool)), Qt::DirectConnection);
     connect(this,SIGNAL(customContextMenuRequested(const QPoint &)),SLOT(sigcustomContextMenuRequested(const QPoint &)), Qt::DirectConnection);
     connect(this,SIGNAL(destroyed(QObject*)),SLOT(sigobjdestroyed(QObject*)), Qt::DirectConnection);
     connect(this,SIGNAL(destroyed()),SLOT(sigdestroyed()), Qt::DirectConnection);
