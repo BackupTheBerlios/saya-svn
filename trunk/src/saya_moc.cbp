@@ -46,6 +46,11 @@
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/combobox.h -o ui/widgets/generic/moc/combobox.moc.h" />
 		</Unit>
+		<Unit filename="ui/widgets/generic/moc/dockwidget.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/dockwidget.h -o ui/widgets/generic/moc/dockwidget.moc.h" />
+		</Unit>
 		<Unit filename="ui/widgets/generic/moc/lineedit.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />

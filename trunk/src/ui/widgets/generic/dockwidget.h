@@ -10,8 +10,8 @@
  * License:   LGPL Licence version 3.0 or later
  **************************************************************************************/
 
-#ifndef WIDGETS_GENERIC_WIDGET_H_INCLUDED
-#define WIDGETS_GENERIC_WIDGET_H_INCLUDED
+#ifndef WIDGETS_GENERIC_DOCKWIDGET_H_INCLUDED
+#define WIDGETS_GENERIC_DOCKWIDGET_H_INCLUDED
 
 #include <QDockWidget>
 

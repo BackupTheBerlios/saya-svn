@@ -11,7 +11,7 @@
 #ifndef JOG_CTRL_H_INCLUDED
 #define JOG_CTRL_H_INCLUDED
 
-#include "../generic/widget.h"
+#include <ui/widgets/generic/widget.h>
 
 class JogControl : public syWidget {
     public:

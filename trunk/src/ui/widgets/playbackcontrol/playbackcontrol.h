@@ -23,10 +23,10 @@ class JogControl;
 class QVBoxLayout;
 
 #include <saya/core/sigslot.h>
-#include <ui/widgets/generic/widget.h>
+#include <ui/widgets/generic/dockwidget.h>
 using namespace sigslot;
 
-class PlaybackControl : public syWidget
+class PlaybackControl : public syDockWidget
 {
     public:
         PlaybackControl(QWidget *parent = 0);

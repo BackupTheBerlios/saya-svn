@@ -309,6 +309,8 @@
 		<Unit filename="ui/widgets/generic/checkbox.h" />
 		<Unit filename="ui/widgets/generic/combobox.cpp" />
 		<Unit filename="ui/widgets/generic/combobox.h" />
+		<Unit filename="ui/widgets/generic/dockwidget.cpp" />
+		<Unit filename="ui/widgets/generic/dockwidget.h" />
 		<Unit filename="ui/widgets/generic/lineedit.cpp" />
 		<Unit filename="ui/widgets/generic/lineedit.h" />
 		<Unit filename="ui/widgets/generic/menu.cpp" />

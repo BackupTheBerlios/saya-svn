@@ -12,6 +12,7 @@
 #include <QtGui>
 
 #include "playbackcontrol.h"
+#include <ui/widgets/generic/widget.h>
 #include <ui/widgets/generic/pushbutton.h>
 #include <ui/widgets/generic/slider.h>
 #include <ui/widgets/jog_ctrl/jog_ctrl.h>
@@ -329,7 +330,7 @@ void PlaybackControl::Data::shuttleSliderReleased() {
 // ---------------------
 
 PlaybackControl::PlaybackControl(QWidget* parent)
-: syWidget (parent)
+: syDockWidget (parent)
 , m_Data(new Data(this))
 {
     setTimeRange(0,10);
