@@ -85,6 +85,7 @@ QMainWindow* CreateMainFrame() {
     frame = new AppFrame(_("Saya - Unsheathe your Creativity"));
     // To test with an empty QWidget, comment the above lines and uncomment the following line.
     // QMainWindow* frame = new QMainWindow;
+    syApp::Get()->SetEventHandler(frame);
     syApp::Get()->SetTopWindow(frame);
 
     // Uncomment the following line if you want to show the main frame anyway (for debugging purposes).
@@ -189,6 +190,9 @@ unsigned int idProjectAutomateToSequence = syActionEvent::RegisterId("action_Pro
 unsigned int idProjectImportBatchList = syActionEvent::RegisterId("action_ProjectImportBatchList");
 unsigned int idProjectExportBatchList = syActionEvent::RegisterId("action_ProjectExportBatchList");
 unsigned int idProjectExportAsAAF = syActionEvent::RegisterId("action_ProjectExportAsAAF");
+
+/* New: Rescan project directory */
+unsigned int idProjectRescanProjectDir = syActionEvent::RegisterId("action_ProjectRescanProjectDir");
 
 unsigned int idClipRename = syActionEvent::RegisterId("action_ClipRename");
 unsigned int idClipCaptureSettings = syActionEvent::RegisterId("action_ClipCaptureSettings");
@@ -414,6 +418,10 @@ class AppFrame::Data : public syEvtHandler, public has_slots {
         void OnLoadDefaultLayout();
         void OnWorkspaceFactoryDefault();
 
+        // Project Menu and related slots
+
+        void OnRescanProjectDir();
+
         // Window Menu
 
         void OnShowProjectWindow();
@@ -539,6 +547,8 @@ void AppFrame::Data::RegisterSlots() {
         RegisterSlot(idFileBatchCapture,&AppFrame::Data::OnFileBatchCapture);
         RegisterSlot(idFileInterpretFootage,&AppFrame::Data::OnFileInterpretFootage);
         RegisterSlot(idFileTimecode,&AppFrame::Data::OnFileTimecode);
+
+        RegisterSlot(idProjectRescanProjectDir, &AppFrame::Data::OnRescanProjectDir);
 
         RegisterSlot(idQuit, &AppFrame::Data::OnQuit);
         RegisterSlot(idHelpAbout, &AppFrame::Data::OnAbout);
@@ -786,6 +796,22 @@ void AppFrame::Data::OnFileImport() {
     if(IsAppShuttingDown())
         return;
     #warning TODO: Implement AppFrame::Data::OnFileImport
+
+    syFileDialogResult r = syFileSelector(
+        _("Please select a file to import"),
+        syApp::GetConfig()->Read("last_import_directory", "")
+    );
+
+    if(r.GetOKResult()) {
+        syApp::GetConfig()->Write("last_import_directory", ioCommon::GetPathname(r[0]));
+        for(int i = 0, ii = r.GetFileCount(); i < ii; ++i) {
+            syMessageBox(r[i],"Test");
+        }
+    }
+
+    // 1. Show widget for opening a file or files. Use settings to remember the last opened directory.
+    // 2. Get list of files and for each one import it using the project manager.
+    // 3. After it's done, signal the panel to refresh itself.
 }
 
 void AppFrame::Data::OpenRecentImport(unsigned int fileno) {
@@ -888,6 +914,18 @@ void AppFrame::Data::OnWorkspaceFactoryDefault(){
 // ---------------------
 // end Workspace submenu
 // ---------------------
+
+// ---------------------
+// begin Project submenu
+// ---------------------
+
+void AppFrame::Data::OnRescanProjectDir() {
+    // TODO: Implement AppFrame::Data::OnRescanProjectDir (whatever that's supposed to do)
+}
+
+// -------------------
+// end Project submenu
+// -------------------
 
 void AppFrame::Data::OnFileMenuUpdateUI() {
     ProjectManager* pmgr = ProjectManager::Get();
@@ -1331,6 +1369,7 @@ void AppFrame::Data::LoadAndSetFrameSize() {
 }
 
 AppFrame::~AppFrame() {
+    syApp::Get()->SetEventHandler(0);
     syApp::Get()->Exit(false);
     delete m_Data;
     m_Data = 0;

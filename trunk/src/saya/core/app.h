@@ -133,6 +133,11 @@ class syApp
         /** Gets the application's main window. */
         virtual void* GetTopWindow() const = 0;
 
+        /** Sets the application's main event handler. */
+        void SetEventHandler(syEvtHandler* handler);
+
+        syEvtHandler* GetEventHandler() const;
+
         /** Wakes up the main thread to begin event processing. */
         virtual void WakeUpIdle() = 0;
 

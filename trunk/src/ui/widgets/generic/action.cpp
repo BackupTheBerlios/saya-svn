@@ -13,9 +13,9 @@
 #include "action.h"
 #include "moc/action.moc.h"
 
-syAction::syAction ( QObject* parent) : QAction(parent) { connectFakeSlots(); }
-syAction::syAction ( const QString & text, QObject* parent)  : QAction(text, parent) { connectFakeSlots(); }
-syAction::syAction ( const QIcon & icon, const QString & text, QObject* parent) : QAction(icon, text, parent) { connectFakeSlots(); }
+syAction::syAction ( QObject* parent) : QAction(parent),m_ActionId(0) { connectFakeSlots(); }
+syAction::syAction ( const QString & text, QObject* parent) : QAction(text, parent),m_ActionId(0) { connectFakeSlots(); }
+syAction::syAction ( const QIcon & icon, const QString & text, QObject* parent) : QAction(icon, text, parent),m_ActionId(0) { connectFakeSlots(); }
 
 void syAction::connectFakeSlots() {
     connect(this,SIGNAL(changed()),this, SLOT(sigchanged()), Qt::DirectConnection);

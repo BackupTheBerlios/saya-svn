@@ -13,9 +13,14 @@
 #include "projectpane.ui.h"
 #include <QMenu>
 #include <ui/widgets/generic/action.h>
+#include <saya/core/app.h>
 #include <saya/core/sigslot.h>
+#include <saya/core/events.h>
 
 using namespace sigslot;
+
+extern unsigned int idFileImport;
+extern unsigned int idProjectRescanProjectDir;
 
 // -----------------------
 // Begin ProjectPane::Data
@@ -58,11 +63,12 @@ m_Parent(parent)
     m_Ui->resourcesTree->addTopLevelItem(item_sound);
     m_Ui->resourcesTree->addTopLevelItem(item_other);
 
-    // TODO: Setup the signals and slots for the Project Pane
-    // TODO: Connect the actions to the corresponding slots in the main window, or use syEvents (preferred)
+    // Setup the signals and slots for the Project Pane
 
     action_import = new syAction(_("&Import..."),m_Parent);
+    action_import->setActionId(idFileImport);
     action_rescan = new syAction(_("&Rescan project directory"),m_Parent);
+    action_rescan->setActionId(idProjectRescanProjectDir);
 
 }
 
@@ -85,7 +91,11 @@ void ProjectPane::Data::OnResourceTreeContextMenu(QContextMenuEvent * ev) {
     actions.append(action_rescan);
 
     if(actions.count() > 0) {
-        QMenu::exec(actions, QCursor::pos());
+        syAction* action = dynamic_cast<syAction*>(QMenu::exec(actions, QCursor::pos()));
+        if(action && action->getActionId()) {
+            syActionEvent evt(action->getActionId());
+            syApp::Get()->GetEventHandler()->ProcessEvent(evt);
+        }
     }
 }
 

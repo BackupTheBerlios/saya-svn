@@ -29,6 +29,9 @@ class syAction : public QAction, public has_slots {
         syAction( QObject * parent = 0 );
         syAction( const QString & text, QObject * parent = 0 );
         syAction( const QIcon & icon, const QString & text, QObject * parent = 0 );
+        /** Sets a custom Id for Action Events. To be used with syActionEvent. */
+        void setActionId(unsigned int id) { m_ActionId = id; }
+        unsigned int getActionId() { return m_ActionId; }
         virtual ~syAction() {}
 
     #ifndef Q_MOC_RUN
@@ -46,6 +49,9 @@ class syAction : public QAction, public has_slots {
         void sigtriggered();
         void sigtriggeredcheckable(bool checked);
     #endif
+
+    protected:
+        unsigned int m_ActionId;
 
     private:
         void connectFakeSlots();

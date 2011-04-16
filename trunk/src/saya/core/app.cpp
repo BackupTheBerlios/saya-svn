@@ -14,10 +14,12 @@
 #include "eventqueue.h"
 #include "sentryfuncs.h"
 
+
 namespace sayaStaticData {
     static syApp* TheApp = 0;
     static volatile bool s_IsAppShuttingDown = false;
     static syConfig* TheConfig = 0;
+    static syEvtHandler* TheHandler = 0;
 };
 
 /** Destroys an syApp object along with it. This class is exception-safe and is guaranteed to succeed. */
@@ -101,3 +103,13 @@ bool syApp::Pending() const {
 void syApp::ProcessNextEvent() const {
     syEvtQueue::ProcessNextEvent();
 }
+
+/** Sets the application's main event handler. */
+void syApp::SetEventHandler(syEvtHandler* handler) {
+    sayaStaticData::TheHandler = handler;
+}
+
+syEvtHandler* syApp::GetEventHandler() const {
+    return sayaStaticData::TheHandler;
+}
+
