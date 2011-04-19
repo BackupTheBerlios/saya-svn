@@ -193,6 +193,8 @@ unsigned int idProjectExportAsAAF = syActionEvent::RegisterId("action_ProjectExp
 
 /* New: Rescan project directory */
 unsigned int idProjectRescanProjectDir = syActionEvent::RegisterId("action_ProjectRescanProjectDir");
+/* New: Refresh resource list */
+unsigned int idProjectRefreshResourceList = syActionEvent::RegisterId("action_ProjectRefreshResourceList");
 
 unsigned int idClipRename = syActionEvent::RegisterId("action_ClipRename");
 unsigned int idClipCaptureSettings = syActionEvent::RegisterId("action_ClipCaptureSettings");
@@ -305,8 +307,8 @@ class AppFrame::Data : public syEvtHandler, public has_slots {
         virtual ~Data();
         AppFrame* m_Parent;
 
-        QDockWidget* CreateProjectPane(); /// Creates the project pane
-        QDockWidget* m_ProjectPanel; /// Project Panel
+        ProjectPane* CreateProjectPane(); /// Creates the project pane
+        ProjectPane* m_ProjectPanel; /// Project Panel
         VideoPlaybackControl* m_MonitorPanel; /// Monitor Panel
         VideoPlaybackControl* m_EffectsPanel; /// Effects Panel
         QDockWidget* m_TimelinePanel; /// Timeline Panel
@@ -421,6 +423,7 @@ class AppFrame::Data : public syEvtHandler, public has_slots {
         // Project Menu and related slots
 
         void OnRescanProjectDir();
+        void OnRefreshResourceList();
 
         // Window Menu
 
@@ -549,6 +552,7 @@ void AppFrame::Data::RegisterSlots() {
         RegisterSlot(idFileTimecode,&AppFrame::Data::OnFileTimecode);
 
         RegisterSlot(idProjectRescanProjectDir, &AppFrame::Data::OnRescanProjectDir);
+        RegisterSlot(idProjectRefreshResourceList, &AppFrame::Data::OnRefreshResourceList);
 
         RegisterSlot(idQuit, &AppFrame::Data::OnQuit);
         RegisterSlot(idHelpAbout, &AppFrame::Data::OnAbout);
@@ -795,23 +799,26 @@ void AppFrame::Data::OnClearRecentImportList(){
 void AppFrame::Data::OnFileImport() {
     if(IsAppShuttingDown())
         return;
-    #warning TODO: Implement AppFrame::Data::OnFileImport
 
     syFileDialogResult r = syFileSelector(
         _("Please select a file to import"),
         syApp::GetConfig()->Read("last_import_directory", "")
     );
-
+    bool must_refresh = false;
     if(r.GetOKResult()) {
+        syString errortext;
         syApp::GetConfig()->Write("last_import_directory", ioCommon::GetPathname(r[0]));
         for(int i = 0, ii = r.GetFileCount(); i < ii; ++i) {
-            syMessageBox(r[i],"Test");
+            if(ProjectManager::Get()->ImportFile(r[i],errortext)) {
+                must_refresh = true;
+            } else {
+                syMessageBox("Error Importing File \"" + r[i] + "\":\n\n" + errortext,"ERROR",syOK | syICON_EXCLAMATION);
+            }
         }
     }
-
-    // 1. Show widget for opening a file or files. Use settings to remember the last opened directory.
-    // 2. Get list of files and for each one import it using the project manager.
-    // 3. After it's done, signal the panel to refresh itself.
+    if(must_refresh) {
+        #warning TODO: Signal the resources panel to refresh itself.
+    }
 }
 
 void AppFrame::Data::OpenRecentImport(unsigned int fileno) {
@@ -921,6 +928,10 @@ void AppFrame::Data::OnWorkspaceFactoryDefault(){
 
 void AppFrame::Data::OnRescanProjectDir() {
     // TODO: Implement AppFrame::Data::OnRescanProjectDir (whatever that's supposed to do)
+}
+
+void AppFrame::Data::OnRefreshResourceList() {
+    m_ProjectPanel->sigRefresh();
 }
 
 // -------------------
@@ -1313,12 +1324,12 @@ void AppFrame::Data::FillDockAreas() {
     m_TimelinePanel->show();
 }
 
-QDockWidget* AppFrame::Data::CreateProjectPane() {
+ProjectPane* AppFrame::Data::CreateProjectPane() {
     ProjectPane* prjpane = new ProjectPane(m_Parent);
 
     syString splitterstate = syApp::GetConfig()->Read(CFG_DEFAULT_PRJ_SASHDATA, "");
     prjpane->RestoreSplitterState(splitterstate);
-    return dynamic_cast<QDockWidget*>(prjpane);
+    return prjpane;
 }
 
 void AppFrame::Data::LoadAndSetFrameSize() {

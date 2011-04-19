@@ -16,6 +16,7 @@
 #include "timeline/avresources.h"
 #include "timeline/avsequence.h"
 #include "timeline/avtimeline.h"
+#include "timeline/smapxstr.h"
 
 #include "vidproject.h"
 #include "undohistory.h"
@@ -49,6 +50,9 @@ class VidProjectData {
         /** Loads specified state from the project. */
         bool LoadState(const syString& data);
 
+        /** Refreshes the Resource Map */
+        void RefreshResourceMap();
+
         /** Project's modified flag */
         bool m_IsModified;
 
@@ -64,6 +68,11 @@ class VidProjectData {
         /** The data for the resources used in the project. */
         AVResources* m_Resources;
 
+        /** A map for the resources used in the project. */
+        SMapUintUint* m_ResourceMap;
+
+        unsigned int m_MaxResourceId;
+
         /** Project's Title */
         syString m_Title;
 
@@ -77,15 +86,18 @@ m_IsModified(false),
 m_UndoHistory(NULL),
 m_Timeline(NULL),
 m_Resources(NULL),
+m_MaxResourceId(0),
 m_Title(""),
 m_Filename("")
 {
     m_UndoHistory = new UndoHistoryClass;
     m_Timeline = new AVTimeline;
     m_Resources = new AVResources;
+    m_ResourceMap = new SMapUintUint;
 }
 
 VidProjectData::~VidProjectData() {
+    delete m_ResourceMap;
     delete m_Resources;
     delete m_Timeline;
     delete m_UndoHistory;
@@ -97,9 +109,27 @@ void VidProjectData::SaveState(syString& data) {
 }
 
 bool VidProjectData::LoadState(const syString& data) {
-// TODO: Implement project State loading
+    m_MaxResourceId = 0;
+    // TODO: Implement project State loading
+    RefreshResourceMap();
     m_Parent->SetModified();
     return true;
+}
+
+void VidProjectData::RefreshResourceMap() {
+    m_ResourceMap->clear();
+    unsigned int i,resource_id;
+    AVResource* tmpres;
+    for(i = 0; i < m_Resources->size(); ++i) {
+        tmpres = &(m_Resources->operator[](i));
+        if(tmpres) {
+            resource_id = tmpres->m_ResourceId;
+            m_ResourceMap->operator[](resource_id) = i;
+            if(m_MaxResourceId < resource_id) {
+                m_MaxResourceId = resource_id;
+            }
+        }
+    }
 }
 
 bool VidProjectData::SaveToFile(const char* filename) {
@@ -403,6 +433,30 @@ void VidProject::SetTitle(const char* newtitle) {
 
 const char* VidProject::GetFilename() const {
     return m_Data->m_Filename.c_str();
+}
+
+// Resources functions
+
+unsigned int VidProject::ImportFile(const syString& filename, syString &errortext) {
+    errortext = _("VidProject::ImportFile: Under construction.");
+    return 0;
+}
+
+const AVResources* VidProject::GetResources() const {
+    return m_Data->m_Resources;
+}
+
+AVResource* VidProject::GetResourceById(unsigned int id) const {
+    AVResource* result = 0;
+    unsigned int idx = m_Data->m_ResourceMap->operator[](id);
+    if(m_Data->m_Resources && m_Data->m_Resources->size() > idx) {
+        result = &(m_Data->m_Resources->operator[](idx));
+    }
+    return result;
+}
+
+unsigned int VidProject::GetNewResourceId() {
+    return ++(m_Data->m_MaxResourceId);
 }
 
 // --------------

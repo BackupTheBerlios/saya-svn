@@ -46,6 +46,10 @@ template <class T> class SVector : public serializable {
             return data[i];
         }
 
+        unsigned int size() {
+            return data.size();
+        }
+
         void clear() {
             data.clear();
         };

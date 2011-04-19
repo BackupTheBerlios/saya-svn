@@ -16,6 +16,7 @@ class sayaDebugLogger;
 class RecentFilesList;
 class PresetManager;
 class AVController;
+class AVResources;
 class syEvtHandler;
 
 /** Tells whether the application is shutting down. */
@@ -162,6 +163,18 @@ class ProjectManager
 
         /** Gets the "clear undo history on save" status. */
         bool GetClearUndoHistoryOnSave() const;
+
+        /** Imports a resource into the current project. */
+        unsigned int ImportFile(const syString& filename, syString& errortext);
+
+        /** Gets the Resources used by the current project. */
+        const AVResources* GetResources() const;
+
+        /** Gets a new resource Id for use with the current project.
+         *
+         *  @return the resource id; 0 if no project is open.
+         */
+        unsigned int GetNewResourceId();
 
     private:
         class Data;

@@ -372,6 +372,32 @@ bool ProjectManager::GetClearUndoHistoryOnSave() const {
     return m_Data->m_ClearUndoHistoryOnSave;
 }
 
+unsigned int ProjectManager::ImportFile(const syString& filename, syString& errortext) {
+    unsigned int result = 0;
+    if(m_Data->m_Project) {
+        result = m_Data->m_Project->ImportFile(filename, errortext);
+        if(result) {
+            m_Data->m_RecentImports.Add(filename.c_str());
+        }
+    }
+    return result;
+}
+
+const AVResources* ProjectManager::GetResources() const {
+    const AVResources* result = 0;
+    if(m_Data->m_Project) {
+        result = m_Data->m_Project->GetResources();
+    }
+    return result;
+}
+
+unsigned int ProjectManager::GetNewResourceId() {
+    unsigned int result = 0;
+    if(m_Data->m_Project) {
+        result = m_Data->m_Project->GetNewResourceId();
+    }
+    return result;
+}
 
 // ------------------
 // end ProjectManager

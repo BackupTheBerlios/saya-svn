@@ -32,6 +32,7 @@ class ProjectPane::Data : public has_slots {
         virtual ~Data();
         Ui::projectPane* m_Ui;
         void OnResourceTreeContextMenu(QContextMenuEvent * ev);
+        void OnRefreshResourceList();
 
     private:
         ProjectPane* m_Parent;
@@ -70,6 +71,7 @@ m_Parent(parent)
     action_rescan = new syAction(_("&Rescan project directory"),m_Parent);
     action_rescan->setActionId(idProjectRescanProjectDir);
 
+    m_Parent->sigRefresh.connect(this,&ProjectPane::Data::OnRefreshResourceList);
 }
 
 ProjectPane::Data::~Data() {
@@ -97,6 +99,10 @@ void ProjectPane::Data::OnResourceTreeContextMenu(QContextMenuEvent * ev) {
             syApp::Get()->GetEventHandler()->ProcessEvent(evt);
         }
     }
+}
+
+void ProjectPane::Data::OnRefreshResourceList() {
+    #warning TODO: Implement ProjectPane::Data::OnRefreshResourceList
 }
 
 // ---------------------

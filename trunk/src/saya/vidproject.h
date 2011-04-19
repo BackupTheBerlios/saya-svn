@@ -15,6 +15,8 @@
 class VidProject;
 class VidProjectData;
 class AVSettings;
+class AVResource;
+class AVResources;
 class syString;
 
 /** @class VidProject
@@ -120,6 +122,26 @@ class VidProject:public serializable
           * @return The project's title
           */
         static const syString GetOfflineProjectTitle(const char* filename);
+
+        // Resource functions
+
+        /** @brief Imports a file from disk.
+          *
+          * Loads a resource from a given filename; otherwise, the error is stored in errortext.
+          * @param filename The file to import.
+          * @param errotext The text of the error (if any).
+          * @return the numeric id for the resource; 0 on error.
+          */
+        unsigned int ImportFile(const syString& filename, syString &errortext);
+
+        /** Returns the currently used resources. */
+        const AVResources* GetResources() const;
+
+        /** Returns a resource by Id */
+        AVResource* GetResourceById(unsigned int id) const;
+
+        /** Returns a new resource Id. */
+        unsigned int GetNewResourceId();
 
         // Undo History management functions
 

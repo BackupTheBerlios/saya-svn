@@ -11,6 +11,7 @@
 
 #include <QDockWidget>
 #include <saya/core/systring.h>
+#include <saya/core/sigslot.h>
 
 class ProjectPane : public QDockWidget {
     public:
@@ -18,6 +19,7 @@ class ProjectPane : public QDockWidget {
         virtual ~ProjectPane();
         syString SaveSplitterState() const;
         void RestoreSplitterState(const syString& data);
+        sigslot::signal0 sigRefresh;
     private:
         virtual void contextMenuEvent(QContextMenuEvent * ev);
         class Data;
