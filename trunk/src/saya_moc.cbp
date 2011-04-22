@@ -56,6 +56,11 @@
 			<Option weight="0" />
 			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/lineedit.h -o ui/widgets/generic/moc/lineedit.moc.h" />
 		</Unit>
+		<Unit filename="ui/widgets/generic/moc/listwidget.moc_trigger">
+			<Option compile="1" />
+			<Option weight="0" />
+			<Option compiler="gcc" use="1" buildCommand="moc-qt4 -i ui/widgets/generic/listwidget.h -o ui/widgets/generic/moc/listwidget.moc.h" />
+		</Unit>
 		<Unit filename="ui/widgets/generic/moc/menu.moc_trigger">
 			<Option compile="1" />
 			<Option weight="0" />

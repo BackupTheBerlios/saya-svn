@@ -17,8 +17,8 @@ class ProjectPane : public QDockWidget {
     public:
         ProjectPane(QWidget* parent = 0);
         virtual ~ProjectPane();
-        syString SaveSplitterState() const;
-        void RestoreSplitterState(const syString& data);
+        syString SavePaneState() const;
+        void RestorePaneState(const syString& data);
         sigslot::signal0 sigRefresh;
     private:
         virtual void contextMenuEvent(QContextMenuEvent * ev);

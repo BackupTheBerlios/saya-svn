@@ -13,6 +13,9 @@
 #include "projectpane.ui.h"
 #include <QMenu>
 #include <ui/widgets/generic/action.h>
+#include <saya/projectmanager.h>
+#include <saya/timeline/avresources.h>
+#include <saya/timeline/avresources.h>
 #include <saya/core/app.h>
 #include <saya/core/sigslot.h>
 #include <saya/core/events.h>
@@ -31,7 +34,7 @@ class ProjectPane::Data : public has_slots {
         Data(ProjectPane *parent = 0);
         virtual ~Data();
         Ui::projectPane* m_Ui;
-        void OnResourceTreeContextMenu(QContextMenuEvent * ev);
+        void OnResourceListContextMenu(QContextMenuEvent * ev);
         void OnRefreshResourceList();
 
     private:
@@ -45,24 +48,6 @@ m_Ui(new Ui::projectPane),
 m_Parent(parent)
 {
     m_Ui->setupUi(dynamic_cast<QDockWidget*>(m_Parent));
-
-    QTreeWidgetItem* item_sequences = new QTreeWidgetItem(m_Ui->resourcesTree);
-    QTreeWidgetItem* item_videos = new QTreeWidgetItem(m_Ui->resourcesTree);
-    QTreeWidgetItem* item_images = new QTreeWidgetItem(m_Ui->resourcesTree);
-    QTreeWidgetItem* item_sound = new QTreeWidgetItem(m_Ui->resourcesTree);
-    QTreeWidgetItem* item_other = new QTreeWidgetItem(m_Ui->resourcesTree);
-
-    item_sequences->setText(0,_("Sequences"));
-    item_videos->setText(0,_("Videos"));
-    item_images->setText(0,_("Images"));
-    item_sound->setText(0,_("Sound"));
-    item_other->setText(0,_("Other"));
-
-    m_Ui->resourcesTree->addTopLevelItem(item_sequences);
-    m_Ui->resourcesTree->addTopLevelItem(item_videos);
-    m_Ui->resourcesTree->addTopLevelItem(item_images);
-    m_Ui->resourcesTree->addTopLevelItem(item_sound);
-    m_Ui->resourcesTree->addTopLevelItem(item_other);
 
     // Setup the signals and slots for the Project Pane
 
@@ -85,7 +70,7 @@ ProjectPane::Data::~Data() {
     m_Ui = 0;
 }
 
-void ProjectPane::Data::OnResourceTreeContextMenu(QContextMenuEvent * ev) {
+void ProjectPane::Data::OnResourceListContextMenu(QContextMenuEvent * ev) {
 
     QList<QAction*> actions;
 
@@ -103,6 +88,66 @@ void ProjectPane::Data::OnResourceTreeContextMenu(QContextMenuEvent * ev) {
 
 void ProjectPane::Data::OnRefreshResourceList() {
     #warning TODO: Implement ProjectPane::Data::OnRefreshResourceList
+//    m_Ui->resourcesList->clear();
+//    QTreeWidgetItem* category = m_Ui->resourcesTree->currentItem();
+
+    unsigned int i;
+    const AVResources* resources = ProjectManager::Get()->GetResources();
+//    QTreeWidgetItem* allowedcategory = null;
+//    if(resources) {
+//        for(i = 0; i < resources.size(); ++i) {
+//            const AVResource* res = &resources[i];
+//            switch(res->m_ResourceType) {
+//                case RTSequence:
+//                    allowedcategory = item_sequences;
+//                break;
+//                case RTVideoFile:
+//                    allowedcategory = item_videos;
+//                break;
+//                case RTAudioFile:
+//                    allowedcategory = item_sound;
+//                break;
+//                case RTImageFile:
+//                    allowedcategory = item_images;
+//                break;
+//                case RTOfflineFile:
+//                    allowedcategory = item_other;
+//                break;
+//                case RTTitle:
+//                    allowedcategory = item_other;
+//                break;
+//                case RTBarsAndTone:
+//                    allowedcategory = item_videos;
+//                break;
+//                case RTBlackVideo:
+//                    allowedcategory = item_videos;
+//                break;
+//                case RTColorMatte:
+//                    allowedcategory = item_images;
+//                break;
+//                case RTUCLeader:
+//                    allowedcategory = item_videos;
+//                default:
+//                    allowedcategory = item_other;
+//            }
+//            if(category == allowedcategory) {
+//
+//            }
+//        }
+//    }
+//
+//
+//
+//
+//
+//    if(item == item_sequences) {
+//
+//    } else if(item == item_videos) {
+//    } else if(item == item_images) {
+//    } else if(item == item_sound) {
+//    } else if(item == item_other) {
+//    }
+
 }
 
 // ---------------------
@@ -125,20 +170,23 @@ ProjectPane::~ProjectPane() {
     m_Data = 0;
 }
 
-syString ProjectPane::SaveSplitterState() const {
+syString ProjectPane::SavePaneState() const {
     if(!this) return ""; // Due to dynamic casting, "this" may be null.
-    QByteArray tmpdata = m_Data->m_Ui->splitter->saveState().toBase64();
-    return syString(tmpdata.data());
+    return "";
+    #warning TODO: Implement ProjectPane::SavePaneState
+//    QByteArray tmpdata = m_Data->m_Ui->splitter->saveState().toBase64();
+//    return syString(tmpdata.data());
 }
 
-void ProjectPane::RestoreSplitterState(const syString& data) {
+void ProjectPane::RestorePaneState(const syString& data) {
     if(!this) return; // Due to dynamic casting, "this" may be null.
-    if(!data.empty())
-        m_Data->m_Ui->splitter->restoreState(QByteArray::fromBase64(QByteArray(data.c_str())));
+    #warning TODO: Implement ProjectPane::RestorePaneState
+//    if(!data.empty())
+//        m_Data->m_Ui->splitter->restoreState(QByteArray::fromBase64(QByteArray(data.c_str())));
 }
 
 void ProjectPane::contextMenuEvent(QContextMenuEvent * ev) {
-    m_Data->OnResourceTreeContextMenu(ev);
+    m_Data->OnResourceListContextMenu(ev);
 }
 
 // ---------------

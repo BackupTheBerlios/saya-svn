@@ -313,6 +313,8 @@
 		<Unit filename="ui/widgets/generic/dockwidget.h" />
 		<Unit filename="ui/widgets/generic/lineedit.cpp" />
 		<Unit filename="ui/widgets/generic/lineedit.h" />
+		<Unit filename="ui/widgets/generic/listwidget.cpp" />
+		<Unit filename="ui/widgets/generic/listwidget.h" />
 		<Unit filename="ui/widgets/generic/menu.cpp" />
 		<Unit filename="ui/widgets/generic/menu.h" />
 		<Unit filename="ui/widgets/generic/pushbutton.cpp" />
