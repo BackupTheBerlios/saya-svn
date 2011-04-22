@@ -65,41 +65,6 @@
           <property name="tabsClosable">
            <bool>false</bool>
           </property>
-          <widget class="syWidget" name="tabSeq">
-           <attribute name="title">
-            <string>Seq</string>
-           </attribute>
-           <attribute name="toolTip">
-            <string>Sequences</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout" stretch="0">
-            <property name="sizeConstraint">
-             <enum>QLayout::SetDefaultConstraint</enum>
-            </property>
-            <property name="margin">
-             <number>9</number>
-            </property>
-            <item>
-             <widget class="syListWidget" name="listSeq">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-                <horstretch>1</horstretch>
-                <verstretch>1</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="styleSheet">
-               <string/>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
-              </property>
-              <property name="viewMode">
-               <enum>QListView::IconMode</enum>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
           <widget class="syWidget" name="tabVid">
            <attribute name="title">
             <string>Vid</string>
@@ -185,6 +150,41 @@
               </property>
               <property name="acceptDrops">
                <bool>true</bool>
+              </property>
+              <property name="styleSheet">
+               <string/>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="viewMode">
+               <enum>QListView::IconMode</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="syWidget" name="tabSeq">
+           <attribute name="title">
+            <string>Seq</string>
+           </attribute>
+           <attribute name="toolTip">
+            <string>Sequences</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout" stretch="0">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetDefaultConstraint</enum>
+            </property>
+            <property name="margin">
+             <number>9</number>
+            </property>
+            <item>
+             <widget class="syListWidget" name="listSeq">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+                <horstretch>1</horstretch>
+                <verstretch>1</verstretch>
+               </sizepolicy>
               </property>
               <property name="styleSheet">
                <string/>

@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading ui file 'projectpaneEa7725.ui'
+** Form generated from reading ui file 'projectpaneT13844.ui'
 **
-** Created: Thu Apr 21 21:04:52 2011
+** Created: Fri Apr 22 18:28:59 2011
 **      by: Qt User Interface Compiler version 4.5.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!
 ********************************************************************************/
 
-#ifndef PROJECTPANEEA7725_H
-#define PROJECTPANEEA7725_H
+#ifndef PROJECTPANET13844_H
+#define PROJECTPANET13844_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -33,9 +33,6 @@ public:
     syWidget *tabResources;
     QVBoxLayout *verticalLayout_3;
     QTabWidget *tabWidget2;
-    syWidget *tabSeq;
-    QVBoxLayout *verticalLayout;
-    syListWidget *listSeq;
     syWidget *tabVid;
     QVBoxLayout *verticalLayout_4;
     syListWidget *listVid;
@@ -45,6 +42,9 @@ public:
     syWidget *tabSnd;
     QVBoxLayout *verticalLayout_6;
     syListWidget *listSnd;
+    syWidget *tabSeq;
+    QVBoxLayout *verticalLayout;
+    syListWidget *listSeq;
     syWidget *tabOther;
     QVBoxLayout *verticalLayout_7;
     syListWidget *listOther;
@@ -79,33 +79,15 @@ public:
         tabWidget2->setUsesScrollButtons(false);
         tabWidget2->setDocumentMode(true);
         tabWidget2->setTabsClosable(false);
-        tabSeq = new syWidget();
-        tabSeq->setObjectName(QString::fromUtf8("tabSeq"));
-        verticalLayout = new QVBoxLayout(tabSeq);
-#ifndef Q_OS_MAC
-        verticalLayout->setMargin(9);
-#endif
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        verticalLayout->setSizeConstraint(QLayout::SetDefaultConstraint);
-        listSeq = new syListWidget(tabSeq);
-        listSeq->setObjectName(QString::fromUtf8("listSeq"));
-        QSizePolicy sizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-        sizePolicy.setHorizontalStretch(1);
-        sizePolicy.setVerticalStretch(1);
-        sizePolicy.setHeightForWidth(listSeq->sizePolicy().hasHeightForWidth());
-        listSeq->setSizePolicy(sizePolicy);
-        listSeq->setFrameShape(QFrame::StyledPanel);
-        listSeq->setViewMode(QListView::IconMode);
-
-        verticalLayout->addWidget(listSeq);
-
-        tabWidget2->addTab(tabSeq, QString());
         tabVid = new syWidget();
         tabVid->setObjectName(QString::fromUtf8("tabVid"));
         verticalLayout_4 = new QVBoxLayout(tabVid);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
         listVid = new syListWidget(tabVid);
         listVid->setObjectName(QString::fromUtf8("listVid"));
+        QSizePolicy sizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+        sizePolicy.setHorizontalStretch(1);
+        sizePolicy.setVerticalStretch(1);
         sizePolicy.setHeightForWidth(listVid->sizePolicy().hasHeightForWidth());
         listVid->setSizePolicy(sizePolicy);
         listVid->setAcceptDrops(true);
@@ -145,6 +127,24 @@ public:
         verticalLayout_6->addWidget(listSnd);
 
         tabWidget2->addTab(tabSnd, QString());
+        tabSeq = new syWidget();
+        tabSeq->setObjectName(QString::fromUtf8("tabSeq"));
+        verticalLayout = new QVBoxLayout(tabSeq);
+#ifndef Q_OS_MAC
+        verticalLayout->setMargin(9);
+#endif
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        verticalLayout->setSizeConstraint(QLayout::SetDefaultConstraint);
+        listSeq = new syListWidget(tabSeq);
+        listSeq->setObjectName(QString::fromUtf8("listSeq"));
+        sizePolicy.setHeightForWidth(listSeq->sizePolicy().hasHeightForWidth());
+        listSeq->setSizePolicy(sizePolicy);
+        listSeq->setFrameShape(QFrame::StyledPanel);
+        listSeq->setViewMode(QListView::IconMode);
+
+        verticalLayout->addWidget(listSeq);
+
+        tabWidget2->addTab(tabSeq, QString());
         tabOther = new syWidget();
         tabOther->setObjectName(QString::fromUtf8("tabOther"));
         verticalLayout_7 = new QVBoxLayout(tabOther);
@@ -185,9 +185,6 @@ public:
     {
         projectPane->setWindowTitle(QApplication::translate("projectPane", "Project", 0, QApplication::UnicodeUTF8));
         tabWidget2->setStyleSheet(QString());
-        listSeq->setStyleSheet(QString());
-        tabWidget2->setTabText(tabWidget2->indexOf(tabSeq), QApplication::translate("projectPane", "Seq", 0, QApplication::UnicodeUTF8));
-        tabWidget2->setTabToolTip(tabWidget2->indexOf(tabSeq), QApplication::translate("projectPane", "Sequences", 0, QApplication::UnicodeUTF8));
         listVid->setStyleSheet(QString());
         tabWidget2->setTabText(tabWidget2->indexOf(tabVid), QApplication::translate("projectPane", "Vid", 0, QApplication::UnicodeUTF8));
         tabWidget2->setTabToolTip(tabWidget2->indexOf(tabVid), QApplication::translate("projectPane", "Videos", 0, QApplication::UnicodeUTF8));
@@ -200,6 +197,9 @@ public:
         listSnd->setStyleSheet(QString());
         tabWidget2->setTabText(tabWidget2->indexOf(tabSnd), QApplication::translate("projectPane", "Snd", 0, QApplication::UnicodeUTF8));
         tabWidget2->setTabToolTip(tabWidget2->indexOf(tabSnd), QApplication::translate("projectPane", "Sounds", 0, QApplication::UnicodeUTF8));
+        listSeq->setStyleSheet(QString());
+        tabWidget2->setTabText(tabWidget2->indexOf(tabSeq), QApplication::translate("projectPane", "Seq", 0, QApplication::UnicodeUTF8));
+        tabWidget2->setTabToolTip(tabWidget2->indexOf(tabSeq), QApplication::translate("projectPane", "Sequences", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         tabOther->setToolTip(QString());
 #endif // QT_NO_TOOLTIP
@@ -219,4 +219,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // PROJECTPANEEA7725_H
+#endif // PROJECTPANET13844_H

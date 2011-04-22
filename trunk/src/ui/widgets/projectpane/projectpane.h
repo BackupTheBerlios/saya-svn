@@ -19,7 +19,10 @@ class ProjectPane : public syDockWidget {
         virtual ~ProjectPane();
         syString SavePaneState() const;
         void RestorePaneState(const syString& data);
+        void dragEnterEvent(QDragEnterEvent *event);
         sigslot::signal0 sigRefreshResourceList;
+    protected:
+        void dropEvent(QDropEvent* event);
     private:
         class Data;
         friend class Data;

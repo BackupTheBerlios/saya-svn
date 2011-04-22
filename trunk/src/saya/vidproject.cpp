@@ -447,8 +447,8 @@ const char* VidProject::GetFilename() const {
 unsigned int VidProject::ImportFile(const syString& filename, syString &errortext) {
 
     // First check for a duplicate filename.
-    if(m_Data->m_ResourceFilenameMap->data.find(filename) == m_Data->m_ResourceFilenameMap->data.end()) {
-        errortext = _("Error: Duplicate resource.");
+    if(m_Data->m_ResourceFilenameMap->data.find(filename) != m_Data->m_ResourceFilenameMap->data.end()) {
+        errortext = _("This file has already been imported.");
         return 0;
     }
 

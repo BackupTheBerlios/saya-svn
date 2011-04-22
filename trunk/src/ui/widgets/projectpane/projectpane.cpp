@@ -9,13 +9,19 @@
 
 #include <saya/core/intl.h>
 #include <saya/core/dialogs.h>
+#include <saya/core/debuglog.h>
+#include <saya/core/iocommon.h>
 #include "projectpane.h"
 #include "projectpane.ui.h"
 #include <QMenu>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QUrl>
 #include <ui/widgets/generic/action.h>
 #include <saya/projectmanager.h>
 #include <saya/timeline/avresources.h>
 #include <saya/timeline/avresources.h>
+#include <saya/timeline/sstrvector.h>
 #include <saya/core/app.h>
 #include <saya/core/sigslot.h>
 #include <saya/core/events.h>
@@ -44,7 +50,8 @@ class ProjectPane::Data : public has_slots {
         Ui::projectPane* m_Ui;
         void OnResourceListContextMenu(const QPoint& pos);
         void OnRefreshResourceList();
-
+        void dragEnterEvent(QDragEnterEvent *event);
+        void dropEvent(QDropEvent *event);
     private:
         ProjectPane* m_Parent;
         syAction* action_import;
@@ -56,7 +63,7 @@ QListWidgetItem()
 {
     if(res) {
         m_ResourceId = res->m_ResourceId;
-        setText(res->m_Filename);
+        setText(ioCommon::GetFilename(res->m_Filename));
         if(res->m_Icon != "") {
             setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(res->m_Icon.c_str()),"JPG")));
         }
@@ -92,6 +99,7 @@ m_Parent(parent)
     m_Ui->tabResources->sigcustomContextMenuRequested.connect(this,&ProjectPane::Data::OnResourceListContextMenu);
 
     m_Parent->sigRefreshResourceList.connect(this,&ProjectPane::Data::OnRefreshResourceList);
+    m_Parent->setAcceptDrops(true);
 }
 
 ProjectPane::Data::~Data() {
@@ -122,7 +130,6 @@ void ProjectPane::Data::OnResourceListContextMenu(const QPoint& pos) {
 }
 
 void ProjectPane::Data::OnRefreshResourceList() {
-    #warning TODO: Implement ProjectPane::Data::OnRefreshResourceList
     m_Ui->listSeq->clear();
     m_Ui->listVid->clear();
     m_Ui->listSnd->clear();
@@ -173,6 +180,74 @@ void ProjectPane::Data::OnRefreshResourceList() {
     }
 }
 
+void ProjectPane::Data::dragEnterEvent(QDragEnterEvent *event) {
+    bool accept_drops = false;
+    if(m_Ui->tabWidget1->currentIndex() == 0) {
+        if(event->mimeData()->hasUrls()) {
+            const QList<QUrl>& urls = event->mimeData()->urls();
+            for(QList<QUrl>::const_iterator i = urls.begin(); i != urls.end(); ++i) {
+                syString s(i->toLocalFile());
+                if(!s.empty()) {
+                    accept_drops = true;
+                    break;
+                }
+            }
+        }
+        if(accept_drops) {
+            event->acceptProposedAction();
+        } else {
+            event->ignore();
+        }
+    }
+}
+
+void ProjectPane::Data::dropEvent(QDropEvent *event) {
+    if(m_Ui->tabWidget1->currentIndex() == 0) {
+        SStringVector r;
+        r.clear();
+        const QList<QUrl>& urls = event->mimeData()->urls();
+        for(QList<QUrl>::const_iterator it = urls.begin(); it != urls.end(); ++it) {
+            syString s(it->toLocalFile());
+            if(!s.empty()) {
+                r.push_back(s);
+            }
+        }
+        if(r.size()) {
+            bool confirm = true;
+            if(r.size() > 1) {
+                // For more than one file, ask for a confirmation prompt.
+                syString s = _("Import the following files?\n\n");
+                for(unsigned int i = 0; i < r.size(); ++i) {
+                    if(i > 9 && r.size() - i > 2) {
+                        s += syString().Printf(_("\n( and %d other files)"),r.size());
+                        break;
+                    } else {
+                        s += "* " + r[i] + "\n";
+                    }
+                }
+                confirm = (syMessageBox(s, _("Confirm"),syOK_CANCEL) == syOK);
+            }
+            if(confirm) {
+                bool must_refresh = false;
+                syString errortext;
+                for(unsigned int i = 0; i < r.size(); ++i) {
+                    if(ProjectManager::Get()->ImportFile(r[i],errortext)) {
+                        must_refresh = true;
+                    } else {
+                        syMessageBox("Error Importing File \"" + r[i] + "\":\n\n" + errortext,"ERROR",syOK | syICON_EXCLAMATION);
+                    }
+                }
+                if(must_refresh) {
+                    m_Parent->sigRefreshResourceList();
+                }
+            }
+        }
+    }
+}
+
+
+
+
 // ---------------------
 // End ProjectPane::Data
 // ---------------------
@@ -206,6 +281,17 @@ void ProjectPane::RestorePaneState(const syString& data) {
     #warning TODO: Implement ProjectPane::RestorePaneState
 //    if(!data.empty())
 //        m_Data->m_Ui->splitter->restoreState(QByteArray::fromBase64(QByteArray(data.c_str())));
+}
+
+void ProjectPane::dragEnterEvent(QDragEnterEvent *event)
+{
+    if(!this) return;
+    m_Data->dragEnterEvent(event);
+}
+
+void ProjectPane::dropEvent(QDropEvent* event) {
+    if(!this) return;
+    m_Data->dropEvent(event);
 }
 
 // ---------------

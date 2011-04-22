@@ -801,8 +801,12 @@ void AppFrame::Data::OnFileImport() {
         return;
 
     syFileDialogResult r = syFileSelector(
-        _("Please select a file to import"),
-        syApp::GetConfig()->Read("last_import_directory", "")
+        _("Please select the file(s) to import"),
+        syApp::GetConfig()->Read("last_import_directory", ""),
+        "",
+        "",
+        "*.*",
+        syFD_OPEN | syFD_FILE_MUST_EXIST | syFD_MULTIPLE | syFD_PREVIEW
     );
     bool must_refresh = false;
     if(r.GetOKResult()) {
