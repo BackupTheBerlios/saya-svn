@@ -16,6 +16,7 @@
 #include "timeline/avresources.h"
 #include "timeline/avsequence.h"
 #include "timeline/avtimeline.h"
+#include "timeline/smap.h"
 #include "timeline/smapxstr.h"
 
 #include "vidproject.h"
@@ -71,6 +72,8 @@ class VidProjectData {
         /** A map for the resources used in the project. */
         SMapUintUint* m_ResourceMap;
 
+        SMapStr<unsigned int>* m_ResourceFilenameMap;
+
         unsigned int m_MaxResourceId;
 
         /** Project's Title */
@@ -94,9 +97,11 @@ m_Filename("")
     m_Timeline = new AVTimeline;
     m_Resources = new AVResources;
     m_ResourceMap = new SMapUintUint;
+    m_ResourceFilenameMap = new SMapStr<unsigned int>;
 }
 
 VidProjectData::~VidProjectData() {
+    delete m_ResourceFilenameMap;
     delete m_ResourceMap;
     delete m_Resources;
     delete m_Timeline;
@@ -118,6 +123,7 @@ bool VidProjectData::LoadState(const syString& data) {
 
 void VidProjectData::RefreshResourceMap() {
     m_ResourceMap->clear();
+    m_ResourceFilenameMap->clear();
     unsigned int i,resource_id;
     AVResource* tmpres;
     for(i = 0; i < m_Resources->size(); ++i) {
@@ -125,6 +131,7 @@ void VidProjectData::RefreshResourceMap() {
         if(tmpres) {
             resource_id = tmpres->m_ResourceId;
             m_ResourceMap->operator[](resource_id) = i;
+            m_ResourceFilenameMap->operator[](tmpres->m_Filename.c_str()) = resource_id;
             if(m_MaxResourceId < resource_id) {
                 m_MaxResourceId = resource_id;
             }
@@ -438,8 +445,30 @@ const char* VidProject::GetFilename() const {
 // Resources functions
 
 unsigned int VidProject::ImportFile(const syString& filename, syString &errortext) {
-    errortext = _("VidProject::ImportFile: Under construction.");
-    return 0;
+
+    // First check for a duplicate filename.
+    if(m_Data->m_ResourceFilenameMap->data.find(filename) == m_Data->m_ResourceFilenameMap->data.end()) {
+        errortext = _("Error: Duplicate resource.");
+        return 0;
+    }
+
+    AVResource newres;
+    newres.m_ResourceType = RTOfflineFile;
+    // TODO: Implement Resource Type detection based on the filename
+    newres.m_Filename = filename;
+    newres.m_RelativeFilename = "";
+    // TODO: Get the relative filename of the resource
+    newres.m_Icon = "";
+    // TODO: Get the file's icon
+    newres.m_AVSettings = 0;
+    // TODO: Get the file's AV Settings.
+
+    newres.m_ResourceId = GetNewResourceId();
+    m_Data->m_Resources->data.push_back(newres);
+    m_Data->m_ResourceMap->operator[](newres.m_ResourceId) = m_Data->m_Resources->size() - 1;
+    m_Data->m_ResourceFilenameMap->operator[](filename.c_str()) = newres.m_ResourceId;
+
+    return newres.m_ResourceId;
 }
 
 const AVResources* VidProject::GetResources() const {

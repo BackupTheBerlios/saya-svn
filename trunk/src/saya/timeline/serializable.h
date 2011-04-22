@@ -71,7 +71,28 @@ class serializable {
         static void serializeboolean(serialized& dest, const char* name, bool src);
 
         /** Serializes a serializable, with the given name. */
-        static void serialize_object(serialized& dest, const char* name, const serializable* obj);
+        static void serialize_object(serialized& dest, const char* name, const serializable* src);
+
+        /** Serializes a string. */
+        static void serialize_object(serialized& dest, const char* name, const char* src);
+
+        /** Serializes an unsigned integer. */
+        static void serialize_object(serialized& dest, const char* name, const unsigned int* src);
+
+        /** Serializes a signed integer. */
+        static void serialize_object(serialized& dest, const char* name, const int* src);
+
+        /** Serializes a 64-bit integer */
+        static void serialize_object(serialized& dest,const char* name, const long long *src);
+
+        /** Serializes an unsigned 64-bit integer */
+        static void serialize_object(serialized& dest,const char* name, const unsigned long long *src);
+
+        /** Serializes a floating point number */
+        static void serialize_object(serialized& dest, const char* name, const double *src);
+
+        /** Serializes a boolean */
+        static void serialize_object(serialized& dest, const char* name, const bool *src);
 
         /** Unserializes a string */
         static bool unserializestring(serialized& dest, const char* name, const char* src, const char* defaultvalue = "");

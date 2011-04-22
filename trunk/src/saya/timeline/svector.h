@@ -46,7 +46,11 @@ template <class T> class SVector : public serializable {
             return data[i];
         }
 
-        unsigned int size() {
+        const T& operator[](unsigned int i) const {
+            return data[i];
+        }
+
+        unsigned int size() const {
             return data.size();
         }
 

@@ -62,6 +62,45 @@ void serializable::serialize_object(serialized& dest, const char* name, const se
     dest << "\n";
 }
 
+/** Serializes a string. */
+void serializable::serialize_object(serialized& dest, const char* name, const char* src) {
+    return serializable::serializestring(dest, name, src);
+}
+
+/** Serializes an unsigned integer. */
+void serializable::serialize_object(serialized& dest, const char* name, const unsigned int* src) {
+    return serializable::serializeuint(dest, name, *src);
+}
+
+/** Serializes a signed integer. */
+void serializable::serialize_object(serialized& dest, const char* name, const int* src) {
+    return serializable::serializeint(dest, name, *src);
+}
+
+/** Serializes a 64-bit integer */
+void serializable::serialize_object(serialized& dest,const char* name, const long long *src) {
+    return serializable::serializeint64(dest, name, *src);
+}
+
+/** Serializes an unsigned 64-bit integer */
+void serializable::serialize_object(serialized& dest,const char* name, const unsigned long long *src) {
+    return serializable::serializeuint64(dest, name, *src);
+}
+
+/** Serializes a floating point number */
+void serializable::serialize_object(serialized& dest, const char* name, const double *src) {
+    return serializable::serializefloat(dest, name, *src);
+}
+
+/** Serializes a boolean */
+void serializable::serialize_object(serialized& dest, const char* name, const bool *src) {
+    return serializable::serializeboolean(dest, name, *src);
+}
+
+
+
+
+
 void serializable::serializeprocessedstring(serialized& dest, const char* s) {
     dest << s;
 }

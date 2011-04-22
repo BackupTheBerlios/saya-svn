@@ -931,7 +931,7 @@ void AppFrame::Data::OnRescanProjectDir() {
 }
 
 void AppFrame::Data::OnRefreshResourceList() {
-    m_ProjectPanel->sigRefresh();
+    m_ProjectPanel->sigRefreshResourceList();
 }
 
 // -------------------

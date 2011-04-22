@@ -31,6 +31,14 @@ extern unsigned int idProjectRescanProjectDir;
 
 class ProjectPane::Data : public has_slots {
     public:
+
+        class ResourceItem : public QListWidgetItem {
+            public:
+                ResourceItem(const AVResource* res);
+                unsigned int m_ResourceId;
+                virtual ~ResourceItem() { m_ResourceId = 0; }
+        };
+
         Data(ProjectPane *parent = 0);
         virtual ~Data();
         Ui::projectPane* m_Ui;
@@ -43,11 +51,35 @@ class ProjectPane::Data : public has_slots {
         syAction* action_rescan;
 };
 
+ProjectPane::Data::ResourceItem::ResourceItem(const AVResource* res) :
+QListWidgetItem()
+{
+    if(res) {
+        m_ResourceId = res->m_ResourceId;
+        setText(res->m_Filename);
+        if(res->m_Icon != "") {
+            setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(res->m_Icon.c_str()),"JPG")));
+        }
+    }
+}
+
+
 ProjectPane::Data::Data(ProjectPane* parent) :
 m_Ui(new Ui::projectPane),
 m_Parent(parent)
 {
     m_Ui->setupUi(dynamic_cast<QDockWidget*>(m_Parent));
+    m_Ui->listSeq->setSortingEnabled(true);
+    m_Ui->listVid->setSortingEnabled(true);
+    m_Ui->listSnd->setSortingEnabled(true);
+    m_Ui->listImg->setSortingEnabled(true);
+    m_Ui->listOther->setSortingEnabled(true);
+
+    m_Ui->listSeq->setViewMode(QListView::ListMode);
+    m_Ui->listVid->setViewMode(QListView::IconMode);
+    m_Ui->listSnd->setViewMode(QListView::ListMode);
+    m_Ui->listImg->setViewMode(QListView::IconMode);
+    m_Ui->listOther->setViewMode(QListView::ListMode);
 
     // Setup the signals and slots for the Project Pane
 
@@ -91,66 +123,54 @@ void ProjectPane::Data::OnResourceListContextMenu(const QPoint& pos) {
 
 void ProjectPane::Data::OnRefreshResourceList() {
     #warning TODO: Implement ProjectPane::Data::OnRefreshResourceList
-//    m_Ui->resourcesList->clear();
-//    QTreeWidgetItem* category = m_Ui->resourcesTree->currentItem();
-
+    m_Ui->listSeq->clear();
+    m_Ui->listVid->clear();
+    m_Ui->listSnd->clear();
+    m_Ui->listImg->clear();
+    m_Ui->listOther->clear();
     unsigned int i;
     const AVResources* resources = ProjectManager::Get()->GetResources();
-//    QTreeWidgetItem* allowedcategory = null;
-//    if(resources) {
-//        for(i = 0; i < resources.size(); ++i) {
-//            const AVResource* res = &resources[i];
-//            switch(res->m_ResourceType) {
-//                case RTSequence:
-//                    allowedcategory = item_sequences;
-//                break;
-//                case RTVideoFile:
-//                    allowedcategory = item_videos;
-//                break;
-//                case RTAudioFile:
-//                    allowedcategory = item_sound;
-//                break;
-//                case RTImageFile:
-//                    allowedcategory = item_images;
-//                break;
-//                case RTOfflineFile:
-//                    allowedcategory = item_other;
-//                break;
-//                case RTTitle:
-//                    allowedcategory = item_other;
-//                break;
-//                case RTBarsAndTone:
-//                    allowedcategory = item_videos;
-//                break;
-//                case RTBlackVideo:
-//                    allowedcategory = item_videos;
-//                break;
-//                case RTColorMatte:
-//                    allowedcategory = item_images;
-//                break;
-//                case RTUCLeader:
-//                    allowedcategory = item_videos;
-//                default:
-//                    allowedcategory = item_other;
-//            }
-//            if(category == allowedcategory) {
-//
-//            }
-//        }
-//    }
-//
-//
-//
-//
-//
-//    if(item == item_sequences) {
-//
-//    } else if(item == item_videos) {
-//    } else if(item == item_images) {
-//    } else if(item == item_sound) {
-//    } else if(item == item_other) {
-//    }
-
+    syListWidget* curlist = 0;
+    if(resources) {
+        for(i = 0; i < resources->size(); ++i) {
+            const AVResource* res = &(resources->operator[](i));
+            switch(res->m_ResourceType) {
+                case RTSequence:
+                    curlist = m_Ui->listSeq;
+                break;
+                case RTVideoFile:
+                    curlist = m_Ui->listVid;
+                break;
+                case RTAudioFile:
+                    curlist = m_Ui->listSnd;
+                break;
+                case RTImageFile:
+                    curlist = m_Ui->listImg;
+                break;
+                case RTOfflineFile:
+                    curlist = m_Ui->listOther;
+                break;
+                case RTTitle:
+                    curlist = m_Ui->listOther;
+                break;
+                case RTBarsAndTone:
+                    curlist = m_Ui->listVid;
+                break;
+                case RTBlackVideo:
+                    curlist = m_Ui->listVid;
+                break;
+                case RTColorMatte:
+                    curlist = m_Ui->listImg;
+                break;
+                case RTUCLeader:
+                    curlist = m_Ui->listVid;
+                default:
+                    curlist = m_Ui->listOther;
+            }
+            ResourceItem* item = new ResourceItem(res);
+            curlist->addItem(static_cast<QListWidgetItem*>(item));
+        }
+    }
 }
 
 // ---------------------
