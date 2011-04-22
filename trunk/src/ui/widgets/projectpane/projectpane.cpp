@@ -34,7 +34,7 @@ class ProjectPane::Data : public has_slots {
         Data(ProjectPane *parent = 0);
         virtual ~Data();
         Ui::projectPane* m_Ui;
-        void OnResourceListContextMenu(QContextMenuEvent * ev);
+        void OnResourceListContextMenu(const QPoint& pos);
         void OnRefreshResourceList();
 
     private:
@@ -56,7 +56,10 @@ m_Parent(parent)
     action_rescan = new syAction(_("&Rescan project directory"),m_Parent);
     action_rescan->setActionId(idProjectRescanProjectDir);
 
-    m_Parent->sigRefresh.connect(this,&ProjectPane::Data::OnRefreshResourceList);
+    m_Ui->tabResources->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_Ui->tabResources->sigcustomContextMenuRequested.connect(this,&ProjectPane::Data::OnResourceListContextMenu);
+
+    m_Parent->sigRefreshResourceList.connect(this,&ProjectPane::Data::OnRefreshResourceList);
 }
 
 ProjectPane::Data::~Data() {
@@ -70,7 +73,7 @@ ProjectPane::Data::~Data() {
     m_Ui = 0;
 }
 
-void ProjectPane::Data::OnResourceListContextMenu(QContextMenuEvent * ev) {
+void ProjectPane::Data::OnResourceListContextMenu(const QPoint& pos) {
 
     QList<QAction*> actions;
 
@@ -183,10 +186,6 @@ void ProjectPane::RestorePaneState(const syString& data) {
     #warning TODO: Implement ProjectPane::RestorePaneState
 //    if(!data.empty())
 //        m_Data->m_Ui->splitter->restoreState(QByteArray::fromBase64(QByteArray(data.c_str())));
-}
-
-void ProjectPane::contextMenuEvent(QContextMenuEvent * ev) {
-    m_Data->OnResourceListContextMenu(ev);
 }
 
 // ---------------

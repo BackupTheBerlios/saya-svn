@@ -817,7 +817,7 @@ void AppFrame::Data::OnFileImport() {
         }
     }
     if(must_refresh) {
-        #warning TODO: Signal the resources panel to refresh itself.
+        m_ProjectPanel->sigRefreshResourceList();
     }
 }
 

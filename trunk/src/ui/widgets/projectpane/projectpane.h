@@ -19,9 +19,8 @@ class ProjectPane : public syDockWidget {
         virtual ~ProjectPane();
         syString SavePaneState() const;
         void RestorePaneState(const syString& data);
-        sigslot::signal0 sigRefresh;
+        sigslot::signal0 sigRefreshResourceList;
     private:
-        virtual void contextMenuEvent(QContextMenuEvent * ev);
         class Data;
         friend class Data;
         Data* m_Data;
