@@ -160,7 +160,7 @@ void ProjectPane::Data::OnRefreshResourceList() {
 // -----------------
 
 ProjectPane::ProjectPane(QWidget* parent) :
-QDockWidget(parent)
+syDockWidget(parent)
 {
     m_Data = new Data(this);
 }

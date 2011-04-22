@@ -9,11 +9,11 @@
 #ifndef projectpane_h
 #define projectpane_h
 
-#include <QDockWidget>
+#include <ui/widgets/generic/dockwidget.h>
 #include <saya/core/systring.h>
 #include <saya/core/sigslot.h>
 
-class ProjectPane : public QDockWidget {
+class ProjectPane : public syDockWidget {
     public:
         ProjectPane(QWidget* parent = 0);
         virtual ~ProjectPane();
