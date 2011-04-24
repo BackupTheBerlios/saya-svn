@@ -48,6 +48,12 @@ class CodecPlugin {
 
         static const char* GetCodecPluginsPath();
 
+        /** Selects the given codec plugin. */
+        static CodecPlugin* SelectPlugin(const char* name);
+
+        /** Returns the currently selected codec plugin. */
+        static CodecPlugin* GetCurrentPlugin();
+
     public:
         virtual const char* GetPluginName() { return ""; }
         virtual const char* GetPluginVersion() { return ""; }

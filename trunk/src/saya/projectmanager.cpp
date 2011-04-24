@@ -181,7 +181,7 @@ bool ProjectManager::LoadConfig() {
             }
         }
         #warning TODO: Read in the configuration which codec plugins we must load, and load them.
-
+        CodecPlugin::SelectPlugin("default");
 
         // TODO: Read in the configuration which non-codec plugins we must load, and load them.
     }

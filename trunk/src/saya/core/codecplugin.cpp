@@ -22,6 +22,8 @@ class CodecPluginFactory {
         typedef std::map<syString, CodecPlugin*, ltsystr> CodecPluginMap;
         CodecPluginFactoryMap m_FactoryMap;
         CodecPluginMap m_Map;
+        static CodecPlugin* s_CurrentPlugin;
+
         /** Registers a codec plugin. */
         static bool RegisterPlugin(const char* name, CodecPluginFactoryFunction func);
 
@@ -36,6 +38,12 @@ class CodecPluginFactory {
 
         /** Loads a given codec plugin. */
         static CodecPlugin* LoadPlugin(const char* name);
+
+        /** Selects the given codec plugin. */
+        static CodecPlugin* SelectPlugin(const char* name);
+
+        /** Returns the currently selected codec plugin. */
+        static CodecPlugin* GetCurrentPlugin();
 
         /** Finds a codec plugin by name; returns null on failure. */
         static CodecPlugin* FindPlugin(const char* name);
@@ -58,6 +66,7 @@ class CodecPluginFactory {
 };
 
 CodecPluginFactory* CodecPluginFactory::s_self = 0;
+CodecPlugin* CodecPluginFactory::s_CurrentPlugin = 0;
 CodecPluginFactory::StaticDestructor CodecPluginFactory::s_Destructor;
 
 const char* CodecPlugin::GetCodecPluginsPath() {
@@ -137,6 +146,9 @@ void CodecPluginFactory::UnloadPlugin(const char* name) {
     }
     CodecPlugin* plugin = FindPlugin(name);
     if(plugin) {
+        if(s_CurrentPlugin == plugin) {
+            s_CurrentPlugin = 0;
+        }
         plugin->OnUnload();
     }
     delete plugin;
@@ -152,7 +164,20 @@ void CodecPluginFactory::UnloadAllPlugins() {
         plugin->OnUnload();
         delete plugin;
     }
+    s_CurrentPlugin = 0;
     s_self->m_Map.clear();
+}
+
+CodecPlugin* CodecPluginFactory::SelectPlugin(const char* name) {
+    if(!s_self) {
+        return 0;
+    }
+    s_CurrentPlugin = FindPlugin(name);
+    return s_CurrentPlugin;
+}
+
+CodecPlugin* CodecPluginFactory::GetCurrentPlugin() {
+    return s_CurrentPlugin;
 }
 
 
@@ -183,6 +208,14 @@ void CodecPlugin::UnloadPlugin(const char* name) {
 
 void CodecPlugin::UnloadAllPlugins() {
     return CodecPluginFactory::UnloadAllPlugins();
+}
+
+CodecPlugin* CodecPlugin::SelectPlugin(const char* name) {
+    return CodecPluginFactory::SelectPlugin(name);
+}
+
+CodecPlugin* CodecPlugin::GetCurrentPlugin() {
+    return CodecPluginFactory::GetCurrentPlugin();
 }
 
 // ----------------------
