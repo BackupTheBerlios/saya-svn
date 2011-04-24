@@ -101,6 +101,8 @@
 		</Unit>
 		<Unit filename="saya/core/avdevice.h" />
 		<Unit filename="saya/core/avtypes.h" />
+		<Unit filename="saya/core/codecplugin.cpp" />
+		<Unit filename="saya/core/codecplugin.h" />
 		<Unit filename="saya/core/config.cpp" />
 		<Unit filename="saya/core/config.h" />
 		<Unit filename="saya/core/debuglog.cpp" />

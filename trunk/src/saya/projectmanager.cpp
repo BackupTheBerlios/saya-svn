@@ -15,6 +15,7 @@
 
 #include "core/intl.h"
 #include "core/systring.h"
+#include "core/codecplugin.h"
 #include "core/config.h"
 #include "core/debuglog.h"
 #include "core/app.h"
@@ -56,6 +57,9 @@ class ProjectManager::Data {
         /** The last used project directory */
         syString m_LastProjectDir;
 
+        /** The Codec Plugins directory */
+        syString m_CodecPluginsDir;
+
         /** The last error we stumbled upon. */
         syString m_LastError;
 
@@ -72,6 +76,8 @@ class ProjectManager::Data {
         PresetManager m_Presets;
 
         bool m_ClearUndoHistoryOnSave;
+
+        void LoadCodecPlugins();
 };
 
 ProjectManager::Data::Data(ProjectManager* parent) :
@@ -84,12 +90,20 @@ m_RecentFiles(9),
 m_RecentImports(9),
 m_ClearUndoHistoryOnSave(true)
 {
+    LoadCodecPlugins();
+}
+
+void ProjectManager::Data::LoadCodecPlugins() {
+    CodecPlugin::RegisterPlugins(CodecPlugin::GetCodecPluginsPath());
+    CodecPlugin::LoadPlugin("default");
 }
 
 ProjectManager::Data::~Data() {
     m_EventHandler = 0;
     delete m_Project;
     m_Project = 0;
+    CodecPlugin::UnloadAllPlugins();
+    CodecPlugin::UnregisterAllPlugins();
 }
 
 // ----------------------
@@ -135,7 +149,7 @@ const syString ProjectManager::GetLastProjectDir() const {
 }
 
 bool ProjectManager::LoadConfig() {
-    // TODO (rick#1#): Load configuration for the project manager
+    // Load configuration for the project manager
     syConfig* cfg = syApp::Get()->CreateConfig();
     {
         std::auto_ptr<syConfig> tmpptr(cfg);
@@ -146,6 +160,7 @@ bool ProjectManager::LoadConfig() {
         key = "paths/LastProjectDir";
         if (cfg->Exists(key.c_str()))
             m_Data->m_LastProjectDir = cfg->Read(key.c_str(),"");
+
         unsigned int i;
         m_Data->m_RecentFiles.clear();
         m_Data->m_RecentImports.clear();
@@ -165,20 +180,28 @@ bool ProjectManager::LoadConfig() {
                 m_Data->m_RecentImports.Add(tmpname.c_str(),false);
             }
         }
+        #warning TODO: Read in the configuration which codec plugins we must load, and load them.
+
+
+        // TODO: Read in the configuration which non-codec plugins we must load, and load them.
     }
     return true;
 }
 
 bool ProjectManager::SaveConfig() {
-    // TODO (rick#1#): Save configuration for the project manager
+    // Save configuration for the project manager
     syConfig* cfg = syApp::Get()->CreateConfig();
     {
         std::auto_ptr<syConfig> tmpptr(cfg);
 
         syString key;
 
+        // Save Codec Plugins directory
+        cfg->Write("paths/CodecPluginsDir",m_Data->m_CodecPluginsDir.c_str());
+
         // Save last used directory
         cfg->Write("paths/LastProjectDir",m_Data->m_LastProjectDir.c_str());
+
 
         // Save Recent Projects list
 

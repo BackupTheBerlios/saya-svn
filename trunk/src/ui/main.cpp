@@ -1302,8 +1302,10 @@ bool AppFrame::Data::CreatePanels() {
         if(!m_ProjectPanel) { LoadFail("project_panel"); break; }
         // TODO: Create the timeline and video playback widgets here.
         m_EffectsPanel = new VideoPlaybackControl(0);
+        m_EffectsPanel->setObjectName("EffectsPannel");
         m_EffectsPanel->setWindowTitle(_("Input / Effects"));
         m_MonitorPanel = new VideoPlaybackControl(0);
+        m_MonitorPanel->setObjectName("MonitorPanel");
         m_MonitorPanel->setWindowTitle(_("Output Monitor"));
         m_TimelinePanel = new QDockWidget;
         m_TimelinePanel->setFeatures(QDockWidget::NoDockWidgetFeatures);

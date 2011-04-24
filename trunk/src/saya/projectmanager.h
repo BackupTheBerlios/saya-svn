@@ -18,6 +18,7 @@ class PresetManager;
 class AVController;
 class AVResources;
 class syEvtHandler;
+class CodecPlugin;
 
 /** Tells whether the application is shutting down. */
 bool IsAppShuttingDown();
