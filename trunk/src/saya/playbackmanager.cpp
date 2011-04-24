@@ -59,6 +59,7 @@ PlaybackManager* PlaybackManager::Get() {
 
 void PlaybackManager::Unload() {
     delete g_PlaybackManager;
+    g_PlaybackManager = 0;
 }
 
 PlaybackManager::PlaybackManager() {

@@ -168,6 +168,8 @@
 			<Option weight="10" />
 		</Unit>
 		<Unit filename="saya/core/systring.h" />
+		<Unit filename="saya/core/systringutils.cpp" />
+		<Unit filename="saya/core/systringutils.h" />
 		<Unit filename="saya/core/sythread.cpp">
 			<Option weight="10" />
 		</Unit>

@@ -10,12 +10,37 @@
 /** CodecPluginFactory is the class that manages all the codec plugins behind the scenes. */
 class CodecPluginFactory;
 class CodecPlugin;
+#include "systring.h"
 
 typedef CodecPlugin* (*CodecPluginFactoryFunction)();
+
+/** A Codec Instance. This is the base class that encodes and decodes our files. */
+class CodecInstance {
+    public:
+        friend class CodecPlugin;
+
+        CodecInstance(CodecPlugin* plugin) {}
+        virtual ~CodecInstance() {}
+};
+
 
 class CodecPlugin {
     public:
         friend class CodecPluginFactory;
+
+        enum CodecReadingSkills {
+            CannotRead = 0,
+            CanReadAudio = 1,
+            CanReadVideo = 2,
+            CanReadBoth = 3
+        };
+
+        enum CodecWritingSkills {
+            CannotWrite = 0,
+            CanWriteAudio = 1,
+            CanWriteVideo = 2,
+            CanWriteBoth = 3
+        };
 
         CodecPlugin() {}
         virtual ~CodecPlugin() {}
@@ -54,12 +79,44 @@ class CodecPlugin {
         /** Returns the currently selected codec plugin. */
         static CodecPlugin* GetCurrentPlugin();
 
+        /** Finds the appropriate plugin for reading a specific file. */
+        static CodecPlugin* FindReadPlugin(const char* filename);
+
     public:
         virtual const char* GetPluginName() { return ""; }
         virtual const char* GetPluginVersion() { return ""; }
         virtual const char* GetPluginAuthor() { return ""; }
         virtual const char* GetPluginLicense() { return ""; }
         virtual const char* GetPluginCreationDate() { return ""; }
+
+        /**
+         * @brief Gets the supported Filetypes (extensions) that this plugin can decode; separated by commas.
+         * Example: "avi,mpg,mpeg,jpg"
+         */
+        virtual syString GetSupportedFileTypes() { return ""; }
+
+        /** Gets the supported Codec strings that this plugin can decode; separated by commas */
+        virtual syString GetSupportedVideoReadCodecs() { return ""; }
+
+        /** Gets the supported Codec strings that this plugin can decode; separated by commas */
+        virtual syString GetSupportedVideoWriteCodecs() { return ""; }
+
+        /** Gets the supported Codec strings that this plugin can decode; separated by commas */
+        virtual syString GetSupportedAudioReadCodecs() { return ""; }
+
+        /** Gets the supported Codec strings that this plugin can decode; separated by commas */
+        virtual syString GetSupportedAudioWriteCodecs() { return ""; }
+
+        /** Tests if the codec can read the video and audio from the given filename. */
+        virtual CodecReadingSkills CanReadFile(const syString& filename) { return CannotRead; }
+
+        /** Tests if the codec can read the video and audio from the given filename. */
+        virtual CodecWritingSkills CanWriteFile(const syString& filetype, const syString& videocodec, const syString& audiocodec) { return CannotWrite; }
+
+        /** Opens the given file for reading.
+         *  @return A CodecInstance object dedicated to reading the file; 0 on failure.
+         */
+        virtual CodecInstance* OpenFile(const syString& filename) { return 0; }
 
     protected:
 
