@@ -142,8 +142,8 @@ bool VideoOutputDevice::ChangeSize(unsigned int newwidth,unsigned int newheight)
     if(!syThread::IsMain()) { return false; } // Can only be called from the main thread!
     if(!IsOk()) { return false; }
     syBoolSetter setter(m_ChangingSize, true);
-    sySafeMutexLocker lockin(*m_InputMutex);
-    sySafeMutexLocker lockout(*m_OutputMutex);
+    sySafeMutexLocker lockin(*m_InputVideoMutex);
+    sySafeMutexLocker lockout(*m_OutputVideoMutex);
     bool result = false;
     if(lockin.IsLocked() && lockout.IsLocked()) {
         if(newwidth > MaxWidth || newheight > MaxHeight) {
@@ -171,7 +171,7 @@ void VideoOutputDevice::LoadVideoData(const syBitmap* bitmap) {
     if(!IsOk()) return;
     if(MustAbort()) return;
 
-    sySafeMutexLocker lock(*m_InputMutex, this);
+    sySafeMutexLocker lock(*m_InputVideoMutex, this);
     if(lock.IsLocked()) {
         // Step one: Read data from bitmap into m_InputBitmap.
         m_Data->m_InputBitmap->PasteFrom(bitmap,sy_stkeepaspectratio);
@@ -189,7 +189,7 @@ void VideoOutputDevice::LoadData(const syBitmap* bitmap) {
 void VideoOutputDevice::FlushVideoData() {
     if(!IsOk()) return;
     if(MustAbort()) return;
-    sySafeMutexLocker lock(*m_OutputMutex, this);
+    sySafeMutexLocker lock(*m_OutputVideoMutex, this);
     if(lock.IsLocked()) {
         // Step one: Swap the Extra bitmap and the output bitmap, if necessary
         m_Data->CheckForNewData();
@@ -227,7 +227,7 @@ void VideoOutputDevice::FreeResources() {
 
 
 void VideoOutputDevice::Clear() {
-    sySafeMutexLocker lockout(*m_OutputMutex);
+    sySafeMutexLocker lockout(*m_OutputVideoMutex);
     if(lockout.IsLocked()) {
         m_Data->m_OutputBitmap->Clear();
         RenderVideoData(m_Data->m_OutputBitmap);

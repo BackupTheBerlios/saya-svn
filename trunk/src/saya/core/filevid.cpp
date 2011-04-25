@@ -20,7 +20,7 @@ class FileVID::Data {
         Data(FileVID* parent);
         ~Data();
         FileVID* m_Parent;
-        VideoInputDevice* m_VirtualVID;
+        AVSource* m_VirtualVID;
         syString m_Filename;
         void ClearVirtualVID();
         void SetFilename(const syString& filename);
@@ -41,7 +41,7 @@ void FileVID::Data::ClearVirtualVID() {
 void FileVID::Data::SetFilename(const syString& filename) {
     ClearVirtualVID();
     m_Filename = filename;
-    m_VirtualVID = VideoInputDevice::CreateVID(filename.c_str());
+    m_VirtualVID = AVSource::CreateSource(filename.c_str());
 }
 
 FileVID::Data::~Data() {
@@ -56,6 +56,8 @@ FileVID::FileVID() {
     m_Width = 320;
     m_Height = 200;
     m_ColorFormat = vcfBGR24;
+    m_IsVideo = true;
+    m_IsAudio = false; // Just for now
     m_Data = new Data(this);
     m_Data->m_Filename.clear();
 }
@@ -83,21 +85,21 @@ syString FileVID::GetFile() {
 bool FileVID::AllocateResources() {
     bool result = false;
     if(!m_Data->m_Filename.empty() && !m_Data->m_VirtualVID) {
-        m_Data->m_VirtualVID = VideoInputDevice::CreateVID(m_Data->m_Filename.c_str());
+        m_Data->m_VirtualVID = AVSource::CreateSource(m_Data->m_Filename.c_str());
     }
     if(m_Data->m_VirtualVID) {
         // We'll mirror the VirtualVID by copying all of its parameters, even m_Bitmap.
         // This way we won't have to deal with copying the data.
         result = m_Data->m_VirtualVID->Init();
-        m_CurrentTime = m_Data->m_VirtualVID->GetPos();
-        m_VideoLength = m_Data->m_VirtualVID->GetLength();
+        m_CurrentVideoTime = m_Data->m_VirtualVID->GetVideoPos();
+        m_VideoLength = m_Data->m_VirtualVID->GetVideoLength();
         m_Width = m_Data->m_VirtualVID->GetWidth();
         m_Height = m_Data->m_VirtualVID->GetHeight();
         m_ColorFormat = m_Data->m_VirtualVID->GetColorFormat();
         m_PixelAspect = m_Data->m_VirtualVID->GetPixelAspect();
         m_FramesPerSecond = m_Data->m_VirtualVID->GetFramesPerSecond();
     } else {
-        if(!VideoInputDevice::AllocateResources()) {
+        if(!AVSource::AllocateResources()) {
             result = false;
         } else {
             #warning TODO implement the file part of FileVID::AllocateResources()
@@ -114,7 +116,7 @@ void FileVID::FreeResources() {
     } else {
         #warning TODO implement the file part of FileVID::FreeResources()
         // Close file here
-        VideoInputDevice::FreeResources();
+        AVSource::FreeResources();
     }
     m_Bitmap = 0;
 }
@@ -125,7 +127,7 @@ unsigned long FileVID::GetFrameIndex(avtime_t time) {
     if(m_Data->m_VirtualVID) {
         return m_Data->m_VirtualVID->GetFrameIndex(time);
     }
-    return VideoInputDevice::GetFrameIndex(time);
+    return AVSource::GetFrameIndex(time);
 }
 
 avtime_t FileVID::GetTimeFromFrameIndex(unsigned long  frame, bool fromend) {
@@ -134,7 +136,7 @@ avtime_t FileVID::GetTimeFromFrameIndex(unsigned long  frame, bool fromend) {
     if(m_Data->m_VirtualVID) {
         return m_Data->m_VirtualVID->GetTimeFromFrameIndex(frame, fromend);
     }
-    return VideoInputDevice::GetTimeFromFrameIndex(frame, fromend);
+    return AVSource::GetTimeFromFrameIndex(frame, fromend);
 }
 
 void FileVID::LoadCurrentFrame() {
@@ -149,9 +151,9 @@ void FileVID::LoadCurrentFrame() {
     }
 }
 
-avtime_t FileVID::SeekResource(avtime_t time) {
+avtime_t FileVID::SeekVideoResource(avtime_t time) {
     if(m_Data->m_VirtualVID) {
-        return m_Data->m_VirtualVID->Seek(time);
+        return m_Data->m_VirtualVID->SeekVideo(time);
     } else {
         #warning TODO implement FileVID::SeekResource(avtime_t time)
         // This is a stub

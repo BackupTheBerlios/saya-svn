@@ -32,7 +32,7 @@ const unsigned int syAudioBuffer::maxaudiochannels = 256;
 const unsigned int syAudioBuffer::minsamplesperbuffer = 256;
 const unsigned int syAudioBuffer::maxsamplesperbuffer = 1048576;
 
-class syAudioBufferData {
+class syAudioBuffer::Data {
     public:
 
         /** The number of channels allocated for the frame */
@@ -75,7 +75,7 @@ class syAudioBufferData {
         static void CopySample(const int* src, int* dst,unsigned int numchannels, unsigned int srcprecision, unsigned int dstprecision);
 };
 
-inline void syAudioBufferData::CopySample(const int* src,int* dst, unsigned int numchannels, unsigned int srcprecision, unsigned int dstprecision) {
+inline void syAudioBuffer::Data::CopySample(const int* src,int* dst, unsigned int numchannels, unsigned int srcprecision, unsigned int dstprecision) {
     if(srcprecision > syAudioBuffer::maxbitspersample) { srcprecision = syAudioBuffer::maxbitspersample; }
     if(dstprecision > syAudioBuffer::maxbitspersample) { dstprecision = syAudioBuffer::maxbitspersample; }
     if(srcprecision == dstprecision) {
@@ -100,7 +100,7 @@ inline void syAudioBufferData::CopySample(const int* src,int* dst, unsigned int 
 
 syAudioBuffer::syAudioBuffer(unsigned int numsamples, unsigned int numchannels, unsigned int precision, unsigned int freq) {
 
-    m_Data = new syAudioBufferData;
+    m_Data = new syAudioBuffer::Data;
 
     if(numchannels < 1) {
         numchannels = 1;
@@ -180,7 +180,7 @@ bool syAudioBuffer::Read(int* dest,unsigned int precision) const {
     const int* ptr = &m_Data->m_Data[m_Data->m_NumChannels*m_Data->m_Head];
     if(!precision) { precision = m_Data->m_Precision; } // Default
     // Copy the sample
-    syAudioBufferData::CopySample(ptr,dest, m_Data->m_NumChannels, m_Data->m_Precision, precision);
+    syAudioBuffer::Data::CopySample(ptr,dest, m_Data->m_NumChannels, m_Data->m_Precision, precision);
 
     syAtomic::MemoryBarrier(); // Make sure the data has been written before updating head
 
@@ -258,7 +258,7 @@ bool syAudioBuffer::Write(const int* src, unsigned int freq, unsigned int precis
 
         // Input sample frequency == buffer's sample frequency. Copy.
         int* ptr = &m_Data->m_Data[m_Data->m_NumChannels*m_Data->m_Tail];
-        syAudioBufferData::CopySample(src, ptr, m_Data->m_NumChannels, precision, m_Data->m_Precision);
+        syAudioBuffer::Data::CopySample(src, ptr, m_Data->m_NumChannels, precision, m_Data->m_Precision);
         syAtomic::MemoryBarrier();
         m_Data->m_Tail = (m_Data->m_Tail + 1) % m_Data->m_Size;
     } else {
@@ -283,7 +283,7 @@ bool syAudioBuffer::Write(const int* src, unsigned int freq, unsigned int precis
         // Otherwise we'd have to check for alterations in Head and Tail.
         for(unsigned int i = quotient; i; --i) {
             int* ptr = &m_Data->m_Data[m_Data->m_NumChannels*m_Data->m_Tail];
-            syAudioBufferData::CopySample(src, ptr, m_Data->m_NumChannels, precision, m_Data->m_Precision);
+            syAudioBuffer::Data::CopySample(src, ptr, m_Data->m_NumChannels, precision, m_Data->m_Precision);
             // We have to update tail everytime because we could wrap at the end of the buffer.
             m_Data->m_Tail = (m_Data->m_Tail + 1) % m_Data->m_Size;
         }

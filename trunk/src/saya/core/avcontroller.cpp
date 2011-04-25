@@ -9,9 +9,8 @@
 
 #include "avcontroller.h"
 #include "sythread.h"
-#include "videoinputdevice.h"
+#include "avsource.h"
 #include "videooutputdevice.h"
-#include "audioinputdevice.h"
 #include "audiooutputdevice.h"
 
 #include "debuglog.h" // Remove when debugging is finished
@@ -160,10 +159,10 @@ class AVControllerData {
         volatile avtime_t m_PlaybackDuration;
 
         /** Video In */
-        VideoInputDevice* m_VideoIn;
+        AVSource* m_VideoIn;
 
         /** Audio In */
-        AudioInputDevice* m_AudioIn;
+        AVSource* m_AudioIn;
 
         /** Video Out */
         VideoOutputDevice* m_VideoOut;
@@ -354,10 +353,10 @@ void AVControllerData::StartEncoding() {
     m_StartVideoPos = 0;
     m_StartAudioPos = 0;
     if(m_VideoIn) {
-        m_StartVideoPos = m_VideoIn->GetPos();
+        m_StartVideoPos = m_VideoIn->GetVideoPos();
     }
     if(m_AudioIn) {
-        m_StartAudioPos = m_AudioIn->GetPos();
+        m_StartAudioPos = m_AudioIn->GetAudioPos();
     }
     // And start!
     StartWorkerThreads();
@@ -544,7 +543,7 @@ void AVControllerData::PlaybackVideoInLoop() {
     }
 
     if(m_StutterMode && m_AudioEnabled) {
-        m_CurrentAudioPos = curaudiopos = m_AudioIn->Seek(curvideopos);
+        m_CurrentAudioPos = curaudiopos = m_AudioIn->SeekAudio(curvideopos);
     }
     DebugLog(syString("Current Frame: ") << curvideoframe);
     DebugLog(syString("Current Video Pos: ") << curvideopos);
@@ -567,7 +566,7 @@ void AVControllerData::PlaybackVideoInLoop() {
             // Restore the last position
             starttime = syGetNanoTicks();
             if(m_StutterMode && m_AudioEnabled) {
-                m_CurrentAudioPos = curaudiopos = m_AudioIn->Seek(curvideopos);
+                m_CurrentAudioPos = curaudiopos = m_AudioIn->SeekAudio(curvideopos);
             }
             DebugLog(syString("Current Frame: ") << curvideoframe);
             DebugLog(syString("Current Video Pos: ") << curvideopos);
@@ -605,11 +604,11 @@ void AVControllerData::PlaybackVideoInLoop() {
         }
 
         // Seek to the calculated video position.
-        m_CurrentVideoPos = curvideopos = m_VideoIn->Seek(curvideopos);
+        m_CurrentVideoPos = curvideopos = m_VideoIn->SeekVideo(curvideopos);
 
         if(m_StutterMode && m_AudioEnabled) {
             // Seek to the calculated audio position.
-            m_CurrentAudioPos = curaudiopos = m_AudioIn->Seek(curvideopos);
+            m_CurrentAudioPos = curaudiopos = m_AudioIn->SeekVideo(curvideopos);
         }
     }
 }
@@ -674,10 +673,10 @@ void AVControllerData::StartPlayback() {
 
     // Get the initial positions
     if(m_VideoIn) {
-        startvideopos = m_VideoIn->GetPos();
+        startvideopos = m_VideoIn->GetVideoPos();
     }
     if(m_AudioIn) {
-        startaudiopos = m_AudioIn->GetPos();
+        startaudiopos = m_AudioIn->GetVideoPos();
         if(m_AudioOut) {
             // We MUST clear the audio buffer, otherwise we'll lose sync!
             m_AudioOut->Clear();
@@ -763,12 +762,12 @@ AVController::~AVController() {
     delete m_Data;
 }
 
-bool AVController::SetVideoIn(VideoInputDevice* device) {
+bool AVController::SetVideoIn(AVSource* device) {
     if(m_ReservedVideoIn) { return false; }
     return InnerSetVideoIn(device);
 }
 
-bool AVController::SetAudioIn(AudioInputDevice* device) {
+bool AVController::SetAudioIn(AVSource* device) {
     if(m_ReservedAudioIn) { return false; }
     return InnerSetAudioIn(device);
 }
@@ -982,10 +981,10 @@ avtime_t AVController::Seek(avtime_t time,bool fromend) {
         Pause();
     }
     if(m_Data->m_VideoIn) {
-        videoresult = m_Data->m_VideoIn->Seek(time, fromend);
+        videoresult = m_Data->m_VideoIn->SeekVideo(time, fromend);
     }
     if(m_Data->m_AudioIn) {
-        audioresult = m_Data->m_AudioIn->Seek(time, fromend);
+        audioresult = m_Data->m_AudioIn->SeekAudio(time, fromend);
     }
     if(videoresult < audioresult) {
         // If seek results differ, it means one of the streams already reached EOF. This is the case
@@ -1003,7 +1002,7 @@ avtime_t AVController::SeekVideo(avtime_t time,bool fromend) {
         Pause();
     }
     if(m_Data->m_VideoIn) {
-        result = m_Data->m_VideoIn->Seek(time, fromend);
+        result = m_Data->m_VideoIn->SeekVideo(time, fromend);
     }
     return result;
 }
@@ -1015,7 +1014,7 @@ avtime_t AVController::SeekAudio(avtime_t time,bool fromend) {
         Pause();
     }
     if(m_Data->m_AudioIn) {
-        result = m_Data->m_AudioIn->Seek(time, fromend);
+        result = m_Data->m_AudioIn->SeekAudio(time, fromend);
     }
     return result;
 }
@@ -1079,11 +1078,11 @@ bool AVController::IsEof() {
     bool videoeof = true;
     bool audioeof = true;
     if(m_Data->m_VideoIn) {
-        videoeof = m_Data->m_VideoIn->GetPos() >= m_Data->m_VideoIn->GetLength();
+        videoeof = m_Data->m_VideoIn->GetVideoPos() >= m_Data->m_VideoIn->GetVideoLength();
     }
 
     if(m_Data->m_AudioIn) {
-        audioeof = m_Data->m_AudioIn->GetPos() >= m_Data->m_AudioIn->GetLength();
+        audioeof = m_Data->m_AudioIn->GetAudioPos() >= m_Data->m_AudioIn->GetAudioLength();
     }
     return videoeof && audioeof;
 
@@ -1092,7 +1091,7 @@ bool AVController::IsEof() {
 bool AVController::IsVideoEof() {
     bool videoeof = true;
     if(m_Data->m_VideoIn) {
-        videoeof = (m_Data->m_VideoIn->GetPos() >= m_Data->m_VideoIn->GetLength());
+        videoeof = (m_Data->m_VideoIn->GetVideoPos() >= m_Data->m_VideoIn->GetVideoLength());
     }
     return videoeof;
 }
@@ -1100,7 +1099,7 @@ bool AVController::IsVideoEof() {
 bool AVController::IsAudioEof() {
     bool audioeof = true;
     if(m_Data->m_AudioIn) {
-        audioeof = (m_Data->m_AudioIn->GetPos() >= m_Data->m_AudioIn->GetLength());
+        audioeof = (m_Data->m_AudioIn->GetAudioPos() >= m_Data->m_AudioIn->GetAudioLength());
     }
     return audioeof;
 }
@@ -1167,7 +1166,7 @@ bool AVController::GetDontSkipVideoFrames() {
     return m_Data->m_StutterMode;
 }
 
-bool AVController::InnerSetVideoIn(VideoInputDevice* device) {
+bool AVController::InnerSetVideoIn(AVSource* device) {
     if(!syThread::IsMain() || m_Data->m_IsPlaying) { return false; }
     if(m_Data->m_VideoIn) {
         m_Data->m_VideoIn->ShutDown();
@@ -1185,7 +1184,7 @@ bool AVController::InnerSetVideoOut(VideoOutputDevice* device) {
     return true;
 }
 
-bool AVController::InnerSetAudioIn(AudioInputDevice* device) {
+bool AVController::InnerSetAudioIn(AVSource* device) {
     if(!syThread::IsMain() || m_Data->m_IsPlaying) { return false; }
     if(m_Data->m_AudioIn) {
         m_Data->m_AudioIn->ShutDown();

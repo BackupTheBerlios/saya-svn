@@ -193,4 +193,11 @@ class AudioOutputDevice : public AVDevice {
         syAudioOutputDeviceData* m_Data;
 };
 
+/** Temporary class to replace AudioOutputDevice and later VideoOutputDevice */
+class AVSink: public AudioOutputDevice {
+    public:
+        AVSink() {}
+        virtual ~AVSink() {}
+};
+
 #endif

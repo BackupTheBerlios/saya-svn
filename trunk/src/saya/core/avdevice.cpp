@@ -66,22 +66,28 @@ AVDeviceRegistry s_DeviceRegistry;
 
 
 AVDevice::AVDevice() :
-m_InputMutex(NULL),
-m_OutputMutex(NULL),
+m_InputVideoMutex(NULL),
+m_InputAudioMutex(NULL),
+m_OutputVideoMutex(NULL),
+m_OutputAudioMutex(NULL),
 m_Stop(false),
 m_SoftStop(false),
 m_IsOk(false),
 m_IsShuttingDown(false)
 {
-    m_InputMutex = new sySafeMutex;
-    m_OutputMutex = new sySafeMutex;
+    m_InputVideoMutex = new sySafeMutex;
+    m_OutputVideoMutex = new sySafeMutex;
+    m_InputAudioMutex = new sySafeMutex;
+    m_OutputAudioMutex = new sySafeMutex;
     s_DeviceRegistry.Register(this);
 }
 
 AVDevice::~AVDevice() {
     ShutDown();
-    delete m_OutputMutex;
-    delete m_InputMutex;
+    delete m_OutputAudioMutex;
+    delete m_InputAudioMutex;
+    delete m_OutputVideoMutex;
+    delete m_InputVideoMutex;
     s_DeviceRegistry.Unregister(this);
 }
 
@@ -111,9 +117,14 @@ bool AVDevice::IsOk() const {
 void AVDevice::ShutDown() {
     if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
     m_IsShuttingDown = true;
-    while(!m_InputMutex->IsUnlocked() || !m_OutputMutex->IsUnlocked()) {
-        m_InputMutex->Wait();
-        m_OutputMutex->Wait();
+    while(!m_InputVideoMutex->IsUnlocked() ||
+          !m_OutputVideoMutex->IsUnlocked() ||
+          !m_InputAudioMutex->IsUnlocked() ||
+          !m_OutputAudioMutex->IsUnlocked()) {
+        m_InputVideoMutex->Wait();
+        m_OutputVideoMutex->Wait();
+        m_InputAudioMutex->Wait();
+        m_OutputAudioMutex->Wait();
     }
     Disconnect();
     FreeResources();
@@ -131,15 +142,21 @@ void AVDevice::StartShutDown() {
 void AVDevice::WaitForShutDown() {
     if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
     m_IsShuttingDown = true;
-    while(!m_InputMutex->IsUnlocked() || !m_OutputMutex->IsUnlocked()) {
-        m_InputMutex->Wait();
-        m_OutputMutex->Wait();
+    while(!m_InputVideoMutex->IsUnlocked() ||
+          !m_OutputVideoMutex->IsUnlocked() ||
+          !m_InputAudioMutex->IsUnlocked() ||
+          !m_OutputAudioMutex->IsUnlocked()) {
+        m_InputVideoMutex->Wait();
+        m_OutputVideoMutex->Wait();
+        m_InputAudioMutex->Wait();
+        m_OutputAudioMutex->Wait();
     }
 }
 
 void AVDevice::FinishShutDown() {
     if(!syThread::IsMain()) { return; } // Can only be called from the main thread!
-    if(m_InputMutex->IsUnlocked() && m_OutputMutex->IsUnlocked()) {
+    if(m_InputVideoMutex->IsUnlocked() && m_OutputVideoMutex->IsUnlocked() &&
+       m_InputAudioMutex->IsUnlocked() && m_OutputAudioMutex->IsUnlocked()) {
         Disconnect();
         FreeResources();
         m_IsOk = false;
@@ -150,7 +167,8 @@ void AVDevice::FinishShutDown() {
 }
 
 bool AVDevice::IsPlaying() const {
-    return !(m_InputMutex->IsUnlocked() && m_OutputMutex->IsUnlocked());
+    return !(m_InputVideoMutex->IsUnlocked() && m_OutputVideoMutex->IsUnlocked() &&
+       m_InputAudioMutex->IsUnlocked() && m_OutputAudioMutex->IsUnlocked());
 }
 
 bool AVDevice::InnerMustAbort() const {

@@ -10,11 +10,11 @@
 #ifndef nullvid_h
 #define nullvid_h
 
-#include "videoinputdevice.h"
+#include "avsource.h"
 /**
- * NullVID is a derivate of VideoInputDevice. It only displays a blank screen.
+ * NullVID is a derivate of AVSource. It only displays a blank screen.
  */
-class NullVID : public VideoInputDevice {
+class NullVID : public AVSource {
     public:
 
         /** Standard constructor. */

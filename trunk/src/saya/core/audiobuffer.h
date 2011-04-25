@@ -12,8 +12,6 @@
 #ifndef syaudiobuffer_h
 #define syaudiobuffer_h
 
-class syAudioBufferData;
-
 class syAudioBuffer {
 
     public:
@@ -108,7 +106,9 @@ class syAudioBuffer {
         void Clear() const;
 
     private:
-        syAudioBufferData* m_Data;
+        class Data;
+        friend class Data;
+        Data* m_Data;
 };
 
 #endif

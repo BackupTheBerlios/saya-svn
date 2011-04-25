@@ -10,7 +10,7 @@
 #ifndef filevid_h
 #define filevid_h
 
-#include "videoinputdevice.h"
+#include "avsource.h"
 class syString;
 
 // TODO: Complete implementation of FileVID
@@ -18,7 +18,7 @@ class syString;
 /**
  * FileVID is a derivate of VideoInputDevice. It handles video files.
  */
-class FileVID : public VideoInputDevice {
+class FileVID : public AVSource {
     public:
 
         /** Standard constructor. */
@@ -78,7 +78,7 @@ class FileVID : public VideoInputDevice {
          *  @note  This function is called by InternalSeek().
          *  @warning This function MUST NOT update m_CurrentTime. That is done by InternalSeek().
          */
-        virtual avtime_t SeekResource(avtime_t time);
+        virtual avtime_t SeekVideoResource(avtime_t time);
 
         virtual const syBitmap* GetBitmap();
 

@@ -14,7 +14,7 @@
 class syBitmap;
 
 /** @class syBitmapSink
- *  @brief This class is used by VideoInputDevice and VideoOutputDevice to render data.
+ *  @brief This class is used by AVSource and VideoOutputDevice to render data.
  *  @warning The functions provided by subclasses MUST be thread-safe.
  */
 class syBitmapSink {

@@ -138,11 +138,17 @@ class AVDevice : public syAborter {
          */
         virtual void Disconnect() {}
 
-        /** Mutex used when the object is receiving data */
-        mutable sySafeMutex* m_InputMutex;
+        /** Mutex used when the object is receiving video data */
+        mutable sySafeMutex* m_InputVideoMutex;
 
-        /** Mutex used when the object is sending data */
-        mutable sySafeMutex* m_OutputMutex;
+        /** Mutex used when the object is receiving audio data */
+        mutable sySafeMutex* m_InputAudioMutex;
+
+        /** Mutex used when the object is sending video data */
+        mutable sySafeMutex* m_OutputVideoMutex;
+
+        /** Mutex used when the object is sending video data */
+        mutable sySafeMutex* m_OutputAudioMutex;
 
         /** Flag for Video devices */
         bool m_IsVideo;

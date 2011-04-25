@@ -15,6 +15,7 @@ NullVID::NullVID() {
     m_Width = 32;
     m_Height = 32;
     m_ColorFormat = vcfBGR24;
+    m_IsAudio = false;
 }
 
 NullVID::~NullVID(){
@@ -24,10 +25,10 @@ void NullVID::LoadCurrentFrame(){
     m_Bitmap->Clear();
 }
 
-VideoInputDevice* CreateNullVID() {
+AVSource* CreateNullVID() {
     return new NullVID;
 }
 
 namespace DummyNullVID{
-    bool dummybool = VideoInputDevice::RegisterVID("", &CreateNullVID);
+    bool dummybool = AVSource::RegisterSource("", &CreateNullVID);
 };

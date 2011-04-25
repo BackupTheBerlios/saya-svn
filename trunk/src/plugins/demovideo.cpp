@@ -11,13 +11,13 @@
  **************************************************************/
 
 #include "../saya/core/sybitmap.h"
-#include "../saya/core/videoinputdevice.h"
+#include "../saya/core/avsource.h"
 #include "../saya/core/debuglog.h"
 #include "../saya/core/systring.h"
 
 bool DemoVideoUnitTestRan = false;
 
-class DemoVideo1 : public VideoInputDevice {
+class DemoVideo1 : public AVSource {
     public:
         DemoVideo1();
         virtual ~DemoVideo1();
@@ -37,15 +37,17 @@ class DemoVideo1 : public VideoInputDevice {
         void UnitTest();
 };
 
-VideoInputDevice* CreateDemoVID() {
+AVSource* CreateDemoVID() {
     return new DemoVideo1;
 }
 
 namespace DummyDemoVideo1 {
-    bool dummybool = VideoInputDevice::RegisterVID("VID://Demo", &CreateDemoVID);
+    bool dummybool = AVSource::RegisterSource("VID://Demo", &CreateDemoVID);
 };
 
 DemoVideo1::DemoVideo1() {
+    m_IsVideo = true;
+    m_IsAudio = false;
     m_Width = 200;
     m_Height = 100;
     m_ColorFormat = vcfBGR24;
@@ -90,7 +92,7 @@ void DemoVideo1::UnitTest() {
 }
 
 void DemoVideo1::PaintMovingLine() {
-    unsigned long ticks = GetFrameIndex(m_CurrentTime);
+    unsigned long ticks = GetFrameIndex(m_CurrentVideoTime);
     long x, y;
 
     for (x = 0; x < (int)(m_Bitmap->GetWidth()); ++x) {
@@ -120,7 +122,7 @@ void DemoVideo1::PaintMovingLine() {
 }
 
 void DemoVideo1::PaintMathPattern() {
-    unsigned long ticks = GetFrameIndex(m_CurrentTime) * 7;
+    unsigned long ticks = GetFrameIndex(m_CurrentVideoTime) * 7;
     long x, y;
 
     for (y = 0; y < (int)(m_Bitmap->GetHeight()); ++y) {

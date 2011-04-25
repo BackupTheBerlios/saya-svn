@@ -191,7 +191,7 @@ unsigned long AudioOutputDevice::LoadAudioData(const syAudioBuffer* buf, unsigne
     if(!IsOk()) return 0;
     if(MustAbort()) return 0;
     unsigned long samplesread = 0;
-    sySafeMutexLocker lock(*m_InputMutex, this);
+    sySafeMutexLocker lock(*m_InputAudioMutex, this);
     if(lock.IsLocked()) {
         // Read the source buffer until our buffer is filled or the other buffer is empty.
 
@@ -214,7 +214,7 @@ void AudioOutputDevice::Clear() {
 void AudioOutputDevice::FlushAudioData() {
     if(!IsOk()) return;
     if(MustAbort()) return;
-    sySafeMutexLocker lock(*m_OutputMutex, this);
+    sySafeMutexLocker lock(*m_OutputAudioMutex, this);
     if(lock.IsLocked()) {
         RenderAudioData(m_Data->m_Buffer);
     }

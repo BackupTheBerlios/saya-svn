@@ -12,9 +12,8 @@
 
 #include "avtypes.h"
 
-class VideoInputDevice;
+class AVSource;
 class VideoOutputDevice;
-class AudioInputDevice;
 class AudioOutputDevice;
 class AVControllerData;
 
@@ -32,14 +31,14 @@ class AVController {
          *  @return true on success; false if playing or if video-in is reserved.
          *  @warning This function must be called by the main thread ONLY!
          */
-        bool SetVideoIn(VideoInputDevice* device);
+        bool SetVideoIn(AVSource* device);
 
         /** @brief Sets the Audio Input Device. Must be called before Init().
          *  @param device The audio input.
          *  @return true on success; false if playing or if audio-in is reserved.
          *  @warning This function must be called by the main thread ONLY!
          */
-        bool SetAudioIn(AudioInputDevice* device);
+        bool SetAudioIn(AVSource* device);
 
         /** @brief Sets the Video Output Device. Must be called before Init().
          *  @param device The video output.
@@ -299,15 +298,14 @@ class AVController {
     protected:
 
         /** Initializes the devices */
-        void InitDevices(VideoInputDevice* videoin,AudioInputDevice* audioin,
-                            VideoOutputDevice* videoout,AudioOutputDevice* audioout);
+        void InitDevices(AVSource* videoin,AVSource* audioin, VideoOutputDevice* videoout,AudioOutputDevice* audioout);
 
         /** Sets the Video input device. */
-        bool InnerSetVideoIn(VideoInputDevice* device);
+        bool InnerSetVideoIn(AVSource* device);
         /** Sets the Video output device. */
         bool InnerSetVideoOut(VideoOutputDevice* device);
         /** Sets the Audio input device. */
-        bool InnerSetAudioIn(AudioInputDevice* device);
+        bool InnerSetAudioIn(AVSource* device);
         /** Sets the Audio output device. */
         bool InnerSetAudioOut(AudioOutputDevice* device);
 
