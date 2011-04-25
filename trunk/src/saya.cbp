@@ -177,10 +177,6 @@
 		</Unit>
 		<Unit filename="saya/core/sythread.h" />
 		<Unit filename="saya/core/videocolorformat.h" />
-		<Unit filename="saya/core/videoinputdevice.cpp">
-			<Option weight="10" />
-		</Unit>
-		<Unit filename="saya/core/videoinputdevice.h" />
 		<Unit filename="saya/core/videooutputdevice.cpp">
 			<Option weight="10" />
 		</Unit>
