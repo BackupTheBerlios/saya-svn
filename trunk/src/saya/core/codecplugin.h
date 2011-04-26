@@ -28,7 +28,7 @@ class CodecInstance {
     public:
         friend class CodecPlugin;
 
-        CodecInstance(CodecPlugin* plugin);
+        CodecInstance();
         virtual ~CodecInstance() {}
         virtual bool OpenInput(const syString& filename) { return false; }
         virtual void CloseInput() {}
@@ -40,16 +40,16 @@ class CodecInstance {
 
         virtual avtime_t SeekVideo(avtime_t pos);
         virtual avtime_t SeekAudio(avtime_t pos);
-        virtual avtime_t GetCurrentVideoTime() const;
-        virtual avtime_t GetCurrentAudioTime() const;
+        virtual avtime_t GetCurrentVideoTime();
+        virtual avtime_t GetCurrentAudioTime();
 
-        virtual avtime_t GetVideoLength() const;
-        virtual avtime_t GetAudioLength() const;
-        virtual VideoColorFormat GetColorFormat() const;
-        virtual unsigned long GetWidth() const;
-        virtual unsigned long GetHeight() const;
-        virtual float GetPixelAspect() const;
-        virtual float GetFramesPerSecond() const;
+        virtual avtime_t GetVideoLength();
+        virtual avtime_t GetAudioLength();
+        virtual VideoColorFormat GetColorFormat();
+        virtual unsigned long GetWidth();
+        virtual unsigned long GetHeight();
+        virtual float GetPixelAspect();
+        virtual float GetFramesPerSecond();
 
         virtual unsigned long GetFrameIndex(avtime_t time);
         virtual avtime_t GetTimeFromFrameIndex(unsigned long frame, bool fromend = false);

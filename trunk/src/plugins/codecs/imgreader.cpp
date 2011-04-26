@@ -8,17 +8,18 @@
  **************************************************************/
 
 #include "imgreader.h"
-
+#include <saya/core/sythread.h>
+#include <QImageReader>
 
 // ----------------------
 // begin syImgReaderCodec
 // ----------------------
 
 class syImgReaderCodec : public CodecInstance {
-    friend class syImgReaderPlugin;
+        friend class syImgReaderPlugin;
     public:
         syImgReaderCodec(syImgReaderPlugin* parent, const syString& filename);
-        virtual ~syImgReaderCodec() {}
+        virtual ~syImgReaderCodec();
         virtual bool OpenInput(const syString& filename);
         virtual void CloseInput();
 
@@ -28,27 +29,121 @@ class syImgReaderCodec : public CodecInstance {
         // Input functions
 
         virtual avtime_t SeekVideo(avtime_t pos);
-        virtual avtime_t SeekAudio(avtime_t pos);
-        virtual avtime_t GetCurrentVideoTime() const;
-        virtual avtime_t GetCurrentAudioTime() const;
+        virtual avtime_t GetCurrentVideoTime();
 
-        virtual avtime_t GetVideoLength() const;
-        virtual avtime_t GetAudioLength() const;
-        virtual VideoColorFormat GetColorFormat() const;
-        virtual unsigned long GetWidth() const;
-        virtual unsigned long GetHeight() const;
-        virtual float GetPixelAspect() const;
-        virtual float GetFramesPerSecond() const;
+        virtual avtime_t GetVideoLength();
+        virtual VideoColorFormat GetColorFormat();
+        virtual unsigned long GetWidth();
+        virtual unsigned long GetHeight();
+        virtual float GetPixelAspect();
+        virtual float GetFramesPerSecond();
 
         virtual unsigned long GetFrameIndex(avtime_t time);
         virtual avtime_t GetTimeFromFrameIndex(unsigned long frame, bool fromend = false);
         virtual void LoadCurrentFrame(syBitmap* dest);
-        virtual void LoadAudioBuffer(syAudioBuffer* dest, unsigned long numsamples = 0);
 
     private:
         syImgReaderPlugin* m_Parent;
         syString m_Filename;
+        QImageReader* m_Reader;
+        sySafeMutex m_Mutex;
 };
+
+
+syImgReaderCodec::syImgReaderCodec(syImgReaderPlugin* parent, const syString& filename) :
+m_Parent(parent),
+m_Filename(filename),
+m_Reader(new QImageReader())
+{
+    m_IsVideo = true;
+    m_IsAudio = false;
+    m_IsInput = true;
+    m_IsOutput = false;
+}
+
+syImgReaderCodec::~syImgReaderCodec() {
+    delete m_Reader;
+    m_Reader = 0;
+}
+
+bool syImgReaderCodec::OpenInput(const syString& filename) {
+    if(m_Filename != "" && filename.empty()) {
+        m_Filename = filename;
+    }
+    if(m_Reader && syString(m_Reader->fileName()) != m_Filename) {
+        CloseInput();
+    }
+    if(!m_Reader) {
+        m_Reader = new QImageReader(filename);
+    }
+    return m_Reader->canRead();
+}
+
+void syImgReaderCodec::CloseInput() {
+    if(m_Reader) {
+        m_Reader->setDevice(0);
+        m_Filename.clear();
+    }
+}
+
+avtime_t syImgReaderCodec::SeekVideo(avtime_t pos) {
+    return pos;
+}
+
+avtime_t syImgReaderCodec::GetCurrentVideoTime() {
+    return 0;
+}
+
+avtime_t syImgReaderCodec::GetVideoLength() {
+    return 0;
+}
+
+VideoColorFormat syImgReaderCodec::GetColorFormat() {
+    return vcfRGB32;
+
+}
+
+unsigned long syImgReaderCodec::GetWidth() {
+    if(!m_Reader) {
+        return 0;
+    }
+    int width = m_Reader->size().width();
+    if(width < 0) {
+        return 0;
+    }
+    return width;
+}
+
+unsigned long syImgReaderCodec::GetHeight() {
+    if(!m_Reader) {
+        return 0;
+    }
+    int height = m_Reader->size().height();
+    if(height < 0) {
+        return 0;
+    }
+    return height;
+}
+
+float syImgReaderCodec::GetPixelAspect() {
+    return 1.0;
+}
+
+float syImgReaderCodec::GetFramesPerSecond() {
+    return 29.997;
+}
+unsigned long syImgReaderCodec::GetFrameIndex(avtime_t time) {
+    return 0;
+}
+
+avtime_t syImgReaderCodec::GetTimeFromFrameIndex(unsigned long frame, bool fromend) {
+    return 0;
+}
+
+void syImgReaderCodec::LoadCurrentFrame(syBitmap* dest) {
+
+
+}
 
 // --------------------
 // end syImgReaderCodec
@@ -76,7 +171,7 @@ syString syImgReaderPlugin::GetSupportedAudioWriteCodecs() { return ""; }
 
 CodecPlugin::CodecReadingSkills syImgReaderPlugin::CanReadFile(const syString& filename) {
     CodecPlugin::CodecReadingSkills result = CannotRead;
-    #warning TODO: Implement syImgReaderPlugin::CanReadFile
+#warning TODO: Implement syImgReaderPlugin::CanReadFile
     return result;
 }
 
@@ -92,8 +187,8 @@ void syImgReaderPlugin::OnUnload() {
 
 CodecInstance* syImgReaderPlugin::OpenFile(const syString& filename) {
     CodecInstance* result = 0;
-    if(CanReadFile(filename)) {
-        // result = new syImgReaderCodec(this, filename);
+    if (CanReadFile(filename)) {
+        result = new syImgReaderCodec(this, filename);
     }
     return result;
 }

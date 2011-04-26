@@ -287,7 +287,7 @@ CodecPlugin* CodecPlugin::FindReadPlugin(const char* filename) {
 }
 
 
-CodecInstance::CodecInstance(CodecPlugin* plugin):
+CodecInstance::CodecInstance():
 m_IsVideo(false),
 m_IsAudio(false),
 m_IsInput(false),
@@ -310,16 +310,16 @@ bool CodecInstance::IsOutput() const {
 
 avtime_t CodecInstance::SeekVideo(avtime_t pos) { return 0; }
 avtime_t CodecInstance::SeekAudio(avtime_t pos) { return 0; }
-avtime_t CodecInstance::GetCurrentVideoTime() const { return 0; }
-avtime_t CodecInstance::GetCurrentAudioTime() const  { return 0; }
+avtime_t CodecInstance::GetCurrentVideoTime() { return 0; }
+avtime_t CodecInstance::GetCurrentAudioTime() { return 0; }
 
-avtime_t CodecInstance::GetVideoLength() const { return 0; }
-avtime_t CodecInstance::GetAudioLength() const { return 0; }
-VideoColorFormat CodecInstance::GetColorFormat() const  { return vcfRGB32; }
-unsigned long CodecInstance::GetWidth() const { return 0; }
-unsigned long CodecInstance::GetHeight() const { return 0; }
-float CodecInstance::GetPixelAspect() const { return 1.0; }
-float CodecInstance::GetFramesPerSecond() const  { return 29.997; }
+avtime_t CodecInstance::GetVideoLength() { return 0; }
+avtime_t CodecInstance::GetAudioLength() { return 0; }
+VideoColorFormat CodecInstance::GetColorFormat() { return vcfRGB32; }
+unsigned long CodecInstance::GetWidth() { return 0; }
+unsigned long CodecInstance::GetHeight() { return 0; }
+float CodecInstance::GetPixelAspect() { return 1.0; }
+float CodecInstance::GetFramesPerSecond() { return 29.997; }
 
 unsigned long CodecInstance::GetFrameIndex(avtime_t time) { return 0; }
 avtime_t CodecInstance::GetTimeFromFrameIndex(unsigned long frame, bool fromend) { return 0; }
