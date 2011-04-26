@@ -67,6 +67,8 @@
 		</Unit>
 		<Unit filename="main.cpp" />
 		<Unit filename="main.h" />
+		<Unit filename="plugins/codecs/imgreader.cpp" />
+		<Unit filename="plugins/codecs/imgreader.h" />
 		<Unit filename="plugins/demovideo.cpp" />
 		<Unit filename="resources/mainwindow.ui" />
 		<Unit filename="resources/newproject.ui" />
@@ -84,10 +86,6 @@
 			<Option weight="10" />
 		</Unit>
 		<Unit filename="saya/core/audiobuffer.h" />
-		<Unit filename="saya/core/audioinputdevice.cpp">
-			<Option weight="10" />
-		</Unit>
-		<Unit filename="saya/core/audioinputdevice.h" />
 		<Unit filename="saya/core/audiooutputdevice.cpp">
 			<Option weight="10" />
 		</Unit>

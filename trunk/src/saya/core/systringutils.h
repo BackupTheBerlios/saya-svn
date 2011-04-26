@@ -7,6 +7,9 @@
  * License:   wxWindows license
  **************************************************************/
 
+#ifndef systringutils_h
+#define systringutils_h
+
 #include "systring.h"
 #include <vector>
 
@@ -14,3 +17,5 @@ syString implode(const syString& joiner, std::vector<syString> vec);
 std::vector<syString> explode(const syString& joiner, syString s);
 syString strtolower(const syString& s);
 syString strtoupper(const syString& s);
+
+#endif

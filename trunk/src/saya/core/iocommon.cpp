@@ -14,6 +14,7 @@
 
 #include "iocommon.h"
 #include "systring.h"
+#include "systringutils.h"
 #include <cstdio>
 #include <string.h>
 
@@ -55,6 +56,25 @@ syString ioCommon::GetFilename(const syString& fullpath) {
   }
   return result;
 }
+
+syString ioCommon::GetExtension(const char* fullpath, bool tolowercase) {
+    return GetExtension(syString(fullpath, true), tolowercase);
+}
+
+syString ioCommon::GetExtension(const syString& fullpath, bool tolowercase) {
+    syString result;
+    int i = fullpath.rfind(".");
+    if(i == syString::npos) {
+        result = "";
+    } else {
+        result = trim(fullpath.substr(i+1,fullpath.length()));
+    }
+    if(tolowercase) {
+        result = strtolower(result);
+    }
+    return result;
+}
+
 
 // End of String functions
 

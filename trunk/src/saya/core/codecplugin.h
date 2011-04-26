@@ -7,10 +7,19 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
+#ifndef codecplugin_h
+#define codecplugin_h
+
+#include "systring.h"
+#include "videocolorformat.h"
+#include "avtypes.h"
+
 /** CodecPluginFactory is the class that manages all the codec plugins behind the scenes. */
 class CodecPluginFactory;
 class CodecPlugin;
-#include "systring.h"
+class syBitmap;
+class syAudioBuffer;
+
 
 typedef CodecPlugin* (*CodecPluginFactoryFunction)();
 
@@ -19,8 +28,50 @@ class CodecInstance {
     public:
         friend class CodecPlugin;
 
-        CodecInstance(CodecPlugin* plugin) {}
+        CodecInstance(CodecPlugin* plugin);
         virtual ~CodecInstance() {}
+        virtual bool OpenInput(const syString& filename) { return false; }
+        virtual void CloseInput() {}
+
+        virtual bool OpenOutput(const syString& filename) { return false; }
+        virtual void CloseOutput() {}
+
+        // Input functions
+
+        virtual avtime_t SeekVideo(avtime_t pos);
+        virtual avtime_t SeekAudio(avtime_t pos);
+        virtual avtime_t GetCurrentVideoTime() const;
+        virtual avtime_t GetCurrentAudioTime() const;
+
+        virtual avtime_t GetVideoLength() const;
+        virtual avtime_t GetAudioLength() const;
+        virtual VideoColorFormat GetColorFormat() const;
+        virtual unsigned long GetWidth() const;
+        virtual unsigned long GetHeight() const;
+        virtual float GetPixelAspect() const;
+        virtual float GetFramesPerSecond() const;
+
+        virtual unsigned long GetFrameIndex(avtime_t time);
+        virtual avtime_t GetTimeFromFrameIndex(unsigned long frame, bool fromend = false);
+        virtual void LoadCurrentFrame(syBitmap* dest);
+        virtual void LoadAudioBuffer(syAudioBuffer* dest, unsigned long numsamples = 0);
+
+        // Output functions
+
+        /** @return true if this is a video resource. */
+        bool IsVideo() const;
+        /** @return true if this is an audio resource. */
+        bool IsAudio() const;
+        /** @return true if this is an input resource. */
+        bool IsInput() const;
+        /** @return true if this is an output resource. */
+        bool IsOutput() const;
+
+    protected:
+        bool m_IsVideo;
+        bool m_IsAudio;
+        bool m_IsInput;
+        bool m_IsOutput;
 };
 
 
@@ -83,11 +134,12 @@ class CodecPlugin {
         static CodecPlugin* FindReadPlugin(const char* filename);
 
     public:
-        virtual const char* GetPluginName() { return ""; }
-        virtual const char* GetPluginVersion() { return ""; }
-        virtual const char* GetPluginAuthor() { return ""; }
-        virtual const char* GetPluginLicense() { return ""; }
-        virtual const char* GetPluginCreationDate() { return ""; }
+        virtual const char* GetPluginName() const { return ""; }
+        virtual const char* GetPluginFullName() const { return ""; }
+        virtual const char* GetPluginVersion() const { return ""; }
+        virtual const char* GetPluginAuthor() const { return ""; }
+        virtual const char* GetPluginLicense() const { return ""; }
+        virtual const char* GetPluginCreationDate() const { return ""; }
 
         /**
          * @brief Gets the supported Filetypes (extensions) that this plugin can decode; separated by commas.
@@ -126,3 +178,5 @@ class CodecPlugin {
         /** Called when the plugin is unloaded. */
         virtual void OnUnload() {}
 };
+
+#endif

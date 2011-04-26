@@ -55,6 +55,15 @@ class ioCommon {
         static syString GetFilename(const char* fullpath);
         static syString GetFilename(const syString& fullpath);
 
+        /** @brief Gets the extension (without dot) for a filename.
+          *
+          * @param fullpath The full path to extract the extension from.
+          * @return the extension of the file, without the dot at the beginning.
+          */
+        static syString GetExtension(const char* fullpath, bool tolowercase = false);
+        static syString GetExtension(const syString& fullpath, bool tolowercase = false);
+
+
         /** @brief Checks for the existance of a file.
           *
           * @param filename the filename to be checked
