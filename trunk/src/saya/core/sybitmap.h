@@ -49,6 +49,9 @@ class syBitmap : public syBitmapSink {
         /** Creates a buffer with the desired width, height and color format */
         void Create(unsigned int width,unsigned int height,VideoColorFormat colorformat);
 
+        /** Makes a copy from a raw buffer. */
+        void CopyFrom(const unsigned char* source, unsigned int width, unsigned int height, VideoColorFormat colorformat, unsigned long maxlength);
+
         /** Makes a copy of another syBitmap */
         void CopyFrom(const syBitmap* source);
 

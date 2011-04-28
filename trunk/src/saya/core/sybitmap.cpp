@@ -242,6 +242,29 @@ unsigned int syBitmap::CalculateBytesperPixel(VideoColorFormat format) {
     return result;
 }
 
+void syBitmap::CopyFrom(const unsigned char* source, unsigned int width, unsigned int height, VideoColorFormat colorformat, unsigned long maxlength) {
+    if(!source) {
+        return;
+    }
+    Realloc(width,height,colorformat);
+
+    const unsigned long* src = (const unsigned long*)source;
+    unsigned long* dst = (unsigned long*)(m_Data->m_Buffer);
+
+    // Copy the data in 4-byte chunks
+    for(unsigned int i = maxlength >> 2; i; --i, ++src, ++dst) {
+        if((i & 8192) == 0 && MustAbort()) { break; } // Check for abort every 32K
+        *dst = *src;
+    }
+
+    // Copy the remaining 3 bytes
+    unsigned int i = maxlength;
+    i = (i > 3) ? (i - 3) : 0;
+    for(; i < maxlength; ++i) {
+        m_Data->m_Buffer[i] = source[i];
+    }
+}
+
 void syBitmap::CopyFrom(const syBitmap* source) {
     if(!source) {
         return;
@@ -251,23 +274,7 @@ void syBitmap::CopyFrom(const syBitmap* source) {
     if(!original_buffer) {
         return;
     }
-    unsigned long imax = source->GetBufferLength();
-
-    const unsigned long* src = (const unsigned long*)original_buffer;
-    unsigned long* dst = (unsigned long*)(m_Data->m_Buffer);
-
-    // Copy the data in 4-byte chunks
-    for(unsigned int i = imax >> 2; i; --i, ++src, ++dst) {
-        if((i & 8192) == 0 && MustAbort()) { break; } // Check for abort every 32K
-        *dst = *src;
-    }
-
-    // Copy the remaining 3 bytes
-    unsigned int i = imax;
-    i = (i > 3) ? (i - 3) : 0;
-    for(; i < imax; ++i) {
-        m_Data->m_Buffer[i] = original_buffer[i];
-    }
+    CopyFrom(original_buffer, source->GetWidth(),source->GetHeight(),source->GetColorFormat(),source->GetBufferLength());
 }
 
 void syBitmap::PasteFrom(const syBitmap* source,syStretchMode stretchmode) {

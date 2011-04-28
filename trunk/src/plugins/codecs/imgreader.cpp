@@ -9,6 +9,7 @@
 
 #include "imgreader.h"
 #include <saya/core/sythread.h>
+#include <saya/core/sybitmap.h>
 #include <QImageReader>
 
 // ----------------------
@@ -46,6 +47,8 @@ class syImgReaderCodec : public CodecInstance {
         syImgReaderPlugin* m_Parent;
         syString m_Filename;
         QImageReader* m_Reader;
+        QImage* m_Image;
+        volatile bool m_ImageLoaded;
         sySafeMutex m_Mutex;
 };
 
@@ -53,7 +56,9 @@ class syImgReaderCodec : public CodecInstance {
 syImgReaderCodec::syImgReaderCodec(syImgReaderPlugin* parent, const syString& filename) :
 m_Parent(parent),
 m_Filename(filename),
-m_Reader(new QImageReader())
+m_Reader(new QImageReader()),
+m_Image(0),
+m_ImageLoaded(0)
 {
     m_IsVideo = true;
     m_IsAudio = false;
@@ -62,11 +67,14 @@ m_Reader(new QImageReader())
 }
 
 syImgReaderCodec::~syImgReaderCodec() {
+    delete m_Image;
+    m_Image = 0;
     delete m_Reader;
     m_Reader = 0;
 }
 
 bool syImgReaderCodec::OpenInput(const syString& filename) {
+    bool result = false;
     if(m_Filename != "" && filename.empty()) {
         m_Filename = filename;
     }
@@ -75,6 +83,10 @@ bool syImgReaderCodec::OpenInput(const syString& filename) {
     }
     if(!m_Reader) {
         m_Reader = new QImageReader(filename);
+    }
+    result = m_Reader->canRead();
+    if(result) {
+        m_Image = new QImage(GetWidth(),GetHeight(),QImage::Format_RGB32);
     }
     return m_Reader->canRead();
 }
@@ -141,8 +153,19 @@ avtime_t syImgReaderCodec::GetTimeFromFrameIndex(unsigned long frame, bool frome
 }
 
 void syImgReaderCodec::LoadCurrentFrame(syBitmap* dest) {
+    sySafeMutexLocker lock(m_Mutex);
+    // 1. Read the image into m_Image.
+    if(!m_ImageLoaded && m_Reader->read(m_Image)) {
+        m_ImageLoaded = true;
+    }
 
-
+    // 2. Copy the image to dest.
+    if(m_ImageLoaded) {
+        const unsigned char* bits = m_Image->bits();
+        dest->CopyFrom(bits,GetWidth(),GetHeight(),vcfRGB32,m_Image->numBytes());
+    } else {
+        dest->Clear();
+    }
 }
 
 // --------------------

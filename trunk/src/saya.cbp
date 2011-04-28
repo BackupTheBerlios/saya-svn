@@ -46,7 +46,7 @@
 		</Compiler>
 		<Linker>
 			<Add option="-pipe" />
-			<Add option='[[if (PLATFORM == PLATFORM_MSW) print(_T(&quot;-mthreads -lintl.dll&quot;));;]]' />
+			<Add option='[[if (PLATFORM == PLATFORM_MSW) { print(_T(&quot;-mthreads -lintl.dll&quot;));; } else { print(_T(&quot;-lpthread&quot;));; }]]' />
 			<Add library="QtCore$(#qt4.libsuffix)" />
 			<Add library="QtGui$(#qt4.libsuffix)" />
 			<Add library="QtSvg$(#qt4.libsuffix)" />
