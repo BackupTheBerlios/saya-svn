@@ -30,10 +30,10 @@ class CodecInstance {
 
         CodecInstance();
         virtual ~CodecInstance() {}
-        virtual bool OpenInput(const syString& filename) { return false; }
+        virtual bool OpenInput(const syString filename = syEmptyString) { return false; }
         virtual void CloseInput() {}
 
-        virtual bool OpenOutput(const syString& filename) { return false; }
+        virtual bool OpenOutput(const syString filename = syEmptyString) { return false; }
         virtual void CloseOutput() {}
 
         // Input functions
@@ -80,17 +80,17 @@ class CodecPlugin {
         friend class CodecPluginFactory;
 
         enum CodecReadingSkills {
-            CannotRead = 0,
-            CanReadAudio = 1,
-            CanReadVideo = 2,
-            CanReadBoth = 3
+            CannotRead   = 0x00, // These are bitmasks, so that if a plugin can read both video and audio, it
+            CanReadAudio = 0x01, // will be chosen before one that can only read video.
+            CanReadVideo = 0x02, // Video-only is considered superior to audio-only.
+            CanReadBoth  = 0x03
         };
 
         enum CodecWritingSkills {
-            CannotWrite = 0,
-            CanWriteAudio = 1,
-            CanWriteVideo = 2,
-            CanWriteBoth = 3
+            CannotWrite   = 0x00,
+            CanWriteAudio = 0x01,
+            CanWriteVideo = 0x02,
+            CanWriteBoth  = 0x03
         };
 
         CodecPlugin() {}
@@ -110,25 +110,31 @@ class CodecPlugin {
         /** Searches a directory for shared libraries containing codec code. */
         static void RegisterPlugins(const char* path);
 
-        /** Unregisters all plugins */
+        /** Unregisters all plugins. Called at the end of the program. */
         static void UnregisterAllPlugins();
 
-        /** Loads a plugin with a given name. The plugin MUST be deleted by function UnloadPlugin(). */
+        /** Loads a plugin with a given name. The plugin musted be deleted ONLY by calling function UnloadPlugin(). */
         static CodecPlugin* LoadPlugin(const char* name);
 
         /** Unloads a plugin with a given name. */
         static void UnloadPlugin(const char* name);
 
-        /** Unloads all the plugins */
+        /** Loads all the registered plugins. */
+        static void LoadAllRegisteredPlugins();
+
+        /** Unloads all the plugins. Called at the end of the program. */
         static void UnloadAllPlugins();
 
         static const char* GetCodecPluginsPath();
 
-        /** Selects the given codec plugin. */
+        /** Selects the given codec plugin.*/
         static CodecPlugin* SelectPlugin(const char* name);
 
         /** Returns the currently selected codec plugin. */
         static CodecPlugin* GetCurrentPlugin();
+
+        /** Finds the appropriate plugin for reading a specific file. */
+        static CodecPlugin* FindReadPlugin(const syString& filename);
 
         /** Finds the appropriate plugin for reading a specific file. */
         static CodecPlugin* FindReadPlugin(const char* filename);

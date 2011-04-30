@@ -8,8 +8,11 @@
  **************************************************************/
 
 #include "imgreader.h"
+#include <saya/core/iocommon.h>
 #include <saya/core/sythread.h>
 #include <saya/core/sybitmap.h>
+#include <saya/core/systringutils.h>
+#include <saya/core/debuglog.h>
 #include <QImageReader>
 
 // ----------------------
@@ -21,10 +24,10 @@ class syImgReaderCodec : public CodecInstance {
     public:
         syImgReaderCodec(syImgReaderPlugin* parent, const syString& filename);
         virtual ~syImgReaderCodec();
-        virtual bool OpenInput(const syString& filename);
+        virtual bool OpenInput(const syString filename = syEmptyString);
         virtual void CloseInput();
 
-        virtual bool OpenOutput(const syString& filename) { return false; }
+        virtual bool OpenOutput(const syString filename = syEmptyString) { return false; }
         virtual void CloseOutput() {}
 
         // Input functions
@@ -67,13 +70,14 @@ m_ImageLoaded(0)
 }
 
 syImgReaderCodec::~syImgReaderCodec() {
+    CloseInput();
     delete m_Image;
     m_Image = 0;
     delete m_Reader;
     m_Reader = 0;
 }
 
-bool syImgReaderCodec::OpenInput(const syString& filename) {
+bool syImgReaderCodec::OpenInput(const syString filename) {
     bool result = false;
     if(m_Filename != "" && filename.empty()) {
         m_Filename = filename;
@@ -95,6 +99,7 @@ void syImgReaderCodec::CloseInput() {
     if(m_Reader) {
         m_Reader->setDevice(0);
         m_Filename.clear();
+        m_ImageLoaded = false;
     }
 }
 
@@ -194,7 +199,14 @@ syString syImgReaderPlugin::GetSupportedAudioWriteCodecs() { return ""; }
 
 CodecPlugin::CodecReadingSkills syImgReaderPlugin::CanReadFile(const syString& filename) {
     CodecPlugin::CodecReadingSkills result = CannotRead;
-#warning TODO: Implement syImgReaderPlugin::CanReadFile
+    std::vector<syString> supported_filetypes = explode(",",GetSupportedFileTypes());
+    syString extension = ioCommon::GetExtension(filename, true);
+    for(unsigned int i = 0; i < supported_filetypes.size(); ++i) {
+        if(supported_filetypes[i] == extension) {
+            result = CanReadVideo;
+            break;
+        }
+    }
     return result;
 }
 
@@ -212,6 +224,18 @@ CodecInstance* syImgReaderPlugin::OpenFile(const syString& filename) {
     CodecInstance* result = 0;
     if (CanReadFile(filename)) {
         result = new syImgReaderCodec(this, filename);
+        if(result && !result->OpenInput()) {
+            delete result;
+            result = 0; // Couldn't read!
+        }
     }
     return result;
 }
+
+CodecPlugin* CreateImageReaderPlugin() {
+    return new syImgReaderPlugin();
+}
+
+namespace syImageReaderPluginRegistration {
+    bool tmpresult = CodecPlugin::RegisterPlugin("syImgReaderPlugin", &CreateImageReaderPlugin);
+};

@@ -18,16 +18,16 @@ void syBitmapCopier::Init(const syBitmap *sourcebmp, syBitmap *destbmp) {
     m_DestBitmap = destbmp;
     m_SourceFmt = sourcebmp->GetColorFormat();
     m_DestFmt = destbmp->GetColorFormat();
-    m_SourceBypp = syBitmap::CalculateBytesperPixel(m_SourceFmt);
-    m_DestBypp = syBitmap::CalculateBytesperPixel(m_DestFmt);
+    m_SourceBypp = sourcebmp->GetBytesPerPixel();
+    m_DestBypp = destbmp->GetBytesPerPixel();
     m_Src = sourcebmp->GetReadOnlyBuffer();
     m_Dst = destbmp->GetBuffer();
     m_SourceWidth = sourcebmp->GetWidth();
     m_DestWidth = destbmp->GetWidth();
     m_SourceHeight = sourcebmp->GetHeight();
     m_DestHeight = destbmp->GetHeight();
-    m_SourceRowLength = m_SourceWidth * m_SourceBypp;
-    m_DestRowLength = m_DestWidth * m_DestBypp;
+    m_SourceRowLength = sourcebmp->GetBytesPerLine();
+    m_DestRowLength = destbmp->GetBytesPerLine();
     m_SourceBufferLength = sourcebmp->GetBufferLength();
     m_DestBufferLength = destbmp->GetBufferLength();
 }
@@ -38,6 +38,21 @@ void syBitmapCopier::Reset() {
 }
 
 unsigned long syBitmapCopier::ConvertPixel(unsigned long pixel,VideoColorFormat sourcefmt,VideoColorFormat destfmt) {
+
+    // Let's get the "real" color format
+    if(sourcefmt == vcfRGB24_Line32) {
+        sourcefmt = vcfRGB24;
+    }
+    if(sourcefmt == vcfBGR24_Line32) {
+        sourcefmt = vcfBGR24;
+    }
+    if(destfmt == vcfRGB24_Line32) {
+        destfmt = vcfRGB24;
+    }
+    if(destfmt == vcfBGR24_Line32) {
+        destfmt = vcfBGR24;
+    }
+
     if(sourcefmt == destfmt) { // Trivial case: Formats are the same
         return pixel;
     }

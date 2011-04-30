@@ -290,10 +290,13 @@
 		<Unit filename="ui/classes/qsyapp.h" />
 		<Unit filename="ui/classes/resources.cpp" />
 		<Unit filename="ui/classes/resources.h" />
+		<Unit filename="ui/dialogs/bitmapdialog.cpp" />
+		<Unit filename="ui/dialogs/bitmapdialog.h" />
 		<Unit filename="ui/dialogs/newprojectdlg.cpp" />
 		<Unit filename="ui/dialogs/newprojectdlg.h" />
 		<Unit filename="ui/dialogs/picknamedlg.cpp" />
 		<Unit filename="ui/dialogs/picknamedlg.h" />
+		<Unit filename="ui/dialogs/ui/bitmapdialog.ui.h" />
 		<Unit filename="ui/dialogs/ui/newprojectdlg.ui.h" />
 		<Unit filename="ui/dialogs/ui/welcomedlg.ui.h" />
 		<Unit filename="ui/dialogs/welcomedlg.cpp" />
@@ -338,6 +341,10 @@
 		<Unit filename="ui/widgets/projectpane/projectpane.ui.h" />
 		<Unit filename="ui/widgets/tubeslider/tubeslider.cpp" />
 		<Unit filename="ui/widgets/tubeslider/tubeslider.h" />
+		<Unit filename="ui/widgets/videopanel/sdlsurface.cpp">
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
 		<Unit filename="ui/widgets/videopanel/videopanel.cpp" />
 		<Unit filename="ui/widgets/videopanel/videopanel.h" />
 		<Unit filename="ui/widgets/videoplaybackcontrol/videoplaybackcontrol.cpp" />

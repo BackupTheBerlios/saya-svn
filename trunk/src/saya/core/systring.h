@@ -19,6 +19,7 @@ class wxString;
 class QString;
 #endif
 
+extern const char* syEmptyString;
 /** @brief A not-so simple wrapper for a const char* (it's been growing).
  *  syString allows passing strings as return values on the stack without having to include
  *  the C++ syString headers. It also allows to use of simple strings for use as keys in

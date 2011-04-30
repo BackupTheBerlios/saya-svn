@@ -7,6 +7,8 @@
  * License:   GPL version 3 or later
  **************************************************************/
 
+#include "intl.h"
+#include "debuglog.h"
 #include "codecplugin.h"
 #include <map>
 #include <set>
@@ -28,6 +30,11 @@ class CodecPluginFactory {
         CodecPluginFactoryMap m_FactoryMap;
         CodecPluginMap m_Map;
         CodecFileTypesMap m_FileTypesMap;
+
+        ~CodecPluginFactory() {
+            UnloadAllPlugins();
+            UnregisterAllPlugins();
+        }
 
         static CodecPlugin* s_CurrentPlugin;
 
@@ -64,6 +71,9 @@ class CodecPluginFactory {
         /** Unloads a given codec plugin. */
         static void UnloadPlugin(const char* name);
 
+        /** Loads all the registered plugins. */
+        static void LoadAllRegisteredPlugins();
+
         /** Unloads all codec plugins. */
         static void UnloadAllPlugins();
 
@@ -96,6 +106,7 @@ bool CodecPluginFactory::RegisterPlugin(const char* name, CodecPluginFactoryFunc
     }
     syString tmp(name);
     s_self->m_FactoryMap[tmp] = func;
+    DebugLog(syString(_("Registered codec plugin: ")) + name);
     return true;
 }
 
@@ -132,10 +143,22 @@ CodecPlugin* CodecPluginFactory::LoadPlugin(const char* name) {
         // Try to create the plugin
         CodecPluginFactoryMap::const_iterator it2 = s_self->m_FactoryMap.find(plugin_name);
         if(it2 != s_self->m_FactoryMap.end()) {
+            DebugLog(syString(_("Loading codec plugin: ")) + plugin_name);
             result = it2->second();
             if(result) {
-                s_self->m_Map[plugin_name] = result;
-                CodecPluginFactory::RegisterPluginCapabilities(result);
+                syString reportedPluginName = result->GetPluginName();
+                if(reportedPluginName == plugin_name) {
+                    DebugLog(syString(_("Successfully loaded codec plugin: ")) + plugin_name);
+                    s_self->m_Map[plugin_name] = result;
+                    CodecPluginFactory::RegisterPluginCapabilities(result);
+                } else {
+                    delete result;
+                    syString tmps;
+                    tmps.Printf(_("ERROR loading plugin: '%s' (name mismatch: '%s')"), name, reportedPluginName.c_str());
+                    DebugLog(tmps);
+                }
+            } else {
+                DebugLog(syString(_("ERROR loading codec plugin: ")) + plugin_name);
             }
         }
     }
@@ -169,22 +192,25 @@ CodecPlugin* CodecPluginFactory::FindReadPlugin(const char* filename) {
         return 0; // Unknown file extension!
     }
     syString file_ext = strtolower(basefilename.substr(dotpos + 1, basefilename.length()));
+    CodecPlugin::CodecReadingSkills curskill = CodecPlugin::CannotRead;
     if(file_ext.length()) {
         for(CodecFileTypesMap::iterator it = themap.find(file_ext); it != themap.end() && !result; ++it) {
             CodecNamesSet& codecs = it->second;
             for(CodecNamesSet::iterator it2 = codecs.begin();it2 != codecs.end(); ++it2) {
                 syString codecname = *it2;
                 CodecPlugin* plugin = CodecPluginFactory::FindPlugin(codecname.c_str());
-                if(plugin && plugin->CanReadFile(filename)) {
-                    result = plugin;
-                    break;
+                if(plugin) {
+                    CodecPlugin::CodecReadingSkills tmpskill = plugin->CanReadFile(filename);
+                    if(tmpskill > curskill) {
+                        result = plugin;
+                        curskill = tmpskill;
+                    }
                 }
             }
         }
     }
     return result;
 }
-
 
 CodecPlugin* CodecPluginFactory::FindPlugin(const char* name) {
     if(!s_self) {
@@ -215,6 +241,15 @@ void CodecPluginFactory::UnloadPlugin(const char* name) {
     s_self->m_Map.erase(syString(name));
 }
 
+void CodecPluginFactory::LoadAllRegisteredPlugins() {
+    if(!s_self) {
+        s_self = new CodecPluginFactory;
+    }
+    for(CodecPluginFactoryMap::iterator it = s_self->m_FactoryMap.begin();it != s_self->m_FactoryMap.end(); ++it) {
+        LoadPlugin(it->first.c_str()); // LoadPlugin always checks if the plugin has been loaded.
+    }
+}
+
 void CodecPluginFactory::UnloadAllPlugins() {
     if(!s_self) {
         return;
@@ -240,8 +275,6 @@ CodecPlugin* CodecPluginFactory::GetCurrentPlugin() {
     return s_CurrentPlugin;
 }
 
-
-
 bool CodecPlugin::RegisterPlugin(const char* name, CodecPluginFactoryFunction func) {
     return CodecPluginFactory::RegisterPlugin(name, func);
 }
@@ -266,6 +299,11 @@ void CodecPlugin::UnloadPlugin(const char* name) {
     return CodecPluginFactory::UnloadPlugin(name);
 }
 
+void CodecPlugin::LoadAllRegisteredPlugins() {
+    return CodecPluginFactory::LoadAllRegisteredPlugins();
+}
+
+
 void CodecPlugin::UnloadAllPlugins() {
     return CodecPluginFactory::UnloadAllPlugins();
 }
@@ -284,6 +322,10 @@ CodecPlugin* CodecPlugin::GetCurrentPlugin() {
 
 CodecPlugin* CodecPlugin::FindReadPlugin(const char* filename) {
     return CodecPluginFactory::FindReadPlugin(filename);
+}
+
+CodecPlugin* CodecPlugin::FindReadPlugin(const syString& filename) {
+    return CodecPluginFactory::FindReadPlugin(filename.c_str());
 }
 
 

@@ -8,19 +8,26 @@
  * License:   LGPL Licence version 3 or later
  **************************************************************************************/
 
-#include "videopanel.h"
-
 #include "../../../saya/core/debuglog.h"
 #include "../../../saya/core/videooutputdevice.h"
 #include "../../../saya/core/sythread.h"
 #include "../../../saya/core/sybitmap.h"
 #include "../../../saya/core/sentryfuncs.h"
 #include "../../../saya/core/app.h"
+#include "videopanel.h"
 
 #include <QPainter>
 #include <QPaintEvent>
 #include <QBitmap>
 #include <QCoreApplication>
+
+#if defined(Q_WS_X11)
+    #include <QX11Info>
+    #include <X11/Xlib.h>
+    #include <X11/Xutil.h>
+#elif defined(Q_WS_WIN)
+    //
+#endif
 
 // ----------------------
 // Begin VideoPanel::Data
@@ -57,6 +64,28 @@ class VideoPanel::Data : public syBitmapSink {
         /** @brief returns the current color format. */
         VideoColorFormat GetColorFormat() const;
 
+        #if defined(Q_WS_X11)
+            /** @brief X11 Bitmap Renderer.
+             *  @return true on success.
+             */
+            bool X11Render(const syBitmap* bitmap);
+        #elif defined(Q_WS_WIN)
+            /** @brief Win32 Bitmap Renderer.
+             *  @return true on success.
+             */
+            bool Win32Render(const syBitmap* bitmap);
+        #else
+            /** @brief Do-Nothing Bitmap Renderer.
+             *  @return false always (no native renderer could be implemented).
+             */
+            bool DoNothingRender(const syBitmap* bitmap) { return false; }
+        #endif
+
+        /** @brief tries to render the image using the Operating System's native rendering functions. */
+        bool NativeRender(const syBitmap* bitmap);
+
+        void QtRender(const syBitmap* bitmap, QPainter& painter);
+
         VideoPanel* m_Parent;
         VideoOutputDevice* m_Video;
         volatile bool m_IsPlaying;
@@ -71,8 +100,15 @@ class VideoPanel::Data : public syBitmapSink {
         syBitmap* m_Bitmap1;
         syBitmap* m_Bitmap2;
         volatile syBitmap* m_BitmapPointer;
-
         VideoColorFormat m_NativeFormat;
+        bool m_UseNativeRenderer;
+        #ifdef Q_WS_X11
+        /** @brief Updates our XImage data with our current bitmap.
+         *  @return true on success; false otherwise.
+         */
+        bool UpdateX11Image(const syBitmap* bitmap);
+        #endif
+        XImage* m_XImage;
 };
 
 VideoPanel::Data::Data(VideoPanel* parent) :
@@ -85,8 +121,40 @@ m_PaintingDemo(false),
 m_Bitmap1(new syBitmap()),
 m_Bitmap2(new syBitmap()),
 m_BitmapPointer(m_Bitmap1),
-m_NativeFormat(vcfRGB32) // Due to Qt limitations, we're restricted to use this format.
+m_NativeFormat(vcfRGB32), // by default until we can get the display's capabilities
+m_UseNativeRenderer(false)
 {
+#if defined(Q_WS_X11)
+    m_XImage = new XImage;
+    const QX11Info &info = m_Parent->x11Info();
+    int depth = info.depth();
+    switch(depth) {
+        case 8:
+            m_NativeFormat = vcfRGB8;
+            m_UseNativeRenderer = true;
+            break;
+        case 15:
+            m_NativeFormat = vcfRGB15;
+            m_UseNativeRenderer = true;
+            break;
+        case 16:
+            m_NativeFormat = vcfRGB16;
+            m_UseNativeRenderer = true;
+            break;
+        case 24:
+            m_NativeFormat = vcfRGB24;
+            m_UseNativeRenderer = true;
+            break;
+        case 32:
+            m_NativeFormat = vcfRGB24;
+            m_UseNativeRenderer = true;
+            break;
+        default:
+            m_NativeFormat = vcfRGB32;
+            m_UseNativeRenderer = false;
+    }
+    m_UseNativeRenderer = false; // Something's not working with our X11 rendering implementation.
+#endif
     m_Bitmap1->Clear();
     m_Bitmap2->Clear();
     m_Video->SetBitmapSink(this);
@@ -106,6 +174,11 @@ VideoPanel::Data::~Data() {
     m_Bitmap2 = 0;
     delete m_Bitmap1;
     m_Bitmap1 = 0;
+
+    #ifdef Q_WS_X11
+    delete m_XImage;
+    m_XImage = 0;
+    #endif
 
     m_Parent->m_Data = 0;
     m_Parent = 0;
@@ -155,6 +228,82 @@ void VideoPanel::Data::LoadData(const syBitmap* bitmap) {
 void VideoPanel::Data::FlagForRepaint() {
     m_BufferChanged = true;
     QCoreApplication::postEvent(m_Parent, new QPaintEvent(m_Parent->rect()));
+}
+
+void VideoPanel::Data::QtRender(const syBitmap* bitmap, QPainter& painter) {
+    unsigned int w = GetWidth();
+    unsigned int h = GetHeight();
+    QImage tmpbitmap(bitmap->GetReadOnlyBuffer(), w,h, QImage::Format_RGB32);
+    painter.drawImage(0,0,tmpbitmap,0,0,-1,-1,Qt::ColorOnly);
+}
+
+bool VideoPanel::Data::UpdateX11Image(const syBitmap* bitmap) {
+    m_XImage->width  = bitmap->GetWidth();
+    m_XImage->height = bitmap->GetHeight();
+    m_XImage->xoffset = 0;
+    m_XImage->format = ZPixmap;
+    m_XImage->data = (char*)(const_cast<syBitmap*>(bitmap)->GetBuffer());
+    m_XImage->byte_order = LSBFirst;
+
+    // Not sure if this should be bitmap->GetRowPadding(), too. (I hate Xlib's poor documentation!)
+    m_XImage->bitmap_unit = bitmap->GetPixelPadding();
+    m_XImage->bitmap_bit_order = LSBFirst;
+
+    // From http://tronche.com/gui/x/xlib/utilities/XCreateImage.html :
+    // bitmap_pad : Specifies the quantum of a scanline (8, 16, or 32). In other words, the start of one scanline is
+    // separated in client memory from the start of the next scanline by an integer multiple of this many bits.
+    m_XImage->bitmap_pad = bitmap->GetRowPadding();
+
+    m_XImage->depth = bitmap->GetDepth();
+    m_XImage->bytes_per_line = bitmap->GetBytesPerLine();
+    m_XImage->bits_per_pixel = bitmap->GetBytesPerPixel()*8;
+    m_XImage->red_mask = bitmap->GetRedMask();
+    m_XImage->green_mask = bitmap->GetGreenMask();
+    m_XImage->blue_mask = bitmap->GetBlueMask();
+    return XInitImage(m_XImage) ? true : false;
+};
+
+#ifdef Q_WS_X11
+bool VideoPanel::Data::X11Render(const syBitmap* bitmap) {
+    bool result = false;
+    const QX11Info &info = m_Parent->x11Info();
+    Drawable x11handle = m_Parent->x11PictureHandle();
+    if(!x11handle) {
+        return false; // The X11 version in this computer is too old to support XRender.
+    }
+    unsigned int w = bitmap->GetWidth();
+    unsigned int h = bitmap->GetHeight();
+    if(UpdateX11Image(bitmap)) {
+        XGCValues gcvalues;
+        GC gc = XCreateGC(info.display(),x11handle, 0,&gcvalues);
+        XPutImage(info.display(), x11handle, gc, m_XImage, 0,0,0,0,w,h);
+        m_XImage->data = 0; // Tell X11 that our image data must not be destroyed (it's ours)
+        XFreeGC(info.display(),gc);
+        result = true;
+    } else {
+        result = false;
+    }
+    return result;
+}
+#endif
+
+#ifdef Q_WS_WIN
+bool VideoPanel::Data::Win32Render(const syBitmap* bitmap) {
+    return false; // Not implemented
+}
+#endif
+
+bool VideoPanel::Data::NativeRender(const syBitmap* bitmap) {
+    if(!m_UseNativeRenderer) {
+        return false;
+    }
+    #if defined(Q_WS_X11)
+        return X11Render(bitmap);
+    #elif defined(Q_WS_WIN)
+        return Win32Render(bitmap);
+    #else
+        return false;
+    #endif
 }
 
 // --------------------
@@ -207,10 +356,8 @@ void VideoPanel::paintEvent ( QPaintEvent * pe ) {
         }
         if (w > 0 && h > 0 && m_Data && m_Data->m_Video && m_Data->m_Video->IsOk() && currentbitmap->GetBuffer()) {
             // Video is created, active and available. Let's play our current bitmap.
-            // We enclose our temporary bitmap inside brackets to free our mutex as soon as painting ends.
-            {
-                QImage tmpbitmap(currentbitmap->GetBuffer(), w,h, QImage::Format_RGB32);
-                painter.drawImage(0,0,tmpbitmap,0,0,-1,-1,Qt::ColorOnly);
+            if(!m_Data->NativeRender(currentbitmap)) {
+                m_Data->QtRender(currentbitmap, painter);
             }
             lock.Unlock();
         } else {

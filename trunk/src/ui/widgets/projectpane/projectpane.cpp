@@ -19,12 +19,16 @@
 #include <QUrl>
 #include <ui/widgets/generic/action.h>
 #include <saya/projectmanager.h>
+#include <saya/vidproject.h>
 #include <saya/timeline/avresources.h>
 #include <saya/timeline/avresources.h>
 #include <saya/timeline/sstrvector.h>
 #include <saya/core/app.h>
 #include <saya/core/sigslot.h>
 #include <saya/core/events.h>
+#include <saya/core/codecplugin.h>
+#include <saya/core/sybitmap.h>
+#include "../../dialogs/bitmapdialog.h"
 
 using namespace sigslot;
 
@@ -42,6 +46,7 @@ class ProjectPane::Data : public has_slots {
             public:
                 ResourceItem(const AVResource* res);
                 unsigned int m_ResourceId;
+                AVResource* GetResource() const;
                 virtual ~ResourceItem() { m_ResourceId = 0; }
         };
 
@@ -49,6 +54,7 @@ class ProjectPane::Data : public has_slots {
         virtual ~Data();
         Ui::projectPane* m_Ui;
         void OnResourceListContextMenu(const QPoint& pos);
+        void OnItemDoubleClicked(QListWidgetItem* item);
         void OnRefreshResourceList();
         void dragEnterEvent(QDragEnterEvent *event);
         void dropEvent(QDropEvent *event);
@@ -66,6 +72,33 @@ QListWidgetItem()
         setText(ioCommon::GetFilename(res->m_Filename));
         if(res->m_Icon != "") {
             setIcon(QPixmap::fromImage(QImage::fromData(QByteArray::fromBase64(res->m_Icon.c_str()),"JPG")));
+        }
+    }
+}
+
+AVResource* ProjectPane::Data::ResourceItem::GetResource() const {
+    AVResource* res = 0;
+    VidProject* prj = ProjectManager::Get()->GetProject();
+    if(prj) {
+        res = prj->GetResourceById(m_ResourceId);
+    }
+    return res;
+}
+
+void ProjectPane::Data::OnItemDoubleClicked(QListWidgetItem* listitem) {
+    ResourceItem* item = dynamic_cast<ResourceItem*>(listitem);
+    if(item) {
+        AVResource* res = item->GetResource();
+        if(res) {
+            CodecPlugin* tmpplugin = CodecPlugin::FindReadPlugin(res->m_Filename.c_str());
+            if(tmpplugin) {
+                syMessageBox("Yay! :D","Plugin found!");
+                CodecInstance* codec = tmpplugin->OpenFile(res->m_Filename);
+                if(codec) {
+                    syBitmap bitmap;
+                    codec->LoadCurrentFrame(&bitmap);
+                }
+            }
         }
     }
 }
@@ -100,6 +133,9 @@ m_Parent(parent)
 
     m_Parent->sigRefreshResourceList.connect(this,&ProjectPane::Data::OnRefreshResourceList);
     m_Parent->setAcceptDrops(true);
+
+    m_Ui->listOther->sigitemDoubleClicked.connect(this, &ProjectPane::Data::OnItemDoubleClicked);
+
 }
 
 ProjectPane::Data::~Data() {

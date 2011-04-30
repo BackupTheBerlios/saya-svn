@@ -32,7 +32,9 @@ enum VideoColorFormat {
     vcfYVYU,
     vcfUYVY,
     vcfYUY9,
-    vcfY800
+    vcfY800,
+    vcfRGB24_Line32,
+    vcfBGR24_Line32
 };
 
 #endif

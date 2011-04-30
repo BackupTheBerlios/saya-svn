@@ -48,6 +48,19 @@ class syBitmap::Data {
         /** Bytes per pixel of the current color format */
         unsigned int m_bypp;
 
+        /** Bit depth for all color channels. */
+        unsigned int m_Depth;
+
+        /** Red color mask. */
+        unsigned int m_RMask;
+        /** Green color mask. */
+        unsigned int m_GMask;
+        /** Blue color mask. */
+        unsigned int m_BMask;
+
+        /** Length in bytes of each row */
+        int m_RowSize;
+
         /** @brief Placeholder for an syAborter object.
           *
           * @see syBitmap::MustAbort
@@ -81,6 +94,11 @@ syBitmap::Data::Data() :
     m_BufferLength(0),
     m_BufferSize(0),
     m_bypp(4),
+    m_Depth(0),
+    m_RMask(0),
+    m_GMask(0),
+    m_BMask(0),
+    m_RowSize(0),
     m_Aborter(NULL),
     m_YOffsets(NULL),
     m_XOffsets(NULL),
@@ -118,6 +136,16 @@ void syBitmap::Realloc(unsigned int newwidth,unsigned int newheight,VideoColorFo
     }
     unsigned int bypp = syBitmap::CalculateBytesperPixel(newformat);
     unsigned int rowlen = bypp * newwidth;
+
+    if(rowlen & 1 || rowlen < 2) {
+        rowlen = (rowlen + 2) & ~1; // Round up the row size to 2 bytes.
+    }
+
+    if(newformat == vcfBGR24_Line32 || newformat == vcfRGB24_Line32) {
+        if(rowlen & 3 || rowlen < 4) {
+            rowlen = (rowlen + 4) & ~3; // Round up the row size to 4 bytes.
+        }
+    }
     unsigned int newsize = rowlen * newheight;
     if(newsize & 3 || newsize < 4) {
         newsize = (newsize + 4) & ~3; // Round up the buffer size to 4 bytes.
@@ -156,6 +184,103 @@ void syBitmap::Realloc(unsigned int newwidth,unsigned int newheight,VideoColorFo
     m_Data->m_bypp = CalculateBytesperPixel(newformat);
     m_Data->m_Width = newwidth;
     m_Data->m_Height = newheight;
+    m_Data->m_RowSize = newwidth*m_Data->m_bypp;
+    int depth;
+    switch(newformat) {
+        case vcfRGB8:
+            depth = 8;
+            m_Data->m_RMask = 0x07;
+            m_Data->m_GMask = 0x38;
+            m_Data->m_BMask = 0xc0;
+            break;
+        case vcfRGB32:
+            depth = 24;
+            m_Data->m_RMask = 0x000000ff;
+            m_Data->m_GMask = 0x0000ff00;
+            m_Data->m_BMask = 0x00ff0000;
+            break;
+        case vcfBGR32:
+            depth = 24;
+            m_Data->m_RMask = 0x00ff0000;
+            m_Data->m_GMask = 0x0000ff00;
+            m_Data->m_BMask = 0x000000ff;
+            break;
+        case vcfRGB24:
+        case vcfRGB24_Line32:
+            depth = 24;
+            m_Data->m_RMask = 0x000000ff;
+            m_Data->m_GMask = 0x0000ff00;
+            m_Data->m_BMask = 0x00ff0000;
+            break;
+        case vcfBGR24:
+        case vcfBGR24_Line32:
+            depth = 24;
+            m_Data->m_RMask = 0x00ff0000;
+            m_Data->m_GMask = 0x0000ff00;
+            m_Data->m_BMask = 0x000000ff;
+            break;
+        case vcfRGB16:
+            m_Data->m_RMask = 0x0000001f;
+            m_Data->m_GMask = 0x000007e0;
+            m_Data->m_BMask = 0x0000f800;
+            depth = 16;
+            break;
+        case vcfBGR16:
+            m_Data->m_RMask = 0x0000f800;
+            m_Data->m_GMask = 0x000007e0;
+            m_Data->m_BMask = 0x0000001f;
+            depth = 16;
+            break;
+        case vcfRGB15:
+            depth = 15;
+            m_Data->m_RMask = 0x0000001f;
+            m_Data->m_GMask = 0x000003e0;
+            m_Data->m_BMask = 0x00007c00;
+            break;
+        case vcfBGR15:
+            depth = 15;
+            m_Data->m_RMask = 0x00007c00;
+            m_Data->m_GMask = 0x000003e0;
+            m_Data->m_BMask = 0x0000001f;
+            break;
+        case vcfYUY2:
+            depth = 8;
+            break;
+        case vcfYV12:
+            depth = 12;
+            m_Data->m_RMask = 0;
+            m_Data->m_GMask = 0;
+            m_Data->m_BMask = 0;
+        case vcfYUV12:
+            depth = 12;
+            m_Data->m_RMask = 0;
+            m_Data->m_GMask = 0;
+            m_Data->m_BMask = 0;
+            break;
+        case vcfYUV:
+        case vcfYVYU: // Not sure about these two, but since we're only using Depth() for X11
+        case vcfUYVY: // and these formats aren't supported, it doesn't matter.
+            depth = 16;
+            m_Data->m_RMask = 0;
+            m_Data->m_GMask = 0;
+            m_Data->m_BMask = 0;
+            break;
+        case vcfYUY9:
+            depth = 9;
+            m_Data->m_RMask = 0;
+            m_Data->m_GMask = 0;
+            m_Data->m_BMask = 0;
+            break;
+        case vcfY800:
+            m_Data->m_RMask = 0x01;
+            m_Data->m_GMask = 0x01;
+            m_Data->m_BMask = 0x01;
+            depth = 1;
+            break;
+        default:
+            ;
+    }
+    m_Data->m_Depth = depth;
     Clear();
 }
 
@@ -201,6 +326,52 @@ unsigned long syBitmap::GetBufferSize() const {
     return m_Data->m_BufferSize;
 }
 
+int syBitmap::GetBytesPerPixel() const {
+    return m_Data->m_bypp;
+}
+
+int syBitmap::GetRowPadding() const {
+    int result = 8;
+    int rowlen = m_Data->m_bypp * m_Data->m_Width;
+    if(rowlen != m_Data->m_RowSize) {
+        if(!m_Data->m_RowSize & 3) {
+            result = 32;
+        }
+        if(!m_Data->m_RowSize & 1) {
+            result = 16;
+        }
+    }
+    return result;
+}
+
+int syBitmap::GetPixelPadding() const {
+    int result = m_Data->m_bypp*8;
+    if(result != 16 && result != 32) {
+        result = 8;
+    }
+    return result;
+}
+
+int syBitmap::GetDepth() const {
+    return m_Data->m_Depth;
+}
+
+int syBitmap::GetBytesPerLine() const {
+    return m_Data->m_RowSize;
+}
+
+unsigned long syBitmap::GetRedMask() const {
+    return m_Data->m_RMask;
+}
+
+unsigned long syBitmap::GetGreenMask() const {
+    return m_Data->m_GMask;
+}
+
+unsigned long syBitmap::GetBlueMask() const {
+    return m_Data->m_BMask;
+}
+
 unsigned int syBitmap::CalculateBytesperPixel(VideoColorFormat format) {
     unsigned int result = 4; // Default
     switch(format) {
@@ -211,6 +382,7 @@ unsigned int syBitmap::CalculateBytesperPixel(VideoColorFormat format) {
             result = 4;
             break;
         case vcfRGB24:
+        case vcfRGB24_Line32:
             result = 3;
             break;
         case vcfRGB16:
@@ -220,6 +392,7 @@ unsigned int syBitmap::CalculateBytesperPixel(VideoColorFormat format) {
             result = 2;
             break;
         case vcfBGR24:
+        case vcfBGR24_Line32:
             result = 3;
             break;
         case vcfBGR32:

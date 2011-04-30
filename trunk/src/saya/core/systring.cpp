@@ -498,7 +498,7 @@ int syString::find(const syString& needle, unsigned int pos) const {
     if(!result) {
         return npos;
     }
-    return (result + pos - m_Str);
+    return (result - m_Str);
 }
 
 int syString::find(char needle, unsigned int pos) const {
@@ -507,7 +507,7 @@ int syString::find(char needle, unsigned int pos) const {
     if(!result) {
         return npos;
     }
-    return (result + pos - m_Str);
+    return (result - m_Str);
 }
 
 int syString::rfind(const syString& needle, int pos) const {

@@ -26,16 +26,19 @@ std::vector<syString> explode(const syString& joiner, syString s) {
     unsigned int lastpos = 0;
     int joinerlength = joiner.length();
     int slength = s.length();
+    syString tmps;
     if(joinerlength) {
         while(curpos >= 0 && curpos < slength) {
             curpos = s.find(joiner, lastpos);
             if(curpos == syString::npos) {
-                result.push_back(s.substr(lastpos,s.length()));
+                tmps = s.substr(lastpos,s.length());
+                result.push_back(tmps);
                 break;
             } else {
-                result.push_back(s.substr(lastpos,curpos - lastpos));
-                result.push_back(joiner);
+                tmps = s.substr(lastpos,curpos - lastpos);
+                result.push_back(tmps);
                 lastpos = curpos + joinerlength;
+                curpos = lastpos;
             }
 
         }

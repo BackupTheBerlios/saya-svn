@@ -79,6 +79,30 @@ class syBitmap : public syBitmapSink {
         /** Returns the size in bytes of the whole buffer */
         unsigned long GetBufferSize() const;
 
+        /** Returns the size in bytes of each pixel */
+        int GetBytesPerPixel() const;
+
+        /** Returns the least common multiple, in bits ( 8 / 16 / 32), for the length of each scanline. */
+        int GetRowPadding() const;
+
+        /** Returns the least common multiple, in bits ( 8 / 16 / 32), for each pixel. */
+        int GetPixelPadding() const;
+
+        /** Returns the bit depth of the image (total of all RGB channels). */
+        int GetDepth() const;
+
+        /** Returns the length in bytes of each row. */
+        int GetBytesPerLine() const;
+
+        /** Returns the color mask for the Red component. */
+        unsigned long GetRedMask() const;
+
+        /** Returns the color mask for the Green component. */
+        unsigned long GetGreenMask() const;
+
+        /** Returns the color mask for the Blue component. */
+        unsigned long GetBlueMask() const;
+
         /** Returns the bitmap's color format */
         VideoColorFormat GetColorFormat() const;
 

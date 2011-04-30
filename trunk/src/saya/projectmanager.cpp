@@ -137,7 +137,10 @@ void ProjectManager::Unload() {
 }
 
 VidProject* ProjectManager::GetProject() const {
-    return m_Data->m_Project;
+    if(this && this->m_Data) {
+        return m_Data->m_Project;
+    }
+    return 0;
 }
 
 bool ProjectManager::HasProject() const {
@@ -184,6 +187,8 @@ bool ProjectManager::LoadConfig() {
         CodecPlugin::SelectPlugin("default");
 
         // TODO: Read in the configuration which non-codec plugins we must load, and load them.
+        DebugLog(_("Loading registered plugins..."));
+        CodecPlugin::LoadAllRegisteredPlugins(); // This is a workaround, loads all registered plugins.
     }
     return true;
 }
