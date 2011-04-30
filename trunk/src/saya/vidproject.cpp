@@ -456,10 +456,13 @@ unsigned int VidProject::ImportFile(const syString& filename, syString &errortex
     newres.m_ResourceType = RTOfflineFile;
     // TODO: Implement Resource Type detection based on the filename
     newres.m_Filename = filename;
-    newres.m_RelativeFilename = "";
-    // TODO: Get the relative filename of the resource
+
+    // TODO: Be more precise when getting the relative filename of the resource
+    newres.m_RelativeFilename = ioCommon::GetFilename(filename);
+
     newres.m_Icon = "";
     // TODO: Get the file's icon
+
     newres.m_AVSettings = 0;
     // TODO: Get the file's AV Settings.
 

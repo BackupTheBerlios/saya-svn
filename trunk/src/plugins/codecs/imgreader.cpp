@@ -79,20 +79,31 @@ syImgReaderCodec::~syImgReaderCodec() {
 
 bool syImgReaderCodec::OpenInput(const syString filename) {
     bool result = false;
+    syString newfilename = filename;
     if(m_Filename != "" && filename.empty()) {
-        m_Filename = filename;
+        newfilename = m_Filename;
+    } else {
+        newfilename = filename;
     }
-    if(m_Reader && syString(m_Reader->fileName()) != m_Filename) {
+    if(m_Reader && syString(m_Reader->fileName()) != newfilename) {
         CloseInput();
+        if(m_Reader) {
+            m_Reader->setFileName(newfilename);
+            m_Filename = filename;
+        }
     }
     if(!m_Reader) {
-        m_Reader = new QImageReader(filename);
+        m_Reader = new QImageReader(newfilename);
+        m_Filename = newfilename;
     }
     result = m_Reader->canRead();
     if(result) {
+        if(m_Image) {
+            delete m_Image;
+        }
         m_Image = new QImage(GetWidth(),GetHeight(),QImage::Format_RGB32);
     }
-    return m_Reader->canRead();
+    return result;
 }
 
 void syImgReaderCodec::CloseInput() {
@@ -158,18 +169,28 @@ avtime_t syImgReaderCodec::GetTimeFromFrameIndex(unsigned long frame, bool frome
 }
 
 void syImgReaderCodec::LoadCurrentFrame(syBitmap* dest) {
-    sySafeMutexLocker lock(m_Mutex);
-    // 1. Read the image into m_Image.
-    if(!m_ImageLoaded && m_Reader->read(m_Image)) {
-        m_ImageLoaded = true;
+    if(!dest) {
+        return;
     }
+    sySafeMutexLocker lock(m_Mutex);
+    if(lock.IsLocked()) {
+        // 1. Check if m_Image is null. If not, abort (can't create the image, we could be in a worker thread)
+        if(!m_Image) {
+            return;
+        }
 
-    // 2. Copy the image to dest.
-    if(m_ImageLoaded) {
-        const unsigned char* bits = m_Image->bits();
-        dest->CopyFrom(bits,GetWidth(),GetHeight(),vcfRGB32,m_Image->numBytes());
-    } else {
-        dest->Clear();
+        // 2. Read the image into m_Image.
+        if(!m_ImageLoaded && m_Reader->read(m_Image)) {
+            m_ImageLoaded = true;
+        }
+
+        // 3. Copy the image to dest.
+        if(m_ImageLoaded) {
+            const unsigned char* bits = m_Image->bits();
+            dest->CopyFrom(bits,GetWidth(),GetHeight(),vcfRGB32,m_Image->numBytes());
+        } else {
+            dest->Clear();
+        }
     }
 }
 

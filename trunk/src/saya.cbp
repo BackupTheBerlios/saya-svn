@@ -70,6 +70,7 @@
 		<Unit filename="plugins/codecs/imgreader.cpp" />
 		<Unit filename="plugins/codecs/imgreader.h" />
 		<Unit filename="plugins/demovideo.cpp" />
+		<Unit filename="resources/bitmapdialog.ui" />
 		<Unit filename="resources/mainwindow.ui" />
 		<Unit filename="resources/newproject.ui" />
 		<Unit filename="resources/projectpane.ui" />
