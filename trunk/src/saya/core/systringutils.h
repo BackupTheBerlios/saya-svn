@@ -12,6 +12,7 @@
 
 #include "systring.h"
 #include <vector>
+#include "base64.h"
 
 syString implode(const syString& joiner, std::vector<syString> vec);
 std::vector<syString> explode(const syString& joiner, syString s);

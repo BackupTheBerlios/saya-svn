@@ -102,6 +102,8 @@
 		<Unit filename="saya/core/avsource.cpp" />
 		<Unit filename="saya/core/avsource.h" />
 		<Unit filename="saya/core/avtypes.h" />
+		<Unit filename="saya/core/base64.cpp" />
+		<Unit filename="saya/core/base64.h" />
 		<Unit filename="saya/core/codecplugin.cpp" />
 		<Unit filename="saya/core/codecplugin.h" />
 		<Unit filename="saya/core/config.cpp" />
