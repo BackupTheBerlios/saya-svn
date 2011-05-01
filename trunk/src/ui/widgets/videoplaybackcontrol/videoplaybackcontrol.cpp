@@ -36,7 +36,6 @@ m_VideoPanel(new VideoPanel(0))
 
 VideoPlaybackControl::Data::~Data() {
     m_Parent->m_Data = 0;
-    delete m_Parent;
     m_Parent = 0;
 }
 
