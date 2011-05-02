@@ -21,6 +21,7 @@
 #include "sybitmapcopier.h"
 #include "codecplugin.h"
 #include "sentryfuncs.h"
+#include "base64.h"
 #include <math.h>
 #include <cstddef>
 
@@ -742,6 +743,44 @@ syBitmap* syBitmap::FromFile(const char* filename) {
 syBitmap* syBitmap::FromFile(const syString& filename) {
     syBitmap* bitmap = new syBitmap;
     if(!bitmap->LoadFromFile(filename)) {
+        delete bitmap;
+        bitmap = 0;
+    }
+    return bitmap;
+}
+
+bool syBitmap::LoadFromString(const syString& data, const char* mimetype) {
+    bool result = false;
+    CodecPlugin* plugin = CodecPlugin::FindReadPluginByMimeType(mimetype);
+    if(plugin) {
+        CodecInstance* codec = plugin->OpenString(data, mimetype);
+        if(codec) {
+            AutoDeleter<CodecInstance> deleter(codec); // We must dispose the codec instance after use
+            codec->LoadCurrentFrame(this);
+            result = true;
+        }
+    }
+    return result;
+}
+
+bool syBitmap::LoadFromBase64(const syString& data, const char* mimetype) {
+    syString rawdata = base64_decode(data); // Rawdata now contains the file as it would exist on disk.
+    return LoadFromString(data, mimetype);
+}
+
+
+syBitmap* syBitmap::FromString(const syString& data, const char* mimetype) {
+    syBitmap* bitmap = new syBitmap;
+    if(!bitmap->LoadFromString(data, mimetype)) {
+        delete bitmap;
+        bitmap = 0;
+    }
+    return bitmap;
+}
+
+syBitmap* syBitmap::FromBase64(const syString& data, const char* mimetype) {
+    syBitmap* bitmap = new syBitmap;
+    if(!bitmap->LoadFromBase64(data, mimetype)) {
         delete bitmap;
         bitmap = 0;
     }

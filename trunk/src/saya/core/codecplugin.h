@@ -30,30 +30,76 @@ class CodecInstance {
 
         CodecInstance();
         virtual ~CodecInstance() {}
+        /** @brief Opens a file for reading.
+         *  @return true on success; false otherwise.
+         */
         virtual bool OpenInput(const syString filename = syEmptyString) { return false; }
+
+        /** @brief Opens a memory buffer for reading.
+         *  @param buf The address of the memory buffer.
+         *  @param size The size of the memory buffer.
+         *  @param mimetype The mime type the buffer supposedly holds.
+         *  @return true on success; false otherwise.
+         *  @warning For security reasons, implementors MUST FAIL to read the file if the actual format does not match the given mimetype.
+         */
+        virtual bool OpenMemoryInput(const unsigned char* buf, unsigned int size, const char* mimetype) { return false; }
+
+        /** @brief Closes the input resource. */
         virtual void CloseInput() {}
 
+        /** @brief Opens a file for writing.
+         *  @return true on success; false otherwise,
+         */
         virtual bool OpenOutput(const syString filename = syEmptyString) { return false; }
+
+        /** @brief Closes the output file. */
         virtual void CloseOutput() {}
 
         // Input functions
 
+        /** Seeks the Video to a determinate position in time. */
         virtual avtime_t SeekVideo(avtime_t pos);
+
+        /** Seeks the Audio to a determinate position in time. */
         virtual avtime_t SeekAudio(avtime_t pos);
+
+        /** Gets the current position in time for the Video. */
         virtual avtime_t GetCurrentVideoTime();
+
+        /** Gets the current position in time for the Audio. */
         virtual avtime_t GetCurrentAudioTime();
 
+        /** Gets the total Video duration. */
         virtual avtime_t GetVideoLength();
+
+        /** Gets the total Audio duration. */
         virtual avtime_t GetAudioLength();
+
+        /** Gets the Video color format used to return the current file's video frame. */
         virtual VideoColorFormat GetColorFormat();
+
+        /** Gets the width in pixels of the current file. */
         virtual unsigned long GetWidth();
+
+        /** Gets the height in pixels of the current file. */
         virtual unsigned long GetHeight();
+
+        /** Gets the pixel aspect of the current file (default 1.0). */
         virtual float GetPixelAspect();
+
+        /** Gets the framerate for the current file, in case of a fixed framerate. */
         virtual float GetFramesPerSecond();
 
+        /** Gets the frame index (0-based) corresponding to a given time. */
         virtual unsigned long GetFrameIndex(avtime_t time);
+
+        /** Gets the time corresponding to a given frame index. */
         virtual avtime_t GetTimeFromFrameIndex(unsigned long frame, bool fromend = false);
+
+        /** Loads the current frame into a syBitmap. */
         virtual void LoadCurrentFrame(syBitmap* dest);
+
+        /** Loads the audio into a syAudioBuffer object. */
         virtual void LoadAudioBuffer(syAudioBuffer* dest, unsigned long numsamples = 0);
 
         // Output functions
@@ -139,6 +185,9 @@ class CodecPlugin {
         /** Finds the appropriate plugin for reading a specific file. */
         static CodecPlugin* FindReadPlugin(const char* filename);
 
+        /** Finds the appropriate plugin for reading a specific mimetype. It also supports extensions. */
+        static CodecPlugin* FindReadPluginByMimeType(const char* mimetype);
+
     public:
         virtual const char* GetPluginName() const { return ""; }
         virtual const char* GetPluginFullName() const { return ""; }
@@ -165,16 +214,33 @@ class CodecPlugin {
         /** Gets the supported Codec strings that this plugin can decode; separated by commas */
         virtual syString GetSupportedAudioWriteCodecs() { return ""; }
 
+        /** Gets the supported MIME types that this plugin can decode; separated by commas */
+        virtual syString GetSupportedMimeTypes() { return ""; }
+
         /** Tests if the codec can read the video and audio from the given filename. */
         virtual CodecReadingSkills CanReadFile(const syString& filename) { return CannotRead; }
 
-        /** Tests if the codec can read the video and audio from the given filename. */
+        /** Tests if the codec can write video and audio from the given filename. */
         virtual CodecWritingSkills CanWriteFile(const syString& filetype, const syString& videocodec, const syString& audiocodec) { return CannotWrite; }
+
+        /** Tests if the codec can read the video and audio from the given mime type. */
+        virtual CodecReadingSkills CanReadMimeType(const syString& mimetype) { return CannotRead; }
+
+        /** Tests if the codec can write video and audio from the given mime type. */
+        virtual CodecWritingSkills CanWriteMimeType(const syString& mimetype) { return CannotWrite; }
 
         /** Opens the given file for reading.
          *  @return A CodecInstance object dedicated to reading the file; 0 on failure.
          */
         virtual CodecInstance* OpenFile(const syString& filename) { return 0; }
+
+        /** Opens an in-memory file for reading.
+         *  @param data The string containing a binary image of the file.
+         *  @param mimetype The mime type of the file in question.
+         *  @return A CodecInstance object dedicated to reading the file; 0 on failure.
+         *  @warning For security reasons, implementors MUST FAIL to read a file if it doesn't match with the given mime type.
+         */
+        virtual CodecInstance* OpenString(const syString& data, const char* mimetype) { return 0; }
 
     protected:
 

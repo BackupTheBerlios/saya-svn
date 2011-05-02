@@ -14,6 +14,7 @@
 #include <saya/core/systringutils.h>
 #include <saya/core/debuglog.h>
 #include <QImageReader>
+#include <QBuffer>
 
 // ----------------------
 // begin syImgReaderCodec
@@ -25,6 +26,7 @@ class syImgReaderCodec : public CodecInstance {
         syImgReaderCodec(syImgReaderPlugin* parent, const syString& filename);
         virtual ~syImgReaderCodec();
         virtual bool OpenInput(const syString filename = syEmptyString);
+        virtual bool OpenMemoryInput(const unsigned char* buf, unsigned int size, const char* mimetype);
         virtual void CloseInput();
 
         virtual bool OpenOutput(const syString filename = syEmptyString) { return false; }
@@ -50,6 +52,7 @@ class syImgReaderCodec : public CodecInstance {
         syImgReaderPlugin* m_Parent;
         syString m_Filename;
         QImageReader* m_Reader;
+        QBuffer* m_Buffer;
         QImage* m_Image;
         volatile bool m_ImageLoaded;
         sySafeMutex m_Mutex;
@@ -60,6 +63,7 @@ syImgReaderCodec::syImgReaderCodec(syImgReaderPlugin* parent, const syString& fi
 m_Parent(parent),
 m_Filename(filename),
 m_Reader(new QImageReader()),
+m_Buffer(0),
 m_Image(0),
 m_ImageLoaded(0)
 {
@@ -75,6 +79,55 @@ syImgReaderCodec::~syImgReaderCodec() {
     m_Image = 0;
     delete m_Reader;
     m_Reader = 0;
+    delete m_Buffer;
+    m_Buffer = 0;
+}
+
+bool syImgReaderCodec::OpenMemoryInput(const unsigned char* buf, unsigned int size, const char* mimetype) {
+    bool result = false;
+    syString fileformat;
+    syString smimetype(mimetype, true);
+    if(smimetype == "image/gif") {
+        fileformat = "gif";
+    }
+    if(smimetype == "image/png") {
+        fileformat = "png";
+    } else if(smimetype == "image/jpeg") {
+        fileformat = "jpg";
+    } else if(smimetype == "image/bmp") {
+        fileformat = "bmp";
+    } else {
+        return false; // Unrecognized file format!
+    }
+
+    if(!m_Buffer) {
+        m_Buffer = new QBuffer;
+    }
+    m_Buffer->setData((const char*)buf,size);
+    if(!m_Reader) {
+        m_Reader = new QImageReader();
+    }
+    m_Reader->setDevice(m_Buffer);
+    result = m_Reader->canRead();
+    if(result) {
+        syString actual_format(QString(m_Reader->format()));
+        if(actual_format != fileformat) {
+            result = false;
+        }
+        if(m_Image) {
+            delete m_Image;
+        }
+        m_Image = new QImage(GetWidth(),GetHeight(),QImage::Format_RGB32);
+    }
+    if(!result) {
+        m_Reader->setDevice(0);
+        delete m_Reader;
+        m_Reader = 0;
+        delete m_Buffer;
+        m_Buffer = 0;
+        m_Filename.clear();
+    }
+    return result;
 }
 
 bool syImgReaderCodec::OpenInput(const syString filename) {
@@ -217,6 +270,21 @@ syString syImgReaderPlugin::GetSupportedVideoReadCodecs() { return ""; }
 syString syImgReaderPlugin::GetSupportedVideoWriteCodecs() { return ""; }
 syString syImgReaderPlugin::GetSupportedAudioReadCodecs() { return ""; }
 syString syImgReaderPlugin::GetSupportedAudioWriteCodecs() { return ""; }
+syString syImgReaderPlugin::GetSupportedMimeTypes() {
+    return "image/bmp,image/gif,image/png,image/jpeg";
+}
+
+CodecPlugin::CodecReadingSkills syImgReaderPlugin::CanReadMimeType(const syString& mimetype) {
+    CodecPlugin::CodecReadingSkills result = CannotRead;
+    syString s = strtolower(mimetype);
+    std::vector<syString> vec = explode(",",GetSupportedMimeTypes());
+    for(unsigned int i = 0; i < vec.size(); ++i) {
+        if(s == vec[i]) {
+            result = CanReadVideo;
+        }
+    }
+    return result;
+}
 
 CodecPlugin::CodecReadingSkills syImgReaderPlugin::CanReadFile(const syString& filename) {
     CodecPlugin::CodecReadingSkills result = CannotRead;

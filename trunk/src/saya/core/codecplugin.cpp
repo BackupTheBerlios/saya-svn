@@ -30,6 +30,7 @@ class CodecPluginFactory {
         CodecPluginFactoryMap m_FactoryMap;
         CodecPluginMap m_Map;
         CodecFileTypesMap m_FileTypesMap;
+        CodecFileTypesMap m_MimeTypesMap;
 
         ~CodecPluginFactory() {
             UnloadAllPlugins();
@@ -64,6 +65,9 @@ class CodecPluginFactory {
 
         /** Finds the appropriate plugin for reading a specific file. */
         static CodecPlugin* FindReadPlugin(const char* filename);
+
+        /** Finds the appropriate plugin for reading a specific mime type. */
+        static CodecPlugin* FindReadPluginByMimeType(const char* mimetype);
 
         /** Finds a codec plugin by name; returns null on failure. */
         static CodecPlugin* FindPlugin(const char* name);
@@ -174,9 +178,15 @@ void CodecPluginFactory::RegisterPluginCapabilities(CodecPlugin* plugin) {
         s_self = new CodecPluginFactory;
     }
     CodecFileTypesMap& themap = s_self->m_FileTypesMap;
+    CodecFileTypesMap& mimemap = s_self->m_MimeTypesMap;
+
     std::vector<syString> curfiletypes = explode(",",plugin->GetSupportedFileTypes());
     for(unsigned int i = 0, ii = curfiletypes.size(); i < ii; ++i) {
         themap[curfiletypes[i]].insert(plugin->GetPluginName());
+    }
+    curfiletypes = explode(",",plugin->GetSupportedMimeTypes());
+    for(unsigned int i = 0, ii = curfiletypes.size(); i < ii; ++i) {
+        mimemap[curfiletypes[i]].insert(plugin->GetPluginName());
     }
 }
 
@@ -204,8 +214,47 @@ CodecPlugin* CodecPluginFactory::FindReadPlugin(const char* filename) {
                     if(tmpskill > curskill) {
                         result = plugin;
                         curskill = tmpskill;
+                        if(curskill == CodecPlugin::CanReadBoth) {
+                            break;
+                        }
                     }
                 }
+            }
+            if(curskill == CodecPlugin::CanReadBoth) {
+                break;
+            }
+        }
+    }
+    return result;
+}
+
+CodecPlugin* CodecPluginFactory::FindReadPluginByMimeType(const char* mimetype) {
+    if(!s_self) {
+        s_self = new CodecPluginFactory;
+    }
+    CodecPlugin* result = 0;
+    CodecFileTypesMap& themap = s_self->m_MimeTypesMap;
+    CodecPlugin::CodecReadingSkills curskill = CodecPlugin::CannotRead;
+    syString smimetype(mimetype, true);
+    if(smimetype.length()) {
+        for(CodecFileTypesMap::iterator it = themap.find(smimetype); it != themap.end() && !result; ++it) {
+            CodecNamesSet& codecs = it->second;
+            for(CodecNamesSet::iterator it2 = codecs.begin();it2 != codecs.end(); ++it2) {
+                syString codecname = *it2;
+                CodecPlugin* plugin = CodecPluginFactory::FindPlugin(codecname.c_str());
+                if(plugin) {
+                    CodecPlugin::CodecReadingSkills tmpskill = plugin->CanReadMimeType(smimetype);
+                    if(tmpskill > curskill) {
+                        result = plugin;
+                        curskill = tmpskill;
+                        if(curskill == CodecPlugin::CanReadBoth) {
+                            break;
+                        }
+                    }
+                }
+            }
+            if(curskill == CodecPlugin::CanReadBoth) {
+                break;
             }
         }
     }
@@ -328,6 +377,9 @@ CodecPlugin* CodecPlugin::FindReadPlugin(const syString& filename) {
     return CodecPluginFactory::FindReadPlugin(filename.c_str());
 }
 
+CodecPlugin* CodecPlugin::FindReadPluginByMimeType(const char* mimetype) {
+    return CodecPluginFactory::FindReadPluginByMimeType(mimetype);
+}
 
 CodecInstance::CodecInstance():
 m_IsVideo(false),

@@ -69,6 +69,20 @@ class syBitmap : public syBitmapSink {
          */
         bool LoadFromFile(const syString& filename);
 
+        /** @brief Loads the bitmap from a file in memory, using the registered codec plugins as necessary.
+         *  @param data A syString object containing the data.
+         *  @param imageformat The MIME type to read; Also accepts file extensions.
+         *  @return true on success, false otherwise.
+         */
+        bool LoadFromString(const syString& data, const char* mimetype);
+
+        /** @brief Loads the bitmap from a base64-encoded string, using the registered codec plugins as necessary.
+         *  @param data A syString object containing the data in base64 format.
+         *  @param imageformat The MIME type to read; Also accepts file extensions.
+         *  @return true on success, false otherwise.
+         */
+        bool LoadFromBase64(const syString& data, const char* mimetype);
+
         /** @brief Creates a bitmap from a file, using the registered codec plugins as necessary.
          *  @return Pointer to a bitmap if successful; null otherwise.
          */
@@ -78,6 +92,20 @@ class syBitmap : public syBitmapSink {
          *  @return Pointer to a bitmap if successful; null otherwise.
          */
         static syBitmap* FromFile(const syString& filename);
+
+        /** @brief Creates a bitmap from a file in memory, using the registered codec plugins as necessary.
+         *  @param data A syString object containing the data.
+         *  @param mimetype The MIME type to read; Also accepts file extensions.
+         *  @return Pointer to a bitmap if successful; null otherwise.
+         */
+        static syBitmap* FromString(const syString& data, const char* mimetype);
+
+        /** @brief Loads the bitmap from a base64-encoded string, using the registered codec plugins as necessary.
+         *  @param data A syString object containing the data in base64 format.
+         *  @param imageformat The MIME type to read; Also accepts file extensions.
+         *  @return Pointer to a bitmap if successful; null otherwise.
+         */
+        static syBitmap* FromBase64(const syString& data, const char* mimetype);
 
         /** Pastes from another bitmap, resizing if necessary */
         void PasteFrom(const syBitmap* source,syStretchMode stretchmode = sy_stkeepaspectratio);
