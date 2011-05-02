@@ -573,6 +573,21 @@ void syBitmap::PasteFrom(const syBitmap* source,syStretchMode stretchmode) {
     }while(false);
 }
 
+bool syBitmap::ExchangeWith(syBitmap* other) {
+    if(!this || !other) {
+        return false;
+    }
+    bool result = false;
+    sySafeMutexLocker lock1(*m_Mutex, m_Data->m_Aborter);
+    sySafeMutexLocker lock2(*(other->m_Mutex), other->m_Data->m_Aborter);
+    if(lock1.IsLocked() && lock2.IsLocked()) {
+        Data* tmpdata = other->m_Data;
+        other->m_Data = m_Data;
+        m_Data = tmpdata;
+    }
+    return result;
+}
+
 bool syBitmap::MustAbort() {
     if(m_Data->m_Aborter) {
         return m_Data->m_Aborter->MustAbort();
@@ -765,7 +780,7 @@ bool syBitmap::LoadFromString(const syString& data, const char* mimetype) {
 
 bool syBitmap::LoadFromBase64(const syString& data, const char* mimetype) {
     syString rawdata = base64_decode(data); // Rawdata now contains the file as it would exist on disk.
-    return LoadFromString(data, mimetype);
+    return LoadFromString(rawdata, mimetype);
 }
 
 

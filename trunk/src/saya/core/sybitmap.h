@@ -110,6 +110,13 @@ class syBitmap : public syBitmapSink {
         /** Pastes from another bitmap, resizing if necessary */
         void PasteFrom(const syBitmap* source,syStretchMode stretchmode = sy_stkeepaspectratio);
 
+        /** @brief Exchanges data with another bitmap.
+         *  For the bitmaps to be exchanged successfully, both bitmaps' mutexes must be either unlocked or belonging to this thread.
+         *  @param other The bitmap to exchange data with.
+         *  @return true on success; false on failure.
+         */
+        bool ExchangeWith(syBitmap* other);
+
         /** Returns a pointer to the Buffer being used */
         unsigned char* GetBuffer();
 
