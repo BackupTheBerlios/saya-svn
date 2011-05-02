@@ -18,7 +18,7 @@ class BitmapDialog : public QDialog
 {
     public:
         BitmapDialog(QWidget *parent = 0);
-        void SetBitmap(const syBitmap* src);
+        void LoadBitmap(const syBitmap* src);
         virtual ~BitmapDialog();
     private:
         class Data;

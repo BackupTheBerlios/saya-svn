@@ -90,18 +90,13 @@ void ProjectPane::Data::OnItemDoubleClicked(QListWidgetItem* listitem) {
     if(item) {
         AVResource* res = item->GetResource();
         if(res) {
-            CodecPlugin* tmpplugin = CodecPlugin::FindReadPlugin(res->m_Filename.c_str());
-            if(tmpplugin) {
-                DebugLog("Plugin found!");
-                CodecInstance* codec = tmpplugin->OpenFile(res->m_Filename);
-                if(codec) {
-                    syBitmap bitmap;
-                    codec->LoadCurrentFrame(&bitmap);
-                    BitmapDialog* dialog = new BitmapDialog();
-                    dialog->setWindowTitle(res->m_RelativeFilename);
-                    dialog->SetBitmap(&bitmap);
-                    dialog->show();
-                }
+            syBitmap bitmap;
+            if(bitmap.LoadFromFile(res->m_Filename)) {
+                BitmapDialog* dialog = new BitmapDialog();
+                dialog->setWindowTitle(res->m_RelativeFilename);
+                dialog->LoadBitmap(&bitmap);
+                dialog->setModal(true);
+                dialog->show();
             }
         }
     }

@@ -24,6 +24,7 @@
 
 class syBitmap;
 class sySafeMutex;
+class syString;
 
 /** Stretching strategy for pasting bitmaps */
 enum syStretchMode {
@@ -56,7 +57,27 @@ class syBitmap : public syBitmapSink {
         void CopyFrom(const syBitmap* source);
 
         /** Makes a copy of another syBitmap. */
-        virtual void LoadData(const syBitmap* bitmap);
+        void LoadData(const syBitmap* bitmap);
+
+        /** @brief Loads the bitmap from a file, using the registered codec plugins as necessary.
+         *  @return true on success, false otherwise.
+         */
+        bool LoadFromFile(const char* filename);
+
+        /** @brief Loads the bitmap from a file, using the registered codec plugins as necessary.
+         *  @return true on success, false otherwise.
+         */
+        bool LoadFromFile(const syString& filename);
+
+        /** @brief Creates a bitmap from a file, using the registered codec plugins as necessary.
+         *  @return Pointer to a bitmap if successful; null otherwise.
+         */
+        static syBitmap* FromFile(const char* filename);
+
+        /** @brief Creates a bitmap from a file, using the registered codec plugins as necessary.
+         *  @return Pointer to a bitmap if successful; null otherwise.
+         */
+        static syBitmap* FromFile(const syString& filename);
 
         /** Pastes from another bitmap, resizing if necessary */
         void PasteFrom(const syBitmap* source,syStretchMode stretchmode = sy_stkeepaspectratio);

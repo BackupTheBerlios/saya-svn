@@ -19,6 +19,8 @@
 #include "sythread.h"
 #include "sybitmap.h"
 #include "sybitmapcopier.h"
+#include "codecplugin.h"
+#include "sentryfuncs.h"
 #include <math.h>
 #include <cstddef>
 
@@ -713,3 +715,35 @@ void syBitmap::LoadData(const syBitmap* bitmap) {
     CopyFrom(bitmap);
 }
 
+// For reading a bitmap from a file
+
+bool syBitmap::LoadFromFile(const char* filename) {
+    return LoadFromFile(syString(filename, true));
+}
+
+bool syBitmap::LoadFromFile(const syString& filename) {
+    bool result = false;
+    CodecPlugin* plugin = CodecPlugin::FindReadPlugin(filename);
+    if(plugin) {
+        CodecInstance* codec = plugin->OpenFile(filename);
+        if(codec) {
+            AutoDeleter<CodecInstance> deleter(codec); // We must dispose the codec instance after use
+            codec->LoadCurrentFrame(this);
+            result = true;
+        }
+    }
+    return result;
+}
+
+syBitmap* syBitmap::FromFile(const char* filename) {
+    return syBitmap::FromFile(syString(filename, true));
+}
+
+syBitmap* syBitmap::FromFile(const syString& filename) {
+    syBitmap* bitmap = new syBitmap;
+    if(!bitmap->LoadFromFile(filename)) {
+        delete bitmap;
+        bitmap = 0;
+    }
+    return bitmap;
+}

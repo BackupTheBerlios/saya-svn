@@ -10,6 +10,18 @@
 #ifndef sentryfuncs_h
 #define sentryfuncs_h
 
+template<class T> class AutoDeleter {
+    public:
+        AutoDeleter(T* obj):m_Obj(obj) {}
+        ~AutoDeleter() {
+            delete m_Obj;
+            m_Obj = 0;
+        }
+    private:
+        T* m_Obj;
+};
+
+
 /** @brief Class that sets a flag to a specific value during its lifetime. */
 class syBoolSetter {
     public:
