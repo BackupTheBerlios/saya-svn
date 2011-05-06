@@ -120,6 +120,9 @@
 			<Option weight="10" />
 		</Unit>
 		<Unit filename="saya/core/filevid.h" />
+		<Unit filename="saya/core/imagefilters.cpp" />
+		<Unit filename="saya/core/imagefilters.h" />
+		<Unit filename="saya/core/imageresampler.h" />
 		<Unit filename="saya/core/intl.h" />
 		<Unit filename="saya/core/iocommon.cpp">
 			<Option weight="10" />
@@ -151,6 +154,8 @@
 		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/msftc/x86.h" />
 		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/ordered.h" />
 		<Unit filename="saya/core/qprof/atomic_ops/sysdeps/ordered_except_wr.h" />
+		<Unit filename="saya/core/resampler/resampler.cpp" />
+		<Unit filename="saya/core/resampler/resampler.h" />
 		<Unit filename="saya/core/sentryfuncs.cpp">
 			<Option weight="10" />
 		</Unit>

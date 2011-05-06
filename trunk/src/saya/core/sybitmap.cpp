@@ -22,6 +22,7 @@
 #include "codecplugin.h"
 #include "sentryfuncs.h"
 #include "base64.h"
+#include "resampler/resampler.h"
 #include <math.h>
 #include <cstddef>
 
@@ -453,6 +454,23 @@ void syBitmap::CopyFrom(const syBitmap* source) {
     CopyFrom(original_buffer, source->GetWidth(),source->GetHeight(),source->GetColorFormat(),source->GetBufferLength());
 }
 
+void syBitmap::ResampleFrom(const syBitmap* source, syResampleMode resamplemode) {
+    const char* filtername = Resampler::get_filter_name(resamplemode);
+    if(!filtername) {
+        return PasteFrom(source, sy_stkeepaspectratio); // Unknown filter. Use nearest-neighbor.
+    }
+
+   if (m_Data->m_Width > RESAMPLER_MAX_DIMENSION || m_Data->m_Height > RESAMPLER_MAX_DIMENSION) {
+       return PasteFrom(source, sy_stkeepaspectratio); // Image too large. Use nearest-neighbor.
+
+   }
+
+   // Allocate memory for the operation.
+
+
+
+}
+
 void syBitmap::PasteFrom(const syBitmap* source,syStretchMode stretchmode) {
     if(!source || !source->GetReadOnlyBuffer()) {
         return;
@@ -578,12 +596,17 @@ bool syBitmap::ExchangeWith(syBitmap* other) {
         return false;
     }
     bool result = false;
-    sySafeMutexLocker lock1(*m_Mutex, m_Data->m_Aborter);
-    sySafeMutexLocker lock2(*(other->m_Mutex), other->m_Data->m_Aborter);
+    syAborter* aborter1 = m_Data->m_Aborter;
+    syAborter* aborter2 = other->m_Data->m_Aborter;
+    sySafeMutexLocker lock1(*m_Mutex, aborter1);
+    sySafeMutexLocker lock2(*(other->m_Mutex), aborter1);
     if(lock1.IsLocked() && lock2.IsLocked()) {
         Data* tmpdata = other->m_Data;
         other->m_Data = m_Data;
         m_Data = tmpdata;
+        other->m_Data->m_Aborter = aborter2;
+        m_Data->m_Aborter = aborter1;
+        result = true;
     }
     return result;
 }

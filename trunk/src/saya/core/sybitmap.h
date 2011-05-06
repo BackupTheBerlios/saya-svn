@@ -35,6 +35,7 @@ enum syStretchMode {
     sy_ststretch /** Full stretching/resizing of the original */
 };
 
+
 class syBitmap : public syBitmapSink {
     public:
 
@@ -55,6 +56,9 @@ class syBitmap : public syBitmapSink {
 
         /** Makes a copy of another syBitmap */
         void CopyFrom(const syBitmap* source);
+
+        /** Resamples from another bitmap using the given resample algorithm. */
+        void ResampleFrom(const syBitmap* source, syResampleMode resamplemode = sy_rslanczos4);
 
         /** Makes a copy of another syBitmap. */
         void LoadData(const syBitmap* bitmap);
