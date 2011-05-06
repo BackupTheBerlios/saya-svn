@@ -21,6 +21,7 @@
 #include "aborter.h"
 #include "sybitmapsink.h"
 #include "videocolorformat.h"
+#include "imagefilters.h"
 
 class syBitmap;
 class sySafeMutex;
@@ -58,7 +59,7 @@ class syBitmap : public syBitmapSink {
         void CopyFrom(const syBitmap* source);
 
         /** Resamples from another bitmap using the given resample algorithm. */
-        void ResampleFrom(const syBitmap* source, syResampleMode resamplemode = sy_rslanczos4);
+        void ResampleFrom(const syBitmap* source, syFilterType resamplemode = filter_lanczos4);
 
         /** Makes a copy of another syBitmap. */
         void LoadData(const syBitmap* bitmap);

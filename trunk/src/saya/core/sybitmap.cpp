@@ -454,7 +454,7 @@ void syBitmap::CopyFrom(const syBitmap* source) {
     CopyFrom(original_buffer, source->GetWidth(),source->GetHeight(),source->GetColorFormat(),source->GetBufferLength());
 }
 
-void syBitmap::ResampleFrom(const syBitmap* source, syResampleMode resamplemode) {
+void syBitmap::ResampleFrom(const syBitmap* source, syFilterType resamplemode) {
     const char* filtername = Resampler::get_filter_name(resamplemode);
     if(!filtername) {
         return PasteFrom(source, sy_stkeepaspectratio); // Unknown filter. Use nearest-neighbor.

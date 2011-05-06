@@ -13,8 +13,69 @@
 #define sybitmapcopier_h
 
 #include "videocolorformat.h"
+#include "imagefilters.h"
+#include <cmath>
 
 class syBitmap;
+
+class syFloatPixel {
+    public:
+        double r;
+        double g;
+        double b;
+        double a;
+        syFloatPixel(double r0 = 0,double g0 = 0, double b0 = 0, double a0 = 0) : r(r0),g(g0),b(b0),a(a0) {}
+
+        inline void fromRGBAValues(unsigned long r0 = 0,unsigned long g0 = 0, unsigned long b0 = 0, unsigned long a0 = 0) {
+            r = pixeltofloat(r0);
+            g = pixeltofloat(g0);
+            b = pixeltofloat(b0);
+            a = pixeltofloat(a0);
+        }
+
+        inline void fromRGBA(unsigned long pixel) {
+            fromRGBAValues(pixel >> 24, pixel >> 16, pixel >> 8, pixel);
+        }
+
+        syFloatPixel(unsigned long r0,unsigned long g0, unsigned long b0, unsigned long a0) {
+            fromRGBAValues(r0,g0,b0,a0);
+        }
+        syFloatPixel(unsigned long pixel) {
+            fromRGBA(pixel);
+        }
+
+        inline double truncate(double d) {
+            if(d < 0) {
+                d = 0;
+            } else if(d > 1.0) {
+                d = 1.0;
+            }
+            return d;
+        };
+
+        inline unsigned long floattopixel(double d) {
+            return (unsigned long)(truncate(d)*255.0);
+        }
+
+        inline double pixeltofloat(unsigned long p) {
+            return truncate((double)(p & 0xFF)/255.0d);
+        }
+
+        inline unsigned long toRGBA() {
+            unsigned long result;
+            r = truncate(r);
+            g = truncate(g);
+            b = truncate(b);
+            a = truncate(a);
+            if(r < 0) { r = 0; }
+            result = (floattopixel(a) << 24) | (floattopixel(b) << 24) | (floattopixel(g) << 24) | (floattopixel(r));
+            return result;
+        }
+
+};
+
+
+
 
 /** @brief Optimized bitmap pixel copier.
   *
@@ -147,6 +208,18 @@ class syBitmapCopier {
          *  @return The pixel converted to the new color format
          */
         static unsigned long ConvertPixel(unsigned long pixel,VideoColorFormat sourcefmt,VideoColorFormat destfmt);
+
+        /** @brief Resamples a Row from a bitmap into a floating-point pixel row.
+         *  @param src Pointer to a row in the source bitmap
+         *  @param dst Pointer to a row in the destination buffer
+         *  @param srcwidth The width, in pixels, of the source
+         *  @param dstwidth The width, in pixels, of the destination
+         *  @param filtertype The filter to apply when resampling.
+         */
+        static void ResampleRow(const unsigned char* src, syFloatPixel* dst, unsigned long srcwidth, unsigned long dstwidth, syFilterType filtertype);
+
+        /** @brief Resamples a Column from a floating-point pixel buffer into the destination bitmap. */
+        static void ResampleCol(syFloatPixel* src, unsigned char* dst, unsigned long srcwidth, unsigned long srcheight, unsigned long dstwidth, unsigned long dstheight, syFilterType filtertype);
 };
 
 inline void syBitmapCopier::CopyPixel() {
