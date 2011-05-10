@@ -12,7 +12,32 @@
 #include "sybitmapcopier.h"
 #include "sybitmap.h"
 
-void syBitmapCopier::Init(const syBitmap *sourcebmp, syBitmap *destbmp) {
+bool syPixelContribBuffer::AddWeight(int sourcex,int destx,double weight) {
+    if(m_Size >= m_Capacity) {
+        return false;
+    }
+    syPixelContrib* pixel = &pixels[m_Size];
+    pixel->srcx = sourcex;
+    pixel->dstx = destx;
+    pixel->weight = weight;
+    ++m_Size;
+    return true;
+}
+
+void syPixelContribBuffer::Clear() {
+    m_Size = 0;
+}
+
+syBitmapCopier::syBitmapCopier() :
+m_SourceBitmap(0),
+m_DestBitmap(0),
+m_Src(0),
+m_Dst(0),
+m_XContrib(0),
+m_YContrib(0)
+{}
+
+void syBitmapCopier::Init(const syBitmap *sourcebmp, syBitmap *destbmp, syFilterType filtertype) {
     if(!sourcebmp || !destbmp) { return; }
     m_SourceBitmap = sourcebmp;
     m_DestBitmap = destbmp;
@@ -30,6 +55,71 @@ void syBitmapCopier::Init(const syBitmap *sourcebmp, syBitmap *destbmp) {
     m_DestRowLength = destbmp->GetBytesPerLine();
     m_SourceBufferLength = sourcebmp->GetBufferLength();
     m_DestBufferLength = destbmp->GetBufferLength();
+    if(m_XContrib) {
+        delete m_XContrib;
+        m_XContrib = 0;
+    }
+    if(m_YContrib) {
+        delete m_YContrib;
+        m_YContrib = 0;
+    }
+    if(m_DestWidth == m_SourceWidth && m_DestHeight == m_SourceHeight) {
+        m_EffectiveDestHeight = m_DestHeight;
+        m_EffectiveDestWidth = m_DestWidth;
+        m_XScale = 1.0;
+        m_YScale = 1.0;
+        m_DestX0 = 0;
+        m_DestY0 = 0;
+    } else {
+        // Scale and keep aspect ratio
+        double xscale = ((double)m_DestWidth) / m_SourceWidth;
+        double yscale = ((double)m_DestHeight) / m_SourceHeight;
+        if(yscale < xscale) { // Pick the smallest scale so that everything fits inside
+            xscale = yscale;
+            m_EffectiveDestWidth = (unsigned int)(m_SourceWidth / xscale);
+            if(m_EffectiveDestWidth > m_DestWidth) {
+                m_EffectiveDestWidth = m_DestWidth;
+            }
+        } else {
+            yscale = xscale;
+            m_EffectiveDestHeight = (unsigned int)(m_SourceHeight / yscale);
+            if(m_EffectiveDestHeight > m_DestHeight) {
+                m_EffectiveDestHeight = m_DestHeight;
+            }
+        }
+        m_XScale = xscale;
+        m_YScale = yscale;
+        m_DestX0 = (m_DestWidth - m_EffectiveDestWidth)/2;
+        m_DestY0 = (m_DestHeight - m_EffectiveDestHeight)/2;
+        m_XContrib = 0;
+        m_YContrib = 0;
+
+        if(filtertype == filter_none) {
+            m_Filter = 0;
+        } else {
+            m_Filter = syImageFilter::Create(filtertype);
+            InitContribBuffers();
+        }
+    }
+
+}
+
+void syBitmapCopier::InitContribBuffers() {
+    if(!m_Filter) {
+        return;
+    }
+    if(m_XContrib) {
+        delete m_XContrib;
+        m_XContrib = 0;
+    }
+    if(m_YContrib) {
+        delete m_YContrib;
+        m_YContrib = 0;
+    }
+    m_XContrib = new syPixelContribBuffer(2*(unsigned int)(1.0d+m_Filter->GetWidth()*m_DestWidth));
+    m_YContrib = new syPixelContribBuffer(2*(unsigned int)(1.0d+m_Filter->GetWidth()*m_DestHeight));
+
+    // TODO: Calculate contributions
 }
 
 void syBitmapCopier::Reset() {
@@ -75,4 +165,20 @@ unsigned long syBitmapCopier::ConvertPixel(unsigned long pixel,VideoColorFormat 
 
     // TODO: Implement non-trivial cases in syBitmap::ConvertPixel
     return pixel;
+}
+
+void syBitmapCopier::ResampleRow(const unsigned char* src, syFloatPixel* dst, syFilterType filtertype) {
+    if(m_SourceWidth == m_DestWidth) {
+        const unsigned long* srcrgba = (const unsigned long*)src;
+        for(unsigned int i = 0; i < m_SourceWidth; ++i) {
+            dst[i].fromRGBA(ConvertPixel(srcrgba[i], m_SourceFmt,vcfRGB32));
+        }
+    } else {
+
+    }
+
+}
+
+/** @brief Resamples a Column from a floating-point pixel buffer into the destination bitmap. */
+void syBitmapCopier::ResampleCol(syFloatPixel* src, unsigned char* dst, syFilterType filtertype) {
 }

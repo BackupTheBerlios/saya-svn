@@ -44,7 +44,7 @@ class syFloatPixel {
             fromRGBA(pixel);
         }
 
-        inline double truncate(double d) {
+        static inline double truncate(double d) {
             if(d < 0) {
                 d = 0;
             } else if(d > 1.0) {
@@ -53,11 +53,11 @@ class syFloatPixel {
             return d;
         };
 
-        inline unsigned long floattopixel(double d) {
+        static inline unsigned long floattopixel(double d) {
             return (unsigned long)(truncate(d)*255.0);
         }
 
-        inline double pixeltofloat(unsigned long p) {
+        static inline double pixeltofloat(unsigned long p) {
             return truncate((double)(p & 0xFF)/255.0d);
         }
 
@@ -68,10 +68,29 @@ class syFloatPixel {
             b = truncate(b);
             a = truncate(a);
             if(r < 0) { r = 0; }
-            result = (floattopixel(a) << 24) | (floattopixel(b) << 24) | (floattopixel(g) << 24) | (floattopixel(r));
+            result = (floattopixel(a) << 24) | (floattopixel(b) << 16) | (floattopixel(g) << 8) | (floattopixel(r));
             return result;
         }
 
+};
+
+class syPixelContrib {
+    public:
+        int srcx;
+        int dstx;
+        double weight;
+};
+
+class syPixelContribBuffer {
+    public:
+        syPixelContribBuffer(unsigned long sizeinpixels) : m_Capacity(sizeinpixels),m_Size(0),pixels(new syPixelContrib[sizeinpixels]) {}
+        ~syPixelContribBuffer() { delete[] pixels;pixels = 0; }
+        /** Returns false if ran out of space */
+        bool AddWeight(int sourcex,int destx,double weight);
+        void Clear();
+        unsigned long m_Capacity;
+        unsigned long m_Size;
+        syPixelContrib* pixels;
 };
 
 
@@ -86,8 +105,9 @@ class syFloatPixel {
   */
 class syBitmapCopier {
     public:
+        syBitmapCopier();
         /** Initializes the member variables to perform the batch copying */
-        void Init(const syBitmap *sourcebmp, syBitmap *destbmp);
+        void Init(const syBitmap *sourcebmp, syBitmap *destbmp, syFilterType filtertype = filter_none);
 
         /** Resets m_Src and m_Dst to the bitmaps original addresses */
         void Reset();
@@ -189,6 +209,18 @@ class syBitmapCopier {
         /** Destination Height obtained by Init(). Kept public to allow external modification. */
         unsigned int m_DestHeight;
 
+        /** Effective Destination Width that keeps the aspect ratio. */
+        unsigned int m_EffectiveDestWidth;
+
+        /** Effective Destination Height that keeps the aspect ratio. */
+        unsigned int m_EffectiveDestHeight;
+
+        /** Effective X Scale obtained by Init(). */
+        double m_XScale;
+
+        /** Effective Y Scale obtained by Init(). */
+        double m_YScale;
+
         /** Source Row Length, in bytes, obtained by Init(). Kept public to allow external modification. */
         unsigned int m_SourceRowLength;
 
@@ -200,6 +232,20 @@ class syBitmapCopier {
 
         /** Destination buffer length (not size) in bytes */
         unsigned int m_DestBufferLength;
+
+        /** Destination pixel's x coordinates corresponding to source pixel (0,0) (for resampling). */
+        unsigned int m_DestX0;
+
+        /** Destination pixel's y coordinates corresponding to source pixel (0,0) (for resampling). */
+        unsigned int m_DestY0;
+
+        /** Filter for resampling */
+        syImageFilter* m_Filter;
+
+        /** Contribution Destination buffer length (not size) in bytes */
+        syPixelContribBuffer *m_XContrib, *m_YContrib;
+
+        void InitContribBuffers();
 
         /** @brief Converts a pixel between two color formats.
          *  @param pixel The original pixel
@@ -216,10 +262,10 @@ class syBitmapCopier {
          *  @param dstwidth The width, in pixels, of the destination
          *  @param filtertype The filter to apply when resampling.
          */
-        static void ResampleRow(const unsigned char* src, syFloatPixel* dst, unsigned long srcwidth, unsigned long dstwidth, syFilterType filtertype);
+        void ResampleRow(const unsigned char* src, syFloatPixel* dst, syFilterType filtertype);
 
         /** @brief Resamples a Column from a floating-point pixel buffer into the destination bitmap. */
-        static void ResampleCol(syFloatPixel* src, unsigned char* dst, unsigned long srcwidth, unsigned long srcheight, unsigned long dstwidth, unsigned long dstheight, syFilterType filtertype);
+        void ResampleCol(syFloatPixel* src, unsigned char* dst, syFilterType filtertype);
 };
 
 inline void syBitmapCopier::CopyPixel() {
