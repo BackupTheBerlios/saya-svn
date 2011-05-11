@@ -116,10 +116,97 @@ void syBitmapCopier::InitContribBuffers() {
         delete m_YContrib;
         m_YContrib = 0;
     }
-    m_XContrib = new syPixelContribBuffer(2*(unsigned int)(1.0d+m_Filter->GetWidth()*m_DestWidth));
-    m_YContrib = new syPixelContribBuffer(2*(unsigned int)(1.0d+m_Filter->GetWidth()*m_DestHeight));
+    int fullfilterwidth = (int)(ceil(m_Filter->GetWidth())*2+1);
+    m_XContrib = new syPixelContribBuffer(fullfilterwidth*m_EffectiveDestWidth);
+    m_YContrib = new syPixelContribBuffer(fullfilterwidth*m_EffectiveDestHeight);
 
-    // TODO: Calculate contributions
+    // Calculating X contributions
+
+    double xdiff = 1/m_XScale;
+    double filter_scale = 1.0; // Used for calculating the weights.
+    if(m_XScale < 1.0) { // Downsampling
+            filter_scale = m_XScale;
+    }
+
+    double center = m_DestX0/m_XScale;
+    for(unsigned int x = m_DestX0; x < m_DestX0 + m_EffectiveDestWidth; ++x,center+=xdiff) {
+        int left = (int)floor(center - m_Filter->GetWidth()); // It's actually the half-width; This is, the filter's radius
+        if(left < 0) { left = 0; }
+        int right = (int)floor(center + m_Filter->GetWidth());
+        if(right >= (int)m_SourceWidth) { right = m_SourceWidth - 1; }
+
+        // Check if we're taking samples outside the sliding window
+        if(right - left >= fullfilterwidth) {
+            // Either we increment left, or decrease right.
+            // First, check if incrementing the left limit would pass the center of the source image
+            if(left + 1 <= (int)m_SourceWidth / 2) {
+                ++left;
+            } else {
+                --right;
+            }
+        }
+        double weight_sum = 0; // For normalization
+        int weight_count = 0;
+        int srcx;
+        for(srcx = left; srcx <= right; ++srcx) {
+            double deltax = center - (double)srcx;
+            double curweight = filter_scale * m_Filter->Filter(filter_scale * deltax);
+            weight_sum += curweight;
+            if(m_XContrib->AddWeight(srcx,x,curweight)) {
+                ++weight_count;
+            }
+        }
+        // Normalize the weights
+        if(weight_sum > 0.000000001) { // We use a minimum to differentiate from zero
+            for(int i = 1; i <= weight_count; ++i) {
+                m_XContrib->pixels[m_XContrib->m_Size - i].weight /= weight_sum;
+            }
+        }
+    }
+
+    // Calculating Y contributions
+
+    double ydiff = 1/m_XScale;
+    filter_scale = 1.0; // Used for calculating the weights.
+    if(m_YScale < 1.0) { // Downsampling
+            filter_scale = m_YScale;
+    }
+
+    center = m_DestY0/m_YScale;
+    for(unsigned int y = m_DestY0; y < m_DestY0 + m_EffectiveDestHeight; ++y,center+=ydiff) {
+        int top = (int)floor(center - m_Filter->GetWidth()); // It's actually the half-width; This is, the filter's radius
+        if(top < 0) { top = 0; }
+        int bottom = (int)floor(center + m_Filter->GetWidth());
+        if(bottom >= (int)m_SourceHeight) { bottom = m_SourceHeight - 1; }
+
+        // Check if we're taking samples outside the sliding window
+        if(bottom - top >= fullfilterwidth) {
+            // Either we increment top, or decrease bottom.
+            // First, check if incrementing the top limit would pass the center of the source image
+            if(top + 1 <= (int)m_SourceHeight / 2) {
+                ++top;
+            } else {
+                --bottom;
+            }
+        }
+        double weight_sum = 0; // For normalization
+        int weight_count = 0;
+        int srcy;
+        for(srcy = top; srcy <= bottom; ++srcy) {
+            double deltay = center - (double)srcy;
+            double curweight = filter_scale * m_Filter->Filter(filter_scale * deltay);
+            weight_sum += curweight;
+            if(m_YContrib->AddWeight(srcy,y,curweight)) {
+                ++weight_count;
+            }
+        }
+        // Normalize the weights
+        if(weight_sum > 0.000000001) { // We use a minimum to differentiate from zero
+            for(int i = 1; i <= weight_count; ++i) {
+                m_YContrib->pixels[m_YContrib->m_Size - i].weight /= weight_sum;
+            }
+        }
+    }
 }
 
 void syBitmapCopier::Reset() {
