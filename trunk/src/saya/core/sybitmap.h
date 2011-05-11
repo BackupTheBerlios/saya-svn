@@ -190,6 +190,9 @@ class syBitmap : public syBitmapSink {
          */
         unsigned char* GetPixelAddr(int x, int y);
 
+        /** @brief returns pixel at (0,x) given the row at rowaddr */
+        unsigned long GetPixel(const unsigned char* rowaddr, int x) const;
+
         /** @brief Returns a const pointer to the pixel corresponding to the specified coordinates
          *  @param x The column (zero-based)
          *  @param y The row (zero-based)

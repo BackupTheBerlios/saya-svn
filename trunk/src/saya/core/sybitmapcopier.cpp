@@ -159,7 +159,7 @@ void syBitmapCopier::InitContribBuffers() {
         // Normalize the weights
         if(weight_sum > 0.000000001) { // We use a minimum to differentiate from zero
             for(int i = 1; i <= weight_count; ++i) {
-                m_XContrib->pixels[m_XContrib->m_Size - i].weight /= weight_sum;
+                m_XContrib->pixels[m_XContrib->size() - i].weight /= weight_sum;
             }
         }
     }
@@ -203,7 +203,7 @@ void syBitmapCopier::InitContribBuffers() {
         // Normalize the weights
         if(weight_sum > 0.000000001) { // We use a minimum to differentiate from zero
             for(int i = 1; i <= weight_count; ++i) {
-                m_YContrib->pixels[m_YContrib->m_Size - i].weight /= weight_sum;
+                m_YContrib->pixels[m_YContrib->size() - i].weight /= weight_sum;
             }
         }
     }
@@ -255,15 +255,32 @@ unsigned long syBitmapCopier::ConvertPixel(unsigned long pixel,VideoColorFormat 
 }
 
 void syBitmapCopier::ResampleRow(const unsigned char* src, syFloatPixel* dst, syFilterType filtertype) {
+    unsigned int i;
     if(m_SourceWidth == m_DestWidth) {
         const unsigned long* srcrgba = (const unsigned long*)src;
-        for(unsigned int i = 0; i < m_SourceWidth; ++i) {
+        for(i = 0; i < m_SourceWidth; ++i) {
             dst[i].fromRGBA(ConvertPixel(srcrgba[i], m_SourceFmt,vcfRGB32));
         }
-    } else {
+    } else if(m_XContrib) {
+        // Clear destination buffer
+        for(i = 0; i < m_DestWidth; ++i) {
+            dst[i].clear();
+        }
 
+        // First we iterate over the source row and convert all the pixels to float.
+        syFloatPixel floatpixels[m_SourceWidth];
+        for(i = 0; i < m_SourceWidth; ++i) {
+            floatpixels[i].fromRGBA(syBitmap::ConvertPixel(m_SourceBitmap->GetPixel(src,i),m_SourceFmt,vcfRGB32));
+        }
+
+        // Now we iterate over the contrib buffer and resample each pixel.
+        for(i = 0; i < m_XContrib->size();++i) {
+            syPixelContrib* contrib = &m_XContrib->pixels[i];
+            if(contrib->srcx >= 0 && contrib->srcx < (int)m_SourceWidth) {
+                dst[contrib->dstx].MultiplyAndAdd(floatpixels[contrib->srcx],contrib->weight);
+            }
+        }
     }
-
 }
 
 /** @brief Resamples a Column from a floating-point pixel buffer into the destination bitmap. */

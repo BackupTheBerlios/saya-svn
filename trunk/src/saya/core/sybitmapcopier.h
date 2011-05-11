@@ -37,6 +37,10 @@ class syFloatPixel {
             fromRGBAValues(pixel >> 24, pixel >> 16, pixel >> 8, pixel);
         }
 
+        inline void clear() {
+            r = g = b = a = 0;
+        }
+
         syFloatPixel(unsigned long r0,unsigned long g0, unsigned long b0, unsigned long a0) {
             fromRGBAValues(r0,g0,b0,a0);
         }
@@ -72,6 +76,13 @@ class syFloatPixel {
             return result;
         }
 
+        inline void MultiplyAndAdd(const syFloatPixel& sourcepixel, double weight) {
+            r+=sourcepixel.r*weight;
+            g+=sourcepixel.g*weight;
+            b+=sourcepixel.b*weight;
+            a+=sourcepixel.a*weight;
+        }
+
 };
 
 class syPixelContrib {
@@ -88,9 +99,18 @@ class syPixelContribBuffer {
         /** Returns false if ran out of space */
         bool AddWeight(int sourcex,int destx,double weight);
         void Clear();
+        inline unsigned long size() {
+            return m_Size;
+        }
+        inline unsigned long capacity() {
+            return m_Capacity;
+        }
+    private:
         unsigned long m_Capacity;
         unsigned long m_Size;
+    public:
         syPixelContrib* pixels;
+
 };
 
 

@@ -655,6 +655,14 @@ unsigned char* syBitmap::GetPixelAddr(int x, int y) {
     return base;
 }
 
+unsigned long syBitmap::GetPixel(const unsigned char* rowaddr, int x) const {
+    unsigned long result = 0;
+    if(rowaddr && x >= 0 && x < (int)m_Data->m_Width) {
+        result = GetPixel(rowaddr + (x*m_Data->m_bypp));
+    }
+    return result;
+}
+
 const unsigned char* syBitmap::GetReadOnlyRow(int y) const {
     if(m_Data->m_Width == 0 || m_Data->m_Height == 0 || y < 0 || y >= (int)m_Data->m_Height) {
         return NULL;
