@@ -34,7 +34,9 @@ m_DestBitmap(0),
 m_Src(0),
 m_Dst(0),
 m_XContrib(0),
-m_YContrib(0)
+m_YContrib(0),
+m_YBuffer(0),
+m_FullBuffer(0)
 {}
 
 void syBitmapCopier::Init(const syBitmap *sourcebmp, syBitmap *destbmp, syFilterType filtertype) {
@@ -63,6 +65,17 @@ void syBitmapCopier::Init(const syBitmap *sourcebmp, syBitmap *destbmp, syFilter
         delete m_YContrib;
         m_YContrib = 0;
     }
+    if(m_YBuffer) {
+        delete[] m_YBuffer;
+        m_YBuffer = 0;
+    }
+    if(m_FullBuffer) {
+        delete[] m_FullBuffer;
+        m_FullBuffer = 0;
+    }
+    m_YBuffer  = new syFloatPixel[m_DestHeight];
+    m_FullBuffer  = new syFloatPixel[m_DestWidth*m_SourceHeight];
+
     if(m_DestWidth == m_SourceWidth && m_DestHeight == m_SourceHeight) {
         m_EffectiveDestHeight = m_DestHeight;
         m_EffectiveDestWidth = m_DestWidth;
@@ -101,7 +114,25 @@ void syBitmapCopier::Init(const syBitmap *sourcebmp, syBitmap *destbmp, syFilter
             InitContribBuffers();
         }
     }
+}
 
+syBitmapCopier::~syBitmapCopier() {
+    if(m_XContrib) {
+        delete m_XContrib;
+        m_XContrib = 0;
+    }
+    if(m_YContrib) {
+        delete m_YContrib;
+        m_YContrib = 0;
+    }
+    if(m_YBuffer) {
+        delete[] m_YBuffer;
+        m_YBuffer = 0;
+    }
+    if(m_FullBuffer) {
+        delete[] m_FullBuffer;
+        m_FullBuffer = 0;
+    }
 }
 
 void syBitmapCopier::InitContribBuffers() {
@@ -116,6 +147,7 @@ void syBitmapCopier::InitContribBuffers() {
         delete m_YContrib;
         m_YContrib = 0;
     }
+
     int fullfilterwidth = (int)(ceil(m_Filter->GetWidth())*2+1);
     m_XContrib = new syPixelContribBuffer(fullfilterwidth*m_EffectiveDestWidth);
     m_YContrib = new syPixelContribBuffer(fullfilterwidth*m_EffectiveDestHeight);
@@ -254,8 +286,11 @@ unsigned long syBitmapCopier::ConvertPixel(unsigned long pixel,VideoColorFormat 
     return pixel;
 }
 
-void syBitmapCopier::ResampleRow(const unsigned char* src, syFloatPixel* dst, syFilterType filtertype) {
+void syBitmapCopier::ResampleRow(unsigned int y) {
     unsigned int i;
+    const unsigned char* src = &m_Src[y*m_SourceWidth];
+    syFloatPixel* dst = &m_FullBuffer[y*m_DestWidth];
+
     if(m_SourceWidth == m_DestWidth) {
         const unsigned long* srcrgba = (const unsigned long*)src;
         for(i = 0; i < m_SourceWidth; ++i) {
@@ -283,6 +318,33 @@ void syBitmapCopier::ResampleRow(const unsigned char* src, syFloatPixel* dst, sy
     }
 }
 
-/** @brief Resamples a Column from a floating-point pixel buffer into the destination bitmap. */
-void syBitmapCopier::ResampleCol(syFloatPixel* src, unsigned char* dst, syFilterType filtertype) {
+void syBitmapCopier::ResampleCol(unsigned int x) {
+    syFloatPixel* src = m_FullBuffer;
+
+    if(m_YContrib) {
+        // 1. Clear the temporary Y buffer.
+        unsigned int i;
+        for(i = 0; i < m_DestHeight; ++i) {
+            m_YBuffer[i].clear();
+        }
+
+        // 2. Iterate over the contrib buffer and resample each pixel.
+        for(i = 0; i < m_YContrib->size();++i) {
+            syPixelContrib* contrib = &m_YContrib->pixels[i];
+            // Here, contrib->srcx and contrib->dstx refer to Y coordinates,
+            // because we're operating on a x-to-y translated vector.
+            int srcy = contrib->srcx;
+            int dsty = contrib->dstx;
+            if(srcy >= 0 && srcy < (int)m_SourceHeight && dsty >=0 && dsty < (int)m_DestHeight) {
+                m_YBuffer[dsty].MultiplyAndAdd(src[srcy*m_DestWidth+x],contrib->weight);
+            }
+        }
+
+        // TODO: 3. Convert the the float pixels into bitmap pixels and store them in dst.
+        unsigned int xofs = x*m_DestBypp;
+        for(i = 0; i < m_DestHeight; ++i) {
+            SetPixelAt(xofs,ConvertPixel(m_YBuffer[i].toRGBA(),vcfRGB32,m_DestFmt));
+            xofs += m_DestRowLength;
+        }
+    }
 }

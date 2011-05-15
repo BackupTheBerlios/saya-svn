@@ -455,15 +455,38 @@ void syBitmap::CopyFrom(const syBitmap* source) {
 }
 
 void syBitmap::ResampleFrom(const syBitmap* source, syFilterType resamplemode) {
+    if(!source || !source->GetReadOnlyBuffer()) {
+        return;
+    }
+
     const char* filtername = Resampler::get_filter_name(resamplemode);
-    if(!filtername) {
+    if(!filtername || m_Data->m_Width > RESAMPLER_MAX_DIMENSION || m_Data->m_Height > RESAMPLER_MAX_DIMENSION) {
         return PasteFrom(source, sy_stkeepaspectratio); // Unknown filter. Use nearest-neighbor.
     }
 
-   if (m_Data->m_Width > RESAMPLER_MAX_DIMENSION || m_Data->m_Height > RESAMPLER_MAX_DIMENSION) {
-       return PasteFrom(source, sy_stkeepaspectratio); // Image too large. Use nearest-neighbor.
 
-   }
+    do {
+        unsigned int srcw = source->GetWidth();
+        unsigned int srch = source->GetHeight();
+        VideoColorFormat srcfmt = source->GetColorFormat();
+        if(!srcw || !srch || !m_Data->m_Width || !m_Data->m_Height) {
+            break; // Invalid width/height
+        }
+        if(srcw == m_Data->m_Width && srch == m_Data->m_Height) {
+            if(srcfmt == m_Data->m_ColorFormat) {
+                CopyFrom(source);
+            } else {
+                PasteFrom(source);
+            }
+            break; // Get out of the do-while-false construct
+        }
+    }while(false);
+
+    syBitmapCopier copier;
+    copier.Init(source, this);
+
+    // TODO: Finish this
+    int x,y;
 
    // Allocate memory for the operation.
 

@@ -126,6 +126,7 @@ class syPixelContribBuffer {
 class syBitmapCopier {
     public:
         syBitmapCopier();
+        ~syBitmapCopier();
         /** Initializes the member variables to perform the batch copying */
         void Init(const syBitmap *sourcebmp, syBitmap *destbmp, syFilterType filtertype = filter_none);
 
@@ -264,6 +265,7 @@ class syBitmapCopier {
 
         /** Contribution Destination buffer length (not size) in bytes */
         syPixelContribBuffer *m_XContrib, *m_YContrib;
+        syFloatPixel *m_YBuffer, *m_FullBuffer;
 
         void InitContribBuffers();
 
@@ -275,17 +277,17 @@ class syBitmapCopier {
          */
         static unsigned long ConvertPixel(unsigned long pixel,VideoColorFormat sourcefmt,VideoColorFormat destfmt);
 
-        /** @brief Resamples a Row from a bitmap into a floating-point pixel row.
-         *  @param src Pointer to a row in the source bitmap
-         *  @param dst Pointer to a row in the destination buffer
-         *  @param srcwidth The width, in pixels, of the source
-         *  @param dstwidth The width, in pixels, of the destination
-         *  @param filtertype The filter to apply when resampling.
+        /** @brief Resamples a Row from a bitmap into the current floating-point pixel buffer.
+         *  This is done during the first stage of resampling.
+         *  @param y Row to resample from the source bitmap.
          */
-        void ResampleRow(const unsigned char* src, syFloatPixel* dst, syFilterType filtertype);
+        void ResampleRow(unsigned int y);
 
-        /** @brief Resamples a Column from a floating-point pixel buffer into the destination bitmap. */
-        void ResampleCol(syFloatPixel* src, unsigned char* dst, syFilterType filtertype);
+        /** @brief Resamples a Column from the floating-point pixel buffer into the destination bitmap.
+         *  This is done during the second and final stage of resampling.
+         *  @param x The current column to resample
+         */
+        void ResampleCol(unsigned int x);
 };
 
 inline void syBitmapCopier::CopyPixel() {
