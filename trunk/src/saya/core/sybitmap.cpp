@@ -480,17 +480,26 @@ void syBitmap::ResampleFrom(const syBitmap* source, syFilterType resamplemode) {
             }
             break; // Get out of the do-while-false construct
         }
+
+        syBitmapCopier copier;
+        copier.Init(source, this);
+
+        // TODO: Finish this
+        int x,y;
+
+        // Pass 1: Resample the rows
+        for(y = 0; y < (int)m_Data->m_Height; ++y) {
+            if((y & 32) == 0 && MustAbort()) { break; } // Check for abort every 32 rows
+            copier.ResampleRow(y);
+        }
+
+        // Pass 2: Resample the columns
+        for(x = 0; x < (int)m_Data->m_Width; ++x) {
+            if((x & 32) == 0 && MustAbort()) { break; } // Check for abort every 32 columns
+            copier.ResampleRow(x);
+        }
+
     }while(false);
-
-    syBitmapCopier copier;
-    copier.Init(source, this);
-
-    // TODO: Finish this
-    int x,y;
-
-   // Allocate memory for the operation.
-
-
 
 }
 
