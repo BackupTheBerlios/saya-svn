@@ -54,7 +54,17 @@ BitmapDialog::~BitmapDialog()
 }
 
 void BitmapDialog::LoadBitmap(const syBitmap* src) {
-    QImage tmpimage(src->GetReadOnlyBuffer(), src->GetWidth(), src->GetHeight(), QImage::Format_RGB32);
+    if(!src) {
+        return;
+    }
+    syBitmap tmpbitmap;
+    syBitmap* bitmapptr = const_cast<syBitmap*>(src);
+    if(src->GetColorFormat() != vcfRGB32) {
+        tmpbitmap.Realloc(src->GetWidth(),src->GetHeight(),vcfRGB32);
+        tmpbitmap.PasteFrom(src);
+        bitmapptr = &tmpbitmap;
+    }
+    QImage tmpimage(bitmapptr->GetReadOnlyBuffer(), bitmapptr->GetWidth(), bitmapptr->GetHeight(), QImage::Format_RGB32);
     m_Data->m_Ui->image->setPixmap(QPixmap::fromImage(tmpimage));
-    m_Data->m_Ui->image->setMinimumSize(QSize(src->GetWidth(),src->GetHeight()));
+    m_Data->m_Ui->image->setMinimumSize(QSize(bitmapptr->GetWidth(),bitmapptr->GetHeight()));
 }

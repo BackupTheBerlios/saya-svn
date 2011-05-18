@@ -92,9 +92,11 @@ void ProjectPane::Data::OnItemDoubleClicked(QListWidgetItem* listitem) {
         if(res) {
             syBitmap bitmap;
             if(bitmap.LoadFromFile(res->m_Filename)) {
+                syBitmap bitmap2(400,400,vcfRGB32);
+                bitmap2.PasteFrom(&bitmap);
                 BitmapDialog* dialog = new BitmapDialog();
                 dialog->setWindowTitle(res->m_RelativeFilename);
-                dialog->LoadBitmap(&bitmap);
+                dialog->LoadBitmap(&bitmap2);
                 dialog->setModal(true);
                 dialog->show();
             }

@@ -383,9 +383,9 @@ inline void syBitmapCopier::SetPixelAt(unsigned int offset, unsigned long pixel)
 }
 
 inline unsigned long syBitmapCopier::GetPixelAt(unsigned int offset) {
-    unsigned long pixel;
+    unsigned long pixel = 0;
     for(unsigned int i = 0; i < m_SourceBypp; ++i) {
-        pixel = (pixel << 8) | (m_Src[offset+i] & 255);
+        pixel |= ((m_Src[offset+i] & 255) << (8*i));
     }
     return pixel;
 }
