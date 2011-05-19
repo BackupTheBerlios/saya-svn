@@ -34,7 +34,7 @@ class syFloatPixel {
         }
 
         inline void fromRGBA(unsigned long pixel) {
-            fromRGBAValues(pixel >> 24, pixel >> 16, pixel >> 8, pixel);
+            fromRGBAValues(pixel, pixel >> 8, pixel >> 16, pixel >> 24);
         }
 
         inline void clear() {

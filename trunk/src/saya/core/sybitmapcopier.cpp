@@ -51,8 +51,10 @@ void syBitmapCopier::Init(const syBitmap *sourcebmp, syBitmap *destbmp, syFilter
     m_Dst = destbmp->GetBuffer();
     m_SourceWidth = sourcebmp->GetWidth();
     m_DestWidth = destbmp->GetWidth();
+    m_EffectiveDestWidth = m_DestWidth;
     m_SourceHeight = sourcebmp->GetHeight();
     m_DestHeight = destbmp->GetHeight();
+    m_EffectiveDestHeight = m_DestHeight;
     m_SourceRowLength = sourcebmp->GetBytesPerLine();
     m_DestRowLength = destbmp->GetBytesPerLine();
     m_SourceBufferLength = sourcebmp->GetBufferLength();
@@ -89,13 +91,13 @@ void syBitmapCopier::Init(const syBitmap *sourcebmp, syBitmap *destbmp, syFilter
         double yscale = ((double)m_DestHeight) / m_SourceHeight;
         if(yscale < xscale) { // Pick the smallest scale so that everything fits inside
             xscale = yscale;
-            m_EffectiveDestWidth = (unsigned int)(m_SourceWidth / xscale);
+            m_EffectiveDestWidth = floor((double)m_SourceWidth * xscale);
             if(m_EffectiveDestWidth > m_DestWidth) {
                 m_EffectiveDestWidth = m_DestWidth;
             }
         } else {
             yscale = xscale;
-            m_EffectiveDestHeight = (unsigned int)(m_SourceHeight / yscale);
+            m_EffectiveDestHeight = floor((double)m_SourceHeight * yscale);
             if(m_EffectiveDestHeight > m_DestHeight) {
                 m_EffectiveDestHeight = m_DestHeight;
             }
@@ -288,13 +290,13 @@ unsigned long syBitmapCopier::ConvertPixel(unsigned long pixel,VideoColorFormat 
 
 void syBitmapCopier::ResampleRow(unsigned int y) {
     unsigned int i;
-    const unsigned char* src = &m_Src[y*m_SourceWidth];
+    const unsigned char* src = &m_Src[y*m_SourceRowLength];
     syFloatPixel* dst = &m_FullBuffer[y*m_DestWidth];
 
     if(m_SourceWidth == m_DestWidth) {
         const unsigned long* srcrgba = (const unsigned long*)src;
         for(i = 0; i < m_SourceWidth; ++i) {
-            dst[i].fromRGBA(ConvertPixel(srcrgba[i], m_SourceFmt,vcfRGB32));
+            dst[i].fromRGBA(ConvertPixel(m_SourceBitmap->GetPixel(src,i), m_SourceFmt,vcfRGB32));
         }
     } else if(m_XContrib) {
         // Clear destination buffer

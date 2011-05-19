@@ -22,7 +22,6 @@
 #include "codecplugin.h"
 #include "sentryfuncs.h"
 #include "base64.h"
-#include "resampler/resampler.h"
 #include <math.h>
 #include <cstddef>
 
@@ -459,12 +458,6 @@ void syBitmap::ResampleFrom(const syBitmap* source, syFilterType resamplemode) {
         return;
     }
 
-    const char* filtername = Resampler::get_filter_name(resamplemode);
-    if(!filtername || m_Data->m_Width > RESAMPLER_MAX_DIMENSION || m_Data->m_Height > RESAMPLER_MAX_DIMENSION) {
-        return PasteFrom(source, sy_stkeepaspectratio); // Unknown filter. Use nearest-neighbor.
-    }
-
-
     do {
         unsigned int srcw = source->GetWidth();
         unsigned int srch = source->GetHeight();
@@ -482,9 +475,8 @@ void syBitmap::ResampleFrom(const syBitmap* source, syFilterType resamplemode) {
         }
 
         syBitmapCopier copier;
-        copier.Init(source, this);
+        copier.Init(source, this, resamplemode);
 
-        // TODO: Finish this
         int x,y;
 
         // Pass 1: Resample the rows
@@ -496,7 +488,7 @@ void syBitmap::ResampleFrom(const syBitmap* source, syFilterType resamplemode) {
         // Pass 2: Resample the columns
         for(x = 0; x < (int)m_Data->m_Width; ++x) {
             if((x & 32) == 0 && MustAbort()) { break; } // Check for abort every 32 columns
-            copier.ResampleRow(x);
+            copier.ResampleCol(x);
         }
 
     }while(false);
