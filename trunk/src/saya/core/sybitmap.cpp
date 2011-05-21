@@ -21,6 +21,7 @@
 #include "sybitmapcopier.h"
 #include "codecplugin.h"
 #include "sentryfuncs.h"
+#include "debuglog.h"
 #include "base64.h"
 #include <math.h>
 #include <cstddef>
@@ -479,13 +480,13 @@ void syBitmap::ResampleFrom(const syBitmap* source, syFilterType resamplemode) {
 
         int x,y;
 
-        // Pass 1: Resample the rows
-        for(y = 0; y < (int)m_Data->m_Height; ++y) {
+        // Pass 1: Resample all the source rows
+        for(y = 0; y < (int)(source->GetHeight()); ++y) {
             if((y & 32) == 0 && MustAbort()) { break; } // Check for abort every 32 rows
             copier.ResampleRow(y);
         }
 
-        // Pass 2: Resample the columns
+        // Pass 2: Resample all the destination columns
         for(x = 0; x < (int)m_Data->m_Width; ++x) {
             if((x & 32) == 0 && MustAbort()) { break; } // Check for abort every 32 columns
             copier.ResampleCol(x);

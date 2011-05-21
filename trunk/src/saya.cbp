@@ -122,7 +122,6 @@
 		<Unit filename="saya/core/filevid.h" />
 		<Unit filename="saya/core/imagefilters.cpp" />
 		<Unit filename="saya/core/imagefilters.h" />
-		<Unit filename="saya/core/imageresampler.h" />
 		<Unit filename="saya/core/intl.h" />
 		<Unit filename="saya/core/iocommon.cpp">
 			<Option weight="10" />

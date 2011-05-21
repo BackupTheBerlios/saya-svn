@@ -164,9 +164,12 @@ void syBitmapCopier::InitContribBuffers() {
 
     double center = m_DestX0/m_XScale;
     for(unsigned int x = m_DestX0; x < m_DestX0 + m_EffectiveDestWidth; ++x,center+=xdiff) {
+        if(center >= m_SourceWidth) {
+            continue;
+        }
         int left = (int)floor(center - m_Filter->GetWidth()); // It's actually the half-width; This is, the filter's radius
         if(left < 0) { left = 0; }
-        int right = (int)floor(center + m_Filter->GetWidth());
+        int right = (int)ceil(center + m_Filter->GetWidth());
         if(right >= (int)m_SourceWidth) { right = m_SourceWidth - 1; }
 
         // Check if we're taking samples outside the sliding window
@@ -208,9 +211,12 @@ void syBitmapCopier::InitContribBuffers() {
 
     center = m_DestY0/m_YScale;
     for(unsigned int y = m_DestY0; y < m_DestY0 + m_EffectiveDestHeight; ++y,center+=ydiff) {
+        if(center >= m_SourceHeight) {
+            continue;
+        }
         int top = (int)floor(center - m_Filter->GetWidth()); // It's actually the half-width; This is, the filter's radius
         if(top < 0) { top = 0; }
-        int bottom = (int)floor(center + m_Filter->GetWidth());
+        int bottom = (int)ceil(center + m_Filter->GetWidth());
         if(bottom >= (int)m_SourceHeight) { bottom = m_SourceHeight - 1; }
 
         // Check if we're taking samples outside the sliding window
