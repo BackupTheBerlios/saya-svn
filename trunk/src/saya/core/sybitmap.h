@@ -112,6 +112,27 @@ class syBitmap : public syBitmapSink {
          */
         static syBitmap* FromBase64(const syString& data, const char* mimetype);
 
+        /** @brief Saves the bitmap to the destination filename using the given MIME type. */
+        bool SaveToFile(const char* filename, const char* mimetype = "image/jpeg");
+
+        /** @brief Saves the bitmap to the destination filename using the given MIME type. */
+        bool SaveToFile(const syString& filename, const char* mimetype = "image/jpeg");
+
+        /** @brief Saves the bitmap to the destination string (binary) using the given MIME type. */
+        bool SaveToString(syString& dest, const char* mimetype = "image/jpeg");
+
+        /** @brief Saves the bitmap to the destination string (base64) using the given MIME type. */
+        bool SaveToBase64(syString& dest, const char* mimetype = "image/jpeg");
+
+        /** Creates a bitmap icon from a given file. */
+        static syBitmap* CreateIconFromFile(const syString& filename, unsigned int width = 64, unsigned int height = 64);
+
+        /** @brief Creates an icon string from a given file, using the registered codec plugins as necessary.
+         *  @param dest The string to hold the base64-encoded icon.
+         *  @return true on success; false otherwise.
+         */
+        static bool CreateBase64IconFromFile(syString& dest, const syString& filename, const char* mimetype = "image/jpeg", unsigned int width = 64, unsigned int height = 64);
+
         /** Pastes from another bitmap, resizing if necessary */
         void PasteFrom(const syBitmap* source,syStretchMode stretchmode = sy_stkeepaspectratio);
 

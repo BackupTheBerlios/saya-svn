@@ -25,7 +25,7 @@
 
 */
 
-/* Modified to use our string class by Ricardo Garcia */
+/* Modified to use our string class by Ricardo Garcia; Also, added a few functions to modify an external string. */
 
 #include "base64.h"
 #include "systring.h"
@@ -36,15 +36,15 @@ static inline bool is_base64(unsigned char c) {
   return ((c>='A' && c<= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || (c == '+') || (c == '/'));
 }
 
-syString base64_encode(const unsigned char* bytes_to_encode, unsigned int in_len) {
-  syString ret;
+void base64_encode(const unsigned char* buf, unsigned int len, syString& dest) {
+  dest.clear();
   int i = 0;
   int j = 0;
   unsigned char char_array_3[3];
   unsigned char char_array_4[4];
 
-  while (in_len--) {
-    char_array_3[i++] = *(bytes_to_encode++);
+  while (len--) {
+    char_array_3[i++] = *(buf++);
     if (i == 3) {
       char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
       char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
@@ -52,7 +52,7 @@ syString base64_encode(const unsigned char* bytes_to_encode, unsigned int in_len
       char_array_4[3] = char_array_3[2] & 0x3f;
 
       for(i = 0; (i <4) ; i++)
-        ret += base64_chars[char_array_4[i]];
+        dest += base64_chars[char_array_4[i]];
       i = 0;
     }
   }
@@ -68,30 +68,37 @@ syString base64_encode(const unsigned char* bytes_to_encode, unsigned int in_len
     char_array_4[3] = char_array_3[2] & 0x3f;
 
     for (j = 0; (j < i + 1); j++)
-      ret += base64_chars[char_array_4[j]];
+      dest += base64_chars[char_array_4[j]];
 
     while((i++ < 3))
-      ret += '=';
+      dest += '=';
 
   }
+}
 
-  return ret;
+void base64_encode(const syString &s, syString& dest) {
+    base64_encode((const unsigned char*)(s.c_str()), s.length(), dest);
+}
+
+syString base64_encode(const unsigned char* bytes_to_encode, unsigned int len) {
+    syString dest;
+    base64_encode(bytes_to_encode,len,dest);
+    return dest;
 }
 
 syString base64_encode(const syString& s) {
     return base64_encode((const unsigned char*)(s.c_str()),s.size());
 }
 
-syString base64_decode(const syString& encoded_string) {
-  int in_len = encoded_string.size();
+void base64_decode(const syString &s, syString& dest) {
+  int in_len = s.size();
   int i = 0;
   int j = 0;
   int in_ = 0;
   unsigned char char_array_4[4], char_array_3[3];
-  syString ret;
 
-  while (in_len-- && ( encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
-    char_array_4[i++] = encoded_string[in_]; in_++;
+  while (in_len-- && ( s[in_] != '=') && is_base64(s[in_])) {
+    char_array_4[i++] = s[in_]; in_++;
     if (i ==4) {
       for (i = 0; i <4; i++)
         char_array_4[i] = base64_chars.find(char_array_4[i]);
@@ -101,7 +108,7 @@ syString base64_decode(const syString& encoded_string) {
       char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
 
       for (i = 0; (i < 3); i++)
-        ret += (char)(char_array_3[i]);
+        dest += (char)(char_array_3[i]);
       i = 0;
     }
   }
@@ -117,8 +124,14 @@ syString base64_decode(const syString& encoded_string) {
     char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
     char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
 
-    for (j = 0; (j < i - 1); j++) ret += (char)(char_array_3[j]);
+    for (j = 0; (j < i - 1); j++) {
+        dest += (char)(char_array_3[j]);
+    }
   }
+}
 
-  return ret;
+syString base64_decode(const syString& s) {
+    syString result;
+    base64_decode(s, result);
+    return result;
 }

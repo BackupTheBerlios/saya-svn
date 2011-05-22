@@ -32,6 +32,10 @@
 
 #include "systring.h"
 
+void base64_encode(const unsigned char* buf, unsigned int in_len, syString& dest);
+void base64_encode(const syString &s, syString& dest);
+void base64_decode(const syString &s, syString& dest);
+
 syString base64_encode(const unsigned char* buf, unsigned int len);
 syString base64_encode(const syString& s);
 syString base64_decode(const syString& s);

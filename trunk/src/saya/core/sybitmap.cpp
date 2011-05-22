@@ -857,3 +857,61 @@ syBitmap* syBitmap::FromBase64(const syString& data, const char* mimetype) {
     }
     return bitmap;
 }
+
+
+bool syBitmap::SaveToFile(const char* filename, const char* mimetype) {
+    return SaveToFile(syString(filename), mimetype);
+}
+
+bool syBitmap::SaveToFile(const syString& filename, const char* mimetype) {
+    #warning TODO: Implement syBitmap::SaveToFile
+    return false;
+}
+
+bool syBitmap::SaveToString(syString& dest, const char* mimetype) {
+    #warning TODO: Implement syBitmap::SaveToString
+    return false;
+}
+
+bool syBitmap::SaveToBase64(syString& dest, const char* mimetype) {
+    syString tmpbuffer;
+    bool result = false;
+    if(SaveToString(tmpbuffer)) {
+        base64_encode(tmpbuffer, dest);
+        if(dest.length()) {
+            result = true;
+        }
+    } else {
+        dest.clear();
+    }
+    return result;
+}
+
+syBitmap* syBitmap::CreateIconFromFile(const syString& filename, unsigned int width, unsigned int height) {
+    if(width < 8) {
+        width = 8;
+    }
+    if(height < 8) {
+        height = 8;
+    }
+    syBitmap* icon = 0;
+    syBitmap* bitmap = syBitmap::FromFile(filename);
+    if(bitmap) {
+        icon = new syBitmap(width,height, vcfRGB32);
+        AutoDeleter<syBitmap> deleter(bitmap);
+        icon->ResampleFrom(bitmap);
+    }
+    return icon;
+}
+
+bool syBitmap::CreateBase64IconFromFile(syString& dest, const syString& filename, const char* mimetype, unsigned int width, unsigned int height) {
+    syBitmap* icon = syBitmap::CreateIconFromFile(filename, width, height);
+    bool result = false;
+    if(icon) {
+        AutoDeleter<syBitmap> deleter(icon);
+        result = icon->SaveToBase64(dest);
+    } else {
+        dest.clear();
+    }
+    return result;
+}

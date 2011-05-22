@@ -9,6 +9,7 @@
 
 #include "core/iocommon.h"
 #include "core/systring.h"
+#include "core/sybitmap.h"
 
 #include "timeline/avcommon.h"
 #include "timeline/avsettings.h"
@@ -460,8 +461,8 @@ unsigned int VidProject::ImportFile(const syString& filename, syString &errortex
     // TODO: Be more precise when getting the relative filename of the resource
     newres.m_RelativeFilename = ioCommon::GetFilename(filename);
 
-    newres.m_Icon = "";
-    // TODO: Get the file's icon
+    // Get the file's icon
+    syBitmap::CreateBase64IconFromFile(newres.m_Icon, filename, "image/jpeg", 64, 64);
 
     newres.m_AVSettings = 0;
     // TODO: Get the file's AV Settings.
