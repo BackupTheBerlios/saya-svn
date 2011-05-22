@@ -10,8 +10,8 @@
 #include "core/iocommon.h"
 #include "core/systring.h"
 #include "core/sybitmap.h"
+#include "core/avcommon.h"
 
-#include "timeline/avcommon.h"
 #include "timeline/avsettings.h"
 #include "timeline/avresource.h"
 #include "timeline/avresources.h"

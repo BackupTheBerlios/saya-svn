@@ -10,7 +10,7 @@
 #ifndef avclip_h
 #define avclip_h
 
-#include "avcommon.h"
+#include <saya/core/avcommon.h>
 #include "serializable.h"
 
 class AVClipboard;

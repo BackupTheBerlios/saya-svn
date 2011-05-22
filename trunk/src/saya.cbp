@@ -91,6 +91,7 @@
 			<Option weight="10" />
 		</Unit>
 		<Unit filename="saya/core/audiooutputdevice.h" />
+		<Unit filename="saya/core/avcommon.h" />
 		<Unit filename="saya/core/avcontroller.cpp">
 			<Option weight="10" />
 		</Unit>
@@ -104,6 +105,7 @@
 		<Unit filename="saya/core/avtypes.h" />
 		<Unit filename="saya/core/base64.cpp" />
 		<Unit filename="saya/core/base64.h" />
+		<Unit filename="saya/core/basicavsettings.h" />
 		<Unit filename="saya/core/codecplugin.cpp" />
 		<Unit filename="saya/core/codecplugin.h" />
 		<Unit filename="saya/core/config.cpp" />
@@ -210,7 +212,6 @@
 		</Unit>
 		<Unit filename="saya/timeline/avclip.h" />
 		<Unit filename="saya/timeline/avclips.h" />
-		<Unit filename="saya/timeline/avcommon.h" />
 		<Unit filename="saya/timeline/aveffect.cpp">
 			<Option weight="20" />
 		</Unit>

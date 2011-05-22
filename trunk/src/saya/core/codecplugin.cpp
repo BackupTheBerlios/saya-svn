@@ -69,6 +69,9 @@ class CodecPluginFactory {
         /** Finds the appropriate plugin for reading a specific mime type. */
         static CodecPlugin* FindReadPluginByMimeType(const char* mimetype);
 
+        /** Finds the appropriate plugin for reading a specific mimetype. It also supports extensions. */
+        static CodecPlugin* FindWritePluginByMimeType(const char* mimetype);
+
         /** Finds a codec plugin by name; returns null on failure. */
         static CodecPlugin* FindPlugin(const char* name);
 
@@ -261,6 +264,44 @@ CodecPlugin* CodecPluginFactory::FindReadPluginByMimeType(const char* mimetype) 
     return result;
 }
 
+CodecPlugin* CodecPluginFactory::FindWritePluginByMimeType(const char* mimetype) {
+    if(!s_self) {
+        s_self = new CodecPluginFactory;
+    }
+    CodecPlugin* result = 0;
+    CodecFileTypesMap& themap = s_self->m_MimeTypesMap;
+    CodecPlugin::CodecWritingSkills curskill = CodecPlugin::CannotWrite;
+    CodecPlugin::CodecWritingSkills maxskill = CodecPlugin::CanWriteBoth;
+    syString smimetype(mimetype, true);
+    if(smimetype.substr(0,6) == "image/") {
+        maxskill = CodecPlugin::CanWriteVideo;
+    }
+
+    if(smimetype.length()) {
+        for(CodecFileTypesMap::iterator it = themap.find(smimetype); it != themap.end() && !result; ++it) {
+            CodecNamesSet& codecs = it->second;
+            for(CodecNamesSet::iterator it2 = codecs.begin();it2 != codecs.end(); ++it2) {
+                syString codecname = *it2;
+                CodecPlugin* plugin = CodecPluginFactory::FindPlugin(codecname.c_str());
+                if(plugin) {
+                    CodecPlugin::CodecWritingSkills tmpskill = plugin->CanWriteMimeType(smimetype);
+                    if(tmpskill > curskill) {
+                        result = plugin;
+                        curskill = tmpskill;
+                        if(curskill == maxskill) {
+                            break;
+                        }
+                    }
+                }
+            }
+            if(curskill == maxskill) {
+                break;
+            }
+        }
+    }
+    return result;
+}
+
 CodecPlugin* CodecPluginFactory::FindPlugin(const char* name) {
     if(!s_self) {
         s_self = new CodecPluginFactory;
@@ -379,6 +420,10 @@ CodecPlugin* CodecPlugin::FindReadPlugin(const syString& filename) {
 
 CodecPlugin* CodecPlugin::FindReadPluginByMimeType(const char* mimetype) {
     return CodecPluginFactory::FindReadPluginByMimeType(mimetype);
+}
+
+CodecPlugin* CodecPlugin::FindWritePluginByMimeType(const char* mimetype) {
+    return CodecPluginFactory::FindWritePluginByMimeType(mimetype);
 }
 
 CodecInstance::CodecInstance():

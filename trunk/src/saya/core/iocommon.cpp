@@ -75,6 +75,19 @@ syString ioCommon::GetExtension(const syString& fullpath, bool tolowercase) {
     return result;
 }
 
+bool ioCommon::FilePutContents(const char* fullpath, const syString& data) {
+    bool result = false;
+    TempFile f;
+    if(f.Open(fullpath)) {
+        if(f.Write(data)) {
+            if(f.Commit()) {
+                result = true;
+            }
+        }
+    }
+    return result;
+}
+
 
 // End of String functions
 

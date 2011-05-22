@@ -10,9 +10,9 @@
 #ifndef avtransition_h
 #define avtransition_h
 
-#include "avcommon.h"
+#include <saya/core/avcommon.h>
 #include "serializable.h"
-#include "../core/systring.h"
+#include <saya/core/systring.h>
 class SMapStrStr;
 
 class AVTransition : public serializable {

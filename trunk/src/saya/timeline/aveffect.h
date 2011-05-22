@@ -10,9 +10,9 @@
 #ifndef aveffect_h
 #define aveffect_h
 
-#include "avcommon.h"
+#include <saya/core/avcommon.h>
 #include "serializable.h"
-#include  "../core/systring.h"
+#include <saya/core/systring.h>
 
 class FXParameterList;
 

@@ -19,7 +19,7 @@ class CodecPluginFactory;
 class CodecPlugin;
 class syBitmap;
 class syAudioBuffer;
-
+class BasicAVSettings;
 
 typedef CodecPlugin* (*CodecPluginFactoryFunction)();
 
@@ -48,9 +48,19 @@ class CodecInstance {
         virtual void CloseInput() {}
 
         /** @brief Opens a file for writing.
+         *  @param settings the video/audio settings for the file.
+         *  @param filename the output file.
          *  @return true on success; false otherwise,
          */
-        virtual bool OpenOutput(const syString filename = syEmptyString) { return false; }
+        virtual bool OpenOutput(const BasicAVSettings* settings, const syString filename = syEmptyString) { return false; }
+
+        /** @brief Opens a virtual file for writing.
+         *  @param settings The video/audio settings for the file.
+         *  @param dest The destination string.
+         *  @return true on success; false otherwise.
+         *  @warning Memory exhaustion can occur if the file ends up being too large. Use with extreme care.
+         */
+        virtual bool OpenMemoryOutput(const BasicAVSettings* settings, syString& dest) { return false; }
 
         /** @brief Closes the output file. */
         virtual void CloseOutput() {}
@@ -103,6 +113,16 @@ class CodecInstance {
         virtual void LoadAudioBuffer(syAudioBuffer* dest, unsigned long numsamples = 0);
 
         // Output functions
+
+        /** Sends the current frame to the output.
+         *  @return the current video time after the bitmap; 0 if done.
+         */
+        virtual avtime_t SaveCurrentFrame(const syBitmap* src) { return 0; }
+
+        /** Sends the audio from a syAudioBuffer object.
+         *  @return the current audio time after the audio; 0 if done.
+         */
+        virtual avtime_t SendAudioBuffer(syAudioBuffer* src, unsigned long numsamples = 0) { return 0; }
 
         /** @return true if this is a video resource. */
         bool IsVideo() const;
@@ -188,6 +208,9 @@ class CodecPlugin {
         /** Finds the appropriate plugin for reading a specific mimetype. It also supports extensions. */
         static CodecPlugin* FindReadPluginByMimeType(const char* mimetype);
 
+        /** Finds the appropriate plugin for reading a specific mimetype. It also supports extensions. */
+        static CodecPlugin* FindWritePluginByMimeType(const char* mimetype);
+
     public:
         virtual const char* GetPluginName() const { return ""; }
         virtual const char* GetPluginFullName() const { return ""; }
@@ -241,6 +264,21 @@ class CodecPlugin {
          *  @warning For security reasons, implementors MUST FAIL to read a file if it doesn't match with the given mime type.
          */
         virtual CodecInstance* OpenString(const syString& data, const char* mimetype) { return 0; }
+
+        /** Opens a file for writing.
+         *  @param settings The basic audio/video settings for the file.
+         *  @param filename The file to write.
+         *  @return A CodecInstance object dedicated to writing the file; 0 on failure.
+         *  @note  Implementors MUST use a temporary file for writing; @see TempFile class for details.
+         */
+        virtual CodecInstance* OpenFileForWriting(const BasicAVSettings* settings, const syString& filename) { return 0; }
+
+        /** Opens a virtual file (memory buffer) for writing.
+         *  @param settings The basic audio/video settings for the file.
+         *  @param dest The destination string.
+         *  @return A CodecInstance object dedicated to writing the file; 0 on failure.
+         */
+        virtual CodecInstance* OpenStringForWriting(const BasicAVSettings* settings, syString& dest) { return 0; }
 
     protected:
 

@@ -15,6 +15,7 @@
  *            the actual display.
  **************************************************************/
 
+#include "iocommon.h"
 #include "aborter.h"
 #include "sythread.h"
 #include "sybitmap.h"
@@ -864,8 +865,12 @@ bool syBitmap::SaveToFile(const char* filename, const char* mimetype) {
 }
 
 bool syBitmap::SaveToFile(const syString& filename, const char* mimetype) {
-    #warning TODO: Implement syBitmap::SaveToFile
-    return false;
+    bool result = false;
+    syString tmps;
+    if(SaveToString(tmps, mimetype)) {
+        result = ioCommon::FilePutContents(filename.c_str(), tmps);
+    }
+    return result;
 }
 
 bool syBitmap::SaveToString(syString& dest, const char* mimetype) {

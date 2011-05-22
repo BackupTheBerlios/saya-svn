@@ -110,6 +110,11 @@ class ioCommon {
           */
         static const syString GetTemporaryFilename(const char* path, const char* prefix = "_sayatmp");
 
+        /** @brief Writes a string into a file, using a transactional approach.
+          * The file is not replaced until the data has been completely written on disk.
+          */
+        static bool FilePutContents(const char* fullpath, const syString& data);
+
         /** @brief Prints a string on the screen. */
         static void Print(const syString& s);
 

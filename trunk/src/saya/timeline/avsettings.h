@@ -10,13 +10,13 @@
 #ifndef avsettings_h
 #define avsettings_h
 
-#include "avcommon.h"
+#include <saya/core/basicavsettings.h>
 #include "serializable.h"
-#include "../core/systring.h"
+#include <saya/core/systring.h>
 
 class SMapStrStr;
 
-class AVSettings: public serializable {
+class AVSettings: public serializable, public BasicAVSettings {
 
     public:
 
@@ -27,34 +27,6 @@ class AVSettings: public serializable {
 
         /** Resets the settings to their default values. */
         void ResetToDefaults();
-
-        /** Specifies the width of the video in pixels. */
-        unsigned int width;
-
-        /** Specifies the height of the video in pixels. */
-        unsigned int height;
-
-        /** Specifies the pixels' aspect ratio. */
-
-        float pixelaspect;
-
-        /** Specifies the video's frame rate. */
-        float fps;
-
-        /** Specifies the video's interlacing. */
-        InterlaceType interlacing;
-
-        /** Specifies the audio sample rate */
-        unsigned int samplerate;
-
-        /** Specifies the audio sample size */
-        AudioBitSize samplesize;
-
-        /** Specifies the surround type */
-        SurroundType surround;
-
-        /** Specifies the number of audio channels (depens on the surround field above) */
-        unsigned int channels;
 
         /** Specifies the container format of the video. */
         syString vidformat;

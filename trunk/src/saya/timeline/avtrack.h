@@ -11,7 +11,7 @@
 #define avtrack_h
 
 #include "serializable.h"
-#include "avcommon.h"
+#include <saya/core/avcommon.h>
 
 class AVClips;
 class SMapUintUint;
