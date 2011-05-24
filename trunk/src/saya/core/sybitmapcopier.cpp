@@ -15,7 +15,7 @@
 using std::min;
 using std::max;
 
-bool syPixelContribBuffer::AddWeight(int sourcex,int destx,double weight) {
+bool syPixelContribBuffer::AddWeight(int sourcex,int destx,float weight) {
     if(m_Size >= m_Capacity) {
         return false;
     }
@@ -90,17 +90,17 @@ void syBitmapCopier::Init(const syBitmap *sourcebmp, syBitmap *destbmp, syFilter
         m_DestY0 = 0;
     } else {
         // Scale and keep aspect ratio
-        double xscale = ((double)m_DestWidth) / m_SourceWidth;
-        double yscale = ((double)m_DestHeight) / m_SourceHeight;
+        float xscale = ((float)m_DestWidth) / m_SourceWidth;
+        float yscale = ((float)m_DestHeight) / m_SourceHeight;
         if(yscale < xscale) { // Pick the smallest scale so that everything fits inside
             xscale = yscale;
-            m_EffectiveDestWidth = floor((double)m_SourceWidth * xscale);
+            m_EffectiveDestWidth = floor((float)m_SourceWidth * xscale);
             if(m_EffectiveDestWidth > m_DestWidth) {
                 m_EffectiveDestWidth = m_DestWidth;
             }
         } else {
             yscale = xscale;
-            m_EffectiveDestHeight = floor((double)m_SourceHeight * yscale);
+            m_EffectiveDestHeight = floor((float)m_SourceHeight * yscale);
             if(m_EffectiveDestHeight > m_DestHeight) {
                 m_EffectiveDestHeight = m_DestHeight;
             }
@@ -163,10 +163,10 @@ void syBitmapCopier::InitContribBuffers() {
 
     // Calculating X contributions
 
-    double xdiff = 1/m_XScale;
-    double filter_scale = min(1.0, m_XScale); // Used for calculating the weights.
+    float xdiff = 1/m_XScale;
+    float filter_scale = min(1.0f, m_XScale); // Used for calculating the weights.
 
-    double center = 0;
+    float center = 0;
     for(unsigned int x = m_DestX0; x < finalx && center < m_SourceWidth; ++x) {
         int left = (int)floor(center - m_Filter->GetWidth()); // It's actually the half-width; This is, the filter's radius
         if(left < 0) { left = 0; }
@@ -183,12 +183,12 @@ void syBitmapCopier::InitContribBuffers() {
                 --right;
             }
         }
-        double weight_sum = 0; // For normalization
+        float weight_sum = 0; // For normalization
         int weight_count = 0;
         int srcx;
         for(srcx = left; srcx <= right; ++srcx) {
-            double deltax = center - (double)srcx;
-            double curweight = filter_scale * m_Filter->Filter(filter_scale * deltax);
+            float deltax = center - (float)srcx;
+            float curweight = filter_scale * m_Filter->Filter(filter_scale * deltax);
             weight_sum += curweight;
             if(m_XContrib->AddWeight(srcx,x,curweight)) {
                 ++weight_count;
@@ -205,8 +205,8 @@ void syBitmapCopier::InitContribBuffers() {
 
     // Calculating Y contributions
 
-    double ydiff = 1/m_YScale;
-    filter_scale = min(1.0, m_YScale); // Used for calculating the weights.
+    float ydiff = 1/m_YScale;
+    filter_scale = min(1.0f, m_YScale); // Used for calculating the weights.
 
     center = 0;
     for(unsigned int y = m_DestY0; y < finaly && center < m_SourceHeight; ++y,center+=ydiff) {
@@ -225,12 +225,12 @@ void syBitmapCopier::InitContribBuffers() {
                 --bottom;
             }
         }
-        double weight_sum = 0; // For normalization
+        float weight_sum = 0; // For normalization
         int weight_count = 0;
         int srcy;
         for(srcy = top; srcy <= bottom; ++srcy) {
-            double deltay = center - (double)srcy;
-            double curweight = filter_scale * m_Filter->Filter(filter_scale * deltay);
+            float deltay = center - (float)srcy;
+            float curweight = filter_scale * m_Filter->Filter(filter_scale * deltay);
             weight_sum += curweight;
             if(m_YContrib->AddWeight(srcy,y,curweight)) {
                 ++weight_count;
@@ -339,14 +339,15 @@ void syBitmapCopier::ResampleCol(unsigned int x) {
             int srcy = contrib->srcx;
             int dsty = contrib->dstx;
             if(srcy >= 0 && srcy < (int)m_SourceHeight && dsty >=0 && dsty < (int)m_DestHeight) {
-                m_YBuffer[dsty].MultiplyAndAdd(src[srcy*m_DestWidth+x],contrib->weight);
+                m_YBuffer[dsty].MultiplyAndAdd(src[srcy*m_DestWidth + x],contrib->weight);
             }
         }
 
         // TODO: 3. Convert the the float pixels into bitmap pixels and store them in dst.
         unsigned int xofs = x*m_DestBypp;
         for(i = 0; i < m_DestHeight; ++i) {
-            SetPixelAt(xofs,ConvertPixel(m_YBuffer[i].toRGBA(),vcfRGB32,m_DestFmt));
+            unsigned long pixel = ConvertPixel(m_YBuffer[i].toRGBA(),vcfRGB32,m_DestFmt);
+            SetPixelAt(xofs,pixel);
             xofs += m_DestRowLength;
         }
     }

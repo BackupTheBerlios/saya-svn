@@ -20,11 +20,11 @@ class syBitmap;
 
 class syFloatPixel {
     public:
-        double r;
-        double g;
-        double b;
-        double a;
-        syFloatPixel(double r0 = 0,double g0 = 0, double b0 = 0, double a0 = 0) : r(r0),g(g0),b(b0),a(a0) {}
+        float r;
+        float g;
+        float b;
+        float a;
+        syFloatPixel(float r0 = 0,float g0 = 0, float b0 = 0, float a0 = 0) : r(r0),g(g0),b(b0),a(a0) {}
 
         inline void fromRGBAValues(unsigned long r0 = 0,unsigned long g0 = 0, unsigned long b0 = 0, unsigned long a0 = 0) {
             r = pixeltofloat(r0);
@@ -48,7 +48,7 @@ class syFloatPixel {
             fromRGBA(pixel);
         }
 
-        static inline double truncate(double d) {
+        static inline float  truncate(float d) {
             if(d < 0) {
                 d = 0;
             } else if(d > 1.0) {
@@ -57,26 +57,21 @@ class syFloatPixel {
             return d;
         };
 
-        static inline unsigned long floattopixel(double d) {
+        static inline unsigned long floattopixel(float d) {
             return (unsigned long)(truncate(d)*255.0);
         }
 
-        static inline double pixeltofloat(unsigned long p) {
-            return truncate((double)(p & 0xFF)/255.0d);
+        static inline float pixeltofloat(unsigned long p) {
+            return truncate((1/255.0d)*(p & 0xFF));
         }
 
         inline unsigned long toRGBA() {
             unsigned long result;
-            r = truncate(r);
-            g = truncate(g);
-            b = truncate(b);
-            a = truncate(a);
-            if(r < 0) { r = 0; }
             result = (floattopixel(a) << 24) | (floattopixel(b) << 16) | (floattopixel(g) << 8) | (floattopixel(r));
             return result;
         }
 
-        inline void MultiplyAndAdd(const syFloatPixel& sourcepixel, double weight) {
+        inline void MultiplyAndAdd(const syFloatPixel& sourcepixel, float weight) {
             r+=sourcepixel.r*weight;
             g+=sourcepixel.g*weight;
             b+=sourcepixel.b*weight;
@@ -89,7 +84,7 @@ class syPixelContrib {
     public:
         int srcx;
         int dstx;
-        double weight;
+        float weight;
 };
 
 class syPixelContribBuffer {
@@ -97,7 +92,7 @@ class syPixelContribBuffer {
         syPixelContribBuffer(unsigned long sizeinpixels) : m_Capacity(sizeinpixels),m_Size(0),pixels(new syPixelContrib[sizeinpixels]) {}
         ~syPixelContribBuffer() { delete[] pixels;pixels = 0; }
         /** Returns false if ran out of space */
-        bool AddWeight(int sourcex,int destx,double weight);
+        bool AddWeight(int sourcex,int destx,float weight);
         void Clear();
         inline unsigned long size() {
             return m_Size;
@@ -237,10 +232,10 @@ class syBitmapCopier {
         unsigned int m_EffectiveDestHeight;
 
         /** Effective X Scale obtained by Init(). */
-        double m_XScale;
+        float m_XScale;
 
         /** Effective Y Scale obtained by Init(). */
-        double m_YScale;
+        float m_YScale;
 
         /** Source Row Length, in bytes, obtained by Init(). Kept public to allow external modification. */
         unsigned int m_SourceRowLength;
