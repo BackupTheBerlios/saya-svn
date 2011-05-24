@@ -309,14 +309,14 @@ ProjectPane::~ProjectPane() {
 syString ProjectPane::SavePaneState() const {
     if(!this) return ""; // Due to dynamic casting, "this" may be null.
     return "";
-    #warning TODO: Implement ProjectPane::SavePaneState
+    //TODO: Implement ProjectPane::SavePaneState
 //    QByteArray tmpdata = m_Data->m_Ui->splitter->saveState().toBase64();
 //    return syString(tmpdata.data());
 }
 
 void ProjectPane::RestorePaneState(const syString& data) {
     if(!this) return; // Due to dynamic casting, "this" may be null.
-    #warning TODO: Implement ProjectPane::RestorePaneState
+    //TODO: Implement ProjectPane::RestorePaneState
 //    if(!data.empty())
 //        m_Data->m_Ui->splitter->restoreState(QByteArray::fromBase64(QByteArray(data.c_str())));
 }

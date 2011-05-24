@@ -183,7 +183,7 @@ bool ProjectManager::LoadConfig() {
                 m_Data->m_RecentImports.Add(tmpname.c_str(),false);
             }
         }
-        #warning TODO: Read in the configuration which codec plugins we must load, and load them.
+        //TODO: Read in the configuration which codec plugins we must load, and load them.
         CodecPlugin::SelectPlugin("default");
 
         // TODO: Read in the configuration which non-codec plugins we must load, and load them.

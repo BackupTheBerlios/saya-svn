@@ -11,6 +11,9 @@
 
 #include "sybitmapcopier.h"
 #include "sybitmap.h"
+#include <algorithm>
+using std::min;
+using std::max;
 
 bool syPixelContribBuffer::AddWeight(int sourcex,int destx,double weight) {
     if(m_Size >= m_Capacity) {
@@ -105,6 +108,9 @@ void syBitmapCopier::Init(const syBitmap *sourcebmp, syBitmap *destbmp, syFilter
         m_XScale = xscale;
         m_YScale = yscale;
         m_DestX0 = (m_DestWidth - m_EffectiveDestWidth)/2;
+        // m_DestX0 = The leftmost X coordinate to sample. The remainder of the centered image is m_DestWidth - m_EffectiveDestWidth;
+        // We divide by two to get the initial X coordinate. Same goes with m_DestY0
+
         m_DestY0 = (m_DestHeight - m_EffectiveDestHeight)/2;
         m_XContrib = 0;
         m_YContrib = 0;
@@ -153,20 +159,15 @@ void syBitmapCopier::InitContribBuffers() {
     int fullfilterwidth = (int)(ceil(m_Filter->GetWidth())*2+1);
     m_XContrib = new syPixelContribBuffer(fullfilterwidth*m_EffectiveDestWidth);
     m_YContrib = new syPixelContribBuffer(fullfilterwidth*m_EffectiveDestHeight);
+    unsigned int finalx = m_DestX0 + m_EffectiveDestWidth, finaly = m_DestY0 + m_EffectiveDestHeight;
 
     // Calculating X contributions
 
     double xdiff = 1/m_XScale;
-    double filter_scale = 1.0; // Used for calculating the weights.
-    if(m_XScale < 1.0) { // Downsampling
-            filter_scale = m_XScale;
-    }
+    double filter_scale = min(1.0, m_XScale); // Used for calculating the weights.
 
-    double center = m_DestX0/m_XScale;
-    for(unsigned int x = m_DestX0; x < m_DestX0 + m_EffectiveDestWidth; ++x,center+=xdiff) {
-        if(center >= m_SourceWidth) {
-            continue;
-        }
+    double center = 0;
+    for(unsigned int x = m_DestX0; x < finalx && center < m_SourceWidth; ++x) {
         int left = (int)floor(center - m_Filter->GetWidth()); // It's actually the half-width; This is, the filter's radius
         if(left < 0) { left = 0; }
         int right = (int)ceil(center + m_Filter->GetWidth());
@@ -199,21 +200,16 @@ void syBitmapCopier::InitContribBuffers() {
                 m_XContrib->pixels[m_XContrib->size() - i].weight /= weight_sum;
             }
         }
+        center+=xdiff;
     }
 
     // Calculating Y contributions
 
-    double ydiff = 1/m_XScale;
-    filter_scale = 1.0; // Used for calculating the weights.
-    if(m_YScale < 1.0) { // Downsampling
-            filter_scale = m_YScale;
-    }
+    double ydiff = 1/m_YScale;
+    filter_scale = min(1.0, m_YScale); // Used for calculating the weights.
 
-    center = m_DestY0/m_YScale;
-    for(unsigned int y = m_DestY0; y < m_DestY0 + m_EffectiveDestHeight; ++y,center+=ydiff) {
-        if(center >= m_SourceHeight) {
-            continue;
-        }
+    center = 0;
+    for(unsigned int y = m_DestY0; y < finaly && center < m_SourceHeight; ++y,center+=ydiff) {
         int top = (int)floor(center - m_Filter->GetWidth()); // It's actually the half-width; This is, the filter's radius
         if(top < 0) { top = 0; }
         int bottom = (int)ceil(center + m_Filter->GetWidth());
@@ -300,7 +296,6 @@ void syBitmapCopier::ResampleRow(unsigned int y) {
     syFloatPixel* dst = &m_FullBuffer[y*m_DestWidth];
 
     if(m_SourceWidth == m_DestWidth) {
-        const unsigned long* srcrgba = (const unsigned long*)src;
         for(i = 0; i < m_SourceWidth; ++i) {
             dst[i].fromRGBA(ConvertPixel(m_SourceBitmap->GetPixel(src,i), m_SourceFmt,vcfRGB32));
         }

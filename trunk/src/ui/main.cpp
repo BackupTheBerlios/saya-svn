@@ -831,7 +831,7 @@ void AppFrame::Data::OpenRecentImport(unsigned int fileno) {
     if(fileno < 0) fileno = 0;
     if(fileno > 8) fileno = 8;
     ++fileno; // The list is one-based so we add 1.
-    #warning TODO: Implement AppFrame::Data::OpenRecentImport(unsigned int fileno)
+    //TODO: Implement AppFrame::Data::OpenRecentImport(unsigned int fileno)
 }
 
 void AppFrame::Data::OpenRecentFile(unsigned int fileno) {
@@ -866,23 +866,23 @@ void AppFrame::Data::OnNewProject(){
 }
 
 void AppFrame::Data::OnFileRevert(){
-    #warning TODO: Implement AppFrame::Data::OnFileRevert
+    //TODO: Implement AppFrame::Data::OnFileRevert
 }
 
 void AppFrame::Data::OnFileCapture(){
-    #warning TODO: Implement AppFrame::Data::OnFileCapture
+    //TODO: Implement AppFrame::Data::OnFileCapture
 }
 
 void AppFrame::Data::OnFileBatchCapture(){
-    #warning TODO: Implement AppFrame::Data::OnFileBatchCapture
+    //TODO: Implement AppFrame::Data::OnFileBatchCapture
 }
 
 void AppFrame::Data::OnFileInterpretFootage(){
-    #warning TODO: Implement AppFrame::Data::OnFileInterpretFootage
+    //TODO: Implement AppFrame::Data::OnFileInterpretFootage
 }
 
 void AppFrame::Data::OnFileTimecode(){
-    #warning TODO: Implement AppFrame::Data::OnFileTimecode
+    //TODO: Implement AppFrame::Data::OnFileTimecode
 }
 
 void AppFrame::Data::OnQuit(){
@@ -1393,51 +1393,51 @@ AppFrame::~AppFrame() {
 }
 
 bool AppFrame::IsClipSelected() {
-    #warning TODO: Implement AppFrame::IsClipSelected
+    //TODO: Implement AppFrame::IsClipSelected
     return false;
 }
 bool AppFrame::IsSelectionMultiple() {
-    #warning TODO: Implement AppFrame::IsSelectionMultiple
+    //TODO: Implement AppFrame::IsSelectionMultiple
     return false;
 }
 
 bool AppFrame::IsResourceClipSelected() {
-    #warning TODO: Implement AppFrame::IsResourceClipSelected
+    //TODO: Implement AppFrame::IsResourceClipSelected
     return false;
 }
 //
 bool AppFrame::IsTimelineActive() {
-    #warning TODO: Implement AppFrame::IsTimelineActive
+    //TODO: Implement AppFrame::IsTimelineActive
     return false;
 }
 
 bool AppFrame::IsResourceWindowActive() {
-    #warning TODO: Implement AppFrame::IsResourceWindowActive
+    //TODO: Implement AppFrame::IsResourceWindowActive
     return false;
 }
 bool AppFrame::IsMonitorActive() {
-    #warning TODO: Implement AppFrame::IsMonitorActive
+    //TODO: Implement AppFrame::IsMonitorActive
     return false;
 }
 bool AppFrame::IsRenderMonitorActive() {
-    #warning TODO: Implement AppFrame::IsRenderMonitorActive
+    //TODO: Implement AppFrame::IsRenderMonitorActive
     return false;
 }
 bool AppFrame::IsClipMonitorActive() {
-    #warning TODO: Implement AppFrame::IsClipMonitorActive
+    //TODO: Implement AppFrame::IsClipMonitorActive
     return false;
 }
 bool AppFrame::IsEffectsWindowActive() {
-    #warning TODO: Implement AppFrame::IsEffectsWindowActive
+    //TODO: Implement AppFrame::IsEffectsWindowActive
     return false;
 }
 bool AppFrame::IsTitleWindowActive() {
-    #warning TODO: Implement AppFrame::IsTitleWindowActive
+    //TODO: Implement AppFrame::IsTitleWindowActive
     return false;
 }
 
 bool AppFrame::IsClipboardSet() {
-    #warning TODO: Implement IsClipboardSet
+    //TODO: Implement IsClipboardSet
     return false;
 }
 

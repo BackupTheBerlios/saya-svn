@@ -102,7 +102,7 @@ bool FileVID::AllocateResources() {
         if(!AVSource::AllocateResources()) {
             result = false;
         } else {
-            #warning TODO implement the file part of FileVID::AllocateResources()
+            //TODO implement the file part of FileVID::AllocateResources()
             // Allocate Resources (open file) here
         }
     }
@@ -114,7 +114,7 @@ void FileVID::FreeResources() {
     if(m_Data->m_VirtualVID) {
         m_Data->ClearVirtualVID();
     } else {
-        #warning TODO implement the file part of FileVID::FreeResources()
+        //TODO implement the file part of FileVID::FreeResources()
         // Close file here
         AVSource::FreeResources();
     }
@@ -122,7 +122,7 @@ void FileVID::FreeResources() {
 }
 
 unsigned long FileVID::GetFrameIndex(avtime_t time) {
-    #warning TODO implement FileVID::GetFrameIndex(avtime_t time)
+    //TODO implement FileVID::GetFrameIndex(avtime_t time)
     // This is a stub.
     if(m_Data->m_VirtualVID) {
         return m_Data->m_VirtualVID->GetFrameIndex(time);
@@ -131,7 +131,7 @@ unsigned long FileVID::GetFrameIndex(avtime_t time) {
 }
 
 avtime_t FileVID::GetTimeFromFrameIndex(unsigned long  frame, bool fromend) {
-    #warning TODO implement FileVID::GetTimeFromFrameIndex(unsigned long  frame, bool fromend)
+    //TODO implement FileVID::GetTimeFromFrameIndex(unsigned long  frame, bool fromend)
     // This is a stub.
     if(m_Data->m_VirtualVID) {
         return m_Data->m_VirtualVID->GetTimeFromFrameIndex(frame, fromend);
@@ -143,7 +143,7 @@ void FileVID::LoadCurrentFrame() {
     if(m_Data->m_VirtualVID) {
         m_Data->m_VirtualVID->SendCurrentFrame(static_cast<syBitmap*>(0));
     } else {
-        #warning TODO implement FileVID::LoadCurrentFrame()
+        //TODO implement FileVID::LoadCurrentFrame()
         // TODO: Implement FileVID::LoadCurrentFrame
         if(m_Bitmap) {
             m_Bitmap->Clear();
@@ -155,7 +155,7 @@ avtime_t FileVID::SeekVideoResource(avtime_t time) {
     if(m_Data->m_VirtualVID) {
         return m_Data->m_VirtualVID->SeekVideo(time);
     } else {
-        #warning TODO implement FileVID::SeekResource(avtime_t time)
+        //TODO implement FileVID::SeekResource(avtime_t time)
         // This is a stub
         // here should go the CODEC call.
         return time;

@@ -229,7 +229,7 @@ void NewProjectDlg::Data::OnPressOk()
 {
     if (m_Ui->edNewPrjTitle->text().isEmpty()) return;
     if (m_Ui->edNewPrjFilename->text().isEmpty()) return;
-    #warning TODO: save data in a .xml or .json file through ProjectManager, close the dialog and open the project.
+    //TODO: save data in a .xml or .json file through ProjectManager, close the dialog and open the project.
 }
 
 void NewProjectDlg::Data::OnEditingFinished()

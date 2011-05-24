@@ -874,7 +874,7 @@ bool syBitmap::SaveToFile(const syString& filename, const char* mimetype) {
 }
 
 bool syBitmap::SaveToString(syString& dest, const char* mimetype) {
-    #warning TODO: Implement syBitmap::SaveToString
+    //TODO: Implement syBitmap::SaveToString
     return false;
 }
 

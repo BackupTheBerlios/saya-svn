@@ -118,7 +118,7 @@ bool CodecPluginFactory::RegisterPlugin(const char* name, CodecPluginFactoryFunc
 }
 
 void CodecPluginFactory::RegisterPlugins(const char* path) {
-    #warning TODO: Implement CodecPluginFactory::RegisterPlugins();
+    //TODO: Implement CodecPluginFactory::RegisterPlugins();
 }
 
 

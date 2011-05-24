@@ -523,7 +523,7 @@ void AVControllerData::PlaybackAudioInLoop() {
             if(m_Stop || syThread::MustAbort() || !m_AudioEnabled) return;
             if(!m_AudioInThread->SelfPause()) return;
         }
-        #warning TODO: Implement AVControllerData::PlaybackAudioInLoop()
+        //TODO: Implement AVControllerData::PlaybackAudioInLoop()
         syMicroSleep(10); // Remove this line after PlaybackAudioInLoop() has been implemented.
     }
 }
