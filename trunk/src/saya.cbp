@@ -69,6 +69,8 @@
 		<Unit filename="main.h" />
 		<Unit filename="plugins/codecs/imgreader.cpp" />
 		<Unit filename="plugins/codecs/imgreader.h" />
+		<Unit filename="plugins/codecs/imgwriter.cpp" />
+		<Unit filename="plugins/codecs/imgwriter.h" />
 		<Unit filename="plugins/demovideo.cpp" />
 		<Unit filename="resources/bitmapdialog.ui" />
 		<Unit filename="resources/mainwindow.ui" />
