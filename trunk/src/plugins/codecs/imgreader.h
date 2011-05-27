@@ -34,6 +34,7 @@ class syImgReaderPlugin : public CodecPlugin {
         CodecReadingSkills CanReadFile(const syString& filename);
         CodecReadingSkills CanReadMimeType(const syString& mimetype);
         CodecWritingSkills CanWriteFile(const syString& filetype, const syString& videocodec, const syString& audiocodec);
+        CodecInstance* OpenString(const syString& data, const char* mimetype);
         CodecInstance* OpenFile(const syString& filename);
 
     protected:

@@ -23,7 +23,7 @@
 class syImgReaderCodec : public CodecInstance {
         friend class syImgReaderPlugin;
     public:
-        syImgReaderCodec(syImgReaderPlugin* parent, const syString& filename);
+        syImgReaderCodec(syImgReaderPlugin* parent, const syString& filename = syEmptyString);
         virtual ~syImgReaderCodec();
         virtual bool OpenInput(const syString filename = syEmptyString);
         virtual bool OpenMemoryInput(const unsigned char* buf, unsigned int size, const char* mimetype);
@@ -307,6 +307,18 @@ void syImgReaderPlugin::OnLoad() {
 }
 
 void syImgReaderPlugin::OnUnload() {
+}
+
+CodecInstance* syImgReaderPlugin::OpenString(const syString& data, const char* mimetype) {
+    CodecInstance* result = 0;
+    if (CanReadMimeType(syString(mimetype,true))) {
+        result = new syImgReaderCodec(this);
+        if(result && !result->OpenMemoryInput((const unsigned char*)(data.c_str()), data.size(), mimetype)) {
+            delete result;
+            result = 0;
+        }
+    }
+    return result;
 }
 
 CodecInstance* syImgReaderPlugin::OpenFile(const syString& filename) {

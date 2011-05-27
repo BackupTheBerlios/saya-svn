@@ -67,6 +67,25 @@ syImgWriterCodec::~syImgWriterCodec() {
     m_Buffer = 0;
 }
 
+bool syImgWriterCodec::OpenOutput(const BasicAVSettings* settings, const syString filename) {
+    return false;
+    // TODO: Implement syImgWriterCodec::OpenOutput
+}
+
+bool syImgWriterCodec::OpenMemoryOutput(const BasicAVSettings* settings, syString& dest) {
+    return false;
+    // TODO: Implement syImgWriterCodec::OpenMemoryOutput
+}
+
+void syImgWriterCodec::CloseOutput() {
+    // TODO: Implement syImgWriterCodec::CloseOutput
+}
+
+avtime_t syImgWriterCodec::SaveCurrentFrame(const syBitmap* src) {
+    return 0;
+    // TODO: Implement syImgWriterCodec::SaveCurrentFrame
+}
+
 
 // --------------------
 // end syImgWriterCodec
